@@ -7,11 +7,12 @@ import { commit, commitBatched, getState, setState, toast, useStore } from './st
 import { addSection, insertWidget, locate, makeWidget, updateSettings } from './tree';
 import { allWidgets, getWidget } from './registry';
 import { COLUMN_CONTROLS, SECTION_CONTROLS } from './widgets';
+import { locale, t } from './i18n';
 
 const TABS = [
-    { id: 'content', label: 'Contenu' },
-    { id: 'style', label: 'Style' },
-    { id: 'advanced', label: 'Avancé' },
+    { id: 'content', label: t('Contenu') },
+    { id: 'style', label: t('Style') },
+    { id: 'advanced', label: t('Avancé') },
 ];
 
 export default function Panel({ boot }) {
@@ -20,19 +21,19 @@ export default function Panel({ boot }) {
     const selected = useStore((s) => s.selected);
 
     const tabs = [
-        { id: 'elements', label: 'Éléments' },
-        { id: 'settings', label: 'Réglages', disabled: !selected },
-        { id: 'ai', label: '✨ IA' },
-        { id: 'history', label: 'Historique' },
+        { id: 'elements', label: t('Éléments') },
+        { id: 'settings', label: t('Réglages'), disabled: !selected },
+        { id: 'ai', label: t('✨ IA') },
+        { id: 'history', label: t('Historique') },
     ];
 
     return (
         <aside className="flex w-80 shrink-0 flex-col border-r border-slate-200 bg-white">
             <div className="flex border-b border-slate-200">
-                {tabs.map((t) => (
-                    <button key={t.id} disabled={t.disabled} onClick={() => setState({ panel: t.id })}
-                        className={`flex-1 border-b-2 px-1 py-2.5 text-[13px] font-medium transition disabled:opacity-40 ${panel === t.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-                        {t.label}
+                {tabs.map((tab) => (
+                    <button key={tab.id} disabled={tab.disabled} onClick={() => setState({ panel: tab.id })}
+                        className={`flex-1 border-b-2 px-1 py-2.5 text-[13px] font-medium transition disabled:opacity-40 ${panel === tab.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                        {tab.label}
                     </button>
                 ))}
             </div>
@@ -63,7 +64,7 @@ function Elements() {
 
     return (
         <div className="p-4">
-            <p className="mb-3 text-xs text-slate-500">Glissez un élément sur la page, ou cliquez pour l’ajouter.</p>
+            <p className="mb-3 text-xs text-slate-500">{t('Glissez un élément sur la page, ou cliquez pour l’ajouter.')}</p>
             <div className="grid grid-cols-2 gap-2">
                 {allWidgets().map((def) => ({ type: def.type, def })).map(({ type, def }) => (
                     <button key={type} draggable
@@ -85,18 +86,18 @@ function Settings({ id, boot }) {
     const content = useStore((s) => s.content);
     const [tab, setTab] = useState('content');
     const loc = locate(content, id);
-    if (!loc) return <p className="p-4 text-sm text-slate-500">Élément introuvable.</p>;
+    if (!loc) return <p className="p-4 text-sm text-slate-500">{t('Élément introuvable.')}</p>;
 
     const { node, kind } = loc;
     const controls = kind === 'section' ? SECTION_CONTROLS : kind === 'column' ? COLUMN_CONTROLS : (getWidget(node.type)?.controls ?? []);
     const visible = controls.filter((c) => (c.tab ?? 'content') === tab);
-    const title = kind === 'section' ? 'Section' : kind === 'column' ? 'Colonne' : (getWidget(node.type)?.label ?? node.type);
+    const title = kind === 'section' ? t('Section') : kind === 'column' ? t('Colonne') : (getWidget(node.type)?.label ?? node.type);
 
     const onChange = (key, value) => commitBatched(updateSettings(getState().content, id, { [key]: value }));
 
     const crumbs = [
-        { id: loc.section.id, label: 'Section' },
-        loc.column && { id: loc.column.id, label: 'Colonne' },
+        { id: loc.section.id, label: t('Section') },
+        loc.column && { id: loc.column.id, label: t('Colonne') },
         loc.widget && { id: loc.widget.id, label: getWidget(loc.widget.type)?.label ?? loc.widget.type },
     ].filter(Boolean);
 
@@ -114,16 +115,16 @@ function Settings({ id, boot }) {
                 <h2 className="font-semibold">{title}</h2>
             </div>
             <div className="flex border-b border-slate-200 px-2">
-                {TABS.map((t) => (
-                    <button key={t.id} onClick={() => setTab(t.id)}
-                        className={`border-b-2 px-3 py-2 text-xs font-medium ${tab === t.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-                        {t.label}
+                {TABS.map((tb) => (
+                    <button key={tb.id} onClick={() => setTab(tb.id)}
+                        className={`border-b-2 px-3 py-2 text-xs font-medium ${tab === tb.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                        {tb.label}
                     </button>
                 ))}
             </div>
             <div className="space-y-4 p-4">
                 {tab === 'content' && kind === 'widget' && <AiTextTools boot={boot} widget={node} />}
-                {visible.length === 0 && <p className="text-xs text-slate-500">Aucun réglage dans cet onglet.</p>}
+                {visible.length === 0 && <p className="text-xs text-slate-500">{t('Aucun réglage dans cet onglet.')}</p>}
                 {visible.map((c) => (
                     <Control key={c.key} control={c} value={node.settings[c.key]} onChange={onChange} urls={urls} />
                 ))}
@@ -137,12 +138,12 @@ function History({ urls }) {
     const [loading, setLoading] = useState(null);
 
     const restore = async (rev) => {
-        if (!confirm('Remplacer le contenu actuel par cette version ? Vous pourrez annuler avec Ctrl+Z.')) return;
+        if (!confirm(t('Remplacer le contenu actuel par cette version ? Vous pourrez annuler avec Ctrl+Z.'))) return;
         setLoading(rev.id);
         try {
             const { content } = await api(urls.restore.replace('__ID__', rev.id), { method: 'POST' });
             commit(content, { selected: null, panel: 'elements' });
-            toast('Version restaurée. Enregistrez pour la conserver.');
+            toast(t('Version restaurée. Enregistrez pour la conserver.'));
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -152,17 +153,17 @@ function History({ urls }) {
 
     return (
         <div className="p-4">
-            <p className="mb-3 text-xs text-slate-500">Chaque enregistrement crée une version. Les 30 dernières sont conservées.</p>
-            {revisions.length === 0 && <p className="text-sm text-slate-500">Aucune version enregistrée.</p>}
+            <p className="mb-3 text-xs text-slate-500">{t('Chaque enregistrement crée une version. Les 30 dernières sont conservées.')}</p>
+            {revisions.length === 0 && <p className="text-sm text-slate-500">{t('Aucune version enregistrée.')}</p>}
             <ul className="space-y-1">
                 {revisions.map((r) => (
                     <li key={r.id} className="flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-slate-50">
                         <div className="min-w-0">
                             <p className="text-sm font-medium">{r.note}</p>
-                            <p className="truncate text-xs text-slate-500">{new Date(r.created_at).toLocaleString('fr-FR')} · {r.user?.name ?? '—'}</p>
+                            <p className="truncate text-xs text-slate-500">{new Date(r.created_at).toLocaleString(locale())} · {r.user?.name ?? '—'}</p>
                         </div>
                         <button className="shrink-0 text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50" disabled={loading === r.id} onClick={() => restore(r)}>
-                            Restaurer
+                            {t('Restaurer')}
                         </button>
                     </li>
                 ))}

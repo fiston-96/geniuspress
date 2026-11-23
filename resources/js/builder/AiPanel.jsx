@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from './api';
 import { commit, getState, setState, toast } from './store';
 import { updateSettings } from './tree';
+import { t } from './i18n';
 
 const box = 'rounded-xl border border-slate-200 bg-white p-4';
 const primary = 'inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50';
@@ -19,11 +20,11 @@ export function Spinner({ label }) {
 export function NotConfigured({ boot }) {
     return (
         <div className="m-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-semibold">L’assistant IA n’est pas encore activé.</p>
-            <p className="mt-1">Ajoutez une clé API Anthropic (Claude) et une présentation de votre organisation dans les réglages du site.</p>
+            <p className="font-semibold">{t('L’assistant IA n’est pas encore activé.')}</p>
+            <p className="mt-1">{t('Ajoutez une clé API Anthropic (Claude) et une présentation de votre organisation dans les réglages du site.')}</p>
             {boot.urls.aiSettings
-                ? <a href={boot.urls.aiSettings} className="mt-3 inline-block font-semibold text-amber-900 underline">Ouvrir les réglages</a>
-                : <p className="mt-2">Demandez à un administrateur de le faire.</p>}
+                ? <a href={boot.urls.aiSettings} className="mt-3 inline-block font-semibold text-amber-900 underline">{t('Ouvrir les réglages')}</a>
+                : <p className="mt-2">{t('Demandez à un administrateur de le faire.')}</p>}
         </div>
     );
 }
@@ -54,7 +55,7 @@ function Generate({ boot }) {
             const sections = mode === 'replace' ? r.content.sections : [...current.sections, ...r.content.sections];
             commit({ ...current, sections }, { selected: null });
             setMeta({ meta_title: r.meta_title, meta_description: r.meta_description });
-            toast(`Page générée : ${r.content.sections.length} sections. Ctrl+Z pour annuler.`, 'success');
+            toast(t('Page générée : :count sections. Ctrl+Z pour annuler.', { count: r.content.sections.length }), 'success');
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -64,18 +65,18 @@ function Generate({ boot }) {
 
     return (
         <section className={box}>
-            <h3 className="font-semibold">✨ Créer la page avec l’IA</h3>
-            <p className="mt-1 text-xs text-slate-500">Décrivez la page voulue : objectif, public, sections, appel à l’action.</p>
+            <h3 className="font-semibold">{t('✨ Créer la page avec l’IA')}</h3>
+            <p className="mt-1 text-xs text-slate-500">{t('Décrivez la page voulue : objectif, public, sections, appel à l’action.')}</p>
             <textarea className="mt-3 block w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 rows={5} maxLength={4000} value={brief} onChange={(e) => setBrief(e.target.value)}
-                placeholder="Ex. : Page d’accueil pour notre ONG d’éducation à Goma. Présenter notre mission, nos 3 programmes, nos chiffres clés, un appel aux dons et un formulaire de contact." />
+                placeholder={t('Ex. : Page d’accueil pour notre ONG d’éducation à Goma. Présenter notre mission, nos 3 programmes, nos chiffres clés, un appel aux dons et un formulaire de contact.')} />
             <div className="mt-2 flex gap-1 rounded-md bg-slate-100 p-0.5 text-xs">
-                {[['replace', 'Remplacer la page'], ['append', 'Ajouter à la fin']].map(([v, l]) => (
+                {[['replace', t('Remplacer la page')], ['append', t('Ajouter à la fin')]].map(([v, l]) => (
                     <button key={v} onClick={() => setMode(v)} className={`flex-1 rounded px-2 py-1 font-medium ${mode === v ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600'}`}>{l}</button>
                 ))}
             </div>
             <button className={`${primary} mt-3 w-full`} disabled={busy || brief.trim().length < 10} onClick={run}>
-                {busy ? <Spinner label="Construction de la page… (30 à 90 s)" /> : 'Générer'}
+                {busy ? <Spinner label={t('Construction de la page… (30 à 90 s)')} /> : 'Générer'}
             </button>
             {meta && (meta.meta_title || meta.meta_description) && <MetaSuggestion boot={boot} meta={meta} onDone={() => setMeta(null)} />}
         </section>
@@ -88,7 +89,7 @@ function MetaSuggestion({ boot, meta, onDone }) {
         setBusy(true);
         try {
             await api(boot.urls.meta, { method: 'PUT', body: meta });
-            toast('Titre et description SEO enregistrés.', 'success');
+            toast(t('Titre et description SEO enregistrés.'), 'success');
             onDone();
         } catch (e) {
             toast(e.message, 'error');
@@ -98,20 +99,20 @@ function MetaSuggestion({ boot, meta, onDone }) {
     };
     return (
         <div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs">
-            <p className="font-semibold text-slate-700">Référencement proposé</p>
+            <p className="font-semibold text-slate-700">{t('Référencement proposé')}</p>
             <p className="mt-1 font-medium text-blue-700">{meta.meta_title}</p>
             <p className="text-slate-600">{meta.meta_description}</p>
-            <button className={`${secondary} mt-2`} disabled={busy} onClick={apply}>Appliquer</button>
+            <button className={`${secondary} mt-2`} disabled={busy} onClick={apply}>{t('Appliquer')}</button>
         </div>
     );
 }
 
 const SEVERITY = {
-    high: ['Important', 'bg-red-50 text-red-700'],
-    medium: ['Moyen', 'bg-amber-50 text-amber-700'],
-    low: ['Mineur', 'bg-slate-100 text-slate-600'],
+    high: [t('Important'), 'bg-red-50 text-red-700'],
+    medium: [t('Moyen'), 'bg-amber-50 text-amber-700'],
+    low: [t('Mineur'), 'bg-slate-100 text-slate-600'],
 };
-const CATEGORY = { seo: 'SEO', accessibility: 'Accessibilité', content: 'Contenu' };
+const CATEGORY = { seo: 'SEO', accessibility: t('Accessibilité'), content: t('Contenu') };
 
 function Audit({ boot }) {
     const [busy, setBusy] = useState(false);
@@ -133,16 +134,16 @@ function Audit({ boot }) {
         for (const a of report.image_alts) content = updateSettings(content, a.widget_id, { alt: a.alt });
         commit(content);
         setReport({ ...report, image_alts: [] });
-        toast('Textes alternatifs ajoutés aux images.', 'success');
+        toast(t('Textes alternatifs ajoutés aux images.'), 'success');
     };
 
     const color = report ? (report.score >= 80 ? 'text-emerald-600' : report.score >= 50 ? 'text-amber-600' : 'text-red-600') : '';
 
     return (
         <section className={box}>
-            <h3 className="font-semibold">🔎 SEO et accessibilité</h3>
-            <p className="mt-1 text-xs text-slate-500">L’IA vérifie le référencement, les titres, les contrastes et les images, puis propose des corrections.</p>
-            <button className={`${primary} mt-3 w-full`} disabled={busy} onClick={run}>{busy ? <Spinner label="Analyse en cours…" /> : report ? 'Relancer l’analyse' : 'Analyser la page'}</button>
+            <h3 className="font-semibold">{t('🔎 SEO et accessibilité')}</h3>
+            <p className="mt-1 text-xs text-slate-500">{t('L’IA vérifie le référencement, les titres, les contrastes et les images, puis propose des corrections.')}</p>
+            <button className={`${primary} mt-3 w-full`} disabled={busy} onClick={run}>{busy ? <Spinner label={t('Analyse en cours…')} /> : report ? 'Relancer l’analyse' : 'Analyser la page'}</button>
             {report && (
                 <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-3">
@@ -152,9 +153,9 @@ function Audit({ boot }) {
                     {(report.meta_title || report.meta_description) && <MetaSuggestion boot={boot} meta={{ meta_title: report.meta_title, meta_description: report.meta_description }} onDone={() => setReport({ ...report, meta_title: '', meta_description: '' })} />}
                     {report.image_alts.length > 0 && (
                         <div className="rounded-lg bg-slate-50 p-3 text-xs">
-                            <p className="font-semibold text-slate-700">Textes alternatifs proposés pour {report.image_alts.length} image(s)</p>
+                            <p className="font-semibold text-slate-700">{t('Textes alternatifs proposés pour :count image(s)', { count: report.image_alts.length })}</p>
                             <ul className="mt-1 list-disc pl-4 text-slate-600">{report.image_alts.map((a) => <li key={a.widget_id}>{a.alt}</li>)}</ul>
-                            <button className={`${secondary} mt-2`} onClick={applyAlts}>Appliquer aux images</button>
+                            <button className={`${secondary} mt-2`} onClick={applyAlts}>{t('Appliquer aux images')}</button>
                         </div>
                     )}
                     <ul className="space-y-2">
@@ -182,12 +183,12 @@ function Translate({ boot }) {
     const [done, setDone] = useState(boot.translations ?? []);
 
     const run = async () => {
-        if (getState().dirty && !confirm('La traduction part de la dernière version enregistrée. Continuer sans enregistrer vos modifications en cours ?')) return;
+        if (getState().dirty && !confirm(t('La traduction part de la dernière version enregistrée. Continuer sans enregistrer vos modifications en cours ?'))) return;
         setBusy(true);
         try {
             const r = await api(boot.urls.aiTranslate, { method: 'POST', body: { locale } });
-            setDone((prev) => [...prev.filter((t) => t.locale !== r.page.locale), { ...r.page, builder_url: r.builder_url }]);
-            toast(`Traduction « ${r.page.title} » créée en brouillon.`, 'success');
+            setDone((prev) => [...prev.filter((tr) => tr.locale !== r.page.locale), { ...r.page, builder_url: r.builder_url }]);
+            toast(t('Traduction « :title » créée en brouillon.', { title: r.page.title }), 'success');
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -197,26 +198,26 @@ function Translate({ boot }) {
 
     return (
         <section className={box}>
-            <h3 className="font-semibold">🌍 Traduire la page</h3>
+            <h3 className="font-semibold">{t('🌍 Traduire la page')}</h3>
             {others.length === 0 ? (
-                <p className="mt-1 text-xs text-slate-500">Votre site n’a qu’une langue. Ajoutez-en d’autres dans les réglages (anglais, swahili, lingala…).</p>
+                <p className="mt-1 text-xs text-slate-500">{t('Votre site n’a qu’une langue. Ajoutez-en d’autres dans les réglages (anglais, swahili, lingala…).')}</p>
             ) : (
                 <>
-                    <p className="mt-1 text-xs text-slate-500">Crée une copie traduite de la page, en brouillon, avec la même mise en page.</p>
+                    <p className="mt-1 text-xs text-slate-500">{t('Crée une copie traduite de la page, en brouillon, avec la même mise en page.')}</p>
                     <div className="mt-3 flex gap-2">
                         <select className="min-w-0 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm" value={locale} onChange={(e) => setLocale(e.target.value)}>
                             {others.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
                         </select>
-                        <button className={primary} disabled={busy || !locale} onClick={run}>{busy ? <Spinner label="…" /> : 'Traduire'}</button>
+                        <button className={primary} disabled={busy || !locale} onClick={run}>{busy ? <Spinner label="…" /> : t('Traduire')}</button>
                     </div>
                 </>
             )}
             {done.length > 0 && (
                 <ul className="mt-3 space-y-1 text-xs">
-                    {done.map((t) => (
-                        <li key={t.locale} className="flex items-center justify-between gap-2">
-                            <span className="truncate"><b className="uppercase">{t.locale}</b> · {t.title}</span>
-                            <a href={t.builder_url} className="shrink-0 font-semibold text-indigo-600" onClick={(e) => { if (getState().dirty && !confirm('Quitter sans enregistrer ?')) e.preventDefault(); else setState({ dirty: false }); }}>Ouvrir</a>
+                    {done.map((tr) => (
+                        <li key={tr.locale} className="flex items-center justify-between gap-2">
+                            <span className="truncate"><b className="uppercase">{tr.locale}</b> · {tr.title}</span>
+                            <a href={tr.builder_url} className="shrink-0 font-semibold text-indigo-600" onClick={(e) => { if (getState().dirty && !confirm(t('Quitter sans enregistrer ?'))) e.preventDefault(); else setState({ dirty: false }); }}>{t('Ouvrir')}</a>
                         </li>
                     ))}
                 </ul>

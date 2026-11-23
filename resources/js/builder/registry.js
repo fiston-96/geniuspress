@@ -1,11 +1,12 @@
+import { t } from './i18n';
 // Registre des widgets du builder (cœur + plugins).
 //
 // Un widget se déclare avec :
 //   registerWidget('acme-citation', {
-//     label: 'Citation',
+//     label: t('Citation'),
 //     icon: 'M7 7h4v4H7z',                      // tracé SVG 24×24 (facultatif)
 //     defaults: { text: '…' },                  // valeurs à l'ajout
-//     controls: [{ key: 'text', label: 'Texte', type: 'textarea' }, …],
+//     controls: [{ key: 'text', label: t('Texte'), type: 'textarea' }, …],
 //     preview: (settings, { h }) => h('blockquote', null, settings.text),
 //     css: (settings, { rule, mobile, px, sel }) => rule(sel, { color: settings.color }),
 //   });
@@ -15,9 +16,9 @@
 // 'advanced' pour les ranger dans un autre onglet.
 
 const ADVANCED = [
-    { key: 'margin_bottom', label: 'Espace en dessous (px)', type: 'slider', min: 0, max: 200, tab: 'advanced' },
-    { key: 'hide_desktop', label: 'Masquer sur ordinateur', type: 'toggle', tab: 'advanced' },
-    { key: 'hide_mobile', label: 'Masquer sur mobile', type: 'toggle', tab: 'advanced' },
+    { key: 'margin_bottom', label: t('Espace en dessous (px)'), type: 'slider', min: 0, max: 200, tab: 'advanced' },
+    { key: 'hide_desktop', label: t('Masquer sur ordinateur'), type: 'toggle', tab: 'advanced' },
+    { key: 'hide_mobile', label: t('Masquer sur mobile'), type: 'toggle', tab: 'advanced' },
 ];
 
 const DEFAULT_ICON = 'M4 4h16v16H4zM9 9h6v6H9z';

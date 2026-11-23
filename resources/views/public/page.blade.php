@@ -31,7 +31,7 @@
 </head>
 <body>
     @if (! empty($preview) && empty($embedded))
-        <div class="gp-preview-bar">Aperçu — cette page n’est pas publiée</div>
+        <div class="gp-preview-bar">{{ __('Aperçu — cette page n’est pas publiée') }}</div>
     @endif
     <main>{!! $rendered['html'] !!}</main>
     @foreach ($plugins->assets('site_js') as $src)<script src="{{ $src }}" defer></script>@endforeach

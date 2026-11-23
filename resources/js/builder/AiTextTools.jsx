@@ -3,6 +3,7 @@ import { api } from './api';
 import { Spinner } from './AiPanel';
 import { commit, getState, toast } from './store';
 import { updateSettings } from './tree';
+import { t } from './i18n';
 
 // Champ texte modifiable par l'IA pour chaque type de widget.
 export const AI_FIELDS = {
@@ -12,12 +13,12 @@ export const AI_FIELDS = {
 };
 
 const ACTIONS = [
-    ['improve', 'Améliorer'],
-    ['shorten', 'Raccourcir'],
-    ['expand', 'Développer'],
-    ['fix', 'Corriger'],
-    ['formal', 'Ton pro'],
-    ['friendly', 'Ton chaleureux'],
+    ['improve', t('Améliorer')],
+    ['shorten', t('Raccourcir')],
+    ['expand', t('Développer')],
+    ['fix', t('Corriger')],
+    ['formal', t('Ton pro')],
+    ['friendly', t('Ton chaleureux')],
 ];
 
 /** Autres textes de la page, pour que l'IA reste cohérente. */
@@ -27,8 +28,8 @@ function pageContext(excludeId) {
         for (const c of s.columns) {
             for (const w of c.widgets) {
                 if (w.id === excludeId) continue;
-                const t = w.settings.text ?? (w.settings.html ? w.settings.html.replace(/<[^>]+>/g, ' ') : null);
-                if (t) parts.push(t.replace(/\s+/g, ' ').trim());
+                const txt = w.settings.text ?? (w.settings.html ? w.settings.html.replace(/<[^>]+>/g, ' ') : null);
+                if (txt) parts.push(txt.replace(/\s+/g, ' ').trim());
             }
         }
     }
@@ -52,7 +53,7 @@ export default function AiTextTools({ boot, widget }) {
                 body: { action, format: field.format, text: current, instructions, context: pageContext(widget.id), page_id: boot.page.id },
             });
             commit(updateSettings(getState().content, widget.id, { [field.key]: r.text }));
-            toast('Texte mis à jour. Ctrl+Z pour revenir en arrière.', 'success');
+            toast(t('Texte mis à jour. Ctrl+Z pour revenir en arrière.'), 'success');
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -62,15 +63,15 @@ export default function AiTextTools({ boot, widget }) {
 
     return (
         <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3">
-            <p className="mb-2 text-xs font-semibold text-indigo-900">✨ Assistant de rédaction</p>
+            <p className="mb-2 text-xs font-semibold text-indigo-900">{t('✨ Assistant de rédaction')}</p>
             <div className="flex gap-1.5">
                 <input className="min-w-0 flex-1 rounded-md border border-indigo-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
                     value={instructions} onChange={(e) => setInstructions(e.target.value)} maxLength={1000}
-                    placeholder={hasText ? 'Consigne (facultatif)' : 'Que doit-on écrire ?'}
+                    placeholder={hasText ? t('Consigne (facultatif)') : t('Que doit-on écrire ?')}
                     onKeyDown={(e) => { if (e.key === 'Enter' && instructions.trim()) run('write'); }} />
                 <button className="rounded-md bg-indigo-600 px-2.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
                     disabled={!!busy || (!instructions.trim() && !hasText)} onClick={() => run('write')}>
-                    {busy === 'write' ? <Spinner /> : 'Écrire'}
+                    {busy === 'write' ? <Spinner /> : t('Écrire')}
                 </button>
             </div>
             {hasText && (

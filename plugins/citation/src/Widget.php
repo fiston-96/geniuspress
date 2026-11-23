@@ -14,7 +14,7 @@ class Widget extends BaseWidget
 
     public function label(): string
     {
-        return 'Citation';
+        return __('Citation');
     }
 
     /** Réglages autorisés : tout le reste est supprimé avant l'enregistrement. */

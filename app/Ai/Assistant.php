@@ -87,7 +87,7 @@ class Assistant
     public function rewrite(?Page $page, string $action, string $format, string $current, string $instructions = '', string $context = ''): string
     {
         $locale = $page?->locale ?? $this->defaultLocale();
-        $task = self::TEXT_ACTIONS[$action] ?? throw new AiException('Action inconnue.');
+        $task = self::TEXT_ACTIONS[$action] ?? throw new AiException(__('Action inconnue.'));
         $formatRule = $format === 'html'
             ? 'Return simple HTML using only <p>, <strong>, <em>, <ul>, <ol>, <li> and <a href>. No headings, no inline styles.'
             : 'Return plain text only, on a single line, without quotes or markdown. Keep it short (a heading or button label).';
@@ -268,7 +268,7 @@ class Assistant
     private function call(string $action, ?Page $page, string $system, array $content, array $schema, string $effort, int $maxTokens): array
     {
         if (! $this->llm->isConfigured()) {
-            throw new AiException('L’assistant IA n’est pas configuré : ajoutez une clé API Anthropic dans Réglages.');
+            throw new AiException(__('L’assistant IA n’est pas configuré : ajoutez une clé API Anthropic dans Réglages.'));
         }
 
         $started = microtime(true);
@@ -290,7 +290,7 @@ class Assistant
             throw $e;
         } catch (Throwable $e) {
             AiRequest::create($log + ['status' => 'error', 'error' => Str::limit($e->getMessage(), 490), 'duration_ms' => (int) ((microtime(true) - $started) * 1000)]);
-            throw $e instanceof AiException ? $e : new AiException('L’assistant IA a rencontré une erreur. Réessayez.', 0, $e);
+            throw $e instanceof AiException ? $e : new AiException(__('L’assistant IA a rencontré une erreur. Réessayez.'), 0, $e);
         }
     }
 

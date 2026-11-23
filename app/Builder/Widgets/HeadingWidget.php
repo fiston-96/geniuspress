@@ -8,7 +8,7 @@ class HeadingWidget extends Widget
 {
     public function type(): string { return 'heading'; }
 
-    public function label(): string { return 'Titre'; }
+    public function label(): string { return __('Titre'); }
 
     public function rules(): array
     {

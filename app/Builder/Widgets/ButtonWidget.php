@@ -8,7 +8,7 @@ class ButtonWidget extends Widget
 {
     public function type(): string { return 'button'; }
 
-    public function label(): string { return 'Bouton'; }
+    public function label(): string { return __('Bouton'); }
 
     public function rules(): array
     {

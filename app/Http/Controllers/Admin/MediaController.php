@@ -32,11 +32,11 @@ class MediaController extends Controller
 
         $file = $request->file('file');
         $ext = strtolower($file->guessExtension() ?: $file->getClientOriginalExtension());
-        abort_unless(in_array($ext, explode(',', self::MIMES), true), 422, 'Type de fichier non autorisé.');
+        abort_unless(in_array($ext, explode(',', self::MIMES), true), 422, __('Type de fichier non autorisé.'));
 
         // Les SVG peuvent contenir du JavaScript : on refuse ceux qui en contiennent.
         if ($ext === 'svg' && preg_match('/<script|on\w+\s*=|javascript:/i', (string) file_get_contents($file->getRealPath()))) {
-            abort(422, 'Ce fichier SVG contient du code et a été refusé.');
+            abort(422, __('Ce fichier SVG contient du code et a été refusé.'));
         }
 
         $name = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'fichier';
@@ -58,14 +58,14 @@ class MediaController extends Controller
 
         return $request->wantsJson()
             ? response()->json($media, 201)
-            : back()->with('status', 'Fichier ajouté.');
+            : back()->with('status', __('Fichier ajouté.'));
     }
 
     public function update(Request $request, Media $media)
     {
         $media->update($request->validate(['alt' => ['nullable', 'string', 'max:300']]));
 
-        return $request->wantsJson() ? $media : back()->with('status', 'Texte alternatif enregistré.');
+        return $request->wantsJson() ? $media : back()->with('status', __('Texte alternatif enregistré.'));
     }
 
     public function destroy(Request $request, Media $media)
@@ -73,6 +73,6 @@ class MediaController extends Controller
         Storage::disk($media->disk)->delete($media->path);
         $media->delete();
 
-        return $request->wantsJson() ? response()->noContent() : back()->with('status', 'Fichier supprimé.');
+        return $request->wantsJson() ? response()->noContent() : back()->with('status', __('Fichier supprimé.'));
     }
 }

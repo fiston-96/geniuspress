@@ -30,10 +30,10 @@ class PluginController extends Controller
         } catch (Throwable $e) {
             report($e);
 
-            return back()->with('error', "Impossible d’activer « {$slug} » : ".$e->getMessage());
+            return back()->with('error', __('Impossible d’activer « :plugin » : :error', ['plugin' => $slug, 'error' => $e->getMessage()]));
         }
 
-        return back()->with('status', 'Plugin activé.');
+        return back()->with('status', __('Plugin activé.'));
     }
 
     public function deactivate(string $slug)
@@ -41,6 +41,6 @@ class PluginController extends Controller
         abort_unless($this->plugins->find($slug), 404);
         $this->plugins->deactivate($slug);
 
-        return back()->with('status', 'Plugin désactivé. Ses widgets restent dans vos pages mais ne s’affichent plus.');
+        return back()->with('status', __('Plugin désactivé. Ses widgets restent dans vos pages mais ne s’affichent plus.'));
     }
 }

@@ -66,7 +66,7 @@ class PageController extends Controller
             $page->save();
         });
 
-        return back()->with('status', 'Page enregistrée.');
+        return back()->with('status', __('Page enregistrée.'));
     }
 
     public function builder(Page $page)
@@ -138,7 +138,7 @@ class PageController extends Controller
         if (is_string($content)) {
             $content = json_decode($content, true);
         }
-        abort_unless(is_array($content), 422, 'Contenu invalide.');
+        abort_unless(is_array($content), 422, __('Contenu invalide.'));
         $page->content = $content;
 
         return view('public.page', [
@@ -158,10 +158,10 @@ class PageController extends Controller
 
     public function destroy(Page $page)
     {
-        abort_if($page->is_home, 422, 'Impossible de supprimer la page d’accueil.');
+        abort_if($page->is_home, 422, __('Impossible de supprimer la page d’accueil.'));
         $page->delete();
 
-        return redirect()->route('admin.pages.index')->with('status', 'Page mise à la corbeille.');
+        return redirect()->route('admin.pages.index')->with('status', __('Page mise à la corbeille.'));
     }
 
     private function validated(Request $request, ?Page $page = null): array
@@ -180,8 +180,8 @@ class PageController extends Controller
             'meta_title' => ['nullable', 'string', 'max:190'],
             'meta_description' => ['nullable', 'string', 'max:320'],
         ], [
-            'slug.unique' => 'Une autre page utilise déjà cette adresse.',
-            'slug.not_in' => 'Cette adresse est réservée.',
+            'slug.unique' => __('Une autre page utilise déjà cette adresse.'),
+            'slug.not_in' => __('Cette adresse est réservée.'),
         ]);
     }
 

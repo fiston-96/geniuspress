@@ -22,7 +22,7 @@ class LoginController extends Controller
         ]);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            throw ValidationException::withMessages(['email' => 'Adresse e-mail ou mot de passe incorrect.']);
+            throw ValidationException::withMessages(['email' => __('Adresse e-mail ou mot de passe incorrect.')]);
         }
 
         $request->session()->regenerate();

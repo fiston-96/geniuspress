@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import MediaPicker from './MediaPicker';
+import { t } from './i18n';
 
 const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
 
@@ -9,7 +10,7 @@ function Label({ children, onReset, hasValue }) {
         <div className="mb-1 flex items-center justify-between">
             <span className="text-xs font-medium text-slate-600">{children}</span>
             {hasValue && onReset && (
-                <button className="text-[11px] text-slate-400 hover:text-slate-700" onClick={onReset} title="Revenir à la valeur par défaut">Réinitialiser</button>
+                <button className="text-[11px] text-slate-400 hover:text-slate-700" onClick={onReset} title={t('Revenir à la valeur par défaut')}>{t('Réinitialiser')}</button>
             )}
         </div>
     );
@@ -77,7 +78,7 @@ export function Control({ control, value, onChange, urls, onPickMedia }) {
                     <Label hasValue={has} onReset={reset}>{control.label}</Label>
                     <div className="flex items-center gap-2">
                         <input type="color" className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5" value={/^#[0-9a-f]{6}$/i.test(value ?? '') ? value : '#000000'} onChange={(e) => set(e.target.value)} />
-                        <input className={inputCls} value={value ?? ''} placeholder="Par défaut" onChange={(e) => set(e.target.value)} />
+                        <input className={inputCls} value={value ?? ''} placeholder={t('Par défaut')} onChange={(e) => set(e.target.value)} />
                     </div>
                 </div>
             );
@@ -106,9 +107,9 @@ function ImageControl({ control, value, onChange, urls }) {
         <div>
             <Label hasValue={!!value} onReset={() => { onChange(control.key, null); onChange('media_id', null); }}>{control.label}</Label>
             <button onClick={() => setOpen(true)} className="grid aspect-video w-full place-items-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500 hover:border-indigo-400">
-                {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : 'Choisir une image'}
+                {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : t('Choisir une image')}
             </button>
-            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder="ou collez l’adresse d’une image" onChange={(e) => { onChange(control.key, e.target.value); onChange('media_id', null); }} />
+            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); onChange('media_id', null); }} />
             {open && (
                 <MediaPicker urls={urls} onClose={() => setOpen(false)} onPick={(m) => {
                     onChange(control.key, m.url);
@@ -151,7 +152,7 @@ function RichText({ label, value, onChange }) {
         emit();
     };
     const link = () => {
-        const url = prompt('Adresse du lien (https://…, /page, mailto:…)');
+        const url = prompt(t('Adresse du lien (https://…, /page, mailto:…)'));
         if (url) cmd('createLink', url);
     };
 
@@ -164,10 +165,10 @@ function RichText({ label, value, onChange }) {
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('bold')}><b>G</b></button>
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('italic')}><i>I</i></button>
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('underline')}><u>S</u></button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertUnorderedList')}>• Liste</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertOrderedList')}>1. Liste</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={link}>Lien</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('removeFormat')}>Effacer</button>
+                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertUnorderedList')}>{t('• Liste')}</button>
+                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertOrderedList')}>{t('1. Liste')}</button>
+                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={link}>{t('Lien')}</button>
+                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('removeFormat')}>{t('Effacer')}</button>
                 </div>
                 <div ref={ref} contentEditable suppressContentEditableWarning onInput={emit}
                     className="prose-sm max-h-80 min-h-28 overflow-y-auto bg-white px-3 py-2 text-sm outline-none [&_a]:text-indigo-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5" />

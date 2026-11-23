@@ -32,7 +32,8 @@ class Page extends Model
     {
         static::creating(function (Page $page) {
             $page->translation_group ??= (string) Str::uuid();
-            $page->locale ??= config('app.locale', 'fr');
+            // Langue du contenu = langue par défaut du site (indépendante de la langue de l'interface).
+            $page->locale ??= ((array) Setting::read('locales', ['fr']))[0] ?? 'fr';
             $page->content ??= self::emptyContent();
         });
     }

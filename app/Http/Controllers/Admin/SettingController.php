@@ -43,7 +43,7 @@ class SettingController extends Controller
             'organization_description' => ['nullable', 'string', 'max:3000'],
             'anthropic_api_key' => ['nullable', 'string', 'max:300', 'regex:/^sk-ant-[A-Za-z0-9_\-]+$/'],
             'remove_api_key' => ['nullable', 'boolean'],
-        ], ['anthropic_api_key.regex' => 'La clé API doit commencer par « sk-ant- ».']);
+        ], ['anthropic_api_key.regex' => __('La clé API doit commencer par « sk-ant- ».')]);
 
         // La clé API est chiffrée en base et n'est jamais renvoyée au navigateur.
         $key = $data['anthropic_api_key'] ?? null;
@@ -62,6 +62,6 @@ class SettingController extends Controller
 
         Setting::write($data);
 
-        return back()->with('status', 'Réglages enregistrés.');
+        return back()->with('status', __('Réglages enregistrés.'));
     }
 }

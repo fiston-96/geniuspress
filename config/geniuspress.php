@@ -4,6 +4,13 @@ return [
     // Version du cœur, comparée à « requires.geniuspress » dans plugin.json.
     'version' => '0.1.0',
 
+    // Langues disponibles pour l'interface d'administration et le builder.
+    // Pour en ajouter une : créer lang/{code}.json et lang/{code}/*.php.
+    'ui_locales' => [
+        'fr' => 'Français',
+        'en' => 'English',
+    ],
+
     // Dossier des plugins.
     'plugins_path' => env('GP_PLUGINS_PATH', base_path('plugins')),
 

@@ -8,7 +8,7 @@ class DividerWidget extends Widget
 {
     public function type(): string { return 'divider'; }
 
-    public function label(): string { return 'Séparateur'; }
+    public function label(): string { return __('Séparateur'); }
 
     public function rules(): array
     {

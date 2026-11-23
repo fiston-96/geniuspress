@@ -9,6 +9,7 @@ Plugin GeniusPress.
 - `src/Widget.php` : réglages autorisés et rendu HTML du widget sur le site.
 - `public/builder.js` : contrôles et aperçu du widget dans le builder.
 - `public/site.css` : styles du widget sur le site public.
+- `lang/en.json` : traductions de l'interface (les textes source sont en français).
 
 ## Développement
 

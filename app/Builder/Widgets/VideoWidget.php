@@ -8,7 +8,7 @@ class VideoWidget extends Widget
 {
     public function type(): string { return 'video'; }
 
-    public function label(): string { return 'Vidéo'; }
+    public function label(): string { return __('Vidéo'); }
 
     public function rules(): array
     {

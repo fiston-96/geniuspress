@@ -59,6 +59,6 @@ class InstallController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('admin.dashboard')->with('status', 'Bienvenue sur GeniusPress !');
+        return redirect()->route('admin.dashboard')->with('status', __('Bienvenue sur GeniusPress !'));
     }
 }

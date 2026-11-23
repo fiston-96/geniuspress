@@ -44,7 +44,7 @@ class AiController extends Controller
         ]);
 
         if ($data['action'] === 'write' && blank($data['instructions'] ?? null) && blank($data['text'] ?? null)) {
-            return response()->json(['message' => 'Dites à l’IA ce qu’elle doit écrire.'], 422);
+            return response()->json(['message' => __('Dites à l’IA ce qu’elle doit écrire.')], 422);
         }
 
         return $this->run(fn () => ['text' => $this->assistant->rewrite(
@@ -59,7 +59,7 @@ class AiController extends Controller
         $locales = (array) Setting::read('locales', ['fr']);
         $data = $request->validate([
             'locale' => ['required', Rule::in($locales), Rule::notIn([$page->locale])],
-        ], ['locale.in' => 'Ajoutez d’abord cette langue dans les réglages du site.']);
+        ], ['locale.in' => __('Ajoutez d’abord cette langue dans les réglages du site.')]);
 
         return $this->run(function () use ($page, $data, $request) {
             $translation = $this->assistant->translatePage($page, $data['locale'], $request->user()->id);

@@ -8,7 +8,7 @@ class TextWidget extends Widget
 {
     public function type(): string { return 'text'; }
 
-    public function label(): string { return 'Texte'; }
+    public function label(): string { return __('Texte'); }
 
     public function rules(): array
     {

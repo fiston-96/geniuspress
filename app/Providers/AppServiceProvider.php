@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('ai', function (Request $request) {
             return Limit::perMinute((int) config('geniuspress.ai.per_minute'))->by('ai|'.$request->user()?->id)
-                ->response(fn () => response()->json(['message' => 'Trop de demandes à l’assistant IA. Patientez une minute.'], 429));
+                ->response(fn () => response()->json(['message' => __('Trop de demandes à l’assistant IA. Patientez une minute.')], 429));
         });
 
         $this->app->make(PluginManager::class)->bootActive();

@@ -31,15 +31,15 @@ final class PluginManifest
         $data = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
 
         if (! preg_match('/^[a-z][a-z0-9-]{1,40}$/', $slug)) {
-            $errors[] = 'Le nom du dossier doit contenir uniquement des minuscules, des chiffres et des tirets.';
+            $errors[] = __('Le nom du dossier doit contenir uniquement des minuscules, des chiffres et des tirets.');
         }
         if (! is_array($data)) {
-            $errors[] = is_file($file) ? 'Le fichier plugin.json est illisible (JSON invalide).' : 'Le fichier plugin.json est manquant.';
+            $errors[] = is_file($file) ? __('Le fichier plugin.json est illisible (JSON invalide).') : __('Le fichier plugin.json est manquant.');
             $data = [];
         }
         foreach (['name', 'version'] as $key) {
             if (empty($data[$key]) || ! is_string($data[$key])) {
-                $errors[] = "Le champ « {$key} » est obligatoire dans plugin.json.";
+                $errors[] = __('Le champ « :field » est obligatoire dans plugin.json.', ['field' => $key]);
             }
         }
 

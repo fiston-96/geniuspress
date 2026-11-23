@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex">
-    <title>Builder · {{ $page->title }}</title>
+    <title>{{ __('Builder') }} · {{ $page->title }}</title>
     @vite(['resources/css/app.css', 'resources/js/builder/main.jsx'])
     {{-- Scripts des plugins actifs : ils déclarent leurs widgets via window.GeniusPress. --}}
     @foreach (app(\App\Plugins\PluginManager::class)->assets('builder') as $src)
@@ -24,6 +24,8 @@
         'siteCss' => \Illuminate\Support\Facades\Vite::asset('resources/css/site.css'),
         'pluginCss' => app(\App\Plugins\PluginManager::class)->assets('site_css'),
         'csrf' => csrf_token(),
+        // Textes de l'interface dans la langue de l'utilisateur (cœur + plugins).
+        'i18n' => app('translator')->getLoader()->load(app()->getLocale(), '*', '*'),
         'urls' => [
             'back' => route('admin.pages.index'),
             'settings' => route('admin.pages.edit', $page),

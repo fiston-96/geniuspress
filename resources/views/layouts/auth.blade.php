@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,8 +11,8 @@
     <main class="flex min-h-screen items-center justify-center px-4 py-12">
         <div class="w-full max-w-md">
             <div class="mb-8 flex items-center justify-center gap-2">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-lg font-bold text-white">G</span>
-                <span class="text-xl font-semibold tracking-tight">GeniusPress</span>
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-lg font-bold text-white">{{ __('G') }}</span>
+                <span class="text-xl font-semibold tracking-tight">{{ __('GeniusPress') }}</span>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                 @yield('content')

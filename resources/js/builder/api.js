@@ -1,3 +1,5 @@
+import { t } from './i18n';
+
 const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 export async function api(url, { method = 'GET', body, form } = {}) {
@@ -12,8 +14,8 @@ export async function api(url, { method = 'GET', body, form } = {}) {
     if (res.status === 204) return null;
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-        const msg = data?.message || (data?.errors && Object.values(data.errors)[0]?.[0]) || `Erreur ${res.status}`;
-        throw new Error(res.status === 419 ? 'Session expirée : rechargez la page.' : msg);
+        const msg = data?.message || (data?.errors && Object.values(data.errors)[0]?.[0]) || t('Erreur :status', { status: res.status });
+        throw new Error(res.status === 419 ? t('Session expirée : rechargez la page.') : msg);
     }
     return data;
 }

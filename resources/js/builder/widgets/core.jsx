@@ -3,6 +3,7 @@
 import DOMPurify from 'dompurify';
 import { registerWidget } from '../registry';
 import { CORE_WIDGETS } from '../widgets';
+import { t } from '../i18n';
 
 export function embedUrl(url = '') {
     let m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/);
@@ -34,7 +35,7 @@ const IMPL = {
         css: (o, { rule, px, sel }) => rule(sel, { 'text-align': o.align, color: o.color, 'font-size': px(o.font_size) }),
     },
     image: {
-        preview: (o) => (o.url ? <img src={o.url} alt={o.alt || ''} draggable={false} /> : <Placeholder>{o.alt ? `Image à ajouter : ${o.alt}` : 'Choisissez une image dans le panneau'}</Placeholder>),
+        preview: (o) => (o.url ? <img src={o.url} alt={o.alt || ''} draggable={false} /> : <Placeholder>{o.alt ? t('Image à ajouter : :alt', { alt: o.alt }) : t('Choisissez une image dans le panneau')}</Placeholder>),
         css: (o, { rule, px, sel }) => {
             rule(sel, { 'text-align': o.align ?? 'center' });
             rule(`${sel} img`, { width: o.width ? `${o.width}%` : null, 'border-radius': px(o.border_radius) });
@@ -74,10 +75,10 @@ const IMPL = {
     video: {
         preview: (o) => {
             const src = embedUrl(o.url);
-            if (!src) return <Placeholder>Collez un lien YouTube ou Vimeo</Placeholder>;
+            if (!src) return <Placeholder>{t('Collez un lien YouTube ou Vimeo')}</Placeholder>;
             return (
                 <div className="gp-video" style={{ aspectRatio: (o.aspect || '16:9').replace(':', ' / ') }}>
-                    <iframe src={src} title="Vidéo" style={{ pointerEvents: 'none' }} />
+                    <iframe src={src} title={t('Vidéo')} style={{ pointerEvents: 'none' }} />
                 </div>
             );
         },

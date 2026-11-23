@@ -150,26 +150,32 @@ class PluginManager
             return $this->loaded[$slug];
         }
 
-        $manifest = $this->find($slug) ?? throw new RuntimeException("Le plugin « {$slug} » est introuvable dans {$this->directory}.");
+        $manifest = $this->find($slug) ?? throw new RuntimeException(__('Le plugin « :plugin » est introuvable dans :dir.', ['plugin' => $slug, 'dir' => $this->directory]));
         if (! $manifest->isValid()) {
             throw new RuntimeException(implode(' ', $manifest->errors));
         }
         $version = (string) config('geniuspress.version');
         if (! $manifest->isCompatibleWith($version)) {
-            throw new RuntimeException("Ce plugin demande GeniusPress {$manifest->requires} ; la version installée est {$version}.");
+            throw new RuntimeException(__('Ce plugin demande GeniusPress :required ; la version installée est :version.', ['required' => $manifest->requires, 'version' => $version]));
         }
 
         $this->registerAutoload($manifest);
+
+        // Traductions du plugin : lang/{langue}.json, clés en français comme le cœur.
+        $lang = $manifest->path.DIRECTORY_SEPARATOR.'lang';
+        if (is_dir($lang)) {
+            app('translator')->addJsonPath($lang);
+        }
 
         $class = $manifest->main;
         if ($class === null) {
             $plugin = new class($manifest) extends Plugin {};
         } else {
             if (! class_exists($class)) {
-                throw new RuntimeException("La classe principale « {$class} » est introuvable. Vérifiez « main » et « autoload » dans plugin.json.");
+                throw new RuntimeException(__('La classe principale « :class » est introuvable. Vérifiez « main » et « autoload » dans plugin.json.', ['class' => $class]));
             }
             if (! is_subclass_of($class, Plugin::class)) {
-                throw new RuntimeException("La classe « {$class} » doit hériter de App\\Plugins\\Plugin.");
+                throw new RuntimeException(__('La classe « :class » doit hériter de App\\Plugins\\Plugin.', ['class' => $class]));
             }
             $plugin = new $class($manifest);
         }

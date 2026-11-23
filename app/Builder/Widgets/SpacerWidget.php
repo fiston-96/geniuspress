@@ -8,7 +8,7 @@ class SpacerWidget extends Widget
 {
     public function type(): string { return 'spacer'; }
 
-    public function label(): string { return 'Espace'; }
+    public function label(): string { return __('Espace'); }
 
     public function rules(): array
     {

@@ -5,11 +5,12 @@ import Canvas from './Canvas';
 import Panel from './Panel';
 import { commit, getState, redo, setState, toast, undo, useStore } from './store';
 import { duplicateNode, removeNode } from './tree';
+import { t } from './i18n';
 
 const DEVICES = [
-    { id: 'desktop', label: 'Ordinateur', width: '100%', icon: 'M3 4h18v12H3zM8 20h8M12 16v4' },
-    { id: 'tablet', label: 'Tablette', width: '768px', icon: 'M6 2h12v20H6zM11 18h2' },
-    { id: 'mobile', label: 'Mobile', width: '390px', icon: 'M8 2h8v20H8zM11 18h2' },
+    { id: 'desktop', label: t('Ordinateur'), width: '100%', icon: 'M3 4h18v12H3zM8 20h8M12 16v4' },
+    { id: 'tablet', label: t('Tablette'), width: '768px', icon: 'M6 2h12v20H6zM11 18h2' },
+    { id: 'mobile', label: t('Mobile'), width: '390px', icon: 'M8 2h8v20H8zM11 18h2' },
 ];
 
 const Svg = ({ d, className = 'h-4 w-4' }) => (
@@ -34,7 +35,7 @@ export default function App({ boot }) {
             const r = await api(urls.content, { method: 'PUT', body: { content: getState().content, publish } });
             // On garde le contenu local (déjà identique après nettoyage) pour ne pas perdre la sélection.
             setState({ dirty: false, status: r.status, hasDraft: r.has_draft, savedAt: r.saved_at, revisions: r.revisions });
-            toast(publish ? 'Page publiée ✔' : r.has_draft ? 'Brouillon enregistré : publiez pour le mettre en ligne' : 'Modifications enregistrées ✔', 'success');
+            toast(publish ? t('Page publiée ✔') : r.has_draft ? t('Brouillon enregistré : publiez pour le mettre en ligne') : t('Modifications enregistrées ✔'), 'success');
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -90,13 +91,13 @@ export default function App({ boot }) {
         <div className="flex h-screen flex-col bg-slate-100 text-slate-900">
             <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-3">
                 <div className="flex min-w-0 items-center gap-3">
-                    <a href={urls.back} className="grid h-9 w-9 place-items-center rounded-lg bg-indigo-600 font-bold text-white" title="Retour à l’administration">G</a>
+                    <a href={urls.back} className="grid h-9 w-9 place-items-center rounded-lg bg-indigo-600 font-bold text-white" title={t('Retour à l’administration')}>G</a>
                     <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{boot.page.title}</p>
                         <p className="text-xs text-slate-500">
-                            {status === 'published' ? <span className="text-emerald-600">● Publiée</span> : <span className="text-amber-600">● Brouillon</span>}
-                            {dirty ? <span className="ml-2">· modifications non enregistrées</span>
-                                : hasDraft && status === 'published' && <span className="ml-2">· brouillon non publié</span>}
+                            {status === 'published' ? <span className="text-emerald-600">{t('● Publiée')}</span> : <span className="text-amber-600">{t('● Brouillon')}</span>}
+                            {dirty ? <span className="ml-2">{t('· modifications non enregistrées')}</span>
+                                : hasDraft && status === 'published' && <span className="ml-2">{t('· brouillon non publié')}</span>}
                         </p>
                     </div>
                 </div>
@@ -111,15 +112,15 @@ export default function App({ boot }) {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canUndo} onClick={undo} title="Annuler (Ctrl+Z)"><Svg d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11" /></button>
-                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canRedo} onClick={redo} title="Rétablir (Ctrl+Y)"><Svg d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 000 11H13" /></button>
-                    <a href={urls.settings} className="hidden rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 lg:block">Réglages SEO</a>
-                    <button className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100" onClick={preview}>Aperçu</button>
+                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canUndo} onClick={undo} title={t('Annuler (Ctrl+Z)')}><Svg d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11" /></button>
+                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canRedo} onClick={redo} title={t('Rétablir (Ctrl+Y)')}><Svg d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 000 11H13" /></button>
+                    <a href={urls.settings} className="hidden rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 lg:block">{t('Réglages SEO')}</a>
+                    <button className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100" onClick={preview}>{t('Aperçu')}</button>
                     <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50" disabled={saving} onClick={() => save(false)}>
-                        {saving ? 'Enregistrement…' : 'Enregistrer'}
+                        {saving ? t('Enregistrement…') : t('Enregistrer')}
                     </button>
                     <button className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50" disabled={saving} onClick={() => save(true)}>
-                        {status === 'published' ? 'Mettre à jour' : 'Publier'}
+                        {status === 'published' ? t('Mettre à jour') : t('Publier')}
                     </button>
                 </div>
             </header>
@@ -174,5 +175,5 @@ ${(boot.pluginCss ?? []).map((href) => `<link rel="stylesheet" href="${href}">`)
 <style>:root{--gp-primary:${s.primary_color};--gp-secondary:${s.secondary_color};--gp-accent:${s.accent_color};--gp-font:'${font}',system-ui,sans-serif}</style>
 </head><body><div id="root"></div></body></html>`;
 
-    return <iframe ref={ref} title="Canevas" srcDoc={srcDoc} className="h-full w-full rounded-md bg-white shadow-sm ring-1 ring-slate-200" />;
+    return <iframe ref={ref} title={t('Canevas')} srcDoc={srcDoc} className="h-full w-full rounded-md bg-white shadow-sm ring-1 ring-slate-200" />;
 }

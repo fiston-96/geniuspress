@@ -21,7 +21,7 @@ class AnthropicGateway implements LlmGateway
 
     public function json(string $system, array $content, array $schema, string $effort = 'medium', int $maxTokens = 16000): array
     {
-        $key = $this->apiKey() ?? throw new AiException('L’assistant IA n’est pas configuré : ajoutez une clé API Anthropic dans Réglages.');
+        $key = $this->apiKey() ?? throw new AiException(__('L’assistant IA n’est pas configuré : ajoutez une clé API Anthropic dans Réglages.'));
         $model = config('geniuspress.ai.model');
         $client = new Client(apiKey: $key, baseUrl: config('geniuspress.ai.base_url'));
 
@@ -40,24 +40,24 @@ class AnthropicGateway implements LlmGateway
                 betas: ['server-side-fallback-2026-07-01'],
             );
         } catch (AuthenticationException|PermissionDeniedException) {
-            throw new AiException('La clé API Anthropic est invalide ou n’a pas accès à ce modèle.');
+            throw new AiException(__('La clé API Anthropic est invalide ou n’a pas accès à ce modèle.'));
         } catch (RateLimitException) {
-            throw new AiException('Trop de demandes envoyées à l’IA. Réessayez dans une minute.');
+            throw new AiException(__('Trop de demandes envoyées à l’IA. Réessayez dans une minute.'));
         } catch (APIConnectionException) {
-            throw new AiException('Impossible de joindre le service IA. Vérifiez la connexion Internet du serveur.');
+            throw new AiException(__('Impossible de joindre le service IA. Vérifiez la connexion Internet du serveur.'));
         } catch (APIStatusException $e) {
             report($e);
-            throw new AiException('Le service IA a renvoyé une erreur. Réessayez dans un instant.');
+            throw new AiException(__('Le service IA a renvoyé une erreur. Réessayez dans un instant.'));
         }
 
         $stop = self::enumValue($message->stopReason);
         $usage = ['input' => (int) $message->usage->inputTokens, 'output' => (int) $message->usage->outputTokens];
 
         if ($stop === 'refusal') {
-            throw new AiRefusedException('L’IA a refusé cette demande. Reformulez-la.', $usage, (string) $model);
+            throw new AiRefusedException(__('L’IA a refusé cette demande. Reformulez-la.'), $usage, (string) $model);
         }
         if ($stop === 'max_tokens') {
-            throw new AiException('La réponse de l’IA était trop longue. Essayez une demande plus courte.');
+            throw new AiException(__('La réponse de l’IA était trop longue. Essayez une demande plus courte.'));
         }
 
         $text = '';
@@ -70,7 +70,7 @@ class AnthropicGateway implements LlmGateway
         try {
             $data = json_decode($text, true, 512, JSON_THROW_ON_ERROR);
         } catch (Throwable) {
-            throw new AiException('La réponse de l’IA est illisible. Réessayez.');
+            throw new AiException(__('La réponse de l’IA est illisible. Réessayez.'));
         }
 
         return ['data' => (array) $data, 'usage' => $usage, 'model' => (string) self::enumValue($message->model)];

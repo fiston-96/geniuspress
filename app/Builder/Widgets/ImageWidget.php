@@ -8,7 +8,7 @@ class ImageWidget extends Widget
 {
     public function type(): string { return 'image'; }
 
-    public function label(): string { return 'Image'; }
+    public function label(): string { return __('Image'); }
 
     public function rules(): array
     {

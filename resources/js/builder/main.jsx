@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { allWidgets, getWidget, registerFromRules, registerWidget } from './registry';
+import { t } from './i18n';
 import { setState } from './store';
 import { registerCoreWidgets } from './widgets/core';
 
@@ -14,6 +15,7 @@ window.GeniusPress = Object.freeze({
     h: React.createElement,
     registerWidget,
     getWidget,
+    t,
     allWidgets,
 });
 

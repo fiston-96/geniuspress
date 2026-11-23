@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
@@ -26,6 +27,7 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('au
 // Administration
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+    Route::put('/locale', LocaleController::class)->name('locale');
 
     Route::get('/pages', [PageController::class, 'index'])->name('pages.index');
     Route::get('/pages/create', [PageController::class, 'create'])->name('pages.create');

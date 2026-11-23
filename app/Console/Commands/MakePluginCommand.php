@@ -126,7 +126,7 @@ class Widget extends BaseWidget
 
     public function label(): string
     {
-        return '{{name}}';
+        return __('{{name}}');
     }
 
     /** Réglages autorisés : tout le reste est supprimé avant l'enregistrement. */
@@ -166,17 +166,17 @@ PHP,
             'public/builder.js' => <<<'JS'
 // Déclaration du widget dans le builder. Pas besoin d'outil de compilation :
 // GeniusPress fournit React via window.GeniusPress.
-const { registerWidget } = window.GeniusPress;
+const { registerWidget, t } = window.GeniusPress;
 
 registerWidget('{{slug}}', {
-    label: '{{name}}',
+    label: t('{{name}}'),
     icon: 'M7 7h4v6H5M17 7h4v6h-6',
     defaults: { text: 'Votre citation ici.', author: 'Nom de l’auteur', align: 'left' },
     controls: [
-        { key: 'text', label: 'Citation', type: 'textarea' },
-        { key: 'author', label: 'Auteur', type: 'text' },
-        { key: 'align', label: 'Alignement', type: 'segmented', tab: 'style', options: [{ value: 'left', label: 'Gauche' }, { value: 'center', label: 'Centre' }] },
-        { key: 'accent', label: 'Couleur du trait', type: 'color', tab: 'style' },
+        { key: 'text', label: t('Texte de la citation'), type: 'textarea' },
+        { key: 'author', label: t('Auteur'), type: 'text' },
+        { key: 'align', label: t('Alignement'), type: 'segmented', tab: 'style', options: [{ value: 'left', label: t('Gauche') }, { value: 'center', label: t('Centre') }] },
+        { key: 'accent', label: t('Couleur du trait'), type: 'color', tab: 'style' },
     ],
     // Aperçu dans le canevas (même HTML que la méthode render() en PHP).
     preview: (o, { h }) => h('blockquote', { className: '{{slug}}' },
@@ -196,6 +196,15 @@ blockquote.{{slug}} footer { font-size: .9rem; opacity: .75; }
 blockquote.{{slug}} footer::before { content: "— "; }
 
 CSS,
+            'lang/en.json' => <<<'JSON'
+{
+    "{{name}}": "{{name}}",
+    "Texte de la citation": "Quote text",
+    "Auteur": "Author",
+    "Couleur du trait": "Line color"
+}
+
+JSON,
             'README.md' => <<<'MD'
 # {{name}}
 
@@ -208,6 +217,7 @@ Plugin GeniusPress.
 - `src/Widget.php` : réglages autorisés et rendu HTML du widget sur le site.
 - `public/builder.js` : contrôles et aperçu du widget dans le builder.
 - `public/site.css` : styles du widget sur le site public.
+- `lang/en.json` : traductions de l'interface (les textes source sont en français).
 
 ## Développement
 

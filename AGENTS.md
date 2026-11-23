@@ -10,6 +10,7 @@ CMS open source (AGPL-3.0) : Laravel 13 comme fondation, builder React 19 (Vite)
 ## Règles du projet
 - Le contenu d'une page est un arbre JSON `sections → columns → widgets`. Tout contenu entrant (builder, IA, import) passe par `App\Builder\ContentSanitizer` avant d'être enregistré ou rendu.
 - Les widgets passent tous par un registre, ceux du cœur comme ceux des plugins : classe PHP dans `app/Builder/Widgets/` (règles + `render()`), déclarée dans `AppServiceProvider::CORE_WIDGETS` ; côté builder, définition dans `resources/js/builder/widgets.js` + aperçu/CSS dans `resources/js/builder/widgets/core.jsx` (miroir de `render()`).
+- Interface traduisible : le texte source est en français. PHP/Blade : `__('Texte')` ; builder : `t('Texte')` (`resources/js/builder/i18n.js`). Toute nouvelle chaîne doit être ajoutée à `lang/en.json` (le test `InterfaceLanguageTest` échoue sinon). La langue de l'interface (utilisateur, `SetLocale`) est distincte de la langue du contenu des pages (`pages.locale`, réglage `locales` du site).
 - Plugins : `app/Plugins/` (PluginManager, Plugin, Hooks). Guide : `docs/developpeurs/plugins.md`. Fixtures de test dans `tests/Fixtures/plugins/`.
 - Ne jamais envoyer au navigateur les réglages privés : utiliser `Setting::publicValues()`, pas `allValues()`.
 - Les appels IA passent par l'interface `App\Ai\LlmGateway` ; les messages d'erreur montrés à l'utilisateur sont en français (`AiException`).

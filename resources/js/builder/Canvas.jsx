@@ -6,6 +6,7 @@ import { commit, getState, setState, useStore } from './store';
 import { addSection, duplicateNode, insertWidget, makeWidget, moveSection, moveWidget, removeNode, setLayout } from './tree';
 import { getWidget } from './registry';
 import { LAYOUTS } from './widgets';
+import { t } from './i18n';
 
 const EDITOR_CSS = `
 body { min-height: 100vh; }
@@ -122,12 +123,12 @@ export default function Canvas() {
                 >
                     {picker || content.sections.length === 0 ? (
                         <>
-                            <h3>Choisissez une structure pour la nouvelle section</h3>
+                            <h3>{t('Choisissez une structure pour la nouvelle section')}</h3>
                             <LayoutPicker onPick={addFromPicker} />
-                            <p style={{ marginTop: 14 }}>… ou glissez un élément ici depuis le panneau de gauche.</p>
+                            <p style={{ marginTop: 14 }}>{t('… ou glissez un élément ici depuis le panneau de gauche.')}</p>
                         </>
                     ) : (
-                        <>＋ Ajouter une section <br /><small>ou glissez un élément ici</small></>
+                        <>{t('＋ Ajouter une section')} <br /><small>{t('ou glissez un élément ici')}</small></>
                     )}
                 </div>
             </main>
@@ -148,12 +149,12 @@ function Section({ section, index, total }) {
             onClick={(e) => { e.stopPropagation(); select(section.id); setLayouts(false); }}
         >
             <div className="gpe-toolbar">
-                <button title="Monter" disabled={index === 0} onClick={act(() => commit(moveSection(getState().content, section.id, -1)))}><Icon d={I.up} /></button>
-                <button title="Descendre" disabled={index === total - 1} onClick={act(() => commit(moveSection(getState().content, section.id, 1)))}><Icon d={I.down} /></button>
-                <button title="Structure des colonnes" onClick={act(() => setLayouts((v) => !v))}><Icon d={I.cols} /></button>
-                <button title="Modifier la section" onClick={act(() => select(section.id))}><Icon d={I.edit} /> Section</button>
-                <button title="Dupliquer" onClick={act(() => { const [n, id] = duplicateNode(getState().content, section.id); commit(n, { selected: id }); })}><Icon d={I.copy} /></button>
-                <button title="Supprimer" onClick={act(() => commit(removeNode(getState().content, section.id), { selected: null, panel: 'elements' }))}><Icon d={I.trash} /></button>
+                <button title={t('Monter')} disabled={index === 0} onClick={act(() => commit(moveSection(getState().content, section.id, -1)))}><Icon d={I.up} /></button>
+                <button title={t('Descendre')} disabled={index === total - 1} onClick={act(() => commit(moveSection(getState().content, section.id, 1)))}><Icon d={I.down} /></button>
+                <button title={t('Structure des colonnes')} onClick={act(() => setLayouts((v) => !v))}><Icon d={I.cols} /></button>
+                <button title={t('Modifier la section')} onClick={act(() => select(section.id))}><Icon d={I.edit} /> {t('Section')}</button>
+                <button title={t('Dupliquer')} onClick={act(() => { const [n, id] = duplicateNode(getState().content, section.id); commit(n, { selected: id }); })}><Icon d={I.copy} /></button>
+                <button title={t('Supprimer')} onClick={act(() => commit(removeNode(getState().content, section.id), { selected: null, panel: 'elements' }))}><Icon d={I.trash} /></button>
             </div>
             {layouts && <LayoutPicker onPick={(w) => { commit(setLayout(getState().content, section.id, w)); setLayouts(false); }} />}
             {o.overlay_color && <div className="gp-overlay" />}
@@ -219,7 +220,7 @@ function Column({ column }) {
             {items}
             {column.widgets.length === 0 && (
                 <div className="gpe-empty" style={dropIndex !== null ? { borderColor: '#4f46e5', color: '#4f46e5' } : null}>
-                    Glissez un élément ici
+                    {t('Glissez un élément ici')}
                 </div>
             )}
         </div>
@@ -252,8 +253,8 @@ function Widget({ widget }) {
         >
             <div className="gpe-toolbar">
                 <button title={getWidget(widget.type)?.label ?? widget.type}><Icon d={I.edit} /> {getWidget(widget.type)?.label ?? widget.type}</button>
-                <button title="Dupliquer" onClick={act(() => { const [n, id] = duplicateNode(getState().content, widget.id); commit(n, { selected: id }); })}><Icon d={I.copy} /></button>
-                <button title="Supprimer" onClick={act(() => commit(removeNode(getState().content, widget.id), { selected: null, panel: 'elements' }))}><Icon d={I.trash} /></button>
+                <button title={t('Dupliquer')} onClick={act(() => { const [n, id] = duplicateNode(getState().content, widget.id); commit(n, { selected: id }); })}><Icon d={I.copy} /></button>
+                <button title={t('Supprimer')} onClick={act(() => commit(removeNode(getState().content, widget.id), { selected: null, panel: 'elements' }))}><Icon d={I.trash} /></button>
             </div>
             <WidgetBody widget={widget} />
         </div>
@@ -273,17 +274,17 @@ class SafePreview extends Component {
     }
 
     render() {
-        return this.state.error ? <Placeholder>Aperçu indisponible (erreur du widget « {this.props.type} »)</Placeholder> : this.props.children;
+        return this.state.error ? <Placeholder>{t('Aperçu indisponible (erreur du widget « :type »)', { type: this.props.type })}</Placeholder> : this.props.children;
     }
 }
 
 function WidgetBody({ widget }) {
     const def = getWidget(widget.type);
     if (!def) {
-        return <Placeholder>Widget « {widget.type} » indisponible : le plugin qui le fournit est désactivé. Son contenu est conservé.</Placeholder>;
+        return <Placeholder>{t('Widget « :type » indisponible : le plugin qui le fournit est désactivé. Son contenu est conservé.', { type: widget.type })}</Placeholder>;
     }
     if (!def.preview) {
-        return <Placeholder>{def.label} — aperçu visible sur le site publié</Placeholder>;
+        return <Placeholder>{t(':label — aperçu visible sur le site publié', { label: def.label })}</Placeholder>;
     }
     return (
         <SafePreview type={widget.type}>
