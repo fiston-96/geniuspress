@@ -64,10 +64,10 @@ class GeniusPressTest extends TestCase
 
     public function test_sanitizer_removes_dangerous_content(): void
     {
-        $clean = (new ContentSanitizer)->sanitize($this->content([
+        $clean = app(ContentSanitizer::class)->sanitize($this->content([
             ['type' => 'text', 'settings' => ['html' => '<p onclick="x()">Bonjour<script>alert(1)</script></p>']],
             ['type' => 'button', 'settings' => ['url' => 'javascript:alert(1)', 'bg_color' => 'red;background:url(x)']],
-            ['type' => 'evil', 'settings' => []],
+            ['type' => '<script>', 'settings' => []],
             ['type' => 'heading', 'settings' => ['font_size' => 9999, 'tag' => 'script']],
         ]));
 
@@ -78,6 +78,24 @@ class GeniusPressTest extends TestCase
         $this->assertArrayNotHasKey('bg_color', $widgets[1]['settings']);
         $this->assertSame(160, $widgets[2]['settings']['font_size']);
         $this->assertArrayNotHasKey('tag', $widgets[2]['settings']);
+    }
+
+    public function test_widgets_of_a_disabled_plugin_are_kept_but_never_rendered(): void
+    {
+        $content = $this->content([
+            ['id' => 'orphan0001', 'type' => 'acme-gallery', 'settings' => ['images' => ['a.jpg'], 'html' => '<script>x</script>']],
+            ['id' => 'heading001', 'type' => 'heading', 'settings' => ['text' => 'Visible']],
+        ]);
+
+        $clean = app(ContentSanitizer::class)->sanitize($content);
+        $orphan = $clean['sections'][0]['columns'][0]['widgets'][0];
+        $this->assertTrue($orphan['orphan']);
+        $this->assertSame(['a.jpg'], $orphan['settings']['images']);
+
+        $html = app(Renderer::class)->render($content)['html'];
+        $this->assertStringContainsString('Visible', $html);
+        $this->assertStringNotContainsString('orphan0001', $html);
+        $this->assertStringNotContainsString('<script>', $html);
     }
 
     public function test_renderer_escapes_text_and_only_embeds_known_video_hosts(): void

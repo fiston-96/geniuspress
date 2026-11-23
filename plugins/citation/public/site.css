@@ -1,0 +1,5 @@
+/* Styles du widget, chargés sur le site public et dans le builder. */
+blockquote.citation { margin: 0; padding: 8px 0 8px 20px; border-left: 4px solid var(--gp-primary); }
+blockquote.citation p { margin: 0 0 8px; font-size: 1.25rem; font-style: italic; }
+blockquote.citation footer { font-size: .9rem; opacity: .75; }
+blockquote.citation footer::before { content: "— "; }

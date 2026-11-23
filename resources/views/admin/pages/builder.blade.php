@@ -7,6 +7,10 @@
     <meta name="robots" content="noindex">
     <title>Builder · {{ $page->title }}</title>
     @vite(['resources/css/app.css', 'resources/js/builder/main.jsx'])
+    {{-- Scripts des plugins actifs : ils déclarent leurs widgets via window.GeniusPress. --}}
+    @foreach (app(\App\Plugins\PluginManager::class)->assets('builder') as $src)
+        <script type="module" src="{{ $src }}"></script>
+    @endforeach
 </head>
 <body class="overflow-hidden antialiased">
     <div id="builder"></div>
@@ -18,6 +22,7 @@
         'revisions' => $page->revisions->map->only(['id', 'note', 'created_at', 'user']),
         'settings' => $settings,
         'siteCss' => \Illuminate\Support\Facades\Vite::asset('resources/css/site.css'),
+        'pluginCss' => app(\App\Plugins\PluginManager::class)->assets('site_css'),
         'csrf' => csrf_token(),
         'urls' => [
             'back' => route('admin.pages.index'),
@@ -37,6 +42,8 @@
             'configured' => app(\App\Ai\LlmGateway::class)->isConfigured(),
         ],
         'meta' => $page->only(['meta_title', 'meta_description']),
+        'widgets' => collect(app(\App\Builder\WidgetRegistry::class)->all())
+            ->map(fn ($w, $type) => ['label' => $w->label(), 'rules' => $w->rules()]),
         'locales' => collect((array) $settings['locales'])
             ->mapWithKeys(fn ($code) => [$code => \App\Http\Controllers\Admin\SettingController::AVAILABLE_LOCALES[$code] ?? $code]),
         'translations' => $page->translations()->get(['id', 'locale', 'title', 'status'])

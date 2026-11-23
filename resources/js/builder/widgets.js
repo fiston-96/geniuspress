@@ -1,5 +1,6 @@
-// Définition des widgets côté éditeur : libellé, icône, valeurs par défaut et
-// contrôles affichés dans le panneau. Les clés correspondent à app/Builder/Schema.php.
+// Définition des widgets du cœur côté éditeur : libellé, icône, valeurs par
+// défaut et contrôles. Les clés correspondent aux classes de app/Builder/Widgets.
+// L'aperçu et le CSS sont dans widgets/core.jsx ; l'enregistrement passe par registry.js.
 
 const ALIGN = [
     { value: 'left', label: 'Gauche' },
@@ -7,13 +8,7 @@ const ALIGN = [
     { value: 'right', label: 'Droite' },
 ];
 
-const ADVANCED = [
-    { key: 'margin_bottom', label: 'Espace en dessous (px)', type: 'slider', min: 0, max: 200, tab: 'advanced' },
-    { key: 'hide_desktop', label: 'Masquer sur ordinateur', type: 'toggle', tab: 'advanced' },
-    { key: 'hide_mobile', label: 'Masquer sur mobile', type: 'toggle', tab: 'advanced' },
-];
-
-export const WIDGETS = {
+export const CORE_WIDGETS = {
     heading: {
         label: 'Titre',
         icon: 'M6 4v16M18 4v16M6 12h12',
@@ -103,9 +98,6 @@ export const WIDGETS = {
     },
 };
 
-for (const def of Object.values(WIDGETS)) {
-    def.controls = [...def.controls, ...ADVANCED];
-}
 
 export const SECTION_CONTROLS = [
     { key: 'content_width', label: 'Largeur du contenu', type: 'segmented', options: [{ value: 'boxed', label: 'Centrée' }, { value: 'full', label: 'Pleine largeur' }] },

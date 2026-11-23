@@ -4,6 +4,7 @@ namespace App\Ai;
 
 use App\Builder\ContentSanitizer;
 use App\Builder\Schema;
+use App\Builder\WidgetRegistry;
 use App\Http\Controllers\Admin\SettingController;
 use App\Models\AiRequest;
 use App\Models\Media;
@@ -30,7 +31,7 @@ class Assistant
         'friendly' => 'Rewrite in a warm, simple and friendly tone suitable for the general public.',
     ];
 
-    public function __construct(private LlmGateway $llm, private ContentSanitizer $sanitizer) {}
+    public function __construct(private LlmGateway $llm, private ContentSanitizer $sanitizer, private WidgetRegistry $widgets) {}
 
     public function isConfigured(): bool
     {
@@ -52,14 +53,13 @@ class Assistant
         - Use multi-column sections for cards (2–4 columns), each column with a heading + text (+ optional button).
         - Alternate section backgrounds for rhythm (white, a very light tint, and one or two dark or brand-coloured sections with light text_color). Ensure strong text/background contrast (WCAG AA).
         - Use the site palette given below for buttons and accents. Colours are 6-digit hex codes.
-        - Text widgets contain simple HTML: <p>, <strong>, <em>, <ul>, <li>, <a>. No other tags, no inline styles.
-        - Buttons link to real anchors on the page (for example "#contact") or to "/contact"-style paths; set the section "anchor" setting accordingly.
-        - Images: you cannot provide image files. Add an image widget only where a photo really helps, leave its url null and describe in "alt" exactly what photo the user should add.
+        - Set the section "anchor" setting for sections that buttons link to (for example "contact").
         - Never invent precise facts (figures, names, addresses, phone numbers, emails, dates, testimonials attributed to real people). Use clearly marked placeholders in square brackets, e.g. "[nombre de bénéficiaires]" or "[adresse e-mail]".
         - Set every setting you do not need to null. Prefer sensible defaults over over-styling.
 
         Also return an SEO meta title (max 60 characters) and meta description (120–160 characters) for the page.
         TXT;
+        $system .= "\n\nAvailable widgets:\n".$this->widgetGuide();
 
         $content = [['type' => 'text', 'text' => "Page title: {$page->title}\n\nBrief from the user:\n".Str::limit($brief, 4000)]];
 
@@ -318,17 +318,31 @@ class Assistant
         return ((array) Setting::read('locales', ['fr']))[0] ?? 'fr';
     }
 
-    /** Schéma JSON d'une section générée par l'IA, dérivé de App\Builder\Schema. */
+    /** Widgets proposés à l'IA : ceux du cœur et des plugins qui fournissent un conseil d'utilisation. */
+    private function aiWidgets(): array
+    {
+        return array_filter($this->widgets->all(), fn ($w) => $w->aiHint() !== null);
+    }
+
+    private function widgetGuide(): string
+    {
+        $lines = [];
+        foreach ($this->aiWidgets() as $type => $w) {
+            $lines[] = "- {$type}: ".$w->aiHint();
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /** Schéma JSON d'une section générée par l'IA, dérivé des règles de validation. */
     private function sectionSchema(): array
     {
         $skip = ['media_id', 'background_image', 'hide_desktop', 'hide_mobile', 'min_height'];
 
         $widgets = [];
-        foreach (Schema::WIDGETS as $type => $rules) {
-            $rules += ['margin_bottom' => Schema::COMMON_WIDGET['margin_bottom']];
-            if ($type === 'image') {
-                unset($rules['url'], $rules['link']);
-            }
+        foreach ($this->aiWidgets() as $type => $widget) {
+            $rules = $widget->rules() + ['margin_bottom' => Schema::COMMON_WIDGET['margin_bottom']];
+            $rules = array_diff_key($rules, array_flip($widget->aiExcluded()));
             $widgets[] = [
                 'type' => 'object',
                 'properties' => ['type' => ['type' => 'string', 'enum' => [$type]], 'settings' => $this->settingsSchema($rules, $skip)],
@@ -399,12 +413,11 @@ class Assistant
     /** Textes traduisibles de l'arbre, indexés par "idWidget.clé". */
     private function extractStrings(array $content): array
     {
-        $map = ['heading' => ['text'], 'text' => ['html'], 'button' => ['text'], 'image' => ['alt']];
         $out = [];
         foreach ($content['sections'] ?? [] as $s) {
             foreach ($s['columns'] as $c) {
                 foreach ($c['widgets'] as $w) {
-                    foreach ($map[$w['type']] ?? [] as $key) {
+                    foreach ($this->widgets->get($w['type'])?->translatable() ?? [] as $key) {
                         if (! empty($w['settings'][$key])) {
                             $out[$w['id'].'.'.$key] = $w['settings'][$key];
                         }

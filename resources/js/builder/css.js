@@ -1,5 +1,6 @@
-// Génère le CSS du canevas. Miroir de app/Builder/Renderer.php : toute
-// modification ici doit être reportée côté PHP (et inversement).
+// Génère le CSS du canevas. Miroir de app/Builder/Renderer.php (sections,
+// colonnes) ; le CSS de chaque widget vient de sa déclaration dans le registre.
+import { getWidget } from './registry';
 
 const px = (v) => (v === undefined || v === null || v === '' ? null : `${v}px`);
 
@@ -69,52 +70,16 @@ function widgetCss(css, mobile, w) {
     const sel = `#gp-${w.id}`;
     rule(css, sel, { 'margin-bottom': px(o.margin_bottom) });
 
-    switch (w.type) {
-        case 'heading':
-            rule(css, `${sel} > *`, { 'text-align': o.align, color: o.color, 'font-size': px(o.font_size), 'font-weight': o.font_weight });
-            rule(mobile, `${sel} > *`, { 'font-size': px(o.font_size_mobile) });
-            break;
-        case 'text':
-            rule(css, sel, { 'text-align': o.align, color: o.color, 'font-size': px(o.font_size) });
-            break;
-        case 'image':
-            rule(css, sel, { 'text-align': o.align ?? 'center' });
-            rule(css, `${sel} img`, { width: o.width ? `${o.width}%` : null, 'border-radius': px(o.border_radius) });
-            break;
-        case 'button': {
-            const variant = o.variant ?? 'filled';
-            const bg = o.bg_color ?? 'var(--gp-primary)';
-            const align = o.align ?? 'left';
-            rule(css, sel, { 'text-align': align === 'full' ? null : align });
-            rule(css, `${sel} .gp-btn`, {
-                background: variant === 'filled' ? bg : 'transparent',
-                'border-color': bg,
-                color: o.text_color ?? (variant === 'filled' ? '#ffffff' : bg),
-                'border-radius': px(o.border_radius),
-                display: align === 'full' ? 'block' : null,
-            });
-            break;
-        }
-        case 'spacer':
-            rule(css, sel, { height: px(o.height ?? 40) });
-            rule(mobile, sel, { height: px(o.height_mobile) });
-            break;
-        case 'divider': {
-            const margin = { left: '0 auto 0 0', right: '0 0 0 auto' }[o.align] ?? '0 auto';
-            rule(css, `${sel} hr`, {
-                'border-top': `${o.thickness ?? 1}px ${o.style ?? 'solid'} ${o.color ?? '#e2e8f0'}`,
-                width: `${o.width ?? 100}%`,
-                margin,
-            });
-            break;
-        }
+    const def = getWidget(w.type);
+    if (!def?.css) return;
+    try {
+        def.css(o, {
+            sel,
+            px,
+            rule: (selector, props) => rule(css, selector, props),
+            mobile: (selector, props) => rule(mobile, selector, props),
+        });
+    } catch (e) {
+        console.error(`[GeniusPress] CSS du widget « ${w.type} » :`, e);
     }
-}
-
-export function embedUrl(url = '') {
-    let m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/);
-    if (m) return `https://www.youtube-nocookie.com/embed/${m[1]}`;
-    m = url.match(/vimeo\.com\/(?:video\/)?(\d{4,15})/);
-    if (m) return `https://player.vimeo.com/video/${m[1]}`;
-    return null;
 }

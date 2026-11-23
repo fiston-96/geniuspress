@@ -1,0 +1,1 @@
+{ "name": "Broken", "version": "0.1.0", "main": "Fixtures\\Broken\\Plugin", "autoload": { "psr-4": { "Fixtures\\Broken\\": "src/" } } }

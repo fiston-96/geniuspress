@@ -4,9 +4,11 @@ use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,10 +56,18 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::get('/plugins', [PluginController::class, 'index'])->name('plugins.index');
+        Route::post('/plugins/{slug}/activate', [PluginController::class, 'activate'])->name('plugins.activate');
+        Route::post('/plugins/{slug}/deactivate', [PluginController::class, 'deactivate'])->name('plugins.deactivate');
     });
 });
 
-// Site public (en dernier : attrape toutes les autres adresses)
-Route::get('/{path?}', PublicPageController::class)
-    ->where('path', '^(?!admin|install|storage|build|up).*$')
-    ->name('page.show');
+// Fichiers publics des plugins (dossier public/ de chaque plugin)
+Route::get('/plugin-assets/{slug}/{path}', PluginAssetController::class)
+    ->where('path', '.*')->name('plugin.asset');
+
+// Site public. La route de secours passe après toutes les autres, y compris
+// celles déclarées par les plugins.
+Route::get('/', PublicPageController::class)->name('home');
+Route::fallback(PublicPageController::class)->name('page.show');

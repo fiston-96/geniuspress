@@ -9,8 +9,9 @@ use Illuminate\Http\Request;
 
 class PublicPageController extends Controller
 {
-    public function __invoke(Request $request, Renderer $renderer, ?string $path = null)
+    public function __invoke(Request $request, Renderer $renderer)
     {
+        $path = $request->path() === '/' ? '' : $request->path();
         $locales = (array) Setting::read('locales', ['fr']);
         $default = $locales[0] ?? 'fr';
 

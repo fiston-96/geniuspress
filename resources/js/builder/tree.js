@@ -1,12 +1,12 @@
 // Opérations immuables sur l'arbre { sections: [{ columns: [{ widgets: [] }] }] }.
-import { WIDGETS } from './widgets';
+import { getWidget } from './registry';
 
 export const uid = () => Math.random().toString(36).slice(2, 12).padEnd(10, '0');
 
 const clone = (v) => structuredClone(v);
 
 export function makeWidget(type) {
-    return { id: uid(), type, settings: { ...(WIDGETS[type]?.defaults ?? {}) } };
+    return { id: uid(), type, settings: { ...(getWidget(type)?.defaults ?? {}) } };
 }
 
 export function makeColumn(width) {

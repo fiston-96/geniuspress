@@ -1,6 +1,7 @@
 @php
     $font = $settings['font_family'] ?? 'Inter';
     $title = $page->meta_title ?: $page->title.' · '.$settings['site_name'];
+    $plugins = app(\App\Plugins\PluginManager::class);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $page->locale }}" @if($page->locale === 'ar') dir="rtl" @endif>
@@ -24,11 +25,16 @@
         }
         {!! $rendered['css'] !!}
     </style>
+    @foreach ($plugins->assets('site_css') as $href)<link rel="stylesheet" href="{{ $href }}">@endforeach
+    {{-- Les plugins peuvent ajouter du HTML dans <head> (balises meta, statistiques…). --}}
+    {!! \App\Plugins\Hooks::filter('page.head', '', $page) !!}
 </head>
 <body>
     @if (! empty($preview) && empty($embedded))
         <div class="gp-preview-bar">Aperçu — cette page n’est pas publiée</div>
     @endif
     <main>{!! $rendered['html'] !!}</main>
+    @foreach ($plugins->assets('site_js') as $src)<script src="{{ $src }}" defer></script>@endforeach
+    {!! \App\Plugins\Hooks::filter('page.body_end', '', $page) !!}
 </body>
 </html>

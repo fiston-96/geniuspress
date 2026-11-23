@@ -116,6 +116,11 @@ class PageController extends Controller
             PageRevision::query()->where('page_id', $page->id)->whereNotIn('id', $keep)->delete();
         });
 
+        \App\Plugins\Hooks::dispatch('page.saved', $page);
+        if ($request->boolean('publish')) {
+            \App\Plugins\Hooks::dispatch('page.published', $page);
+        }
+
         return response()->json([
             'content' => $content,
             'status' => $page->status,

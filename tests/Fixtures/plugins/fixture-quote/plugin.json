@@ -1,0 +1,8 @@
+{
+    "name": "Fixture Quote",
+    "version": "1.2.0",
+    "requires": { "geniuspress": ">=0.1" },
+    "main": "Fixtures\\Quote\\Plugin",
+    "autoload": { "psr-4": { "Fixtures\\Quote\\": "src/" } },
+    "assets": { "builder": ["builder.js", "../plugin.json"], "site_css": ["site.css"] }
+}

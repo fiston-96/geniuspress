@@ -1,0 +1,14 @@
+{
+    "name": "Citation",
+    "version": "0.1.0",
+    "description": "Ajoute un widget « Citation » au builder.",
+    "author": "Équipe GeniusPress",
+    "license": "MIT",
+    "requires": { "geniuspress": ">=0.1.0" },
+    "main": "Plugins\\Citation\\Plugin",
+    "autoload": { "psr-4": { "Plugins\\Citation\\": "src/" } },
+    "assets": {
+        "builder": ["builder.js"],
+        "site_css": ["site.css"]
+    }
+}

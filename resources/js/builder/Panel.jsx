@@ -5,7 +5,8 @@ import { api } from './api';
 import { Control } from './controls';
 import { commit, commitBatched, getState, setState, toast, useStore } from './store';
 import { addSection, insertWidget, locate, makeWidget, updateSettings } from './tree';
-import { COLUMN_CONTROLS, SECTION_CONTROLS, WIDGETS } from './widgets';
+import { allWidgets, getWidget } from './registry';
+import { COLUMN_CONTROLS, SECTION_CONTROLS } from './widgets';
 
 const TABS = [
     { id: 'content', label: 'Contenu' },
@@ -64,7 +65,7 @@ function Elements() {
         <div className="p-4">
             <p className="mb-3 text-xs text-slate-500">Glissez un élément sur la page, ou cliquez pour l’ajouter.</p>
             <div className="grid grid-cols-2 gap-2">
-                {Object.entries(WIDGETS).map(([type, def]) => (
+                {allWidgets().map((def) => ({ type: def.type, def })).map(({ type, def }) => (
                     <button key={type} draggable
                         onDragStart={(e) => { e.dataTransfer.effectAllowed = 'copy'; e.dataTransfer.setData('text/plain', type); setState({ drag: { kind: 'new', type } }); }}
                         onDragEnd={() => setState({ drag: null })}
@@ -87,16 +88,16 @@ function Settings({ id, boot }) {
     if (!loc) return <p className="p-4 text-sm text-slate-500">Élément introuvable.</p>;
 
     const { node, kind } = loc;
-    const controls = kind === 'section' ? SECTION_CONTROLS : kind === 'column' ? COLUMN_CONTROLS : WIDGETS[node.type].controls;
+    const controls = kind === 'section' ? SECTION_CONTROLS : kind === 'column' ? COLUMN_CONTROLS : (getWidget(node.type)?.controls ?? []);
     const visible = controls.filter((c) => (c.tab ?? 'content') === tab);
-    const title = kind === 'section' ? 'Section' : kind === 'column' ? 'Colonne' : WIDGETS[node.type].label;
+    const title = kind === 'section' ? 'Section' : kind === 'column' ? 'Colonne' : (getWidget(node.type)?.label ?? node.type);
 
     const onChange = (key, value) => commitBatched(updateSettings(getState().content, id, { [key]: value }));
 
     const crumbs = [
         { id: loc.section.id, label: 'Section' },
         loc.column && { id: loc.column.id, label: 'Colonne' },
-        loc.widget && { id: loc.widget.id, label: WIDGETS[loc.widget.type].label },
+        loc.widget && { id: loc.widget.id, label: getWidget(loc.widget.type)?.label ?? loc.widget.type },
     ].filter(Boolean);
 
     return (

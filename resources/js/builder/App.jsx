@@ -170,6 +170,7 @@ function Frame({ boot, onKey }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=${encodeURIComponent(font.toLowerCase())}:400,500,600,700,800&display=swap">
 <link rel="stylesheet" href="${boot.siteCss}">
+${(boot.pluginCss ?? []).map((href) => `<link rel="stylesheet" href="${href}">`).join('')}
 <style>:root{--gp-primary:${s.primary_color};--gp-secondary:${s.secondary_color};--gp-accent:${s.accent_color};--gp-font:'${font}',system-ui,sans-serif}</style>
 </head><body><div id="root"></div></body></html>`;
 

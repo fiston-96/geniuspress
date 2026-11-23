@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { Component, createElement, useState } from 'react';
 import DOMPurify from 'dompurify';
-import { buildCss, embedUrl } from './css';
+import { buildCss } from './css';
+import { Placeholder } from './widgets/core';
 import { commit, getState, setState, useStore } from './store';
 import { addSection, duplicateNode, insertWidget, makeWidget, moveSection, moveWidget, removeNode, setLayout } from './tree';
-import { LAYOUTS, WIDGETS } from './widgets';
+import { getWidget } from './registry';
+import { LAYOUTS } from './widgets';
 
 const EDITOR_CSS = `
 body { min-height: 100vh; }
@@ -249,7 +251,7 @@ function Widget({ widget }) {
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); select(widget.id); }}
         >
             <div className="gpe-toolbar">
-                <button title={WIDGETS[widget.type]?.label}><Icon d={I.edit} /> {WIDGETS[widget.type]?.label}</button>
+                <button title={getWidget(widget.type)?.label ?? widget.type}><Icon d={I.edit} /> {getWidget(widget.type)?.label ?? widget.type}</button>
                 <button title="Dupliquer" onClick={act(() => { const [n, id] = duplicateNode(getState().content, widget.id); commit(n, { selected: id }); })}><Icon d={I.copy} /></button>
                 <button title="Supprimer" onClick={act(() => commit(removeNode(getState().content, widget.id), { selected: null, panel: 'elements' }))}><Icon d={I.trash} /></button>
             </div>
@@ -258,37 +260,34 @@ function Widget({ widget }) {
     );
 }
 
-function Placeholder({ children }) {
-    return <div className="gpe-empty" style={{ margin: 0 }}>{children}</div>;
+/** Isole l'aperçu d'un widget : un plugin qui plante n'empêche pas d'éditer la page. */
+class SafePreview extends Component {
+    state = { error: null };
+
+    static getDerivedStateFromError(error) {
+        return { error };
+    }
+
+    componentDidCatch(error) {
+        console.error(`[GeniusPress] Aperçu du widget « ${this.props.type} » :`, error);
+    }
+
+    render() {
+        return this.state.error ? <Placeholder>Aperçu indisponible (erreur du widget « {this.props.type} »)</Placeholder> : this.props.children;
+    }
 }
 
 function WidgetBody({ widget }) {
-    const o = widget.settings;
-    switch (widget.type) {
-        case 'heading': {
-            const Tag = o.tag || 'h2';
-            return <Tag>{o.text}</Tag>;
-        }
-        case 'text':
-            return <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(o.html || '') }} />;
-        case 'image':
-            return o.url ? <img src={o.url} alt={o.alt || ''} draggable={false} /> : <Placeholder>Choisissez une image dans le panneau</Placeholder>;
-        case 'button':
-            return <a className={`gp-btn gp-btn-${o.size || 'md'}`} href={o.url || '#'} draggable={false}>{o.text || 'Bouton'}</a>;
-        case 'spacer':
-            return null;
-        case 'divider':
-            return <hr />;
-        case 'video': {
-            const src = embedUrl(o.url);
-            if (!src) return <Placeholder>Collez un lien YouTube ou Vimeo</Placeholder>;
-            return (
-                <div className="gp-video" style={{ aspectRatio: (o.aspect || '16:9').replace(':', ' / ') }}>
-                    <iframe src={src} title="Vidéo" style={{ pointerEvents: 'none' }} />
-                </div>
-            );
-        }
-        default:
-            return null;
+    const def = getWidget(widget.type);
+    if (!def) {
+        return <Placeholder>Widget « {widget.type} » indisponible : le plugin qui le fournit est désactivé. Son contenu est conservé.</Placeholder>;
     }
+    if (!def.preview) {
+        return <Placeholder>{def.label} — aperçu visible sur le site publié</Placeholder>;
+    }
+    return (
+        <SafePreview type={widget.type}>
+            {def.preview(widget.settings, { h: createElement, Placeholder, sanitize: (html) => DOMPurify.sanitize(html) })}
+        </SafePreview>
+    );
 }

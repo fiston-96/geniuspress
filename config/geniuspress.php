@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Version du cœur, comparée à « requires.geniuspress » dans plugin.json.
+    'version' => '0.1.0',
+
+    // Dossier des plugins.
+    'plugins_path' => env('GP_PLUGINS_PATH', base_path('plugins')),
+
     'ai' => [
         // Modèle Claude utilisé par l'assistant.
         'model' => env('GP_AI_MODEL', 'claude-opus-5-5'),

@@ -15,6 +15,8 @@ class ContentSanitizer
 {
     private ?HtmlSanitizer $html = null;
 
+    public function __construct(private WidgetRegistry $widgets) {}
+
     public function sanitize(mixed $content): array
     {
         $sections = is_array($content) && is_array($content['sections'] ?? null) ? $content['sections'] : [];
@@ -53,8 +55,13 @@ class ContentSanitizer
     {
         $widgets = [];
         foreach (array_slice(array_values((array) ($c['widgets'] ?? [])), 0, Schema::MAX_WIDGETS_PER_COLUMN) as $w) {
-            if (is_array($w) && isset(Schema::WIDGETS[$w['type'] ?? ''])) {
+            if (! is_array($w) || ! is_string($w['type'] ?? null)) {
+                continue;
+            }
+            if ($this->widgets->has($w['type'])) {
                 $widgets[] = $this->widget($w);
+            } elseif ($orphan = $this->orphan($w)) {
+                $widgets[] = $orphan;
             }
         }
 
@@ -68,13 +75,31 @@ class ContentSanitizer
 
     private function widget(array $w): array
     {
-        $rules = Schema::WIDGETS[$w['type']] + Schema::COMMON_WIDGET;
+        $rules = $this->widgets->rules($w['type']);
 
         return [
             'id' => $this->id($w['id'] ?? null),
             'type' => $w['type'],
             'settings' => $this->settings((array) ($w['settings'] ?? []), $rules),
         ];
+    }
+
+    /**
+     * Widget d'un plugin désactivé ou supprimé : on le conserve tel quel pour ne
+     * pas perdre le contenu, mais il n'est jamais rendu tant que son type n'est
+     * pas de nouveau déclaré (il sera alors validé normalement).
+     */
+    private function orphan(array $w): ?array
+    {
+        if (! preg_match('/^[a-z][a-z0-9-]{1,40}$/', $w['type'])) {
+            return null;
+        }
+        $settings = is_array($w['settings'] ?? null) ? $w['settings'] : [];
+        if (strlen((string) json_encode($settings)) > 20000) {
+            return null;
+        }
+
+        return ['id' => $this->id($w['id'] ?? null), 'type' => $w['type'], 'settings' => $settings, 'orphan' => true];
     }
 
     private function id(mixed $id): string
