@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feuille de route GeniusPress</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Mise en page : document de pilotage — en-tête sobre, frise des phases, puis inventaire filtrable des fonctionnalités. */
+:root {
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --fg: #141827;
+  --muted: #5b6275;
+  --line: #e3e6ee;
+  --accent: #4f46e5;
+  --accent-soft: #eef0ff;
+  --ok: #0f7a4f; --ok-bg: #e6f6ee;
+  --wip: #9a5b00; --wip-bg: #fff3dc;
+  --plan: #3640b8; --plan-bg: #eceefe;
+  --later: #5b6275; --later-bg: #eef0f4;
+  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1220; --surface: #171b2c; --fg: #e8eaf3; --muted: #9aa1b8; --line: #2a3047;
+    --accent: #8b85ff; --accent-soft: #23264a;
+    --ok: #5fd3a0; --ok-bg: #12321f; --wip: #f2b65a; --wip-bg: #3a2a0d;
+    --plan: #a9b0ff; --plan-bg: #23264a; --later: #a3a9bd; --later-bg: #24283a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1220; --surface: #171b2c; --fg: #e8eaf3; --muted: #9aa1b8; --line: #2a3047;
+  --accent: #8b85ff; --accent-soft: #23264a;
+  --ok: #5fd3a0; --ok-bg: #12321f; --wip: #f2b65a; --wip-bg: #3a2a0d;
+  --plan: #a9b0ff; --plan-bg: #23264a; --later: #a3a9bd; --later-bg: #24283a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 15px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 40px 64px; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; }
+p { margin: 0; }
+.eyebrow { font: 600 12px/1 var(--font-body); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.lead { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+.section-head { display: grid; gap: 8px; margin-bottom: 20px; }
+
+/* En-tête */
+header { display: grid; gap: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 36px; height: 36px; border-radius: 9px; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 18px/1 var(--font-display); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.fact { padding: 14px 18px; border-right: 1px solid var(--line); display: grid; gap: 2px; min-width: 0; }
+.fact:last-child { border-right: 0; }
+.fact span { font-size: 12px; color: var(--muted); }
+.fact strong { font-weight: 600; }
+
+/* Frise des phases */
+.timeline { display: grid; gap: 0; position: relative; }
+.phase { display: grid; grid-template-columns: 140px 28px 1fr; gap: 0 16px; }
+.when { text-align: right; padding-top: 2px; display: grid; align-content: start; gap: 2px; }
+.when b { font: 600 14px/1.3 var(--font-display); }
+.when small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rail { position: relative; display: flex; justify-content: center; }
+.rail::before { content: ""; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.phase:first-child .rail::before { top: 10px; }
+.phase:last-child .rail::before { bottom: auto; height: 10px; }
+.dot { position: relative; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--line); }
+.phase.done .dot { background: var(--ok); border-color: var(--ok); }
+.phase.now .dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.phase .body { padding-bottom: 32px; display: grid; gap: 10px; min-width: 0; }
+.phase-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.phase .goal { color: var(--muted); }
+.phase ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.done-when { font-size: 13px; border-left: 3px solid var(--accent); padding: 6px 12px; background: var(--accent-soft); border-radius: 0 8px 8px 0; }
+.done-when b { font-weight: 600; }
+
+/* Pastilles de statut */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.s-ok { color: var(--ok); background: var(--ok-bg); }
+.s-wip { color: var(--wip); background: var(--wip-bg); }
+.s-plan { color: var(--plan); background: var(--plan-bg); }
+.s-later { color: var(--later); background: var(--later-bg); }
+.tag { font: 600 11px/1 var(--font-body); letter-spacing: .04em; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; white-space: nowrap; }
+
+/* Fonctionnalités */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+.toolbar button {
+  font: 500 13px/1 var(--font-body); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+}
+.toolbar button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.toolbar button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.count { margin-left: auto; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.domains { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px; }
+.domain { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.domain header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.domain header small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.feat { list-style: none; margin: 0; padding: 0; display: grid; }
+.feat li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); min-width: 0; }
+.feat li:first-child { border-top: 0; }
+.feat .name { min-width: 0; }
+.feat .name small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+.domain.empty { display: none; }
+
+/* Décisions */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 12px; align-content: start; }
+.panel dl { margin: 0; display: grid; gap: 10px; }
+.panel dt { font-weight: 600; }
+.panel dd { margin: 0; color: var(--muted); font-size: 14px; }
+.panel ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.panel ol li span { color: var(--muted); font-size: 14px; display: block; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 640px) {
+  .phase { grid-template-columns: 22px 1fr; }
+  .when { grid-column: 2; grid-row: 1; text-align: left; display: flex; gap: 8px; align-items: baseline; }
+  .rail { grid-column: 1; grid-row: 1 / span 2; }
+  .phase .body { grid-column: 2; }
+  .fact { border-right: 0; border-bottom: 1px solid var(--line); }
+  .feat li { grid-template-columns: 1fr auto; }
+  .feat li .tag { grid-column: 2; grid-row: 1; }
+  .feat li .pill { grid-column: 1; justify-self: start; }
+}
+@media (prefers-reduced-motion: no-preference) { .toolbar button { transition: background .15s, color .15s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="logo" aria-hidden="true">G</div><strong>GeniusPress</strong></div>
+    <h1>Feuille de route GeniusPress</h1>
+    <p class="lead">Un CMS open source avec son propre page builder et un assistant IA intégré, pensé pour les entreprises et les ONG africaines. Voici ce qui existe déjà, ce qui arrive, et dans quel ordre.</p>
+    <div class="facts">
+      <div class="fact"><span>Version actuelle</span><strong>MVP · 23 novembre 2026</strong></div>
+      <div class="fact"><span>Prochain jalon</span><strong>Phase 1 · fondations open source</strong></div>
+      <div class="fact"><span>Objectif 1.0 publique</span><strong>Début mars 2027 (estimation)</strong></div>
+      <div class="fact"><span>Licence</span><strong>AGPL-3.0 + exception plugins</strong></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-roadmap">
+    <div class="section-head">
+      <span class="eyebrow">Roadmap</span>
+      <h2 id="t-roadmap">Cinq phases jusqu’à la version 1.0</h2>
+      <p class="lead">Les dates sont des estimations pour une petite équipe épaulée par l’IA. Chaque phase se termine quand son critère de fin est atteint, pas à une date fixe.</p>
+    </div>
+
+    <div class="timeline">
+      <article class="phase done">
+        <div class="when"><b>Fait</b><small>novembre 2026</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>MVP : builder et assistant IA</h3><span class="pill s-ok">Terminé</span></div>
+          <p class="goal">Prouver que le cœur du produit fonctionne de bout en bout.</p>
+          <ul>
+            <li>Installation, admin, pages, médiathèque, réglages du site</li>
+            <li>Builder React : glisser-déposer, 7 widgets, aperçu mobile, historique</li>
+            <li>Assistant IA : génération de page, rédaction, traduction, audit SEO et accessibilité</li>
+            <li>17 tests automatiques, contenu nettoyé et validé côté serveur</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase now">
+        <div class="when"><b>Phase 0</b><small>24 nov. · 1 jour</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Préparer le dépôt</h3><span class="pill s-wip">En cours</span></div>
+          <ul>
+            <li>Mot de passe de test retiré du code <em>(fait)</em></li>
+            <li>Licence AGPL-3.0 et texte de l’exception plugins (à faire relire par un juriste)</li>
+            <li>README, fichiers du projet, premier commit git, dépôt GitHub privé</li>
+            <li>Vérifier le nom GeniusPress : marque, domaine, compte GitHub</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> le code est versionné sur GitHub sans aucun secret.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 1</b><small>déc. 2026 · 3–4 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Fondations open source</h3><span class="pill s-plan">Prévu</span></div>
+          <p class="goal">Rendre GeniusPress installable par n’importe qui et extensible par des développeurs.</p>
+          <ul>
+            <li>Interface d’administration traduisible (français et anglais d’abord)</li>
+            <li>Registre de widgets, puis système de plugins avec hooks, réglages et routes</li>
+            <li>Commande <code>geniuspress:make-plugin</code> pour démarrer un plugin</li>
+            <li>Installateur complet : vérification du serveur, base de données, modèles de départ</li>
+            <li>Paquet zip pour hébergement mutualisé, image Docker, export et import de site</li>
+            <li>Tests automatiques sur GitHub à chaque contribution</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> un développeur installe GeniusPress depuis zéro et publie un widget sous forme de plugin, en suivant seulement la documentation.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 2</b><small>janv. 2027 · 3–4 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Un vrai site complet</h3><span class="pill s-plan">Prévu</span></div>
+          <p class="goal">Combler ce qui manque pour qu’une organisation mette son site en ligne sans aide.</p>
+          <ul>
+            <li>En-tête, menu et pied de page personnalisables (constructeur de thème)</li>
+            <li>Plugin officiel Formulaire de contact</li>
+            <li>Plugin officiel Paiement et dons : Mobile Money et carte bancaire</li>
+            <li>Nouveaux widgets : icônes, galerie, carrousel, compteurs, onglets, FAQ, carte</li>
+            <li>Modèles de pages prêts à l’emploi (ONG, entreprise, école, église, restaurant)</li>
+            <li>Gestion des utilisateurs dans l’admin, assistant IA en tâche de fond</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> une ONG crée un site de 5 pages avec menu, formulaire et page de dons en moins d’une heure.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 3</b><small>févr. 2027 · 2–3 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Hébergement et plateforme</h3><span class="pill s-plan">Prévu</span></div>
+          <ul>
+            <li>Déploiement sur VPS : Nginx, HTTPS, sauvegardes quotidiennes hors serveur, supervision</li>
+            <li>Mode plateforme multi-sites (SaaS) avec sous-domaines puis domaines personnalisés</li>
+            <li>Mises à jour en un clic pour les installations autonomes</li>
+            <li>Export en site statique, utilisable sans Internet ou sur réseau local</li>
+            <li>Crédits IA GeniusPress pour les sites sans clé API personnelle</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> un client crée son site sur la plateforme, branche son nom de domaine et reçoit ses sauvegardes automatiquement.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 4</b><small>début mars 2027</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Lancement public 1.0</h3><span class="pill s-plan">Prévu</span></div>
+          <ul>
+            <li>Site de documentation complet en français et en anglais</li>
+            <li>Dépôt GitHub public, guide de contribution, politique de sécurité</li>
+            <li>Annonce auprès des communautés tech africaines et des réseaux d’ONG</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> la 1.0 est publiée et documentée, et que les premiers contributeurs externes ont pu installer le projet seuls.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-features">
+    <div class="section-head">
+      <span class="eyebrow">Fonctionnalités</span>
+      <h2 id="t-features">Ce que fait GeniusPress, et ce qui arrive</h2>
+    </div>
+
+    <div class="toolbar" role="group" aria-label="Filtrer par statut">
+      <button type="button" id="f-all" data-filter="all" aria-pressed="true">Toutes</button>
+      <button type="button" id="f-ok" data-filter="ok" aria-pressed="false">Disponibles</button>
+      <button type="button" id="f-plan" data-filter="plan" aria-pressed="false">Prévues avant la 1.0</button>
+      <button type="button" id="f-later" data-filter="later" aria-pressed="false">Après la 1.0</button>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+
+    <div class="domains" id="domains"></div>
+  </section>
+
+  <section aria-labelledby="t-decisions">
+    <div class="section-head">
+      <span class="eyebrow">Cadre</span>
+      <h2 id="t-decisions">Décisions prises et questions ouvertes</h2>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Décidé</h3>
+        <dl>
+          <dt>CMS autonome</dt><dd>Pas un plugin WordPress : GeniusPress a son propre cœur, son builder et son assistant IA.</dd>
+          <dt>Laravel, React et MySQL</dt><dd>Laravel sert de fondation technique ; tout le CMS est écrit par l’équipe. Fonctionne sur WAMP, sur un VPS et sur un hébergement mutualisé.</dd>
+          <dt>Open source</dt><dd>AGPL-3.0 pour le cœur, avec une exception qui laisse les plugins choisir leur licence, y compris commerciale. Kit de plugins et exemples sous MIT.</dd>
+          <dt>Claude Opus 5.5 pour l’IA</dt><dd>Clé API personnelle du client, chiffrée en base. Crédits GeniusPress prévus en phase 3.</dd>
+          <dt>Les données appartiennent au client</dt><dd>Export complet du site à tout moment, import dans une autre installation.</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>À trancher</h3>
+        <ol>
+          <li>Plateforme SaaS, installation par client, ou les deux ?<span>Le code actuel gère un seul site ; le multi-sites ajoute 2 à 4 semaines.</span></li>
+          <li>Fournisseurs de paiement<span>Agrégateur Mobile Money et carte selon les pays visés (RDC, Rwanda, Kenya…).</span></li>
+          <li>Hébergeur et région du VPS<span>Recommandation : Europe avec Cloudflare devant.</span></li>
+          <li>Nom de domaine et marque<span>Vérifier la disponibilité de « GeniusPress » avant le lancement.</span></li>
+          <li>Langues de l’interface après le français et l’anglais<span>Swahili et lingala sont les candidats naturels.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer>Document de travail mis à jour le 23 novembre 2026. Les durées sont des estimations et seront revues à la fin de chaque phase.</footer>
+</div>
+
+<script>
+// Inventaire des fonctionnalités : status = ok | wip | plan | later ; phase = étiquette affichée.
+const DOMAINS = [
+  { name: 'Builder visuel', items: [
+    ['Glisser-déposer de widgets', 'Depuis le panneau ou entre colonnes, avec repère d’insertion', 'ok', 'MVP'],
+    ['Sections de 1 à 4 colonnes', 'Six structures prêtes, largeur et espacement réglables', 'ok', 'MVP'],
+    ['7 widgets de base', 'Titre, texte enrichi, image, bouton, espace, séparateur, vidéo', 'ok', 'MVP'],
+    ['Aperçu ordinateur, tablette, mobile', 'Rendu réel dans une iframe, réglages spécifiques au mobile', 'ok', 'MVP'],
+    ['Annuler, rétablir, raccourcis clavier', 'Ctrl+Z, Ctrl+Y, Ctrl+S, Ctrl+D, Suppr', 'ok', 'MVP'],
+    ['Brouillon séparé de la version en ligne', 'Enregistrer ne change pas le site tant qu’on ne publie pas', 'ok', 'MVP'],
+    ['Historique des versions', '30 dernières versions, restauration en un clic', 'ok', 'MVP'],
+    ['En-tête, menu et pied de page', 'Constructeur de thème appliqué à tout le site', 'plan', 'P2'],
+    ['Widgets supplémentaires', 'Icônes, galerie, carrousel, compteurs, onglets, FAQ, carte', 'plan', 'P2'],
+    ['Modèles de pages', 'ONG, entreprise, école, église, restaurant', 'plan', 'P2'],
+    ['Blocs réutilisables', 'Une section modifiée une fois, mise à jour partout', 'later', 'Après 1.0'],
+    ['Édition du texte directement sur la page', 'Sans passer par le panneau', 'later', 'Après 1.0'],
+    ['Animations et pop-ups', 'Apparition au défilement, fenêtres d’annonce', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Assistant IA', items: [
+    ['Créer une page à partir d’une description', '4 à 8 sections, titre et description pour Google', 'ok', 'MVP'],
+    ['Assistant de rédaction', 'Écrire, améliorer, raccourcir, développer, corriger, changer de ton', 'ok', 'MVP'],
+    ['Traduction de page', 'Copie traduite en brouillon, même mise en page', 'ok', 'MVP'],
+    ['Audit SEO et accessibilité', 'Score, problèmes classés, corrections en langage simple', 'ok', 'MVP'],
+    ['Textes alternatifs des images', 'L’IA regarde les images de la médiathèque et propose un texte', 'ok', 'MVP'],
+    ['Suivi de consommation', 'Demandes et jetons du mois dans les réglages', 'ok', 'MVP'],
+    ['Génération en tâche de fond', 'Plus de limite de durée, notification à la fin', 'plan', 'P2'],
+    ['Crédits IA GeniusPress', 'Pour les sites sans clé API personnelle', 'plan', 'P3'],
+    ['Assistant pour les visiteurs du site', 'Répond aux questions à partir du contenu publié', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Gestion du site', items: [
+    ['Installation guidée', 'Création du site, du compte et de la page d’accueil', 'ok', 'MVP'],
+    ['Comptes et rôles', 'Administrateur et éditeur, connexion protégée', 'ok', 'MVP'],
+    ['Pages, statuts et référencement', 'Brouillon ou publiée, adresse, titre et description pour Google', 'ok', 'MVP'],
+    ['Médiathèque', 'Images et PDF, texte alternatif, envoi par glisser-déposer', 'ok', 'MVP'],
+    ['Site multilingue', '8 langues proposées, adresses /en/…, pages liées entre elles', 'ok', 'MVP'],
+    ['Couleurs, police et identité', 'Réglages globaux utilisés par le builder et le site', 'ok', 'MVP'],
+    ['Interface d’administration traduite', 'Français et anglais, puis swahili et lingala', 'plan', 'P1'],
+    ['Installateur complet', 'Vérification du serveur et configuration de la base de données', 'plan', 'P1'],
+    ['Export et import de site', 'Un fichier zip avec pages, réglages et médias', 'plan', 'P1'],
+    ['Gestion des utilisateurs dans l’admin', 'Inviter, changer de rôle, désactiver', 'plan', 'P2'],
+    ['Blog et actualités', 'Articles, catégories, flux RSS', 'later', 'Après 1.0'],
+    ['Double authentification', 'Code à usage unique à la connexion', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Plugins et extensions', items: [
+    ['Registre de widgets', 'Nos widgets passent par la même API que les plugins', 'plan', 'P1'],
+    ['Système de plugins', 'Widgets, pages d’admin, réglages, routes, tables, hooks', 'plan', 'P1'],
+    ['Générateur de plugin', 'Commande qui crée un plugin d’exemple fonctionnel', 'plan', 'P1'],
+    ['Formulaire de contact', 'Plugin officiel, envoi par e-mail, anti-spam', 'plan', 'P2'],
+    ['Paiement et dons', 'Plugin officiel : Mobile Money et carte bancaire', 'plan', 'P2'],
+    ['API REST', 'Lire et modifier le contenu depuis une autre application', 'later', 'Après 1.0'],
+    ['Catalogue de plugins', 'Recherche et installation depuis l’admin', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Hébergement et distribution', items: [
+    ['Fonctionne en local sur WAMP', 'Environnement de développement actuel', 'ok', 'MVP'],
+    ['Paquet zip pour hébergement mutualisé', 'Sans Composer ni Node.js côté client', 'plan', 'P1'],
+    ['Image Docker', 'GeniusPress et MySQL en une commande', 'plan', 'P1'],
+    ['Déploiement sur VPS', 'HTTPS, sauvegardes hors serveur, supervision', 'plan', 'P3'],
+    ['Plateforme multi-sites', 'Sous-domaines puis domaines personnalisés', 'plan', 'P3'],
+    ['Mises à jour en un clic', 'Sauvegarde automatique avant chaque mise à jour', 'plan', 'P3'],
+    ['Export en site statique', 'Site consultable sans Internet ou sur réseau local', 'plan', 'P3'],
+  ]},
+  { name: 'Sécurité et qualité', items: [
+    ['Contenu nettoyé côté serveur', 'HTML, couleurs, liens et vidéos vérifiés avant enregistrement', 'ok', 'MVP'],
+    ['Clé API chiffrée', 'Jamais envoyée au navigateur', 'ok', 'MVP'],
+    ['Limites de requêtes', 'Connexion et assistant IA', 'ok', 'MVP'],
+    ['Tests automatiques', '17 tests, IA testée sans appel payant', 'ok', 'MVP'],
+    ['Tests à chaque contribution', 'Intégration continue sur GitHub', 'plan', 'P1'],
+    ['Politique de sécurité publique', 'Signalement privé des failles', 'plan', 'P4'],
+  ]},
+];
+
+const LABEL = { ok: 'Disponible', wip: 'En cours', plan: 'Prévu', later: 'Plus tard' };
+const root = document.getElementById('domains');
+const count = document.getElementById('count');
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function render(filter) {
+  root.replaceChildren();
+  let shown = 0, total = 0;
+  for (const d of DOMAINS) {
+    const items = d.items.filter(([, , s]) => filter === 'all' || s === filter);
+    total += d.items.length;
+    if (!items.length) continue;
+    shown += items.length;
+    const card = el('article', 'domain');
+    const head = el('header');
+    head.append(el('h3', null, d.name));
+    const ready = d.items.filter(i => i[2] === 'ok').length;
+    head.append(el('small', null, `${ready} / ${d.items.length} disponibles`));
+    const list = el('ul', 'feat');
+    for (const [name, detail, status, phase] of items) {
+      const li = el('li');
+      const n = el('div', 'name', name);
+      n.append(el('small', null, detail));
+      li.append(n, el('span', `pill s-${status}`, LABEL[status]), el('span', 'tag', phase));
+      list.append(li);
+    }
+    card.append(head, list);
+    root.append(card);
+  }
+  count.textContent = filter === 'all' ? `${total} fonctionnalités` : `${shown} sur ${total}`;
+}
+
+let current = 'all';
+try { current = localStorage.getItem('gp-roadmap-filter') || 'all'; } catch (e) {}
+document.querySelectorAll('.toolbar button').forEach(b => {
+  b.setAttribute('aria-pressed', String(b.dataset.filter === current));
+  b.addEventListener('click', () => {
+    current = b.dataset.filter;
+    document.querySelectorAll('.toolbar button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    try { localStorage.setItem('gp-roadmap-filter', current); } catch (e) {}
+    render(current);
+  });
+});
+render(current);
+</script>
+</body>
+</html>
