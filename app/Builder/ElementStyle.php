@@ -128,10 +128,14 @@ class ElementStyle
         $id = $node['id'];
         $boxed = ($s['content_width'] ?? Schema::containerDefaults($depth)['content_width']) === 'boxed';
 
+        $previousWrap = 'nowrap';
         foreach (Schema::DEVICES as $device => $sfx) {
+            // Le retour à la ligne ne vaut que pour une disposition en ligne : en colonne, sans
+            // hauteur fixe, il n'a pas de sens et fausse le calcul des hauteurs par le navigateur.
+            $wrap = str_starts_with((string) (self::at($s, 'direction', $device) ?? 'column'), 'row') ? (self::at($s, 'wrap', $device) ?? 'nowrap') : 'nowrap';
             $p = [
                 'flex-direction' => $s['direction'.$sfx] ?? null,
-                'flex-wrap' => $s['wrap'.$sfx] ?? null,
+                'flex-wrap' => $wrap !== $previousWrap ? $wrap : null,
                 'justify-content' => isset($s['justify'.$sfx]) ? self::FLEX[$s['justify'.$sfx]] : null,
                 'align-items' => isset($s['align'.$sfx]) ? self::FLEX[$s['align'.$sfx]] : null,
                 'gap' => isset($s['gap'.$sfx]) ? $s['gap'.$sfx].'px' : null,
@@ -140,6 +144,7 @@ class ElementStyle
             if ($device === 'desktop') {
                 $p['max-width'] = $boxed ? ($s['max_width'] ?? 1140).'px' : 'none';
             }
+            $previousWrap = $wrap;
             $ctx->rule($id, $p, $device, ' > .gp-con-inner');
         }
 
@@ -172,11 +177,13 @@ class ElementStyle
             }
         }
 
+        // « Remplir l'espace disponible » : l'élément grandit dans l'axe principal du parent.
+        $grow = ! empty(self::at($s, 'grow', $device)) ? '1' : '0';
         if ($row) {
-            return ['flex' => $width !== null ? '0 1 '.self::basis($width, $parent, $device) : ($isContainer ? '1 1 0' : '0 1 auto'), 'width' => 'auto'];
+            return ['flex' => $width !== null ? $grow.' 1 '.self::basis($width, $parent, $device) : ($isContainer ? '1 1 0' : $grow.' 1 auto'), 'width' => 'auto'];
         }
 
-        return ['flex' => '0 1 auto', 'width' => $width ?? 'auto'];
+        return ['flex' => $grow.' 1 auto', 'width' => $width ?? 'auto'];
     }
 
     /**

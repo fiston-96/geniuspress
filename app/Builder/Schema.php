@@ -39,6 +39,7 @@ class Schema
         'width' => 'dim@r',
         'min_height' => 'dim@r',
         'align_self' => 'enum:start,center,end,stretch@r',
+        'grow' => 'bool@r',
         'order' => 'int:-20:20@r',
         // Fond
         'background_type' => 'enum:classic,gradient',

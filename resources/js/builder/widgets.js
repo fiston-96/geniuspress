@@ -210,6 +210,7 @@ export const STYLE_CONTROLS = [
     { key: 'width', label: t('Largeur'), type: 'dim', tab: 'advanced', responsive: true, units: ['%', 'px', 'vw', 'auto'] },
     { key: 'min_height', label: t('Hauteur minimale'), type: 'dim', tab: 'advanced', responsive: true, units: ['px', 'vh', 'em'] },
     { key: 'align_self', label: t('Alignement dans le parent'), type: 'segmented', tab: 'advanced', responsive: true, options: FLEX_ALIGN },
+    { key: 'grow', label: t('Remplir l’espace disponible'), type: 'toggle', tab: 'advanced', responsive: true },
     { key: 'order', label: t('Ordre d’affichage'), type: 'slider', min: -20, max: 20, tab: 'advanced', responsive: true },
     heading(t('Position'), 'advanced'),
     { key: 'z_index', label: t('Superposition (z-index)'), type: 'slider', min: -100, max: 100, tab: 'advanced' },

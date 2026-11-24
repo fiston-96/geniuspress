@@ -14,7 +14,7 @@ const FLEX = {
 
 /** Réglages communs à tous les éléments (Schema::STYLE). r = par appareil, h = au survol. */
 export const STYLE_KEYS = {
-    margin: 'r', padding: 'r', width: 'r', min_height: 'r', align_self: 'r', order: 'r',
+    margin: 'r', padding: 'r', width: 'r', min_height: 'r', align_self: 'r', grow: 'r', order: 'r',
     background_type: '', background_color: 'h', background_image: '', background_position: '', background_size: '', background_fixed: '',
     gradient_type: '', gradient_from: '', gradient_to: '', gradient_angle: '',
     border_style: '', border_width: '', border_color: 'h', border_radius: 'r', box_shadow: 'h',
@@ -154,8 +154,10 @@ function sizing(s, parent, device, isContainer, useWidth) {
             }
         }
     }
-    if (row) return { flex: width !== null ? `0 1 ${basis(width, parent, device)}` : isContainer ? '1 1 0' : '0 1 auto', width: 'auto' };
-    return { flex: '0 1 auto', width: width ?? 'auto' };
+    // « Remplir l'espace disponible » (miroir de ElementStyle::sizing).
+    const grow = at(s, 'grow', device) ? '1' : '0';
+    if (row) return { flex: width !== null ? `${grow} 1 ${basis(width, parent, device)}` : isContainer ? '1 1 0' : `${grow} 1 auto`, width: 'auto' };
+    return { flex: `${grow} 1 auto`, width: width ?? 'auto' };
 }
 
 const sameSizing = (a, b) => a && b && a.flex === b.flex && a.width === b.width;
@@ -242,16 +244,20 @@ export function applyStyle(sheet, node, parent, keys) {
 export function containerLayout(sheet, node, depth) {
     const s = node.settings;
     const boxed = (s.content_width ?? containerDefaults(depth).content_width) === 'boxed';
+    let previousWrap = 'nowrap';
     for (const [device, sfx] of Object.entries(DEVICES)) {
+        // Retour à la ligne seulement en ligne (miroir de ElementStyle::container).
+        const wrap = String(at(s, 'direction', device) ?? 'column').startsWith('row') ? (at(s, 'wrap', device) ?? 'nowrap') : 'nowrap';
         const p = {
             'flex-direction': s[`direction${sfx}`],
-            'flex-wrap': s[`wrap${sfx}`],
+            'flex-wrap': wrap !== previousWrap ? wrap : null,
             'justify-content': s[`justify${sfx}`] ? FLEX[s[`justify${sfx}`]] : null,
             'align-items': s[`align${sfx}`] ? FLEX[s[`align${sfx}`]] : null,
             gap: empty(s[`gap${sfx}`]) ? null : `${s[`gap${sfx}`]}px`,
             'max-width': boxed && !empty(s[`max_width${sfx}`]) ? `${s[`max_width${sfx}`]}px` : null,
         };
         if (device === 'desktop') p['max-width'] = boxed ? `${s.max_width ?? 1140}px` : 'none';
+        previousWrap = wrap;
         sheet.rule(node.id, p, device, ' > .gp-con-inner');
     }
     if (s.overlay_color) {

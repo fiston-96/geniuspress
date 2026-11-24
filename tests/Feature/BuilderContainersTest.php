@@ -169,6 +169,24 @@ class BuilderContainersTest extends TestCase
         $this->assertSame(['Poppins'], $out['fonts']);
     }
 
+    public function test_wrap_applies_only_to_rows_and_grow_fills_the_parent(): void
+    {
+        $css = $this->render(['elements' => [[
+            'id' => 'rowwrap001', 'type' => 'container',
+            'settings' => ['direction' => 'row', 'wrap' => 'wrap', 'direction_mobile' => 'column'],
+            'children' => [['id' => 'card000001', 'type' => 'icon-box', 'settings' => ['title' => 'A', 'grow' => true, 'grow_mobile' => false]]],
+        ], [
+            'id' => 'colwrap001', 'type' => 'container', 'settings' => ['wrap' => 'wrap'], 'children' => [],
+        ]]])['css'];
+
+        $this->assertStringContainsString('#gp-rowwrap001 > .gp-con-inner{flex-direction:row;flex-wrap:wrap;', $css);
+        // En colonne (sur mobile, ou toujours), le retour à la ligne est annulé.
+        $this->assertMatchesRegularExpression('/@media \(max-width: 767px\) \{.*#gp-rowwrap001 > \.gp-con-inner\{flex-direction:column;flex-wrap:nowrap\}/s', $css);
+        $this->assertStringNotContainsString('#gp-colwrap001 > .gp-con-inner{flex-wrap', $css);
+        $this->assertStringContainsString('#gp-card000001{flex:1 1 auto;width:auto}', $css);
+        $this->assertMatchesRegularExpression('/@media \(max-width: 767px\) \{.*#gp-card000001\{flex:0 1 auto;width:auto\}/s', $css);
+    }
+
     public function test_stored_pages_and_revisions_are_converted_by_the_migration(): void
     {
         $page = Page::create(['title' => 'Ancienne', 'slug' => 'ancienne', 'status' => 'published', 'content' => ['version' => 2, 'elements' => []]]);
