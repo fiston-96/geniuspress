@@ -14,6 +14,7 @@
  * Chaque page a une clé « group » commune à ses deux versions, qui les relie entre elles.
  */
 
+use App\Templates\Theme;
 use App\Website\PageKit as K;
 
 $repo = 'https://github.com/fiston-96/geniuspress';
@@ -30,6 +31,7 @@ $gris = '#f8fafc';
 $slugs = [
     'home' => ['fr' => 'accueil', 'en' => 'home'],
     'features' => ['fr' => 'fonctionnalites', 'en' => 'features'],
+    'templates' => ['fr' => 'modeles', 'en' => 'templates'],
     'download' => ['fr' => 'telecharger', 'en' => 'download'],
     'docs' => ['fr' => 'documentation', 'en' => 'documentation'],
     'doc-installation' => ['fr' => 'documentation/installation', 'en' => 'documentation/installation'],
@@ -56,7 +58,15 @@ $docFiles = [
     ],
 ];
 
-$build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, $ambre, $nuit, $lavande, $gris) {
+// Thème des pages vitrines (format 2), aux couleurs de la marque : mêmes blocs que les modèles de sites.
+$theme = new Theme(
+    colors: ['primary' => $indigo, 'secondary' => $nuit, 'accent' => $ambre, 'light' => $lavande, 'text' => $nuit, 'muted' => '#475569'],
+    font: 'Inter', headingFont: 'Poppins', hero: 'split', cards: 'shadow', buttons: 'rounded', radius: 16, space: 96,
+);
+// Accueil, fonctionnalités et modèles : website/showcase.php.
+$showcase = require __DIR__.'/showcase.php';
+
+$build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, $ambre, $nuit, $lavande, $gris, $theme, $showcase) {
     $t = fn (string $fr, string $en) => $lang === 'fr' ? $fr : $en;
     // Adresse d'une page du site (par clé de groupe), avec le préfixe /en en anglais.
     $u = function (string $key, string $anchor = '') use ($lang, $slugs) {
@@ -160,152 +170,13 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
         ...$extra,
     ], ['background_color' => $lavande, 'padding_top' => 88, 'padding_bottom' => 72, 'padding_top_mobile' => 56, 'padding_bottom_mobile' => 48, 'max_width' => 860]);
 
-    $ctaBand = K::section([
-        K::h($t('Libre, ouvert, construit avec vous', 'Free, open, built with you'), 'h2', ['align' => 'center', 'color' => '#ffffff', 'margin_bottom' => 12]),
-        K::p('<p>'.$t(
-            'GeniusPress est publié sous licence AGPL-3.0. Le code, la documentation et la feuille de route sont publics : proposez une amélioration, traduisez l’interface dans votre langue ou créez un plugin.',
-            'GeniusPress is released under the AGPL-3.0 license. The code, the documentation and the roadmap are public: suggest an improvement, translate the interface into your language or build a plugin.'
-        ).'</p>', ['align' => 'center', 'color' => '#e0e7ff', 'font_size' => 18, 'margin_bottom' => 28]),
-        K::btn($t('Contribuer', 'Contribute'), $u('contribute'), ['align' => 'center', 'size' => 'lg', 'bg_color' => $ambre, 'text_color' => $nuit, 'margin_bottom' => 12]),
-        K::btn($t('Voir le code sur GitHub', 'View the code on GitHub'), $repo, ['align' => 'center', 'variant' => 'outline', 'bg_color' => '#ffffff', 'text_color' => '#ffffff', 'new_tab' => true]),
-    ], ['background_color' => $indigo, 'padding_top' => 80, 'padding_bottom' => 80, 'max_width' => 760]);
-
     $pages = [];
 
-    // ─── Accueil ─────────────────────────────────────────────────────────
-    $pages[] = $page('home', $t('Accueil', 'Home'),
-        $t('GeniusPress · Le CMS open source avec page builder et assistant IA', 'GeniusPress · The open source CMS with a page builder and an AI assistant'),
-        $t(
-            'Construisez le site de votre organisation sans coder : page builder visuel, assistant IA, multilingue, plugins. Libre et installable partout.',
-            'Build your organization’s website without code: visual page builder, AI assistant, multilingual, plugins. Free and installable anywhere.'
-        ), [
-            K::section([
-                K::h($t('Construisez le site de votre organisation, sans coder.', 'Build your organization’s website, without code.'), 'h1', ['align' => 'center', 'color' => '#ffffff', 'font_size' => 58, 'font_size_mobile' => 36, 'margin_bottom' => 20]),
-                K::p('<p>'.$t(
-                    'GeniusPress est un CMS libre avec un <strong>page builder visuel</strong> et un <strong>assistant IA</strong>. Il s’installe chez un hébergeur, sur un serveur ou sur un ordinateur sans Internet, et vos données restent à vous.',
-                    'GeniusPress is a free CMS with a <strong>visual page builder</strong> and an <strong>AI assistant</strong>. It runs on shared hosting, on a server or on a computer without Internet, and your data stays yours.'
-                ).'</p>', ['align' => 'center', 'color' => '#cbd5e1', 'font_size' => 20, 'margin_bottom' => 32]),
-                K::btn($t('Télécharger GeniusPress', 'Download GeniusPress'), $u('download'), ['align' => 'center', 'size' => 'lg', 'bg_color' => $ambre, 'text_color' => $nuit, 'margin_bottom' => 12]),
-                K::btn($t('Lire la documentation', 'Read the documentation'), $u('docs'), ['align' => 'center', 'variant' => 'outline', 'bg_color' => '#ffffff', 'text_color' => '#ffffff', 'margin_bottom' => 20]),
-                K::p('<p>'.$t('Version 0.1 · préversion · licence AGPL-3.0', 'Version 0.1 · preview · AGPL-3.0 license').'</p>', ['align' => 'center', 'color' => '#94a3b8', 'font_size' => 14]),
-            ], ['background_color' => $nuit, 'text_color' => '#ffffff', 'padding_top' => 120, 'padding_bottom' => 110, 'padding_top_mobile' => 72, 'padding_bottom_mobile' => 64, 'max_width' => 900]),
-
-            K::section([
-                K::h($t('Tout ce qu’il faut pour un vrai site', 'Everything a real website needs'), 'h2', ['align' => 'center', 'margin_bottom' => 12]),
-                K::p('<p>'.$t(
-                    'Les outils d’un grand page builder, sans abonnement ni dépendance à une plateforme.',
-                    'The tools of a major page builder, with no subscription and no platform lock-in.'
-                ).'</p>', ['align' => 'center', 'color' => '#475569', 'font_size' => 18]),
-            ], ['padding_top' => 88, 'padding_bottom' => 32, 'max_width' => 760]),
-            K::section([
-                $card($t('Builder visuel', 'Visual builder'), $t(
-                    'Glissez des sections, des colonnes et des blocs. Aperçu ordinateur, tablette et mobile, annuler et rétablir, historique des versions.',
-                    'Drag sections, columns and blocks. Desktop, tablet and mobile preview, undo and redo, version history.'
-                ), $gris),
-                $card($t('Assistant IA', 'AI assistant'), $t(
-                    'Décrivez la page voulue : l’assistant la construit. Il rédige, corrige, traduit et vérifie le référencement et l’accessibilité.',
-                    'Describe the page you want and the assistant builds it. It writes, proofreads, translates and checks SEO and accessibility.'
-                ), $gris),
-                $card($t('Multilingue', 'Multilingual'), $t(
-                    'Français, anglais, swahili, lingala… Une version de chaque page par langue, liées entre elles, et une administration traduite.',
-                    'French, English, Swahili, Lingala… One version of each page per language, linked together, and a translated admin.'
-                ), $gris),
-            ], ['padding_top' => 0, 'padding_bottom' => 24, 'gap' => 24]),
-            K::section([
-                $card('Plugins', $t(
-                    'Ajoutez des widgets et des fonctionnalités. Un plugin qui plante est désactivé tout seul, sans casser le site.',
-                    'Add widgets and features. A plugin that crashes is switched off automatically, without breaking the site.'
-                ), $gris),
-                $card($t('Vos données vous appartiennent', 'Your data belongs to you'), $t(
-                    'Exportez tout le site dans un seul fichier et importez-le ailleurs. Vous n’êtes jamais prisonnier.',
-                    'Export the whole site to a single file and import it elsewhere. You are never locked in.'
-                ), $gris),
-                $card($t('S’installe partout', 'Runs anywhere'), $t(
-                    'Hébergement mutualisé, VPS, Docker, ou ordinateur hors ligne avec SQLite. L’assistant d’installation fait le reste.',
-                    'Shared hosting, VPS, Docker, or an offline computer with SQLite. The setup wizard does the rest.'
-                ), $gris),
-            ], ['padding_top' => 0, 'padding_bottom' => 88, 'gap' => 24]),
-
-            K::section([
-                K::col([
-                    K::h($t('Pensé pour les organisations africaines', 'Designed for African organizations'), 'h2', ['margin_bottom' => 16]),
-                    K::p($t(
-                        '<p>GeniusPress est né en RDC pour répondre à une réalité : les ONG, les entreprises et les écoles ont besoin d’un site professionnel, dans plusieurs langues, sans budget d’agence et parfois avec une connexion Internet instable.</p><p>L’assistant IA écrit à partir de la présentation de votre organisation, n’invente jamais de chiffres ni de contacts, et laisse des espaces à compléter.</p>',
-                        '<p>GeniusPress was born in the DRC to meet a simple need: NGOs, businesses and schools need a professional website, in several languages, without an agency budget and sometimes with an unreliable Internet connection.</p><p>The AI assistant writes from your organization’s own description, never makes up figures or contact details, and leaves placeholders for you to fill in.</p>'
-                    ), ['font_size' => 17, 'color' => '#334155']),
-                ], ['width' => 55]),
-                K::col([
-                    K::links($t('Pour qui ?', 'Who is it for?'), [
-                        $t('ONG et associations', 'NGOs and associations') => $u('features', 'ngo'),
-                        $t('PME et commerçants', 'Small businesses and shops') => $u('features'),
-                        $t('Écoles et universités', 'Schools and universities') => $u('features'),
-                        $t('Églises et communautés', 'Churches and communities') => $u('features'),
-                        $t('Projets et événements', 'Projects and events') => $u('features'),
-                    ], ['style' => 'boxed']),
-                ], ['width' => 45]),
-            ], ['background_color' => $lavande, 'padding_top' => 88, 'padding_bottom' => 88, 'gap' => 48, 'vertical_align' => 'center']),
-
-            K::section([
-                K::h($t('En ligne en trois étapes', 'Online in three steps'), 'h2', ['align' => 'center']),
-            ], ['padding_top' => 88, 'padding_bottom' => 24]),
-            K::section([
-                $card($t('1. Installez', '1. Install'), $t(
-                    'Envoyez les fichiers chez votre hébergeur ou lancez Docker. L’assistant vérifie le serveur et prépare la base de données.',
-                    'Upload the files to your host or start Docker. The wizard checks the server and prepares the database.'
-                )),
-                $card($t('2. Construisez', '2. Build'), $t(
-                    'Partez d’une page d’exemple, d’une page vide ou d’une description donnée à l’assistant IA. Ajustez tout dans le builder.',
-                    'Start from a sample page, a blank page or a description given to the AI assistant. Fine-tune everything in the builder.'
-                )),
-                $card($t('3. Publiez', '3. Publish'), $t(
-                    'Publiez quand vous êtes prêt : les modifications restent en brouillon tant que vous ne les mettez pas en ligne.',
-                    'Publish when you are ready: changes stay in draft until you put them online.'
-                )),
-            ], ['padding_top' => 0, 'padding_bottom' => 88, 'gap' => 24]),
-
-            $ctaBand,
-        ], ['is_home' => true]);
-
-    // ─── Fonctionnalités ─────────────────────────────────────────────────
-    $pages[] = $page('features', $t('Fonctionnalités', 'Features'),
-        $t('Fonctionnalités · GeniusPress', 'Features · GeniusPress'),
-        $t(
-            'Page builder visuel, assistant IA, site multilingue, plugins, export complet, installation partout : tout ce que fait GeniusPress.',
-            'Visual page builder, AI assistant, multilingual site, plugins, full export, runs anywhere: everything GeniusPress does.'
-        ), [
-            $hero($t('Fonctionnalités', 'Features'), $t(
-                'Ce que GeniusPress sait déjà faire dans sa version 0.1, et ce qui arrive ensuite.',
-                'What GeniusPress already does in version 0.1, and what comes next.'
-            )),
-            K::section([
-                K::col([K::h($t('Builder visuel', 'Visual builder'), 'h2', ['margin_bottom' => 12]), K::p($t(
-                    '<ul><li>Glisser-déposer de sections de 1 à 4 colonnes et de widgets : titre, texte, image, bouton, espace, séparateur, vidéo, liste de liens.</li><li>Réglages de style par élément, avec des valeurs spécifiques au mobile.</li><li>Aperçu ordinateur, tablette et mobile au rendu réel.</li><li>Annuler, rétablir, raccourcis clavier, historique des 30 dernières versions.</li><li>Brouillon séparé de la version en ligne : rien ne change pour les visiteurs avant la publication.</li></ul>',
-                    '<ul><li>Drag and drop sections of 1 to 4 columns and widgets: heading, text, image, button, spacer, divider, video, link list.</li><li>Style settings for each element, with mobile-specific values.</li><li>Desktop, tablet and mobile preview with the real rendering.</li><li>Undo, redo, keyboard shortcuts, history of the last 30 versions.</li><li>Drafts kept apart from the live version: nothing changes for visitors until you publish.</li></ul>'
-                ))], ['width' => 50]),
-                K::col([K::h($t('Assistant IA', 'AI assistant'), 'h2', ['margin_bottom' => 12]), K::p($t(
-                    '<ul><li>Création d’une page complète à partir d’une description.</li><li>Rédaction et réécriture : améliorer, raccourcir, développer, corriger, changer de ton.</li><li>Traduction d’une page dans une autre langue, en gardant la mise en page.</li><li>Audit SEO et accessibilité, avec des corrections en langage simple et les textes alternatifs des images.</li><li>Basé sur Claude ; la clé API reste chiffrée sur votre serveur.</li></ul>',
-                    '<ul><li>A complete page created from a description.</li><li>Writing and rewriting: improve, shorten, expand, proofread, change the tone.</li><li>Translation of a page into another language, keeping the layout.</li><li>SEO and accessibility audit, with fixes in plain language and alt text for images.</li><li>Powered by Claude; the API key stays encrypted on your server.</li></ul>'
-                ))], ['width' => 50]),
-            ], ['padding_top' => 72, 'padding_bottom' => 40, 'gap' => 48]),
-            K::section([
-                K::col([K::h($t('Gestion du site', 'Site management'), 'h2', ['margin_bottom' => 12]), K::p($t(
-                    '<ul><li>Pages, médiathèque, référencement par page.</li><li>En-tête, menus et pied de page par langue.</li><li>Administration en français et en anglais, langue choisie par chaque utilisateur.</li><li>Rôles administrateur et éditeur.</li></ul>',
-                    '<ul><li>Pages, media library, SEO settings for each page.</li><li>Header, menus and footer for each language.</li><li>Admin in French and English, chosen by each user.</li><li>Administrator and editor roles.</li></ul>'
-                ))], ['width' => 50]),
-                K::col([K::h($t('Ouvert et extensible', 'Open and extensible'), 'h2', ['margin_bottom' => 12]), K::p($t(
-                    '<ul><li>Système de plugins : widgets, routes, hooks, traductions.</li><li>Un plugin défaillant est désactivé automatiquement.</li><li>Export et import complets du site.</li><li>Installation par navigateur, ligne de commande, paquet zip ou Docker.</li></ul>',
-                    '<ul><li>Plugin system: widgets, routes, hooks, translations.</li><li>A faulty plugin is switched off automatically.</li><li>Full site export and import.</li><li>Install from the browser, the command line, a zip package or Docker.</li></ul>'
-                ))], ['width' => 50]),
-            ], ['padding_top' => 24, 'padding_bottom' => 72, 'gap' => 48]),
-            K::section([
-                K::h($t('Pour les ONG', 'For NGOs'), 'h2', ['margin_bottom' => 12]),
-                K::p('<p>'.$t(
-                    'Pages de projets, chiffres d’impact, appels aux dons, contenus en plusieurs langues pour vos partenaires et vos bénéficiaires. Le plugin officiel de dons avec Mobile Money et carte bancaire est prévu dans la prochaine phase.',
-                    'Project pages, impact figures, calls for donations, content in several languages for your partners and the people you serve. The official donations plugin, with Mobile Money and card payments, is planned for the next phase.'
-                ).'</p>', ['font_size' => 17]),
-            ], ['background_color' => $lavande, 'padding_top' => 64, 'padding_bottom' => 64, 'max_width' => 860, 'anchor' => 'ngo']),
-            $ctaBand,
-        ]);
+    // ─── Accueil, fonctionnalités, modèles (format 2) ────────────────────
+    foreach ($showcase($lang, $u, $repo, $theme) as $key => $p) {
+        $pages[] = $page($key, $p['title'], $p['meta_title'], $p['meta_description'], [],
+            ['content' => ['version' => 2, 'elements' => $p['elements']]] + ($key === 'home' ? ['is_home' => true] : []));
+    }
 
     // ─── Télécharger ─────────────────────────────────────────────────────
     $pages[] = $page('download', $t('Télécharger', 'Download'),
@@ -376,21 +247,29 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
             'What is done, what is in progress and what is coming in GeniusPress, up to version 1.0.'
         ), [
             $hero($t('Feuille de route', 'Roadmap'), $t(
-                'Le développement se fait en phases courtes. Chaque phase se termine quand son critère de fin est atteint, pas à une date fixe.',
-                'Development happens in short phases. Each phase ends when its goal is reached, not on a fixed date.'
+                'Le développement se fait par phases. Chaque phase se termine quand son critère de fin est atteint ; l’hébergement et la version 1.0 ont une date visée.',
+                'Development happens in phases. Each phase ends when its goal is reached; hosting and version 1.0 have a target date.'
             )),
             K::section([
                 K::p($t(
                     '<h2>MVP · terminé</h2><p>Builder visuel, assistant IA, administration, médiathèque, site multilingue.</p>'
-                    .'<h2>Phase 1 · fondations open source · presque terminée</h2><ul><li>Système de plugins et registre de widgets.</li><li>Interface traduite (français, anglais).</li><li>Installateur depuis zéro, paquet zip, Docker.</li><li>Export et import de site.</li><li>Tests automatiques sur GitHub (en attente de validation).</li></ul>'
-                    .'<h2>Phase 2 · un vrai site complet</h2><ul><li>En-tête, menus et pied de page (déjà disponibles).</li><li>Plugins officiels : formulaire de contact, dons et paiements (Mobile Money, carte).</li><li>Nouveaux widgets et modèles de pages.</li><li>Interface en swahili et en lingala.</li></ul>'
-                    .'<h2>Phase 3 · hébergement et plateforme</h2><ul><li>Déploiement sur VPS avec sauvegardes automatiques.</li><li>Plateforme multi-sites avec domaines personnalisés.</li><li>Mises à jour en un clic, export en site statique.</li></ul>'
-                    .'<h2>Phase 4 · version 1.0</h2><p>Documentation complète en français et en anglais, lancement public.</p>',
+                    .'<h2>Phase 1 · fondations open source · presque terminée</h2><ul><li>Système de plugins et registre de widgets.</li><li>Interface traduite (français, anglais).</li><li>Installateur depuis zéro, paquet zip, Docker.</li><li>Export et import de site.</li><li>Tests automatiques sur GitHub (en attente de la facturation GitHub).</li></ul>'
+                    .'<h2>Phase 2 · builder pro et modèles · en cours</h2><ul><li>Conteneurs imbriqués, réglages par appareil et au survol (fait).</li><li>24 widgets, dont le formulaire de contact (fait).</li><li>60 modèles dans 10 secteurs, avec démonstrations (fait).</li><li>Page Modèles et assistant IA (fait).</li><li>Nouvelle vitrine geniuspress.site (en cours).</li></ul>'
+                    .'<h2>Phase 3 · articles et constructeur de thème · prochaine</h2><ul><li>Articles, catégories, étiquettes, flux RSS et recherche.</li><li>Gabarits d’en-tête, de pied de page, d’article, d’archive, de recherche et de page 404.</li><li>Conditions d’affichage et widgets dynamiques.</li><li>En-tête collant et méga-menu.</li></ul>'
+                    .'<h2>Phase 4 · boutique (plugin Commerce officiel)</h2><ul><li>Produits à variantes, panier, livraison, plusieurs devises.</li><li>Paiements par Mobile Money, carte, à la livraison et par WhatsApp.</li><li>Commandes, gabarits et widgets de boutique.</li><li>Liste de souhaits, comparaison de produits et dons.</li></ul>'
+                    .'<h2>Phase 5 · builder enrichi</h2><ul><li>Plus de 30 widgets.</li><li>Fenêtres surgissantes, effets et animations, CSS personnalisé.</li><li>Blocs réutilisables.</li></ul>'
+                    .'<h2>Phase 6 · modèles nouvelle génération</h2><ul><li>Designs distincts pour chaque modèle.</li><li>Kits complets : blog, thème et boutique.</li><li>Plus de 120 modèles, dont des boutiques.</li></ul>'
+                    .'<h2>Phase 7 · hébergement et plateforme · mai 2027</h2><ul><li>Déploiement sur VPS avec sauvegardes automatiques.</li><li>Plateforme multi-sites avec domaines personnalisés.</li><li>Mises à jour en un clic.</li></ul>'
+                    .'<h2>Phase 8 · lancement de la version 1.0 · juin 2027</h2><p>Documentation complète en français et en anglais, lancement public.</p>',
                     '<h2>MVP · done</h2><p>Visual builder, AI assistant, admin, media library, multilingual site.</p>'
-                    .'<h2>Phase 1 · open source foundations · almost done</h2><ul><li>Plugin system and widget registry.</li><li>Translated interface (French, English).</li><li>Installer from scratch, zip package, Docker.</li><li>Site export and import.</li><li>Automated tests on GitHub (awaiting validation).</li></ul>'
-                    .'<h2>Phase 2 · a complete website</h2><ul><li>Header, menus and footer (already available).</li><li>Official plugins: contact form, donations and payments (Mobile Money, card).</li><li>New widgets and page templates.</li><li>Interface in Swahili and Lingala.</li></ul>'
-                    .'<h2>Phase 3 · hosting and platform</h2><ul><li>VPS deployment with automatic backups.</li><li>Multi-site platform with custom domains.</li><li>One-click updates, static site export.</li></ul>'
-                    .'<h2>Phase 4 · version 1.0</h2><p>Full documentation in French and English, public launch.</p>'
+                    .'<h2>Phase 1 · open source foundations · almost done</h2><ul><li>Plugin system and widget registry.</li><li>Translated interface (French, English).</li><li>Installer from scratch, zip package, Docker.</li><li>Site export and import.</li><li>Automated tests on GitHub (waiting on GitHub billing).</li></ul>'
+                    .'<h2>Phase 2 · pro builder and templates · in progress</h2><ul><li>Nested containers, per-device and hover settings (done).</li><li>24 widgets, including the contact form (done).</li><li>60 templates in 10 sectors, with demos (done).</li><li>Templates page and AI assistant (done).</li><li>New geniuspress.site showcase (in progress).</li></ul>'
+                    .'<h2>Phase 3 · posts and theme builder · next</h2><ul><li>Posts, categories, tags, RSS feed and search.</li><li>Header, footer, single post, archive, search and 404 templates.</li><li>Display conditions and dynamic widgets.</li><li>Sticky header and mega menu.</li></ul>'
+                    .'<h2>Phase 4 · online store (official Commerce plugin)</h2><ul><li>Products with variants, cart, shipping, multiple currencies.</li><li>Payments by Mobile Money, card, cash on delivery and WhatsApp.</li><li>Orders, store templates and widgets.</li><li>Wishlist, product comparison and donations.</li></ul>'
+                    .'<h2>Phase 5 · richer builder</h2><ul><li>More than 30 widgets.</li><li>Popups, effects and animations, custom CSS.</li><li>Reusable blocks.</li></ul>'
+                    .'<h2>Phase 6 · next-generation templates</h2><ul><li>A distinct design for each template.</li><li>Complete kits: blog, theme and store.</li><li>More than 120 templates, including stores.</li></ul>'
+                    .'<h2>Phase 7 · hosting and platform · May 2027</h2><ul><li>VPS deployment with automatic backups.</li><li>Multi-site platform with custom domains.</li><li>One-click updates.</li></ul>'
+                    .'<h2>Phase 8 · version 1.0 launch · June 2027</h2><p>Full documentation in French and English, public launch.</p>'
                 ), ['font_size' => 17]),
             ], ['padding_top' => 64, 'padding_bottom' => 88, 'max_width' => 860]),
         ]);
@@ -439,6 +318,7 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
     // ─── Menus de cette langue ───────────────────────────────────────────
     $navigation = [
         'menu' => [
+            ['label' => $t('Modèles', 'Templates'), 'url' => $u('templates')],
             ['label' => $t('Fonctionnalités', 'Features'), 'url' => $u('features')],
             ['label' => 'Documentation', 'url' => $u('docs')],
             ['label' => $t('Feuille de route', 'Roadmap'), 'url' => $u('roadmap')],
@@ -451,6 +331,7 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
             'GeniusPress is a free CMS (AGPL-3.0) with a visual page builder and an AI assistant, designed for African businesses and NGOs.'
         ),
         'footer_links' => [
+            ['label' => $t('Modèles', 'Templates'), 'url' => $u('templates')],
             ['label' => $t('Télécharger', 'Download'), 'url' => $u('download')],
             ['label' => 'Documentation', 'url' => $u('docs')],
             ['label' => $t('Créer un plugin', 'Creating a plugin'), 'url' => $u('doc-plugins')],
@@ -477,6 +358,8 @@ return [
         'secondary_color' => $nuit,
         'accent_color' => $ambre,
         'font_family' => 'Inter',
+        'heading_font' => $theme->headingFont,
+        'custom_colors' => $theme->settings()['custom_colors'],
         'locales' => ['fr', 'en'],
         'logo_url' => '/brand/geniuspress-mark.svg',
         'favicon_url' => '/favicon.svg',
@@ -487,4 +370,6 @@ return [
         ],
     ],
     'pages' => [...$pagesFr, ...$pagesEn],
+    // Thème des pages vitrines (illustrations d'attente des photos absentes).
+    'theme' => $theme,
 ];

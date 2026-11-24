@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Templates\Kit;
+use App\Templates\PhotoLibrary;
+use App\Templates\Placeholder;
 use App\Transfer\SiteExporter;
 use App\Transfer\SiteImporter;
 use Illuminate\Console\Command;
@@ -25,6 +28,8 @@ class WebsiteCommand extends Command
 
     public function handle(SiteImporter $importer): int
     {
+        // Les pages vitrines utilisent les photos des modèles (emplacements de Kit).
+        Kit::reset();
         $site = require base_path('website/site.php');
 
         $path = $this->option('output') ?: base_path('dist/geniuspress-site.zip');
@@ -41,7 +46,15 @@ class WebsiteCommand extends Command
             'generator' => 'geniuspress:website',
         ]));
         $zip->addFromString('settings.json', $json($site['settings']));
-        $zip->addFromString('media.json', '[]');
+        $media = [];
+        foreach (Kit::slots() as $slot => $info) {
+            $photo = PhotoLibrary::file($slot);
+            $name = $slot.($photo ? '.jpg' : '.svg');
+            $media[] = ['id' => $info['id'], 'file' => 'media/'.$name, 'path' => 'templates/'.$name, 'original_name' => $name, 'alt' => $info['alt']];
+            // Photos déjà réduites au téléchargement (1600 px, JPEG) : copiées telles quelles.
+            $zip->addFromString('media/'.$name, $photo ? (string) file_get_contents($photo) : Placeholder::svg($site['theme'], $info['icon'], 'site/'.$slot));
+        }
+        $zip->addFromString('media.json', $json($media));
         // « group » relie les versions d'une même page dans les différentes langues.
         $zip->addFromString('pages.json', $json(array_map(fn ($p) => array_diff_key($p, ['group' => 1]) + [
             'locale' => 'fr',

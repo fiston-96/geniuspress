@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Builder\ContentSanitizer;
+use App\Models\Media;
 use App\Models\Page;
 use App\Models\Setting;
 use App\Models\User;
 use App\Site\Navigation;
 use App\Website\PageKit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -157,6 +159,7 @@ class SiteNavigationTest extends TestCase
 
     public function test_official_website_is_built_and_imported(): void
     {
+        Storage::fake('public');
         $path = $this->sandbox.'/site-officiel.zip';
         $this->artisan('geniuspress:website', ['--output' => $path, '--import' => true])->assertSuccessful();
 
@@ -184,6 +187,18 @@ class SiteNavigationTest extends TestCase
 
         $this->get('/en')->assertOk()->assertSee('Build your organization’s website')
             ->assertSee('<a class="gp-btn gp-btn-sm gp-site-cta" href="/en/download">Download</a>', false);
+        // Vitrine au format 2 : page Modèles avec un aperçu et une démonstration par modèle.
+        $count = count(require base_path('templates/catalog.php'));
+        $this->assertSame(2, Page::where('slug', 'accueil')->sole()->content['version']);
+        $html = $this->get('/modeles')->assertOk()->assertSee($count.' modèles de sites')->getContent();
+        $this->assertSame($count, count(array_unique(preg_match_all('#href="/catalogue/([a-z0-9-]+)"#', $html, $m) ? $m[1] : [])));
+        $this->assertStringContainsString('id="ong"', $html, 'Ancre de chaque secteur.');
+        $this->get('/en/templates')->assertOk()->assertSee('href="/catalogue/eglise-lumiere/en"', false);
+        $this->get('/fonctionnalites')->assertOk()->assertSee('id="ngo"', false)->assertSee('Formulaire de contact');
+        // Les photos des aperçus sont importées dans la médiathèque, et les liens réécrits.
+        $this->assertGreaterThan(0, Media::count());
+        $this->assertStringNotContainsString('/storage/templates/', $this->get('/')->getContent());
+
         $this->get('/en/documentation/backup')->assertOk()
             ->assertSee('<html lang="en"', false)
             ->assertSee('<a href="/en/documentation/backup" aria-current="page">Backup, export and import</a>', false)
