@@ -8,7 +8,7 @@ namespace App\Builder;
  * (app/Builder/Widgets) et déclarés dans le WidgetRegistry. Sert à valider tout contenu qui
  * entre dans la base : éditeur, assistant IA, import.
  *
- * Règles : string:MAX | html | color | int:MIN:MAX | enum:a,b,c | url | bool
+ * Règles : string:MAX | html | color | int:MIN:MAX | enum:a,b,c | url | bool | links:MAX
  */
 class Schema
 {

@@ -382,6 +382,12 @@ class Assistant
                 'int' => ['type' => ['integer', 'null']],
                 'bool' => ['type' => ['boolean', 'null']],
                 'enum' => ['anyOf' => [['type' => 'string', 'enum' => explode(',', $args)], ['type' => 'null']]],
+                'links' => ['anyOf' => [['type' => 'array', 'items' => [
+                    'type' => 'object',
+                    'properties' => ['label' => ['type' => 'string'], 'url' => ['type' => 'string']],
+                    'required' => ['label', 'url'],
+                    'additionalProperties' => false,
+                ]], ['type' => 'null']]],
                 default => ['type' => ['string', 'null']],
             };
         }

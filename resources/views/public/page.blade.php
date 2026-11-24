@@ -2,6 +2,7 @@
     $font = $settings['font_family'] ?? 'Inter';
     $title = $page->meta_title ?: $page->title.' · '.$settings['site_name'];
     $plugins = app(\App\Plugins\PluginManager::class);
+    $nav = \App\Site\Navigation::forPage($page);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $page->locale }}" @if($page->locale === 'ar') dir="rtl" @endif>
@@ -9,6 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
+    <link rel="icon" href="{{ $settings['favicon_url'] ?? asset('favicon.svg') }}">
     @if ($page->meta_description)<meta name="description" content="{{ $page->meta_description }}">@endif
     @if (! empty($preview))<meta name="robots" content="noindex">@endif
     <meta property="og:title" content="{{ $title }}">
@@ -33,7 +35,13 @@
     @if (! empty($preview) && empty($embedded))
         <div class="gp-preview-bar">{{ __('Aperçu — cette page n’est pas publiée') }}</div>
     @endif
-    <main>{!! $rendered['html'] !!}</main>
+    @if ($nav['header']['enabled'])
+        @include('public.partials.header')
+    @endif
+    <main id="contenu">{!! $rendered['html'] !!}</main>
+    @if ($nav['footer']['enabled'])
+        @include('public.partials.footer')
+    @endif
     @foreach ($plugins->assets('site_js') as $src)<script src="{{ $src }}" defer></script>@endforeach
     {!! \App\Plugins\Hooks::filter('page.body_end', '', $page) !!}
 </body>

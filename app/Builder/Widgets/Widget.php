@@ -9,7 +9,7 @@ use App\Builder\RenderContext;
  * héritent tous de cette classe et sont déclarés dans le WidgetRegistry.
  *
  * Règles de validation (rules) : string:MAX | html | color | int:MIN:MAX |
- * enum:a,b,c | url | slug:MAX | bool. Les réglages communs (marge basse,
+ * enum:a,b,c | url | slug:MAX | bool | links:MAX (liste de {label, url}). Les réglages communs (marge basse,
  * masquage mobile/ordinateur) sont ajoutés automatiquement.
  */
 abstract class Widget

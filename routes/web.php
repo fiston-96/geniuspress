@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\MediaController;
@@ -65,6 +66,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::get('/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
+        Route::put('/appearance', [AppearanceController::class, 'update'])->name('appearance.update');
 
         Route::get('/transfer', [TransferController::class, 'index'])->name('transfer.index');
         Route::get('/transfer/export', [TransferController::class, 'export'])->name('transfer.export');

@@ -97,6 +97,18 @@ export const CORE_WIDGETS = {
             { key: 'aspect', label: t('Format'), type: 'segmented', options: ['16:9', '4:3', '1:1', '9:16'].map((v) => ({ value: v, label: v })) },
         ],
     },
+    links: {
+        label: t('Liste de liens'),
+        icon: 'M5 6h2M5 12h2M5 18h2M10 6h9M10 12h9M10 18h9',
+        defaults: { title: t('Sur cette page'), items: [{ label: t('Premier lien'), url: '#' }], layout: 'vertical' },
+        controls: [
+            { key: 'title', label: t('Titre (facultatif)'), type: 'text' },
+            { key: 'items', label: t('Liens'), type: 'links' },
+            { key: 'layout', label: t('Disposition'), type: 'segmented', tab: 'style', options: [{ value: 'vertical', label: t('Verticale') }, { value: 'horizontal', label: t('Horizontale') }] },
+            { key: 'style', label: t('Cadre'), type: 'segmented', tab: 'style', options: [{ value: 'plain', label: t('Sans') }, { value: 'boxed', label: t('Encadrée') }] },
+            { key: 'color', label: t('Couleur du lien actif'), type: 'color', tab: 'style' },
+        ],
+    },
 };
 
 

@@ -166,13 +166,18 @@ class PageController extends Controller
 
     private function validated(Request $request, ?Page $page = null): array
     {
-        $request->merge(['slug' => Str::slug((string) ($request->input('slug') ?: $request->input('title')))]);
+        $request->merge(['slug' => Page::normalizeSlug((string) ($request->input('slug') ?: $request->input('title')))]);
         $locale = $request->input('locale', $this->defaultLocale());
 
         return $request->validate([
             'title' => ['required', 'string', 'max:190'],
             'slug' => [
-                'required', 'string', 'max:190', 'not_in:admin,install,storage,build,up',
+                'required', 'string', 'max:190',
+                function ($attribute, $value, $fail) {
+                    if (Page::isReservedSlug((string) $value)) {
+                        $fail(__('Cette adresse est réservée.'));
+                    }
+                },
                 // Les pages à la corbeille bloquent aussi l'adresse (index unique en base).
                 Rule::unique('pages')->where('locale', $locale)->ignore($page?->id),
             ],

@@ -165,7 +165,7 @@ class SiteTransferTest extends TestCase
         $this->assertSame([], Storage::disk('public')->allFiles());
 
         $page = Page::sole();
-        $this->assertSame('admin-page', $page->slug);
+        $this->assertSame('page-admin', $page->slug);
         $widgets = $page->content['sections'][0]['columns'][0]['widgets'];
         $this->assertSame('<p>Ok</p>', $widgets[0]['settings']['html']);
         $this->assertArrayNotHasKey('url', $widgets[1]['settings']);

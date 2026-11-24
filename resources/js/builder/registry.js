@@ -66,6 +66,7 @@ export function registerFromRules(type, label, rules) {
         else if (kind === 'url') Object.assign(c, { type: 'url' });
         else if (kind === 'color') Object.assign(c, { type: 'color', tab: 'style' });
         else if (kind === 'bool') Object.assign(c, { type: 'toggle' });
+        else if (kind === 'links') Object.assign(c, { type: 'links' });
         else if (kind === 'int') Object.assign(c, { type: 'slider', min: Number(args[0]), max: Number(args[1]) });
         else if (kind === 'enum') Object.assign(c, { type: 'select', options: [{ value: '', label: '—' }, ...args.join(':').split(',').map((v) => ({ value: v, label: v }))] });
         else continue;

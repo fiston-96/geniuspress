@@ -40,3 +40,67 @@ h4 { font-size: 1.25rem; }
     .gp-column { flex: 1 1 auto !important; width: 100%; }
     .gp-hide-mobile { display: none !important; }
 }
+
+/* ─── En-tête et pied de page du site ─────────────────────────────────── */
+.gp-site-header { --gp-header-bg: #ffffff; --gp-header-fg: #0f172a; --gp-header-muted: #475569; --gp-header-line: #e2e8f0;
+    background: var(--gp-header-bg); color: var(--gp-header-fg); border-bottom: 1px solid var(--gp-header-line); position: relative; z-index: 40; }
+.gp-site-header--dark { --gp-header-bg: var(--gp-secondary); --gp-header-fg: #ffffff; --gp-header-muted: #cbd5e1; --gp-header-line: rgba(255,255,255,.12); }
+.gp-site-header.is-sticky { position: sticky; top: 0; }
+.gp-site-header__inner { max-width: 1180px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 24px; }
+.gp-site-brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; margin-right: auto; }
+.gp-site-brand img { height: 36px; width: auto; }
+.gp-site-nav { display: flex; align-items: center; gap: 20px; }
+.gp-site-menu, .gp-site-langs { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 4px; }
+.gp-site-menu a { display: block; padding: 8px 12px; border-radius: 8px; color: var(--gp-header-muted); text-decoration: none; font-weight: 500; font-size: .95rem; }
+.gp-site-menu a:hover, .gp-site-menu a[aria-current] { color: var(--gp-header-fg); background: color-mix(in srgb, var(--gp-header-fg) 7%, transparent); }
+.gp-site-langs a { display: block; padding: 4px 8px; border-radius: 6px; font-size: .8rem; font-weight: 600; color: var(--gp-header-muted); text-decoration: none; }
+.gp-site-langs a[aria-current="true"] { color: var(--gp-header-fg); box-shadow: inset 0 0 0 1px var(--gp-header-line); }
+.gp-nav-toggle { position: absolute; opacity: 0; pointer-events: none; }
+.gp-nav-burger { display: none; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; align-items: center; justify-content: center; }
+.gp-nav-burger span, .gp-nav-burger span::before, .gp-nav-burger span::after { display: block; width: 20px; height: 2px; background: currentColor; border-radius: 2px; position: relative; }
+.gp-nav-burger span::before, .gp-nav-burger span::after { content: ""; position: absolute; left: 0; }
+.gp-nav-burger span::before { top: -6px; } .gp-nav-burger span::after { top: 6px; }
+.gp-nav-toggle:focus-visible + .gp-nav-burger { outline: 2px solid var(--gp-primary); outline-offset: 2px; }
+
+@media (max-width: 860px) {
+    .gp-nav-burger { display: inline-flex; }
+    .gp-site-nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--gp-header-bg); border-bottom: 1px solid var(--gp-header-line);
+        flex-direction: column; align-items: stretch; gap: 12px; padding: 12px 20px 20px; }
+    .gp-nav-toggle:checked ~ .gp-site-nav { display: flex; }
+    .gp-site-menu { flex-direction: column; align-items: stretch; }
+    .gp-site-cta { text-align: center; }
+}
+
+.gp-site-footer { background: var(--gp-secondary); color: #cbd5e1; padding: 48px 20px 24px; margin-top: 0; }
+.gp-site-footer a { color: #ffffff; }
+.gp-site-footer__inner { max-width: 1180px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; }
+.gp-site-footer__inner p { margin: 0 0 8px; max-width: 46ch; }
+.gp-site-footer__name { color: #ffffff; font-weight: 700; font-size: 1.1rem; }
+.gp-site-footer__links { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(140px, auto)); gap: 8px 32px; }
+.gp-site-footer__links a { text-decoration: none; opacity: .85; } .gp-site-footer__links a:hover { opacity: 1; text-decoration: underline; }
+.gp-site-footer__credit { max-width: 1180px; margin: 32px auto 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12); font-size: .85rem; }
+
+/* ─── Textes de documentation : code, tableaux, titres ────────────────── */
+.gp-text h2, .gp-text h3, .gp-text h4 { margin: 1.6em 0 .5em; }
+.gp-text h2 { font-size: 1.6rem; } .gp-text h3 { font-size: 1.25rem; } .gp-text h4 { font-size: 1.05rem; }
+.gp-text p, .gp-text ul, .gp-text ol, .gp-text pre, .gp-text table, .gp-text blockquote { margin: 0 0 1em; }
+.gp-text code, .gp-text kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88em;
+    background: rgba(15, 23, 42, .06); border-radius: 5px; padding: .12em .38em; }
+.gp-text pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; line-height: 1.55; }
+.gp-text pre code { background: none; padding: 0; font-size: .85rem; color: inherit; }
+.gp-text table { width: 100%; border-collapse: collapse; font-size: .95rem; display: block; overflow-x: auto; }
+.gp-text th, .gp-text td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; }
+.gp-text th { font-weight: 600; background: rgba(15, 23, 42, .03); }
+.gp-text hr { border: 0; border-top: 1px solid #e2e8f0; margin: 2em 0; }
+
+/* ─── Widget « Liste de liens » ───────────────────────────────────────── */
+.gp-links { --gp-links-color: var(--gp-primary); }
+.gp-links ul { list-style: none; margin: 0; padding: 0; }
+.gp-links__title { margin: 0 0 8px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; }
+.gp-links--vertical ul { display: flex; flex-direction: column; gap: 2px; }
+.gp-links--horizontal ul { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.gp-links a { display: block; padding: 6px 10px; border-radius: 7px; color: inherit; text-decoration: none; opacity: .85; }
+.gp-links--horizontal a { padding: 4px 0; }
+.gp-links a:hover { opacity: 1; color: var(--gp-links-color); }
+.gp-links a[aria-current="page"] { opacity: 1; color: var(--gp-links-color); font-weight: 600; background: color-mix(in srgb, var(--gp-links-color) 10%, transparent); }
+.gp-links--boxed { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #ffffff; }

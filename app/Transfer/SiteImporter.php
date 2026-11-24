@@ -209,7 +209,16 @@ class SiteImporter
                 : array_values(array_unique([...$current, ...$imported]));
         }
 
+        if ($favicon = \App\Builder\ContentSanitizer::url($settings['favicon_url'] ?? null)) {
+            $values['favicon_url'] = $favicon;
+        }
+
         Setting::write($values);
+
+        // En-tête, menus et pied de page : revalidés comme s'ils venaient du formulaire « Apparence ».
+        if (is_array($settings['navigation'] ?? null)) {
+            \App\Site\Navigation::save($settings['navigation'], (array) Setting::read('locales', ['fr']));
+        }
     }
 
     private function importPages(array $pages, bool $replace, ?User $author, array $mediaIds, array $urlMap, array &$report): void
@@ -231,9 +240,9 @@ class SiteImporter
                 Setting::write(['locales' => $locales]);
             }
 
-            $slug = Str::slug((string) ($item['slug'] ?? $item['title'])) ?: 'page';
-            if (in_array($slug, ['admin', 'install', 'storage', 'build', 'up', 'plugins', 'plugin-assets'], true)) {
-                $slug .= '-page';
+            $slug = Page::normalizeSlug((string) ($item['slug'] ?? $item['title'])) ?: 'page';
+            if (Page::isReservedSlug($slug)) {
+                $slug = 'page-'.$slug;
             }
 
             $existing = $replace ? Page::withTrashed()->where('locale', $locale)->where('slug', $slug)->first() : null;

@@ -38,6 +38,25 @@ class Page extends Model
         });
     }
 
+    /** Premiers segments d'adresse réservés au fonctionnement de GeniusPress. */
+    public const RESERVED_SLUGS = ['admin', 'install', 'storage', 'build', 'up', 'plugins', 'plugin-assets', 'brand'];
+
+    /**
+     * Normalise une adresse de page : « Documentation / Installation » → « documentation/installation ».
+     * Les sous-niveaux sont permis (jusqu'à 4) ; chaque segment est mis en minuscules sans accents.
+     */
+    public static function normalizeSlug(?string $value): string
+    {
+        $segments = array_filter(array_map(fn ($s) => Str::slug($s), explode('/', (string) $value)));
+
+        return implode('/', array_slice($segments, 0, 4));
+    }
+
+    public static function isReservedSlug(string $slug): bool
+    {
+        return in_array(explode('/', $slug)[0], self::RESERVED_SLUGS, true);
+    }
+
     public static function emptyContent(): array
     {
         return ['version' => 1, 'sections' => []];

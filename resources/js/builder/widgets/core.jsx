@@ -72,6 +72,19 @@ const IMPL = {
             margin: ALIGN_MARGIN[o.align] ?? '0 auto',
         }),
     },
+    links: {
+        preview: (o) => {
+            const items = o.items ?? [];
+            if (!items.length) return <Placeholder>{t('Ajoutez des liens dans le panneau')}</Placeholder>;
+            return (
+                <nav className={`gp-links gp-links--${o.layout === 'horizontal' ? 'horizontal' : 'vertical'}${o.style === 'boxed' ? ' gp-links--boxed' : ''}`}>
+                    {o.title && <p className="gp-links__title">{o.title}</p>}
+                    <ul>{items.map((item, i) => <li key={i}><a href={item.url || '#'} draggable={false}>{item.label}</a></li>)}</ul>
+                </nav>
+            );
+        },
+        css: (o, { rule, sel }) => rule(sel, { '--gp-links-color': o.color }),
+    },
     video: {
         preview: (o) => {
             const src = embedUrl(o.url);

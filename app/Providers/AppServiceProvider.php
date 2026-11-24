@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         Widgets\SpacerWidget::class,
         Widgets\DividerWidget::class,
         Widgets\VideoWidget::class,
+        Widgets\LinksWidget::class,
     ];
 
     public function register(): void

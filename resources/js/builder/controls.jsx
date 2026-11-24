@@ -96,9 +96,41 @@ export function Control({ control, value, onChange, urls, onPickMedia }) {
             return <ImageControl control={control} value={value} onChange={onChange} urls={urls} />;
         case 'richtext':
             return <RichText label={control.label} value={value ?? ''} onChange={set} />;
+        case 'links':
+            return <LinksControl label={control.label} value={Array.isArray(value) ? value : []} onChange={set} />;
         default:
             return null;
     }
+}
+
+/** Liste de liens {label, url} : ajouter, modifier, monter, retirer. */
+function LinksControl({ label, value, onChange }) {
+    const update = (i, patch) => onChange(value.map((item, j) => (j === i ? { ...item, ...patch } : item)));
+    const move = (i, d) => {
+        const next = [...value];
+        [next[i], next[i + d]] = [next[i + d], next[i]];
+        onChange(next);
+    };
+    const small = 'rounded px-1.5 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30';
+    return (
+        <div>
+            <Label>{label}</Label>
+            <div className="space-y-2">
+                {value.map((item, i) => (
+                    <div key={i} className="rounded-md border border-slate-200 p-2">
+                        <input className={inputCls} value={item.label ?? ''} placeholder={t('Libellé')} onChange={(e) => update(i, { label: e.target.value })} />
+                        <input className={`${inputCls} mt-1.5`} value={item.url ?? ''} placeholder={t('https://… ou /page ou #ancre')} onChange={(e) => update(i, { url: e.target.value })} />
+                        <div className="mt-1 flex justify-end gap-1">
+                            <button className={small} disabled={i === 0} onClick={() => move(i, -1)} title={t('Monter')}>↑</button>
+                            <button className={small} disabled={i === value.length - 1} onClick={() => move(i, 1)} title={t('Descendre')}>↓</button>
+                            <button className={small} onClick={() => onChange(value.filter((_, j) => j !== i))} title={t('Retirer')}>✕</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <button className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500" onClick={() => onChange([...value, { label: '', url: '' }])}>{t('+ Ajouter un lien')}</button>
+        </div>
+    );
 }
 
 function ImageControl({ control, value, onChange, urls }) {

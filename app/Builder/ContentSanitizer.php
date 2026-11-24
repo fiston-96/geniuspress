@@ -137,8 +137,27 @@ class ContentSanitizer
             'enum' => in_array((string) $v, explode(',', $args), true) ? (string) $v : null,
             'url' => self::url($v),
             'bool' => filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+            'links' => $this->links($v, (int) ($args ?: 30)),
             default => null,
         };
+    }
+
+    /** Liste de liens [{label, url}] : libellés en texte brut, adresses vérifiées. */
+    private function links(mixed $v, int $max): ?array
+    {
+        if (! is_array($v)) {
+            return null;
+        }
+        $out = [];
+        foreach (array_slice(array_values($v), 0, $max) as $item) {
+            $label = is_array($item) && is_scalar($item['label'] ?? null) ? Str::limit(trim(strip_tags((string) $item['label'])), 120, '') : '';
+            $url = is_array($item) ? self::url($item['url'] ?? null) : null;
+            if ($label !== '' && $url) {
+                $out[] = ['label' => $label, 'url' => $url];
+            }
+        }
+
+        return $out ?: null;
     }
 
     private function int(mixed $v, string $args): ?int
@@ -184,6 +203,10 @@ class ContentSanitizer
                 ->allowElement('blockquote')->allowElement('h2')->allowElement('h3')->allowElement('h4')
                 ->allowElement('a', ['href', 'title', 'target'])
                 ->allowElement('span')
+                // Documentation : code, tableaux, séparateurs.
+                ->allowElement('code')->allowElement('pre')->allowElement('kbd')->allowElement('hr')
+                ->allowElement('table')->allowElement('thead')->allowElement('tbody')
+                ->allowElement('tr')->allowElement('th')->allowElement('td')
                 ->allowLinkSchemes(['https', 'http', 'mailto', 'tel'])
                 ->allowRelativeLinks()
                 ->forceAttribute('a', 'rel', 'noopener noreferrer')
