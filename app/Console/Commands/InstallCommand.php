@@ -33,7 +33,8 @@ class InstallCommand extends Command
         {--admin-name= : défaut GP_ADMIN_NAME} {--admin-email= : défaut GP_ADMIN_EMAIL}
         {--admin-password= : défaut GP_ADMIN_PASSWORD (évite de le laisser dans l’historique du shell)}
         {--url= : Adresse publique du site (ex. https://exemple.org)}
-        {--blank : Commencer avec une page d’accueil vide}';
+        {--blank : Commencer avec une page d’accueil vide}
+        {--import= : Importer un site exporté (fichier zip) à la place de la page d’accueil}';
 
     protected $description = 'Installe GeniusPress (base de données, site et compte administrateur)';
 
@@ -87,7 +88,7 @@ class InstallCommand extends Command
             'name' => $this->opt('admin-name', 'GP_ADMIN_NAME') ?: text(__('Votre nom'), required: true),
             'email' => $this->opt('admin-email', 'GP_ADMIN_EMAIL') ?: text(__('Adresse e-mail'), required: true),
             'password' => $this->opt('admin-password', 'GP_ADMIN_PASSWORD') ?: password(__('Mot de passe'), required: true, hint: __('10 caractères minimum, avec des lettres et des chiffres.')),
-            'start' => $this->option('blank') ? 'blank' : 'welcome',
+            'start' => $this->option('import') ? 'import' : ($this->option('blank') ? 'blank' : 'welcome'),
             'url' => $this->opt('url', 'APP_URL'),
         ];
 
@@ -107,7 +108,22 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        $installer->createSite($site);
+        if ($site['start'] === 'import' && ! is_file($this->option('import'))) {
+            $this->error(__('Fichier introuvable : :path', ['path' => $this->option('import')]));
+
+            return self::FAILURE;
+        }
+
+        $user = $installer->createSite($site);
+
+        if ($site['start'] === 'import') {
+            $report = app(\App\Transfer\SiteImporter::class)->import($this->option('import'), $user, replace: true, withSettings: true);
+            \App\Models\Setting::write(['site_name' => $site['site_name']]);
+            foreach ($report['warnings'] as $warning) {
+                $this->warn($warning);
+            }
+            $this->info(__('Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]));
+        }
         $this->info(__('GeniusPress est installé. Connectez-vous sur :url', ['url' => rtrim($site['url'] ?: config('app.url'), '/').'/admin/login']));
 
         return self::SUCCESS;

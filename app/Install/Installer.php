@@ -82,7 +82,9 @@ class Installer
 
             Setting::write(['site_name' => $site['site_name'], 'locales' => [$site['locale']]]);
 
-            Page::create([
+            // Import d'un site existant : ses pages remplaceront la page d'accueil, inutile d'en créer une.
+            if ($site['start'] !== 'import') {
+                Page::create([
                 'title' => __('Accueil'),
                 'slug' => $site['locale'] === 'fr' ? 'accueil' : 'home',
                 'locale' => $site['locale'],
@@ -91,7 +93,8 @@ class Installer
                 'published_at' => now(),
                 'author_id' => $user->id,
                 'content' => $site['start'] === 'blank' ? Page::emptyContent() : DefaultContent::home($site['site_name']),
-            ]);
+                ]);
+            }
 
             return $user;
         });

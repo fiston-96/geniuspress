@@ -10,6 +10,7 @@
 - **Brouillon séparé** : enregistrer ne modifie pas le site en ligne tant que la page n'est pas publiée.
 - **Assistant IA (Claude)** : création d'une page à partir d'une description, rédaction et réécriture des textes, traduction des pages, audit SEO et accessibilité.
 - **Site multilingue**, médiathèque, référencement par page, rôles administrateur et éditeur.
+- **Vos données vous appartiennent** : export complet du site en un fichier zip, import dans une autre installation (voir [docs/guide/sauvegarde.md](docs/guide/sauvegarde.md)).
 - **Sécurité** : tout contenu est nettoyé et validé côté serveur, la clé API est chiffrée et n'est jamais envoyée au navigateur.
 
 ## Prérequis

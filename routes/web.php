@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\PluginAssetController;
@@ -64,6 +65,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::get('/transfer', [TransferController::class, 'index'])->name('transfer.index');
+        Route::get('/transfer/export', [TransferController::class, 'export'])->name('transfer.export');
+        Route::post('/transfer/import', [TransferController::class, 'import'])->name('transfer.import');
 
         Route::get('/plugins', [PluginController::class, 'index'])->name('plugins.index');
         Route::post('/plugins/{slug}/activate', [PluginController::class, 'activate'])->name('plugins.activate');

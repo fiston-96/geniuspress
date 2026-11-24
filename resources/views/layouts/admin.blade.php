@@ -15,6 +15,7 @@
         ['admin.media.index', __('Médias'), 'M4 5h16v14H4zM4 15l4-4 5 5 3-3 4 4'],
     ];
     if (auth()->user()->isAdmin()) {
+        $nav[] = ['admin.transfer.index', __('Sauvegarde'), 'M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3'];
         $nav[] = ['admin.plugins.index', __('Plugins'), 'M9 3v4M15 3v4M6 7h12v4a6 6 0 01-12 0zM12 17v4'];
         $nav[] = ['admin.settings.edit', __('Réglages'), 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'];
     }
@@ -71,6 +72,11 @@
         <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-8">
             @if (session('status'))
                 <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
+            @endif
+            @if (session('warnings') && ! request()->routeIs('admin.transfer.*'))
+                <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <ul class="list-disc pl-5">@foreach (session('warnings') as $warning)<li>{{ $warning }}</li>@endforeach</ul>
+                </div>
             @endif
             @yield('content')
         </main>

@@ -7,6 +7,8 @@ use App\Install\EnvironmentFile;
 use App\Install\Installer;
 use App\Install\InstallState;
 use App\Install\Requirements;
+use App\Models\Setting;
+use App\Transfer\SiteImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -100,7 +102,7 @@ class InstallController extends Controller
         return view('install.site', ['locales' => SettingController::AVAILABLE_LOCALES]);
     }
 
-    public function saveSite(Request $request, Installer $installer)
+    public function saveSite(Request $request, Installer $installer, SiteImporter $importer)
     {
         if (! $this->state->databaseIsReady()) {
             return redirect()->route('install.database');
@@ -112,15 +114,31 @@ class InstallController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:190'],
             'password' => ['required', 'confirmed', Password::min(10)->letters()->numbers()],
-            'start' => ['required', Rule::in(['welcome', 'blank'])],
+            'start' => ['required', Rule::in(['welcome', 'blank', 'import'])],
+            'archive' => ['required_if:start,import', 'nullable', 'file', 'mimes:zip', 'max:512000'],
         ]);
 
         $user = $installer->createSite($data + ['url' => $request->root()]);
 
         Auth::login($user);
         $request->session()->regenerate();
+        $redirect = redirect()->route('admin.dashboard')->with('status', __('Bienvenue sur GeniusPress !'));
 
-        return redirect()->route('admin.dashboard')->with('status', __('Bienvenue sur GeniusPress !'));
+        // Déménagement d'un site existant : on importe l'archive dans le site tout neuf.
+        if ($data['start'] === 'import') {
+            @set_time_limit(300);
+            try {
+                $report = $importer->import($request->file('archive')->getRealPath(), $user, replace: true, withSettings: true);
+                Setting::write(['site_name' => $data['site_name']]); // Le nom saisi l'emporte.
+                $redirect->with('status', __('Bienvenue sur GeniusPress ! Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]))
+                    ->with('warnings', $report['warnings']);
+            } catch (Throwable $e) {
+                report($e);
+                $redirect->with('status', __('GeniusPress est installé, mais l’import a échoué : :error Vous pouvez le relancer depuis Sauvegarde.', ['error' => $e->getMessage()]));
+            }
+        }
+
+        return $redirect;
     }
 
     /** Langue de l'assistant, avant que le compte existe. */
