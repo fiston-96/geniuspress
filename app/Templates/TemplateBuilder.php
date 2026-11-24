@@ -66,12 +66,19 @@ final class TemplateBuilder
             $navigation['locales'][$lang] = $this->localize($site['navigation'], $prefix);
         }
 
-        // Illustrations d'attente pour chaque emplacement de photo utilisé.
+        // Photo libre de droits choisie pour l'emplacement, sinon illustration d'attente.
         $media = [];
         $files = [];
+        $credits = [];
+        $allCredits = PhotoLibrary::read('credits');
         foreach (Kit::slots() as $slot => $info) {
-            $media[] = ['id' => $info['id'], 'file' => 'media/'.$slot.'.svg', 'path' => 'templates/'.$slot.'.svg', 'original_name' => $slot.'.svg', 'alt' => $info['alt']];
-            $files['media/'.$slot.'.svg'] = Placeholder::svg($theme, $info['icon'], $id.'/'.$slot);
+            $photo = PhotoLibrary::file($slot);
+            $name = $slot.($photo ? '.jpg' : '.svg');
+            $media[] = ['id' => $info['id'], 'file' => 'media/'.$name, 'path' => 'templates/'.$name, 'original_name' => $name, 'alt' => $info['alt']];
+            $files['media/'.$name] = $photo ? (string) file_get_contents($photo) : Placeholder::svg($theme, $info['icon'], $id.'/'.$slot);
+            if ($photo && isset($allCredits[$slot])) {
+                $credits[] = ['slot' => $slot] + array_intersect_key($allCredits[$slot], array_flip(['photographer', 'photographer_url', 'url', 'license']));
+            }
         }
 
         $settings = $theme->settings() + ['navigation' => $navigation, 'locales' => self::LOCALES];
@@ -110,6 +117,8 @@ final class TemplateBuilder
             'locales' => self::LOCALES,
             'pages' => array_map(fn ($key, $p) => ['key' => $key, 'title' => $p['title']], array_keys($summary), $summary),
             'photos' => count($media),
+            // Photos Pexels (licence Pexels : usage libre, crédit apprécié) ; le reste est illustré.
+            'credits' => $credits,
             'file' => $id.'.zip',
             'size' => filesize($path),
             'sha256' => hash_file('sha256', $path),

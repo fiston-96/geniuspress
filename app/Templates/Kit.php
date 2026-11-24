@@ -35,9 +35,10 @@ final class Kit
         return $prefix.str_pad(base_convert((string) ++self::$seq, 10, 36), 9, '0', STR_PAD_LEFT);
     }
 
+    /** Adresse d'un emplacement : la photo choisie (JPEG) si elle a été téléchargée, sinon l'illustration (SVG). */
     public static function slotUrl(string $slot): string
     {
-        return '/storage/templates/'.$slot.'.svg';
+        return '/storage/templates/'.$slot.(PhotoLibrary::file($slot) ? '.jpg' : '.svg');
     }
 
     private static function slot(string $slot, string $icon, string $alt): int

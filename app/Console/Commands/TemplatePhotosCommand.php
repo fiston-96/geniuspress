@@ -1,0 +1,257 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Templates\Kit;
+use App\Templates\PhotoLibrary;
+use App\Templates\TemplateBuilder;
+use App\Templates\Theme;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use Throwable;
+
+/**
+ * Prépare les photos libres de droits des modèles avec l'API Pexels
+ * (clé gratuite : https://www.pexels.com/api/, variable PEXELS_API_KEY).
+ *
+ *   php artisan geniuspress:templates:photos --search            → candidates pour les emplacements sans photo choisie
+ *   php artisan geniuspress:templates:photos --review            → dist/photos-review.html (pour comparer et choisir)
+ *   php artisan geniuspress:templates:photos --choose=ong-accueil:3   → retenir la 3ᵉ candidate
+ *   php artisan geniuspress:templates:photos --download          → télécharge les photos choisies (1600 px, JPEG)
+ *
+ * Un nom de pack limite l'opération à ce secteur : … --search ong
+ */
+class TemplatePhotosCommand extends Command
+{
+    protected $signature = 'geniuspress:templates:photos {pack? : Limiter à un secteur}
+        {--search : Chercher des photos pour les emplacements sans choix}
+        {--review : Construire la page de comparaison des candidates}
+        {--choose=* : Retenir une candidate (emplacement:numéro)}
+        {--download : Télécharger les photos choisies}
+        {--candidates=8 : Nombre de candidates par emplacement}';
+
+    protected $description = 'Prépare les photos libres de droits (Pexels) des modèles de sites';
+
+    private const API = 'https://api.pexels.com/v1';
+
+    public function handle(): int
+    {
+        $slots = $this->slots($this->argument('pack'));
+        $this->line(__(':count emplacements de photos.', ['count' => count($slots)]));
+
+        foreach ((array) $this->option('choose') as $choice) {
+            $this->choose((string) $choice);
+        }
+        if ($this->option('search') && ! $this->search($slots)) {
+            return self::FAILURE;
+        }
+        if ($this->option('download') && ! $this->download($slots)) {
+            return self::FAILURE;
+        }
+        if ($this->option('review')) {
+            $this->review($slots);
+        }
+
+        $choices = PhotoLibrary::read('choices');
+        $files = count(array_filter(array_keys($slots), fn ($s) => PhotoLibrary::file($s)));
+        $this->info(__('Photos choisies : :chosen / :total · téléchargées : :files', ['chosen' => count(array_intersect_key($choices, $slots)), 'total' => count($slots), 'files' => $files]));
+
+        return self::SUCCESS;
+    }
+
+    /** Emplacements de photos des packs, avec leur texte alternatif en anglais et leur secteur. */
+    private function slots(?string $only): array
+    {
+        $builder = new TemplateBuilder(base_path('templates/sectors'));
+        $theme = new Theme(['primary' => '#000000', 'secondary' => '#000000', 'accent' => '#ffffff', 'light' => '#ffffff', 'text' => '#000000', 'muted' => '#333333'], hero: 'image');
+        $slots = [];
+        foreach (glob(base_path('templates/sectors/*.php')) as $file) {
+            $sector = basename($file, '.php');
+            if ($only && $sector !== $only) {
+                continue;
+            }
+            Kit::reset();
+            ($builder->pack($sector)['build'])('en', $theme, []);
+            foreach (Kit::slots() as $slot => $info) {
+                $slots[$slot] = ['sector' => $sector, 'alt' => $info['alt'], 'icon' => $info['icon']];
+            }
+        }
+
+        return $slots;
+    }
+
+    private function key(): ?string
+    {
+        $key = config('geniuspress.catalog.pexels_key');
+        if (! $key) {
+            $this->error(__('Ajoutez votre clé API Pexels (gratuite, https://www.pexels.com/api/) dans le fichier .env : PEXELS_API_KEY=…'));
+        }
+
+        return $key ?: null;
+    }
+
+    private function search(array $slots): bool
+    {
+        if (! $key = $this->key()) {
+            return false;
+        }
+        $candidates = PhotoLibrary::read('candidates');
+        $choices = PhotoLibrary::read('choices');
+        $todo = array_filter($slots, fn ($s, $slot) => ! isset($choices[$slot]), ARRAY_FILTER_USE_BOTH);
+        $bar = $this->output->createProgressBar(count($todo));
+
+        foreach ($todo as $slot => $info) {
+            $query = PhotoLibrary::query($slot, $info['alt'], $info['sector']);
+            try {
+                $response = Http::withHeaders(['Authorization' => $key])->timeout(20)->retry(2, 1000)
+                    ->get(self::API.'/search', ['query' => $query, 'per_page' => (int) $this->option('candidates'), 'orientation' => 'landscape']);
+            } catch (Throwable $e) {
+                $this->newLine();
+                $this->error(__('Recherche impossible pour :slot : :error', ['slot' => $slot, 'error' => $e->getMessage()]));
+
+                return false;
+            }
+            if ($response->status() === 401) {
+                $this->newLine();
+                $this->error(__('Clé API Pexels refusée.'));
+
+                return false;
+            }
+            if ($response->status() === 429) {
+                $this->newLine();
+                $this->warn(__('Limite horaire de Pexels atteinte : relancez la même commande dans une heure, elle reprendra là où elle s’est arrêtée.'));
+
+                return true;
+            }
+            $photos = array_map(fn ($p) => [
+                'id' => $p['id'], 'photographer' => $p['photographer'] ?? '', 'photographer_url' => $p['photographer_url'] ?? '',
+                'url' => $p['url'] ?? '', 'alt' => $p['alt'] ?? '', 'preview' => $p['src']['medium'] ?? '', 'src' => $p['src']['large2x'] ?? ($p['src']['original'] ?? ''),
+            ], (array) $response->json('photos'));
+            $candidates[$slot] = ['query' => $query, 'photos' => $photos];
+            if ($photos) {
+                $choices[$slot] = $photos[0]['id'];
+            }
+            // Enregistré à chaque emplacement : une interruption ne fait rien perdre.
+            PhotoLibrary::write('candidates', $candidates);
+            PhotoLibrary::write('choices', $choices);
+            $bar->advance();
+
+            // Accès gratuit : 200 requêtes par heure. On s'arrête avant la limite.
+            $remaining = $response->header('X-Ratelimit-Remaining');
+            if ($remaining !== '' && is_numeric($remaining) && (int) $remaining <= 1) {
+                $this->newLine();
+                $this->warn(__('Limite horaire de Pexels atteinte : relancez la même commande dans une heure, elle reprendra là où elle s’est arrêtée.'));
+
+                return true;
+            }
+            usleep(200_000);
+        }
+        $bar->finish();
+        $this->newLine();
+
+        return true;
+    }
+
+    private function choose(string $choice): void
+    {
+        [$slot, $n] = array_pad(explode(':', $choice, 2), 2, '');
+        $photos = PhotoLibrary::read('candidates')[$slot]['photos'] ?? [];
+        $index = (int) $n - 1;
+        if (! isset($photos[$index])) {
+            $this->warn(__('Candidate introuvable : :choice', ['choice' => $choice]));
+
+            return;
+        }
+        $choices = PhotoLibrary::read('choices');
+        $choices[$slot] = $photos[$index]['id'];
+        PhotoLibrary::write('choices', $choices);
+        @unlink(PhotoLibrary::path('files/'.$slot.'.jpg')); // sera re-téléchargée
+        $this->line(__('Emplacement :slot : candidate :n retenue.', ['slot' => $slot, 'n' => $n]));
+    }
+
+    private function download(array $slots): bool
+    {
+        // Le téléchargement passe par le serveur d'images, pas par l'API : la clé n'est utile qu'en secours.
+        $key = (string) config('geniuspress.catalog.pexels_key');
+        $choices = array_intersect_key(PhotoLibrary::read('choices'), $slots);
+        $candidates = PhotoLibrary::read('candidates');
+        $credits = PhotoLibrary::read('credits');
+        @mkdir(PhotoLibrary::path('files'), 0775, true);
+        $bar = $this->output->createProgressBar(count($choices));
+
+        foreach ($choices as $slot => $id) {
+            $target = PhotoLibrary::path('files/'.$slot.'.jpg');
+            if (is_file($target) && ($credits[$slot]['id'] ?? null) === $id) {
+                $bar->advance();
+
+                continue;
+            }
+            try {
+                // Les informations de la photo viennent de la recherche ; sinon, une requête à l'API.
+                $photo = collect($candidates[$slot]['photos'] ?? [])->firstWhere('id', $id)
+                    ?? $this->apiPhoto($key, (int) $id);
+                $image = Http::timeout(60)->retry(2, 1000)->get($photo['src'])->throw()->body();
+            } catch (Throwable $e) {
+                $this->newLine();
+                $this->warn(__('Téléchargement impossible pour :slot : :error', ['slot' => $slot, 'error' => $e->getMessage()]));
+
+                continue;
+            }
+            if (! $this->saveJpeg($image, $target)) {
+                $this->warn(__('Image illisible pour :slot.', ['slot' => $slot]));
+
+                continue;
+            }
+            $credits[$slot] = ['id' => $id, 'photographer' => $photo['photographer'] ?? '', 'photographer_url' => $photo['photographer_url'] ?? '', 'url' => $photo['url'] ?? '', 'license' => 'Pexels License'];
+            $bar->advance();
+        }
+        $bar->finish();
+        $this->newLine();
+        PhotoLibrary::write('credits', $credits);
+
+        return true;
+    }
+
+    private function apiPhoto(string $key, int $id): array
+    {
+        $p = Http::withHeaders(['Authorization' => $key])->timeout(20)->retry(2, 1000)->get(self::API.'/photos/'.$id)->throw()->json();
+
+        return ['id' => $p['id'], 'photographer' => $p['photographer'] ?? '', 'photographer_url' => $p['photographer_url'] ?? '', 'url' => $p['url'] ?? '', 'src' => $p['src']['large2x'] ?? $p['src']['original']];
+    }
+
+    /** Réduit à 1600 px de large au plus, JPEG qualité 78 (environ 150 à 300 Ko). */
+    private function saveJpeg(string $data, string $target): bool
+    {
+        $source = @imagecreatefromstring($data);
+        if (! $source) {
+            return false;
+        }
+        [$w, $h] = [imagesx($source), imagesy($source)];
+        $width = min(1600, $w);
+        $height = (int) round($h * $width / $w);
+        $image = imagecreatetruecolor($width, $height);
+        imagecopyresampled($image, $source, 0, 0, 0, 0, $width, $height, $w, $h);
+        imageinterlace($image, true);
+
+        return imagejpeg($image, $target, 78);
+    }
+
+    /** Page de comparaison : pour chaque emplacement, les candidates et la photo retenue. */
+    private function review(array $slots): void
+    {
+        $candidates = PhotoLibrary::read('candidates');
+        $choices = PhotoLibrary::read('choices');
+        $html = '<!doctype html><meta charset="utf-8"><title>Photos des modèles</title><style>body{font:14px system-ui;margin:24px;background:#f8fafc}h2{font-size:15px;margin:28px 0 4px}p{margin:0 0 8px;color:#475569}.row{display:flex;gap:8px;flex-wrap:wrap}figure{margin:0;width:180px;background:#fff;border:3px solid transparent;border-radius:8px;overflow:hidden}figure.on{border-color:#4f46e5}img{width:100%;height:110px;object-fit:cover;display:block}figcaption{padding:4px 6px;font-size:12px}</style>';
+        $html .= '<h1>Photos des modèles</h1><p>Pour changer : <code>php artisan geniuspress:templates:photos --choose=emplacement:numéro</code> puis <code>--download</code>.</p>';
+        foreach ($slots as $slot => $info) {
+            $html .= '<h2>'.e($slot).'</h2><p>'.e($info['alt']).' — recherche : « '.e($candidates[$slot]['query'] ?? '…').' »</p><div class="row">';
+            foreach ($candidates[$slot]['photos'] ?? [] as $i => $p) {
+                $html .= '<figure class="'.(($choices[$slot] ?? null) === $p['id'] ? 'on' : '').'"><img loading="lazy" src="'.e($p['preview']).'" alt="'.e($p['alt']).'"><figcaption>'.($i + 1).' · '.e($p['photographer']).'</figcaption></figure>';
+            }
+            $html .= '</div>';
+        }
+        @mkdir(base_path('dist'), 0775, true);
+        file_put_contents(base_path('dist/photos-review.html'), $html);
+        $this->line(__('Page de comparaison : :path', ['path' => base_path('dist/photos-review.html')]));
+    }
+}

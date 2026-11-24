@@ -33,3 +33,6 @@ Thumbs.db
 # Installation
 /storage/app/installed.lock
 /dist
+
+# Photos des modèles : seuls les choix et crédits sont versionnés (templates/photos/*.json)
+/templates/photos/files/

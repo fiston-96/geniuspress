@@ -26,8 +26,25 @@ anglais. Chaque modèle s'installe comme une sauvegarde de site et se prévisual
   cartes (`shadow`, `border`, `flat`, `tinted`), forme des boutons, arrondis.
 - Les blocs n'utilisent que les **couleurs globales** du site : après installation, changer une
   couleur dans les réglages met tout le site à jour.
-- Les photos sont des **emplacements** (`{pack}-accueil`, `{pack}-equipe-1`…) remplis pour l'instant
-  par des illustrations aux couleurs du thème, en attendant les photos libres de droits.
+- Les photos sont des **emplacements** (`{pack}-accueil`, `{pack}-equipe-1`…). Chacun reçoit une
+  photo libre de droits de [Pexels](https://www.pexels.com/license/) ; un emplacement sans photo garde
+  une illustration aux couleurs du thème.
+
+## Photos (Pexels)
+
+Seuls les choix sont versionnés (`photos/choices.json`, `photos/credits.json`, `photos/candidates.json`) ;
+les fichiers (`photos/files/`, non versionnés) se re-téléchargent à l'identique.
+
+```bash
+# Clé gratuite sur https://www.pexels.com/api/, à mettre dans .env : PEXELS_API_KEY=…
+php artisan geniuspress:templates:photos --search      # 8 candidates par emplacement (reprend après la limite horaire)
+php artisan geniuspress:templates:photos --review      # dist/photos-review.html : comparer les candidates
+php artisan geniuspress:templates:photos --choose=ong-accueil:3   # retenir une autre candidate
+php artisan geniuspress:templates:photos --download    # 1600 px, JPEG ; puis reconstruire le catalogue
+```
+
+L'accès gratuit à l'API permet 200 recherches par heure : les 219 emplacements demandent donc deux
+passages. Les crédits (photographe, lien) figurent dans l'index du catalogue et sur la page Modèles.
 
 ## Commandes
 
