@@ -148,8 +148,8 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     <h1>Feuille de route GeniusPress</h1>
     <p class="lead">Un CMS open source avec son propre page builder et un assistant IA intégré, pensé pour les entreprises et les ONG africaines. Voici ce qui existe déjà, ce qui arrive, et dans quel ordre.</p>
     <div class="facts">
-      <div class="fact"><span>Version actuelle</span><strong>MVP · 23 novembre 2026</strong></div>
-      <div class="fact"><span>Prochain jalon</span><strong>Phase 1 · fondations open source</strong></div>
+      <div class="fact"><span>Où on en est</span><strong>Phase 1 presque finie · 24 nov. 2026</strong></div>
+      <div class="fact"><span>Prochain jalon</span><strong>Docker validé par la CI, puis phase 2</strong></div>
       <div class="fact"><span>Objectif 1.0 publique</span><strong>Début mars 2027 (estimation)</strong></div>
       <div class="fact"><span>Licence</span><strong>AGPL-3.0 + exception plugins</strong></div>
     </div>
@@ -178,36 +178,35 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
         </div>
       </article>
 
-      <article class="phase now">
-        <div class="when"><b>Phase 0</b><small>24 nov. · 1 jour</small></div>
+      <article class="phase done">
+        <div class="when"><b>Phase 0</b><small>23 nov. 2026</small></div>
         <div class="rail"><span class="dot"></span></div>
         <div class="body">
-          <div class="phase-title"><h3>Préparer le dépôt</h3><span class="pill s-wip">En cours</span></div>
+          <div class="phase-title"><h3>Préparer le dépôt</h3><span class="pill s-ok">Terminé</span></div>
           <ul>
-            <li>Mot de passe de test retiré du code <em>(fait)</em></li>
-            <li>Licence AGPL-3.0 et texte de l’exception plugins (à faire relire par un juriste)</li>
-            <li>README, fichiers du projet, premier commit git, dépôt GitHub privé</li>
-            <li>Vérifier le nom GeniusPress : marque, domaine, compte GitHub</li>
+            <li>Licence AGPL-3.0 et projet d’exception pour les plugins (relecture par un juriste avant la 1.0)</li>
+            <li>README, premier commit, dépôt GitHub <code>fiston-96/geniuspress</code>, sans aucun secret</li>
+            <li>Reste ouvert : le dépôt est public alors qu’il devait être privé, et le nom « GeniusPress » n’est pas encore vérifié (marque, domaine)</li>
           </ul>
-          <p class="done-when"><b>Terminé quand</b> le code est versionné sur GitHub sans aucun secret.</p>
         </div>
       </article>
 
-      <article class="phase">
-        <div class="when"><b>Phase 1</b><small>déc. 2026 · 3–4 sem.</small></div>
+      <article class="phase now">
+        <div class="when"><b>Phase 1</b><small>24 nov. 2026</small></div>
         <div class="rail"><span class="dot"></span></div>
         <div class="body">
-          <div class="phase-title"><h3>Fondations open source</h3><span class="pill s-plan">Prévu</span></div>
+          <div class="phase-title"><h3>Fondations open source</h3><span class="pill s-wip">Presque terminé</span></div>
           <p class="goal">Rendre GeniusPress installable par n’importe qui et extensible par des développeurs.</p>
           <ul>
-            <li>Interface d’administration traduisible (français et anglais d’abord)</li>
-            <li>Registre de widgets, puis système de plugins avec hooks, réglages et routes</li>
-            <li>Commande <code>geniuspress:make-plugin</code> pour démarrer un plugin</li>
-            <li>Installateur complet : vérification du serveur, base de données, modèles de départ</li>
-            <li>Paquet zip pour hébergement mutualisé, image Docker, export et import de site</li>
-            <li>Tests automatiques sur GitHub à chaque contribution</li>
+            <li>Registre de widgets et système de plugins : hooks, routes, fichiers, désactivation automatique en cas d’erreur <em>(fait)</em></li>
+            <li>Commande <code>geniuspress:make-plugin</code>, plugin d’exemple Citation, guide développeur <em>(fait)</em></li>
+            <li>Interface traduisible, français et anglais, langue choisie par chaque utilisateur <em>(fait)</em></li>
+            <li>Installateur depuis zéro, dans le navigateur et en ligne de commande, MySQL ou SQLite <em>(fait)</em></li>
+            <li>Paquet zip pour hébergement mutualisé, testé de bout en bout <em>(fait)</em></li>
+            <li>Export et import de site, avec déménagement possible dès l’installation <em>(fait)</em></li>
+            <li>Image Docker et tests automatiques sur GitHub : écrits, en attente du déblocage de la facturation GitHub pour être validés</li>
           </ul>
-          <p class="done-when"><b>Terminé quand</b> un développeur installe GeniusPress depuis zéro et publie un widget sous forme de plugin, en suivant seulement la documentation.</p>
+          <p class="done-when"><b>Terminé quand</b> la CI GitHub est au vert, Docker compris, et les branches sont fusionnées dans <code>main</code>.</p>
         </div>
       </article>
 
@@ -221,6 +220,7 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
             <li>En-tête, menu et pied de page personnalisables (constructeur de thème)</li>
             <li>Plugin officiel Formulaire de contact</li>
             <li>Plugin officiel Paiement et dons : Mobile Money et carte bancaire</li>
+            <li>Traductions de l’interface en swahili et en lingala</li>
             <li>Nouveaux widgets : icônes, galerie, carrousel, compteurs, onglets, FAQ, carte</li>
             <li>Modèles de pages prêts à l’emploi (ONG, entreprise, école, église, restaurant)</li>
             <li>Gestion des utilisateurs dans l’admin, assistant IA en tâche de fond</li>
@@ -235,10 +235,10 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
         <div class="body">
           <div class="phase-title"><h3>Hébergement et plateforme</h3><span class="pill s-plan">Prévu</span></div>
           <ul>
-            <li>Déploiement sur VPS : Nginx, HTTPS, sauvegardes quotidiennes hors serveur, supervision</li>
+            <li>Déploiement sur VPS : Nginx, HTTPS, sauvegardes quotidiennes hors serveur (à partir de <code>geniuspress:export</code>), supervision</li>
             <li>Mode plateforme multi-sites (SaaS) avec sous-domaines puis domaines personnalisés</li>
             <li>Mises à jour en un clic pour les installations autonomes</li>
-            <li>Export en site statique, utilisable sans Internet ou sur réseau local</li>
+            <li>Export en site statique, utilisable sans Internet ou sur réseau local (le mode local avec SQLite fonctionne déjà)</li>
             <li>Crédits IA GeniusPress pour les sites sans clé API personnelle</li>
           </ul>
           <p class="done-when"><b>Terminé quand</b> un client crée son site sur la plateforme, branche son nom de domaine et reçoit ses sauvegardes automatiquement.</p>
@@ -270,6 +270,7 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     <div class="toolbar" role="group" aria-label="Filtrer par statut">
       <button type="button" id="f-all" data-filter="all" aria-pressed="true">Toutes</button>
       <button type="button" id="f-ok" data-filter="ok" aria-pressed="false">Disponibles</button>
+      <button type="button" id="f-wip" data-filter="wip" aria-pressed="false">En cours</button>
       <button type="button" id="f-plan" data-filter="plan" aria-pressed="false">Prévues avant la 1.0</button>
       <button type="button" id="f-later" data-filter="later" aria-pressed="false">Après la 1.0</button>
       <span class="count" id="count" aria-live="polite"></span>
@@ -291,12 +292,14 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
           <dt>Laravel, React et MySQL</dt><dd>Laravel sert de fondation technique ; tout le CMS est écrit par l’équipe. Fonctionne sur WAMP, sur un VPS et sur un hébergement mutualisé.</dd>
           <dt>Open source</dt><dd>AGPL-3.0 pour le cœur, avec une exception qui laisse les plugins choisir leur licence, y compris commerciale. Kit de plugins et exemples sous MIT.</dd>
           <dt>Claude Opus 5.5 pour l’IA</dt><dd>Clé API personnelle du client, chiffrée en base. Crédits GeniusPress prévus en phase 3.</dd>
-          <dt>Les données appartiennent au client</dt><dd>Export complet du site à tout moment, import dans une autre installation.</dd>
+          <dt>Les données appartiennent au client</dt><dd>Export complet du site à tout moment, import dans une autre installation : c’est fait.</dd>
+          <dt>Quatre façons d’installer</dt><dd>Assistant dans le navigateur, ligne de commande, paquet zip pour hébergement mutualisé, Docker.</dd>
         </dl>
       </div>
       <div class="panel">
         <h3>À trancher</h3>
         <ol>
+          <li>Compte GitHub<span>Régler la facturation (elle bloque la CI) et choisir si le dépôt reste public avant la 1.0.</span></li>
           <li>Plateforme SaaS, installation par client, ou les deux ?<span>Le code actuel gère un seul site ; le multi-sites ajoute 2 à 4 semaines.</span></li>
           <li>Fournisseurs de paiement<span>Agrégateur Mobile Money et carte selon les pays visés (RDC, Rwanda, Kenya…).</span></li>
           <li>Hébergeur et région du VPS<span>Recommandation : Europe avec Cloudflare devant.</span></li>
@@ -307,7 +310,7 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     </div>
   </section>
 
-  <footer>Document de travail mis à jour le 23 novembre 2026. Les durées sont des estimations et seront revues à la fin de chaque phase.</footer>
+  <footer>Document de travail mis à jour le 24 novembre 2026. Les durées sont des estimations et seront revues à la fin de chaque phase.</footer>
 </div>
 
 <script>
@@ -340,23 +343,25 @@ const DOMAINS = [
     ['Assistant pour les visiteurs du site', 'Répond aux questions à partir du contenu publié', 'later', 'Après 1.0'],
   ]},
   { name: 'Gestion du site', items: [
-    ['Installation guidée', 'Création du site, du compte et de la page d’accueil', 'ok', 'MVP'],
+    ['Installation guidée depuis zéro', 'Vérification du serveur, base MySQL ou SQLite, compte, point de départ', 'ok', 'P1'],
     ['Comptes et rôles', 'Administrateur et éditeur, connexion protégée', 'ok', 'MVP'],
     ['Pages, statuts et référencement', 'Brouillon ou publiée, adresse, titre et description pour Google', 'ok', 'MVP'],
     ['Médiathèque', 'Images et PDF, texte alternatif, envoi par glisser-déposer', 'ok', 'MVP'],
     ['Site multilingue', '8 langues proposées, adresses /en/…, pages liées entre elles', 'ok', 'MVP'],
     ['Couleurs, police et identité', 'Réglages globaux utilisés par le builder et le site', 'ok', 'MVP'],
-    ['Interface d’administration traduite', 'Français et anglais, puis swahili et lingala', 'plan', 'P1'],
-    ['Installateur complet', 'Vérification du serveur et configuration de la base de données', 'plan', 'P1'],
-    ['Export et import de site', 'Un fichier zip avec pages, réglages et médias', 'plan', 'P1'],
+    ['Interface d’administration traduite', 'Français et anglais, langue choisie par chaque utilisateur', 'ok', 'P1'],
+    ['Interface en swahili et lingala', 'Nouvelles traductions, sans toucher au code', 'plan', 'P2'],
+    ['Installation en ligne de commande', 'Interactive ou entièrement par options et variables', 'ok', 'P1'],
+    ['Export et import de site', 'Un fichier zip avec pages, réglages et médias ; déménagement dès l’installation', 'ok', 'P1'],
     ['Gestion des utilisateurs dans l’admin', 'Inviter, changer de rôle, désactiver', 'plan', 'P2'],
     ['Blog et actualités', 'Articles, catégories, flux RSS', 'later', 'Après 1.0'],
     ['Double authentification', 'Code à usage unique à la connexion', 'later', 'Après 1.0'],
   ]},
   { name: 'Plugins et extensions', items: [
-    ['Registre de widgets', 'Nos widgets passent par la même API que les plugins', 'plan', 'P1'],
-    ['Système de plugins', 'Widgets, pages d’admin, réglages, routes, tables, hooks', 'plan', 'P1'],
-    ['Générateur de plugin', 'Commande qui crée un plugin d’exemple fonctionnel', 'plan', 'P1'],
+    ['Registre de widgets', 'Nos widgets passent par la même API que les plugins', 'ok', 'P1'],
+    ['Système de plugins', 'Widgets, routes, vues, tables, hooks ; désactivation automatique en cas d’erreur', 'ok', 'P1'],
+    ['Plugin d’exemple Citation et guide développeur', 'docs/developpeurs/plugins.md', 'ok', 'P1'],
+    ['Générateur de plugin', 'Commande qui crée un plugin d’exemple fonctionnel', 'ok', 'P1'],
     ['Formulaire de contact', 'Plugin officiel, envoi par e-mail, anti-spam', 'plan', 'P2'],
     ['Paiement et dons', 'Plugin officiel : Mobile Money et carte bancaire', 'plan', 'P2'],
     ['API REST', 'Lire et modifier le contenu depuis une autre application', 'later', 'Après 1.0'],
@@ -364,8 +369,9 @@ const DOMAINS = [
   ]},
   { name: 'Hébergement et distribution', items: [
     ['Fonctionne en local sur WAMP', 'Environnement de développement actuel', 'ok', 'MVP'],
-    ['Paquet zip pour hébergement mutualisé', 'Sans Composer ni Node.js côté client', 'plan', 'P1'],
-    ['Image Docker', 'GeniusPress et MySQL en une commande', 'plan', 'P1'],
+    ['Paquet zip pour hébergement mutualisé', 'Sans Composer ni Node.js côté client, testé de bout en bout', 'ok', 'P1'],
+    ['Mode local hors ligne', 'Installation avec SQLite, sans serveur de base de données', 'ok', 'P1'],
+    ['Image Docker', 'GeniusPress et MariaDB en une commande ; en attente de validation par la CI', 'wip', 'P1'],
     ['Déploiement sur VPS', 'HTTPS, sauvegardes hors serveur, supervision', 'plan', 'P3'],
     ['Plateforme multi-sites', 'Sous-domaines puis domaines personnalisés', 'plan', 'P3'],
     ['Mises à jour en un clic', 'Sauvegarde automatique avant chaque mise à jour', 'plan', 'P3'],
@@ -375,8 +381,8 @@ const DOMAINS = [
     ['Contenu nettoyé côté serveur', 'HTML, couleurs, liens et vidéos vérifiés avant enregistrement', 'ok', 'MVP'],
     ['Clé API chiffrée', 'Jamais envoyée au navigateur', 'ok', 'MVP'],
     ['Limites de requêtes', 'Connexion et assistant IA', 'ok', 'MVP'],
-    ['Tests automatiques', '17 tests, IA testée sans appel payant', 'ok', 'MVP'],
-    ['Tests à chaque contribution', 'Intégration continue sur GitHub', 'plan', 'P1'],
+    ['Tests automatiques', '47 tests, IA testée sans appel payant', 'ok', 'P1'],
+    ['Tests à chaque contribution', 'CI GitHub écrite ; bloquée par la facturation du compte', 'wip', 'P1'],
     ['Politique de sécurité publique', 'Signalement privé des failles', 'plan', 'P4'],
   ]},
 ];
