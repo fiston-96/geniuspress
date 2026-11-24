@@ -16,11 +16,11 @@ class Renderer
     public function __construct(private ContentSanitizer $sanitizer, private WidgetRegistry $widgets) {}
 
     /** @return array{html: string, css: string, fonts: string[]} */
-    public function render(mixed $content): array
+    public function render(mixed $content, ?int $pageId = null): array
     {
         $tree = $this->sanitizer->sanitize($content);
         $tree = Hooks::filter('page.content', $tree);
-        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []));
+        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []), $pageId);
 
         $html = $this->children($tree['elements'] ?? [], null, 0, $ctx);
 
@@ -42,11 +42,17 @@ class Renderer
     private function preloadMedia(array $elements): array
     {
         $ids = [];
-        self::walk($elements, function ($node) use (&$ids) {
-            if (! empty($node['settings']['media_id'])) {
-                $ids[] = $node['settings']['media_id'];
+        // « media_id » peut aussi se trouver dans une liste (images d'une galerie, photos d'une équipe…).
+        $collect = function (array $values) use (&$collect, &$ids) {
+            foreach ($values as $key => $value) {
+                if ($key === 'media_id' && is_int($value) && $value > 0) {
+                    $ids[] = $value;
+                } elseif (is_array($value)) {
+                    $collect($value);
+                }
             }
-        });
+        };
+        self::walk($elements, fn ($node) => $collect($node['settings'] ?? []));
 
         return $ids ? Media::query()->whereIn('id', array_unique($ids))->get()->keyBy('id')->all() : [];
     }

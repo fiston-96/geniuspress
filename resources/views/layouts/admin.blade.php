@@ -16,6 +16,7 @@
         ['admin.media.index', __('Médias'), 'M4 5h16v14H4zM4 15l4-4 5 5 3-3 4 4'],
     ];
     if (auth()->user()->isAdmin()) {
+        $nav[] = ['admin.messages.index', __('Messages'), 'M4 4h16v12H5.2L4 17.2zM8 9h8M8 12h5'];
         $nav[] = ['admin.appearance.edit', __('Apparence'), 'M4 5h16v4H4zM4 13h7v6H4zM15 13h5v6h-5z'];
         $nav[] = ['admin.transfer.index', __('Sauvegarde'), 'M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3'];
         $nav[] = ['admin.plugins.index', __('Plugins'), 'M9 3v4M15 3v4M6 7h12v4a6 6 0 01-12 0zM12 17v4'];

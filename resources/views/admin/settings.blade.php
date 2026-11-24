@@ -9,6 +9,7 @@
             <x-field name="site_name" :label="__('Nom du site')" :value="$settings['site_name']" required />
             <x-field name="site_tagline" :label="__('Slogan')" :value="$settings['site_tagline']" />
             <x-field name="logo_url" :label="__('Adresse du logo')" :value="$settings['logo_url']" :hint="__('Copiez l’adresse d’une image depuis la médiathèque.')" />
+            <x-field name="forms_email" type="email" :label="__('E-mail qui reçoit les messages des formulaires')" :value="$settings['forms_email'] ?? ''" :hint="__('Laissez vide pour utiliser l’e-mail du premier administrateur. Les messages sont aussi conservés dans « Messages ».')" />
         </section>
 
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">

@@ -17,8 +17,11 @@ class RenderContext
     /** @var array<string, true> */
     private array $fonts = [];
 
-    /** @param array<int, Media> $media */
-    public function __construct(private array $media = []) {}
+    /**
+     * @param  array<int, Media>  $media
+     * @param  int|null  $pageId  page rendue (pour les formulaires), null dans un aperçu sans page
+     */
+    public function __construct(private array $media = [], public readonly ?int $pageId = null) {}
 
     /**
      * Ajoute une règle CSS pour l'élément #gp-{id}{suffixe}.

@@ -43,6 +43,7 @@ class SettingController extends Controller
             'locales.*' => ['in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
             'default_locale' => ['required', 'in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
             'organization_description' => ['nullable', 'string', 'max:3000'],
+            'forms_email' => ['nullable', 'email', 'max:190'],
             'anthropic_api_key' => ['nullable', 'string', 'max:300', 'regex:/^sk-ant-[A-Za-z0-9_\-]+$/'],
             'remove_api_key' => ['nullable', 'boolean'],
         ], ['anthropic_api_key.regex' => __('La clé API doit commencer par « sk-ant- ».')]);

@@ -412,6 +412,10 @@ class Assistant
                     'required' => ['label', 'url'],
                     'additionalProperties' => false,
                 ]], ['type' => 'null']]],
+                // Liste d'éléments : chaque élément décrit par ses champs (sans les images, que l'IA ne fournit pas).
+                'list' => ['anyOf' => [['type' => 'array', 'items' => $this->settingsSchema(
+                    array_diff_key(ContentSanitizer::listFields($args), ['media_id' => 1, 'image' => 1]), []
+                )], ['type' => 'null']]],
                 default => ['type' => ['string', 'null']],
             };
         }
@@ -440,13 +444,23 @@ class Assistant
         return $sections;
     }
 
-    /** Textes traduisibles de l'arbre, indexés par "idWidget.clé". */
+    /**
+     * Textes traduisibles de l'arbre, indexés par "idWidget.clé" ou, dans une
+     * liste, "idWidget.clé.position.champ" (un widget déclare alors « items.*.title »).
+     */
     private function extractStrings(array $content): array
     {
         $out = [];
         Renderer::walk($content['elements'] ?? [], function ($w) use (&$out) {
             foreach ($this->widgets->get($w['type'])?->translatable() ?? [] as $key) {
-                if (! empty($w['settings'][$key])) {
+                if (str_contains($key, '.*.')) {
+                    [$list, $field] = explode('.*.', $key, 2);
+                    foreach ((array) ($w['settings'][$list] ?? []) as $i => $item) {
+                        if (is_array($item) && is_string($item[$field] ?? null) && $item[$field] !== '') {
+                            $out[$w['id'].'.'.$list.'.'.$i.'.'.$field] = $item[$field];
+                        }
+                    }
+                } elseif (! empty($w['settings'][$key]) && is_string($w['settings'][$key])) {
                     $out[$w['id'].'.'.$key] = $w['settings'][$key];
                 }
             }
@@ -457,11 +471,19 @@ class Assistant
 
     private function applyStrings(array $content, array $translated): array
     {
-        $apply = function (array $nodes) use (&$apply, $translated): array {
+        $byNode = [];
+        foreach ($translated as $key => $text) {
+            [$id, $path] = array_pad(explode('.', $key, 2), 2, null);
+            if ($path !== null) {
+                $byNode[$id][$path] = $text;
+            }
+        }
+        $apply = function (array $nodes) use (&$apply, $byNode): array {
             foreach ($nodes as &$node) {
-                foreach ($node['settings'] ?? [] as $key => $value) {
-                    if (isset($translated[$node['id'].'.'.$key])) {
-                        $node['settings'][$key] = $translated[$node['id'].'.'.$key];
+                foreach ($byNode[$node['id']] ?? [] as $path => $text) {
+                    // Seuls les textes existants sont remplacés (pas de nouveau réglage inventé).
+                    if (\Illuminate\Support\Arr::has($node['settings'], $path)) {
+                        \Illuminate\Support\Arr::set($node['settings'], $path, $text);
                     }
                 }
                 if (($node['type'] ?? null) === 'container') {

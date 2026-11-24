@@ -18,7 +18,7 @@
     @if ($page->meta_description)<meta property="og:description" content="{{ $page->meta_description }}">@endif
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="stylesheet" href="{{ \App\Builder\DesignTokens::fontsUrl($settings, $rendered['fonts'] ?? []) }}">
-    @vite(['resources/css/site.css'])
+    @vite(['resources/css/site.css', 'resources/js/site.js'])
     <style>
         {!! \App\Builder\DesignTokens::css($settings) !!}
         {!! $rendered['css'] !!}

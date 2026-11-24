@@ -28,6 +28,22 @@ class AppServiceProvider extends ServiceProvider
         Widgets\DividerWidget::class,
         Widgets\VideoWidget::class,
         Widgets\LinksWidget::class,
+        Widgets\IconWidget::class,
+        Widgets\IconBoxWidget::class,
+        Widgets\ImageBoxWidget::class,
+        Widgets\IconListWidget::class,
+        Widgets\TestimonialWidget::class,
+        Widgets\CounterWidget::class,
+        Widgets\ProgressWidget::class,
+        Widgets\AccordionWidget::class,
+        Widgets\TabsWidget::class,
+        Widgets\GalleryWidget::class,
+        Widgets\PricingWidget::class,
+        Widgets\TeamMemberWidget::class,
+        Widgets\SocialIconsWidget::class,
+        Widgets\MapWidget::class,
+        Widgets\CountdownWidget::class,
+        Widgets\ContactFormWidget::class,
     ];
 
     public function register(): void
@@ -61,6 +77,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(strtolower((string) $request->input('email')).'|'.$request->ip());
         });
+
+        // Formulaires de contact : 5 envois par minute et 30 par jour par visiteur.
+        RateLimiter::for('forms', fn (Request $request) => [
+            Limit::perMinute(5)->by('forms|'.$request->ip()),
+            Limit::perDay(30)->by('forms-day|'.$request->ip()),
+        ]);
 
         RateLimiter::for('ai', function (Request $request) {
             return Limit::perMinute((int) config('geniuspress.ai.per_minute'))->by('ai|'.$request->user()?->id)

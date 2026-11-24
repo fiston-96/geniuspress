@@ -3,6 +3,8 @@
 import DOMPurify from 'dompurify';
 import { registerWidget } from '../registry';
 import { CORE_WIDGETS } from '../widgets';
+import { LIBRARY_WIDGETS } from './library';
+import { LIBRARY_IMPL } from './library-preview';
 import { t } from '../i18n';
 
 export function embedUrl(url = '') {
@@ -125,5 +127,8 @@ const IMPL = {
 export function registerCoreWidgets() {
     for (const [type, def] of Object.entries(CORE_WIDGETS)) {
         registerWidget(type, { ...def, ...IMPL[type] });
+    }
+    for (const [type, def] of Object.entries(LIBRARY_WIDGETS)) {
+        registerWidget(type, { ...def, ...LIBRARY_IMPL[type] });
     }
 }

@@ -25,12 +25,13 @@ class Setting extends Model
         'custom_colors' => [],
         'locales' => ['fr'],
         'organization_description' => '',
+        'forms_email' => null,
         'anthropic_api_key' => null,
         'anthropic_api_key_hint' => null,
     ];
 
     /** Réglages qui ne doivent jamais être envoyés au navigateur. */
-    public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint'];
+    public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint', 'forms_email'];
 
     public static function publicValues(): array
     {

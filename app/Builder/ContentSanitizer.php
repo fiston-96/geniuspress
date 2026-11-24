@@ -160,8 +160,51 @@ class ContentSanitizer
             'shadow' => $this->shadow($v),
             'font' => in_array($v, ['global:heading', 'global:body', ...SettingController::FONTS], true) ? $v : null,
             'classes' => $this->classes($v, (int) ($args ?: 200)),
+            'icon' => Icons::exists($v) ? $v : null,
+            'datetime' => is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $v) && strtotime($v) !== false ? $v : null,
+            'list' => $this->listValue($v, $args),
             default => null,
         };
+    }
+
+    /**
+     * Liste d'éléments : « list:MAX:champ=règle;champ=règle ». Chaque élément
+     * est validé champ par champ ; un élément entièrement vide est retiré.
+     * Exemple : « list:30:title=string:200;html=html » (questions d'une FAQ).
+     */
+    private function listValue(mixed $v, string $args): ?array
+    {
+        if (! is_array($v)) {
+            return null;
+        }
+        $fields = self::listFields($args);
+        $max = (int) explode(':', $args, 2)[0] ?: 30;
+        $out = [];
+        foreach (array_slice(array_values($v), 0, $max) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+            $clean = $this->settings($item, $fields);
+            if ($clean !== []) {
+                $out[] = $clean;
+            }
+        }
+
+        return $out ?: null;
+    }
+
+    /** Champs d'une règle « list:MAX:champ=règle;… ». @return array<string, string> */
+    public static function listFields(string $args): array
+    {
+        $fields = [];
+        foreach (explode(';', explode(':', $args, 2)[1] ?? '') as $pair) {
+            [$name, $rule] = array_pad(explode('=', $pair, 2), 2, '');
+            if (preg_match('/^[a-z_]{1,40}$/', $name) && $rule !== '' && ! str_starts_with($rule, 'list')) {
+                $fields[$name] = $rule;
+            }
+        }
+
+        return $fields;
     }
 
     /**

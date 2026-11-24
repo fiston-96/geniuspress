@@ -30,7 +30,7 @@ class PublicPageController extends Controller
 
         return view('public.page', [
             'page' => $page,
-            'rendered' => $renderer->render($page->content),
+            'rendered' => $renderer->render($page->content, $page->id),
             'settings' => Setting::publicValues(),
             'preview' => ! $page->isPublished(),
         ]);

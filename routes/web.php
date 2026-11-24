@@ -5,11 +5,13 @@ use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\PublicPageController;
@@ -67,6 +69,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+        Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+
         Route::get('/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
         Route::put('/appearance', [AppearanceController::class, 'update'])->name('appearance.update');
 
@@ -79,6 +85,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::post('/plugins/{slug}/deactivate', [PluginController::class, 'deactivate'])->name('plugins.deactivate');
     });
 });
+
+// Formulaires de contact du site public
+Route::post('/formulaire', [FormController::class, 'submit'])->middleware('throttle:forms')->name('forms.submit');
 
 // Fichiers publics des plugins (dossier public/ de chaque plugin)
 Route::get('/plugin-assets/{slug}/{path}', PluginAssetController::class)

@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import MediaPicker from './MediaPicker';
 import { t } from './i18n';
 import { useStore } from './store';
+import { ICONS, Icon, brandTitle } from './icons';
 
 const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
 
@@ -116,6 +117,24 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
             return <ShadowControl label={label({ hasValue: has, onReset: reset })} value={value} onChange={set} />;
         case 'font':
             return <FontControl label={label({ hasValue: has, onReset: reset })} value={value} placeholder={placeholder} onChange={set} />;
+        case 'icon':
+            return <IconControl label={label({ hasValue: has, onReset: reset })} value={value} onChange={set} brands={control.brands} />;
+        case 'repeater':
+            return <RepeaterControl control={control} value={Array.isArray(value) ? value : []} onChange={set} urls={urls} />;
+        case 'datetime':
+            return (
+                <div>
+                    {label({ hasValue: has, onReset: reset })}
+                    <input className={inputCls} type="datetime-local" value={value ?? ''} onChange={(e) => set(e.target.value || null)} />
+                </div>
+            );
+        case 'number':
+            return (
+                <div>
+                    {label({ hasValue: has, onReset: reset })}
+                    <input className={inputCls} type="number" value={value ?? ''} placeholder={placeholder ?? ''} onChange={(e) => set(e.target.value === '' ? null : Number(e.target.value))} />
+                </div>
+            );
         default:
             return null;
     }
@@ -255,6 +274,124 @@ function ShadowControl({ label, value, onChange }) {
                     <label className="flex items-center gap-2 text-xs text-slate-600"><input type="checkbox" checked={!!v.inset} onChange={(e) => set({ inset: e.target.checked || undefined })} /> {t('Ombre intérieure')}</label>
                 </div>
             )}
+        </div>
+    );
+}
+
+const GROUP_LABELS = {
+    base: t('Essentielles'), contact: t('Contact'), people: t('Personnes'), places: t('Lieux'), business: t('Commerce'),
+    tech: t('Technologie'), education: t('Éducation'), health: t('Santé'), art: t('Art et décoration'), nature: t('Nature'), life: t('Vie pratique'),
+};
+
+/** Choix d'une icône : recherche, catégories, logos des réseaux sociaux. */
+function IconControl({ label, value, onChange, brands = true }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState('');
+    const [group, setGroup] = useState('base');
+    const q = query.trim().toLowerCase();
+    let refs;
+    if (q) {
+        refs = [...Object.keys(ICONS.lucide).filter((n) => n.includes(q)).map((n) => `lucide:${n}`),
+            ...(brands ? Object.keys(ICONS.brands).filter((n) => n.includes(q) || ICONS.brands[n].title.toLowerCase().includes(q)).map((n) => `brand:${n}`) : [])];
+    } else if (group === 'brands') {
+        refs = Object.keys(ICONS.brands).map((n) => `brand:${n}`);
+    } else {
+        refs = (ICONS.groups[group] ?? []).map((n) => `lucide:${n}`);
+    }
+    const tab = (id, name) => (
+        <button key={id} onClick={() => { setGroup(id); setQuery(''); }} className={`rounded px-1.5 py-0.5 text-[11px] ${group === id && !q ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>{name}</button>
+    );
+    return (
+        <div>
+            {label}
+            <button onClick={() => setOpen(!open)} className={`${inputCls} flex items-center gap-2 text-left`}>
+                {value ? <span className="h-5 w-5 text-slate-700 [&_svg]:h-5 [&_svg]:w-5"><Icon value={value} /></span> : null}
+                <span className="truncate">{value ? (value.startsWith('brand:') ? brandTitle(value.slice(6)) : value.slice(7)) : t('Choisir une icône')}</span>
+            </button>
+            {open && (
+                <div className="mt-1.5 rounded-md border border-slate-200 p-2">
+                    <input className={inputCls} autoFocus placeholder={t('Rechercher (en anglais : heart, phone…)')} value={query} onChange={(e) => setQuery(e.target.value)} />
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                        {Object.entries(GROUP_LABELS).map(([id, name]) => tab(id, name))}
+                        {brands && tab('brands', t('Réseaux sociaux'))}
+                    </div>
+                    <div className="mt-2 grid max-h-56 grid-cols-7 gap-1 overflow-y-auto">
+                        {refs.slice(0, 280).map((ref) => (
+                            <button key={ref} title={ref.replace(/^(lucide|brand):/, '')} onClick={() => { onChange(ref); setOpen(false); }}
+                                className={`grid aspect-square place-items-center rounded text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 [&_svg]:h-5 [&_svg]:w-5 ${value === ref ? 'bg-indigo-100 text-indigo-700' : ''}`}>
+                                <Icon value={ref} />
+                            </button>
+                        ))}
+                        {refs.length === 0 && <p className="col-span-7 p-2 text-xs text-slate-500">{t('Aucune icône trouvée.')}</p>}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Liste d'éléments (questions d'une FAQ, images d'une galerie, avantages d'une offre…).
+ * control.fields décrit les champs d'un élément, avec les mêmes types que les autres contrôles.
+ */
+function RepeaterControl({ control, value, onChange, urls }) {
+    const [openIndex, setOpenIndex] = useState(value.length === 1 ? 0 : null);
+    // Plusieurs champs peuvent changer d'un coup (image : adresse, identifiant, texte alternatif) :
+    // on part toujours de la dernière valeur envoyée, pas de celle du dernier affichage.
+    const latest = useRef(value);
+    latest.current = value;
+    const update = (i, key, v) => {
+        const next = latest.current.map((item, j) => {
+            if (j !== i) return item;
+            const changed = { ...item, [key]: v };
+            if (v === null || v === '' || v === undefined) delete changed[key];
+            return changed;
+        });
+        latest.current = next;
+        onChange(next);
+    };
+    const move = (i, d) => {
+        const next = [...value];
+        [next[i], next[i + d]] = [next[i + d], next[i]];
+        onChange(next);
+        setOpenIndex(i + d);
+    };
+    const titleOf = (item, i) => {
+        const first = control.fields.find((f) => ['text', 'textarea'].includes(f.type));
+        const text = first ? String(item[first.key] ?? '').trim() : '';
+        return text ? text.slice(0, 48) : `${control.itemLabel ?? t('Élément')} ${i + 1}`;
+    };
+    const small = 'rounded px-1.5 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30';
+    const full = control.max && value.length >= control.max;
+    return (
+        <div>
+            <Label>{control.label}</Label>
+            <div className="space-y-1.5">
+                {value.map((item, i) => (
+                    <div key={i} className="rounded-md border border-slate-200">
+                        <div className="flex items-center gap-1 px-2 py-1.5">
+                            <button className="min-w-0 flex-1 truncate text-left text-xs font-medium text-slate-700" onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+                                {openIndex === i ? '▾' : '▸'} {titleOf(item, i)}
+                            </button>
+                            <button className={small} disabled={i === 0} onClick={() => move(i, -1)} title={t('Monter')}>↑</button>
+                            <button className={small} disabled={i === value.length - 1} onClick={() => move(i, 1)} title={t('Descendre')}>↓</button>
+                            <button className={small} onClick={() => onChange([...value.slice(0, i + 1), structuredClone(item), ...value.slice(i + 1)])} disabled={full} title={t('Dupliquer')}>⧉</button>
+                            <button className={small} onClick={() => { onChange(value.filter((_, j) => j !== i)); setOpenIndex(null); }} title={t('Retirer')}>✕</button>
+                        </div>
+                        {openIndex === i && (
+                            <div className="space-y-3 border-t border-slate-100 p-2">
+                                {control.fields.map((f) => (
+                                    <Control key={f.key} control={f} value={item[f.key]} urls={urls} onChange={(key, v) => update(i, key, v)} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+            <button className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-40" disabled={full}
+                onClick={() => { onChange([...value, structuredClone(control.newItem ?? {})]); setOpenIndex(value.length); }}>
+                {control.addLabel ?? t('+ Ajouter un élément')}
+            </button>
         </div>
     );
 }
