@@ -7,17 +7,20 @@ use App\Templates\PhotoLibrary;
 use App\Templates\TemplateBuilder;
 use App\Templates\Theme;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 use Throwable;
 
 /**
- * Prépare les photos libres de droits des modèles avec l'API Pexels
- * (clé gratuite : https://www.pexels.com/api/, variable PEXELS_API_KEY).
+ * Prépare les photos libres de droits des modèles, depuis Pixabay
+ * (clé gratuite : https://pixabay.com/api/docs/, variable PIXABAY_API_KEY)
+ * ou Pexels (variable PEXELS_API_KEY).
  *
  *   php artisan geniuspress:templates:photos --search            → candidates pour les emplacements sans photo choisie
  *   php artisan geniuspress:templates:photos --review            → dist/photos-review.html (pour comparer et choisir)
  *   php artisan geniuspress:templates:photos --choose=ong-accueil:3   → retenir la 3ᵉ candidate
- *   php artisan geniuspress:templates:photos --download          → télécharge les photos choisies (1600 px, JPEG)
+ *   php artisan geniuspress:templates:photos --download          → télécharge les photos choisies (1600 px au plus, JPEG)
  *
  * Un nom de pack limite l'opération à ce secteur : … --search ong
  */
@@ -25,14 +28,19 @@ class TemplatePhotosCommand extends Command
 {
     protected $signature = 'geniuspress:templates:photos {pack? : Limiter à un secteur}
         {--search : Chercher des photos pour les emplacements sans choix}
+        {--refresh : Avec --search : chercher à nouveau, même pour les emplacements déjà choisis}
         {--review : Construire la page de comparaison des candidates}
         {--choose=* : Retenir une candidate (emplacement:numéro)}
         {--download : Télécharger les photos choisies}
+        {--source= : Source des photos (pixabay ou pexels ; par défaut, celle dont la clé est définie)}
         {--candidates=8 : Nombre de candidates par emplacement}';
 
-    protected $description = 'Prépare les photos libres de droits (Pexels) des modèles de sites';
+    protected $description = 'Prépare les photos libres de droits (Pixabay ou Pexels) des modèles de sites';
 
-    private const API = 'https://api.pexels.com/v1';
+    private const SOURCES = [
+        'pixabay' => ['name' => 'Pixabay', 'env' => 'PIXABAY_API_KEY', 'signup' => 'https://pixabay.com/api/docs/', 'license' => 'Pixabay Content License'],
+        'pexels' => ['name' => 'Pexels', 'env' => 'PEXELS_API_KEY', 'signup' => 'https://www.pexels.com/api/', 'license' => 'Pexels License'],
+    ];
 
     public function handle(): int
     {
@@ -80,76 +88,183 @@ class TemplatePhotosCommand extends Command
         return $slots;
     }
 
-    private function key(): ?string
+    private function key(string $source): string
     {
-        $key = config('geniuspress.catalog.pexels_key');
-        if (! $key) {
-            $this->error(__('Ajoutez votre clé API Pexels (gratuite, https://www.pexels.com/api/) dans le fichier .env : PEXELS_API_KEY=…'));
+        return (string) config('geniuspress.catalog.'.$source.'_key');
+    }
+
+    /** Source choisie (--source), sinon la première dont la clé est définie. */
+    private function source(): ?string
+    {
+        $source = $this->option('source');
+        if ($source && ! isset(self::SOURCES[$source])) {
+            $this->error(__('Source inconnue : :source (pixabay ou pexels).', ['source' => $source]));
+
+            return null;
+        }
+        $source ??= collect(array_keys(self::SOURCES))->first(fn ($s) => $this->key($s) !== '') ?? 'pixabay';
+        if ($this->key($source) === '') {
+            $s = self::SOURCES[$source];
+            $this->error(__('Ajoutez votre clé API :name (gratuite, :url) dans le fichier .env : :env=…', ['name' => $s['name'], 'url' => $s['signup'], 'env' => $s['env']]));
+
+            return null;
         }
 
-        return $key ?: null;
+        return $source;
     }
 
     private function search(array $slots): bool
     {
-        if (! $key = $this->key()) {
+        if (! $source = $this->source()) {
             return false;
         }
+        $wanted = max(3, (int) $this->option('candidates'));
         $candidates = PhotoLibrary::read('candidates');
         $choices = PhotoLibrary::read('choices');
+        if ($this->option('refresh')) {
+            $choices = array_diff_key($choices, $slots);
+        }
         $todo = array_filter($slots, fn ($s, $slot) => ! isset($choices[$slot]), ARRAY_FILTER_USE_BOTH);
         $bar = $this->output->createProgressBar(count($todo));
 
         foreach ($todo as $slot => $info) {
-            $query = PhotoLibrary::query($slot, $info['alt'], $info['sector']);
-            try {
-                $response = Http::withHeaders(['Authorization' => $key])->timeout(20)->retry(2, 1000)
-                    ->get(self::API.'/search', ['query' => $query, 'per_page' => (int) $this->option('candidates'), 'orientation' => 'landscape']);
-            } catch (Throwable $e) {
-                $this->newLine();
-                $this->error(__('Recherche impossible pour :slot : :error', ['slot' => $slot, 'error' => $e->getMessage()]));
+            // Du plus précis au plus général, jusqu'à avoir assez de candidates.
+            $photos = [];
+            $used = null;
+            $limited = false;
+            foreach (PhotoLibrary::queries($slot, $info['alt'], $info['sector']) as $query) {
+                try {
+                    $response = $this->request($source, $query, $wanted);
+                    if ($response->status() === 429 && $source === 'pixabay') {
+                        // Pixabay : 100 requêtes par minute ; on attend la fin de la minute, puis on réessaie.
+                        $this->waitForReset($response);
+                        $response = $this->request($source, $query, $wanted);
+                    }
+                } catch (Throwable $e) {
+                    $this->newLine();
+                    $this->error(__('Recherche impossible pour :slot : :error', ['slot' => $slot, 'error' => $this->hideKey($source, $e->getMessage())]));
 
-                return false;
-            }
-            if ($response->status() === 401) {
-                $this->newLine();
-                $this->error(__('Clé API Pexels refusée.'));
+                    return false;
+                }
+                if (in_array($response->status(), [401, 403], true) || ($source === 'pixabay' && $response->status() === 400 && str_contains($response->body(), 'key'))) {
+                    $this->newLine();
+                    $this->error(__('Clé API :name refusée.', ['name' => self::SOURCES[$source]['name']]));
 
-                return false;
-            }
-            if ($response->status() === 429) {
-                $this->newLine();
-                $this->warn(__('Limite horaire de Pexels atteinte : relancez la même commande dans une heure, elle reprendra là où elle s’est arrêtée.'));
+                    return false;
+                }
+                if ($response->status() === 429 && $source === 'pexels') {
+                    return $this->hourlyLimit();
+                }
+                if (! $response->successful()) {
+                    $this->newLine();
+                    $this->error(__('Recherche impossible pour :slot : :error', ['slot' => $slot, 'error' => 'HTTP '.$response->status()]));
 
-                return true;
+                    return false;
+                }
+                $used ??= $query;
+                $seen = array_column($photos, 'id');
+                foreach ($this->photos($source, $response) as $photo) {
+                    if (count($photos) < $wanted && ! in_array($photo['id'], $seen, true)) {
+                        $photos[] = $photo;
+                    }
+                }
+                $limited = $this->exhausted($response);
+                if (count($photos) >= (int) ceil($wanted / 2)) {
+                    $used = $query;
+                    break;
+                }
+                if ($limited && $source === 'pexels') {
+                    break; // la progression de cet emplacement est enregistrée, puis on s'arrête
+                }
+                if ($limited) {
+                    $this->waitForReset($response);
+                    $limited = false;
+                }
+                Sleep::for(200)->milliseconds();
             }
-            $photos = array_map(fn ($p) => [
-                'id' => $p['id'], 'photographer' => $p['photographer'] ?? '', 'photographer_url' => $p['photographer_url'] ?? '',
-                'url' => $p['url'] ?? '', 'alt' => $p['alt'] ?? '', 'preview' => $p['src']['medium'] ?? '', 'src' => $p['src']['large2x'] ?? ($p['src']['original'] ?? ''),
-            ], (array) $response->json('photos'));
-            $candidates[$slot] = ['query' => $query, 'photos' => $photos];
-            if ($photos) {
-                $choices[$slot] = $photos[0]['id'];
+            $candidates[$slot] = ['query' => $used, 'source' => $source, 'photos' => $photos];
+            // Première candidate qui n'est pas déjà la photo d'un autre emplacement du secteur.
+            $taken = array_values(array_intersect_key($choices, array_filter($slots, fn ($s) => $s['sector'] === $info['sector'])));
+            $free = array_values(array_filter($photos, fn ($p) => ! in_array($p['id'], $taken, true)));
+            if ($photo = $free[0] ?? $photos[0] ?? null) {
+                $choices[$slot] = $photo['id'];
             }
             // Enregistré à chaque emplacement : une interruption ne fait rien perdre.
             PhotoLibrary::write('candidates', $candidates);
             PhotoLibrary::write('choices', $choices);
             $bar->advance();
-
-            // Accès gratuit : 200 requêtes par heure. On s'arrête avant la limite.
-            $remaining = $response->header('X-Ratelimit-Remaining');
-            if ($remaining !== '' && is_numeric($remaining) && (int) $remaining <= 1) {
-                $this->newLine();
-                $this->warn(__('Limite horaire de Pexels atteinte : relancez la même commande dans une heure, elle reprendra là où elle s’est arrêtée.'));
-
-                return true;
+            if ($limited) {
+                if ($source === 'pexels') {
+                    // Pexels : 200 requêtes par heure. La progression est enregistrée ; on reprendra plus tard.
+                    return $this->hourlyLimit();
+                }
+                $this->waitForReset($response);
             }
-            usleep(200_000);
+            Sleep::for(200)->milliseconds();
         }
         $bar->finish();
         $this->newLine();
+        $empty = array_keys(array_filter(array_intersect_key($candidates, $todo), fn ($c) => ! $c['photos']));
+        if ($empty) {
+            $this->warn(__('Aucune photo trouvée pour : :slots', ['slots' => implode(', ', $empty)]));
+        }
 
         return true;
+    }
+
+    private function request(string $source, string $query, int $count): Response
+    {
+        $http = Http::timeout(20)->retry(2, 1000, throw: false);
+
+        return $source === 'pixabay'
+            ? $http->get('https://pixabay.com/api/', ['key' => $this->key('pixabay'), 'q' => mb_substr($query, 0, 100), 'image_type' => 'photo', 'orientation' => 'horizontal', 'safesearch' => 'true', 'per_page' => max(3, $count)])
+            : $http->withHeaders(['Authorization' => $this->key('pexels')])->get('https://api.pexels.com/v1/search', ['query' => $query, 'per_page' => $count, 'orientation' => 'landscape']);
+    }
+
+    private function hourlyLimit(): bool
+    {
+        $this->newLine();
+        $this->warn(__('Limite horaire de :name atteinte : relancez la même commande dans une heure, elle reprendra là où elle s’est arrêtée.', ['name' => 'Pexels']));
+
+        return true;
+    }
+
+    /** Pixabay : 100 requêtes par minute ; X-RateLimit-Reset donne les secondes restantes. */
+    private function waitForReset(Response $response): void
+    {
+        Sleep::for(min(65, max(1, (int) $response->header('X-RateLimit-Reset')) + 1))->seconds();
+    }
+
+    private function exhausted(Response $response): bool
+    {
+        $remaining = $response->header('X-Ratelimit-Remaining');
+
+        return $remaining !== '' && is_numeric($remaining) && (int) $remaining <= 1;
+    }
+
+    /** Photos d'une réponse, au même format quelle que soit la source. */
+    private function photos(string $source, Response $response): array
+    {
+        if ($source === 'pixabay') {
+            return array_map(fn ($p) => [
+                'id' => $p['id'], 'source' => 'pixabay', 'photographer' => $p['user'] ?? '',
+                'photographer_url' => isset($p['user'], $p['user_id']) ? 'https://pixabay.com/users/'.rawurlencode($p['user']).'-'.$p['user_id'].'/' : '',
+                'url' => $p['pageURL'] ?? '', 'alt' => $p['tags'] ?? '', 'preview' => $p['webformatURL'] ?? ($p['previewURL'] ?? ''), 'src' => $p['largeImageURL'] ?? ($p['webformatURL'] ?? ''),
+            ], (array) $response->json('hits'));
+        }
+
+        return array_map(fn ($p) => [
+            'id' => $p['id'], 'source' => 'pexels', 'photographer' => $p['photographer'] ?? '', 'photographer_url' => $p['photographer_url'] ?? '',
+            'url' => $p['url'] ?? '', 'alt' => $p['alt'] ?? '', 'preview' => $p['src']['medium'] ?? '', 'src' => $p['src']['large2x'] ?? ($p['src']['original'] ?? ''),
+        ], (array) $response->json('photos'));
+    }
+
+    /** Les adresses de Pixabay contiennent la clé : elle ne doit jamais s'afficher. */
+    private function hideKey(string $source, string $message): string
+    {
+        $key = $this->key($source);
+
+        return $key === '' ? $message : str_replace($key, '…', $message);
     }
 
     private function choose(string $choice): void
@@ -171,8 +286,6 @@ class TemplatePhotosCommand extends Command
 
     private function download(array $slots): bool
     {
-        // Le téléchargement passe par le serveur d'images, pas par l'API : la clé n'est utile qu'en secours.
-        $key = (string) config('geniuspress.catalog.pexels_key');
         $choices = array_intersect_key(PhotoLibrary::read('choices'), $slots);
         $candidates = PhotoLibrary::read('candidates');
         $credits = PhotoLibrary::read('credits');
@@ -181,7 +294,8 @@ class TemplatePhotosCommand extends Command
 
         foreach ($choices as $slot => $id) {
             $target = PhotoLibrary::path('files/'.$slot.'.jpg');
-            if (is_file($target) && ($credits[$slot]['id'] ?? null) === $id) {
+            $source = $candidates[$slot]['source'] ?? 'pexels';
+            if (is_file($target) && ($credits[$slot]['id'] ?? null) === $id && ($credits[$slot]['source'] ?? 'pexels') === $source) {
                 $bar->advance();
 
                 continue;
@@ -189,11 +303,11 @@ class TemplatePhotosCommand extends Command
             try {
                 // Les informations de la photo viennent de la recherche ; sinon, une requête à l'API.
                 $photo = collect($candidates[$slot]['photos'] ?? [])->firstWhere('id', $id)
-                    ?? $this->apiPhoto($key, (int) $id);
+                    ?? $this->apiPhoto($source, (int) $id);
                 $image = Http::timeout(60)->retry(2, 1000)->get($photo['src'])->throw()->body();
             } catch (Throwable $e) {
                 $this->newLine();
-                $this->warn(__('Téléchargement impossible pour :slot : :error', ['slot' => $slot, 'error' => $e->getMessage()]));
+                $this->warn(__('Téléchargement impossible pour :slot : :error', ['slot' => $slot, 'error' => $this->hideKey($source, $e->getMessage())]));
 
                 continue;
             }
@@ -202,19 +316,24 @@ class TemplatePhotosCommand extends Command
 
                 continue;
             }
-            $credits[$slot] = ['id' => $id, 'photographer' => $photo['photographer'] ?? '', 'photographer_url' => $photo['photographer_url'] ?? '', 'url' => $photo['url'] ?? '', 'license' => 'Pexels License'];
+            $credits[$slot] = ['id' => $id, 'source' => $source, 'photographer' => $photo['photographer'] ?? '', 'photographer_url' => $photo['photographer_url'] ?? '', 'url' => $photo['url'] ?? '', 'license' => self::SOURCES[$source]['license']];
+            PhotoLibrary::write('credits', $credits);
             $bar->advance();
         }
         $bar->finish();
         $this->newLine();
-        PhotoLibrary::write('credits', $credits);
 
         return true;
     }
 
-    private function apiPhoto(string $key, int $id): array
+    private function apiPhoto(string $source, int $id): array
     {
-        $p = Http::withHeaders(['Authorization' => $key])->timeout(20)->retry(2, 1000)->get(self::API.'/photos/'.$id)->throw()->json();
+        if ($source === 'pixabay') {
+            $response = Http::timeout(20)->retry(2, 1000)->get('https://pixabay.com/api/', ['key' => $this->key('pixabay'), 'id' => $id]);
+
+            return $this->photos('pixabay', $response)[0] ?? throw new \RuntimeException('Photo introuvable');
+        }
+        $p = Http::withHeaders(['Authorization' => $this->key('pexels')])->timeout(20)->retry(2, 1000)->get('https://api.pexels.com/v1/photos/'.$id)->throw()->json();
 
         return ['id' => $p['id'], 'photographer' => $p['photographer'] ?? '', 'photographer_url' => $p['photographer_url'] ?? '', 'url' => $p['url'] ?? '', 'src' => $p['src']['large2x'] ?? $p['src']['original']];
     }
@@ -244,7 +363,7 @@ class TemplatePhotosCommand extends Command
         $html = '<!doctype html><meta charset="utf-8"><title>Photos des modèles</title><style>body{font:14px system-ui;margin:24px;background:#f8fafc}h2{font-size:15px;margin:28px 0 4px}p{margin:0 0 8px;color:#475569}.row{display:flex;gap:8px;flex-wrap:wrap}figure{margin:0;width:180px;background:#fff;border:3px solid transparent;border-radius:8px;overflow:hidden}figure.on{border-color:#4f46e5}img{width:100%;height:110px;object-fit:cover;display:block}figcaption{padding:4px 6px;font-size:12px}</style>';
         $html .= '<h1>Photos des modèles</h1><p>Pour changer : <code>php artisan geniuspress:templates:photos --choose=emplacement:numéro</code> puis <code>--download</code>.</p>';
         foreach ($slots as $slot => $info) {
-            $html .= '<h2>'.e($slot).'</h2><p>'.e($info['alt']).' — recherche : « '.e($candidates[$slot]['query'] ?? '…').' »</p><div class="row">';
+            $html .= '<h2 id="'.e($slot).'">'.e($slot).'</h2><p>'.e($info['alt']).' — recherche : « '.e($candidates[$slot]['query'] ?? '…').' »</p><div class="row">';
             foreach ($candidates[$slot]['photos'] ?? [] as $i => $p) {
                 $html .= '<figure class="'.(($choices[$slot] ?? null) === $p['id'] ? 'on' : '').'"><img loading="lazy" src="'.e($p['preview']).'" alt="'.e($p['alt']).'"><figcaption>'.($i + 1).' · '.e($p['photographer']).'</figcaption></figure>';
             }

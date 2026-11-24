@@ -4,9 +4,26 @@
     {
       "name": "geniuspress",
       "runtimeExecutable": "php",
-      "runtimeArgs": ["artisan", "serve", "--host=127.0.0.1", "--port=8000"],
+      "runtimeArgs": [
+        "artisan",
+        "serve",
+        "--host=127.0.0.1",
+        "--port=8000"
+      ],
       "port": 8000,
       "url": "http://localhost:8000"
+    },
+    {
+      "name": "photos-review",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8765",
+        "-t",
+        "dist"
+      ],
+      "port": 8765,
+      "url": "http://127.0.0.1:8765"
     }
   ]
 }

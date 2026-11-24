@@ -35,9 +35,11 @@ return [
         'demo_url' => env('GP_CATALOG_DEMO_URL', 'https://geniuspress.site/catalogue'),
         // Taille maximale d'un modèle téléchargé (octets).
         'max_bytes' => 50 * 1024 * 1024,
-        // Photos des modèles (Pexels) : choix et crédits versionnés, fichiers re-téléchargeables.
+        // Photos des modèles (Pixabay ou Pexels) : choix et crédits versionnés, fichiers re-téléchargeables.
         'photos_path' => env('GP_TEMPLATE_PHOTOS', base_path('templates/photos')),
-        // Clé de l'API Pexels (gratuite, https://www.pexels.com/api/), seulement pour préparer le catalogue.
+        // Clés des API de photos (gratuites), seulement pour préparer le catalogue :
+        // Pixabay (https://pixabay.com/api/docs/) ou Pexels (https://www.pexels.com/api/).
+        'pixabay_key' => env('PIXABAY_API_KEY'),
         'pexels_key' => env('PEXELS_API_KEY'),
     ],
 

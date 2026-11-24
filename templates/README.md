@@ -27,24 +27,28 @@ anglais. Chaque modèle s'installe comme une sauvegarde de site et se prévisual
 - Les blocs n'utilisent que les **couleurs globales** du site : après installation, changer une
   couleur dans les réglages met tout le site à jour.
 - Les photos sont des **emplacements** (`{pack}-accueil`, `{pack}-equipe-1`…). Chacun reçoit une
-  photo libre de droits de [Pexels](https://www.pexels.com/license/) ; un emplacement sans photo garde
+  photo libre de droits de [Pixabay](https://pixabay.com/service/license-summary/) (ou
+  [Pexels](https://www.pexels.com/license/)) ; un emplacement sans photo garde
   une illustration aux couleurs du thème.
 
-## Photos (Pexels)
+## Photos (Pixabay ou Pexels)
 
 Seuls les choix sont versionnés (`photos/choices.json`, `photos/credits.json`, `photos/candidates.json`) ;
 les fichiers (`photos/files/`, non versionnés) se re-téléchargent à l'identique.
 
 ```bash
-# Clé gratuite sur https://www.pexels.com/api/, à mettre dans .env : PEXELS_API_KEY=…
-php artisan geniuspress:templates:photos --search      # 8 candidates par emplacement (reprend après la limite horaire)
+# Clé gratuite sur https://pixabay.com/api/docs/, à mettre dans .env : PIXABAY_API_KEY=…
+# (ou PEXELS_API_KEY=… et --source=pexels)
+php artisan geniuspress:templates:photos --search      # 8 candidates par emplacement
 php artisan geniuspress:templates:photos --review      # dist/photos-review.html : comparer les candidates
 php artisan geniuspress:templates:photos --choose=ong-accueil:3   # retenir une autre candidate
-php artisan geniuspress:templates:photos --download    # 1600 px, JPEG ; puis reconstruire le catalogue
+php artisan geniuspress:templates:photos --download    # 1600 px au plus, JPEG ; puis reconstruire le catalogue
 ```
 
-L'accès gratuit à l'API permet 200 recherches par heure : les 219 emplacements demandent donc deux
-passages. Les crédits (photographe, lien) figurent dans l'index du catalogue et sur la page Modèles.
+La recherche essaie d'abord la description complète de l'emplacement, puis ses mots principaux, puis
+le secteur seul, jusqu'à trouver assez de candidates. Pixabay permet 100 recherches par minute (l'outil
+attend la minute suivante) ; Pexels, 200 par heure (l'outil s'arrête et reprend au passage suivant).
+Les crédits (photographe, lien, source) figurent dans l'index du catalogue et sur la page Modèles.
 
 ## Commandes
 

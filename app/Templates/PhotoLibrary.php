@@ -3,11 +3,13 @@
 namespace App\Templates;
 
 /**
- * Photos libres de droits des modèles (Pexels, https://www.pexels.com/license/).
+ * Photos libres de droits des modèles (Pixabay, https://pixabay.com/service/license-summary/,
+ * ou Pexels, https://www.pexels.com/license/).
  *
  * Seuls les choix sont versionnés, dans templates/photos/ :
  *   - candidates.json : pour chaque emplacement, les photos proposées par la recherche ;
- *   - choices.json    : l'identifiant Pexels retenu pour chaque emplacement ;
+ *   - queries.json    : mots-clés choisis à la main pour chaque emplacement (recherche par étiquettes) ;
+ *   - choices.json    : l'identifiant de la photo retenue pour chaque emplacement ;
  *   - credits.json    : photographe et lien de chaque photo téléchargée.
  * Les fichiers (files/{emplacement}.jpg) se re-téléchargent à l'identique avec
  * « geniuspress:templates:photos --download ». Un emplacement sans photo garde
@@ -56,24 +58,41 @@ final class PhotoLibrary
         file_put_contents(self::path($name.'.json'), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
     }
 
+    /** Mots trop vagues pour une recherche courte. */
+    private const STOPWORDS = ['a', 'an', 'the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'and', 'or', 'by', 'from', 'our', 'their', 'its', 'his', 'her', 'during', 'into', 'over', 'under', 'near', 'some', 'two', 'three', 'four', 'several', 'group', 'people', 'person'];
+
     /**
-     * Requête de recherche d'un emplacement : son texte alternatif en anglais et le
-     * contexte du secteur. Les portraits d'équipe (« [Prénom Nom] ») cherchent un portrait.
+     * Requêtes de recherche d'un emplacement, de la plus précise à la plus générale :
+     * ses mots-clés (queries.json) s'ils existent, sinon son texte alternatif en anglais
+     * avec le contexte du secteur, puis ses mots principaux, puis le contexte seul.
+     * Les portraits d'équipe (« [Prénom Nom] ») cherchent un portrait.
+     *
+     * @return list<string>
      */
-    public static function query(string $slot, string $alt, string $sector): string
+    public static function queries(string $slot, string $alt, string $sector): array
     {
         $context = self::CONTEXT[$sector] ?? 'africa';
-        if (str_contains($slot, '-equipe-') || str_contains($slot, '-team-') || str_starts_with(trim($alt), '[')) {
-            return 'african professional portrait '.str_replace('african ', '', $context);
-        }
-        $alt = trim(preg_replace('/\[[^\]]*\]|[^\pL\pN\s-]/u', ' ', $alt));
+        $chosen = trim((string) (self::read('queries')[$slot] ?? ''));
+        if ($chosen !== '') {
+            $words = explode(' ', $chosen);
 
-        return trim($alt.' '.$context);
+            return array_values(array_unique(array_filter([$chosen, count($words) > 2 ? implode(' ', array_slice($words, 0, 2)) : null, $context])));
+        }
+        if (str_contains($slot, '-equipe-') || str_contains($slot, '-team-') || str_starts_with(trim($alt), '[')) {
+            return array_values(array_unique(['african professional portrait '.str_replace('african ', '', $context), 'african professional portrait', 'african portrait']));
+        }
+        $alt = strtolower(trim(preg_replace('/\s+/', ' ', preg_replace('/\[[^\]]*\]|[^\pL\pN\s-]/u', ' ', $alt))));
+        $words = array_values(array_filter(explode(' ', $alt), fn ($w) => strlen($w) > 2 && ! in_array($w, self::STOPWORDS, true)));
+
+        return array_values(array_unique(array_filter([
+            trim($alt.' '.$context),
+            trim(implode(' ', array_slice($words, 0, 2)).' african'),
+            $context,
+        ])));
     }
 
-    /** Crédit lisible : « Photo : Prénom Nom (Pexels) ». */
-    public static function creditLine(array $credit): string
+    public static function query(string $slot, string $alt, string $sector): string
     {
-        return ($credit['photographer'] ?? 'Pexels').' — Pexels';
+        return self::queries($slot, $alt, $sector)[0];
     }
 }

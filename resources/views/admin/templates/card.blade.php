@@ -24,8 +24,11 @@
         <p class="text-sm text-slate-600">{{ $t['description'][$lang] ?? '' }}</p>
         <p class="text-xs text-slate-500">{{ implode(' · ', array_filter([$styleNames[$t['style']['hero'] ?? ''] ?? null, implode(' / ', $t['fonts'] ?? []), __(':count pages', ['count' => count($t['pages'] ?? [])])])) }}</p>
         @if (! empty($t['credits']))
-            @php $names = array_values(array_unique(array_column($t['credits'], 'photographer'))); @endphp
-            <p class="text-xs text-slate-400">{{ __('Photos : :names (Pexels)', ['names' => implode(', ', array_slice($names, 0, 3)).(count($names) > 3 ? '…' : '')]) }}</p>
+            @php
+                $names = array_values(array_unique(array_column($t['credits'], 'photographer')));
+                $photoSources = array_values(array_unique(array_map(fn ($c) => ucfirst($c['source'] ?? 'pexels'), $t['credits'])));
+            @endphp
+            <p class="text-xs text-slate-400">{{ __('Photos : :names (:sources)', ['names' => implode(', ', array_slice($names, 0, 3)).(count($names) > 3 ? '…' : ''), 'sources' => implode(', ', $photoSources)]) }}</p>
         @endif
         <div class="mt-auto flex gap-2 pt-2">
             <a href="{{ $t['demo'] }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50">{{ __('Aperçu') }}</a>

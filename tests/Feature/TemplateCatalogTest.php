@@ -29,6 +29,9 @@ class TemplateCatalogTest extends TestCase
         parent::setUp();
         $this->withoutVite();
         Storage::fake('public');
+        // Sans les photos téléchargées localement : le résultat ne dépend pas de la machine
+        // (les photos sont testées dans TemplatePhotosTest).
+        config(['geniuspress.catalog.photos_path' => $this->sandbox.'/sans-photos']);
         User::create(['name' => 'Admin', 'email' => 'admin@test.local', 'password' => 'secret-password-1', 'role' => 'admin']);
         if (self::$built === null) {
             self::$built = sys_get_temp_dir().'/gp-catalog-test-'.getmypid();
