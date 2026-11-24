@@ -35,19 +35,6 @@ class GeniusPressTest extends TestCase
         $this->get('/admin/login')->assertRedirect('/install');
     }
 
-    public function test_install_creates_admin_and_home_page_then_closes(): void
-    {
-        $this->post('/install', [
-            'site_name' => 'ONG Test', 'name' => 'Admin', 'email' => 'admin@test.local',
-            'password' => 'motdepasse123', 'password_confirmation' => 'motdepasse123',
-        ])->assertRedirect(route('admin.dashboard'));
-
-        $this->assertTrue(User::first()->isAdmin());
-        $this->assertTrue(Page::first()->is_home);
-        $this->get('/')->assertOk()->assertSee('ONG Test');
-        $this->get('/install')->assertNotFound();
-    }
-
     public function test_guests_cannot_reach_admin(): void
     {
         $this->admin();

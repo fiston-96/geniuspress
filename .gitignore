@@ -29,3 +29,6 @@ Thumbs.db
 # GeniusPress
 /.claude/settings.local.json
 /storage/app/public/uploads
+
+# Installation
+/storage/app/installed.lock

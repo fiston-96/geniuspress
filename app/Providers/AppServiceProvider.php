@@ -6,6 +6,8 @@ use App\Ai\AnthropicGateway;
 use App\Ai\LlmGateway;
 use App\Builder\WidgetRegistry;
 use App\Builder\Widgets;
+use App\Install\EnvironmentFile;
+use App\Install\InstallState;
 use App\Models\User;
 use App\Plugins\PluginManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -40,11 +42,19 @@ class AppServiceProvider extends ServiceProvider
             return $registry;
         });
 
+        $this->app->singleton(EnvironmentFile::class, fn () => new EnvironmentFile(config('geniuspress.env_path')));
+        $this->app->singleton(InstallState::class, fn ($app) => new InstallState(config('geniuspress.install_lock'), $app->make(EnvironmentFile::class)));
+
         $this->app->singleton(PluginManager::class, fn () => new PluginManager(config('geniuspress.plugins_path')));
     }
 
     public function boot(): void
     {
+        // Avant l'installation : .env, clé de chiffrement et sessions en fichiers.
+        if (! $this->app->runningUnitTests()) {
+            $this->app->make(InstallState::class)->prepare();
+        }
+
         Gate::define('admin', fn (User $user) => $user->isAdmin());
 
         RateLimiter::for('login', function (Request $request) {

@@ -16,7 +16,8 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $available = array_keys(config('geniuspress.ui_locales'));
-        $locale = $request->user()?->locale;
+        // Choix de l'utilisateur connecté, sinon choix fait pendant l'installation.
+        $locale = $request->user()?->locale ?? ($request->hasSession() ? $request->session()->get('locale') : null);
 
         if (! in_array($locale, $available, true)) {
             $locale = $request->getPreferredLanguage($available) ?? config('app.locale');

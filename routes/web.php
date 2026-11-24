@@ -13,9 +13,15 @@ use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
-// Installation (uniquement tant qu'aucun compte n'existe)
-Route::get('/install', [InstallController::class, 'show'])->name('install');
-Route::post('/install', [InstallController::class, 'store'])->middleware('throttle:10,1');
+// Installation (inaccessible une fois GeniusPress installé)
+Route::prefix('install')->middleware(\App\Http\Middleware\InstallerOpen::class)->group(function () {
+    Route::get('/', [InstallController::class, 'show'])->name('install');
+    Route::get('/database', [InstallController::class, 'database'])->name('install.database');
+    Route::post('/database', [InstallController::class, 'saveDatabase'])->middleware('throttle:20,1');
+    Route::get('/site', [InstallController::class, 'site'])->name('install.site');
+    Route::post('/site', [InstallController::class, 'saveSite'])->middleware('throttle:10,1');
+    Route::get('/language/{locale}', [InstallController::class, 'language'])->name('install.language');
+});
 
 // Connexion
 Route::middleware('guest')->group(function () {

@@ -18,27 +18,41 @@
 - MySQL 8 ou MariaDB 10.6+
 - Composer 2 et Node.js 20+ (uniquement pour le développement)
 
-## Installation pour le développement
+## Installation
+
+Guide complet : [docs/installation.md](docs/installation.md).
+
+### Avec l'assistant (navigateur)
+
+1. Placez les fichiers sur votre serveur. Le dossier public du site doit être `public/`.
+2. Ouvrez l'adresse du site : l'assistant `/install` vérifie le serveur, configure la base de données (MySQL ou SQLite) et crée votre compte administrateur.
+
+Aucune modification manuelle du fichier `.env` n'est nécessaire : il est créé et rempli par l'assistant.
+
+### En ligne de commande
+
+```bash
+php artisan geniuspress:install
+```
+
+Ou sans aucune question, par exemple avec SQLite :
+
+```bash
+php artisan geniuspress:install --db=sqlite --site-name="Mon ONG" --admin-name="Amani" \
+    --admin-email=admin@exemple.org --admin-password="motdepasse123" --url=https://exemple.org -n
+```
+
+### Pour le développement
 
 ```bash
 git clone <adresse-du-depot> geniuspress
 cd geniuspress
 composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-```
-
-Renseignez la base de données dans `.env` (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`), puis :
-
-```bash
-php artisan migrate
-php artisan storage:link
-npm run build
+npm install && npm run build
 php artisan serve
 ```
 
-Ouvrez <http://localhost:8000> : l'assistant d'installation crée le site et le compte administrateur.
+Ouvrez <http://localhost:8000> : l'assistant d'installation s'occupe du reste.
 
 Pour un compte de test rapide, définissez `GP_DEV_ADMIN_EMAIL` et `GP_DEV_ADMIN_PASSWORD` dans `.env`, puis lancez `php artisan db:seed --class=DevAdminSeeder`.
 

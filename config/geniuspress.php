@@ -11,6 +11,12 @@ return [
         'en' => 'English',
     ],
 
+    // Fichier verrou écrit à la fin de l'installation, et fichier .env modifié par l'installateur.
+    'install_lock' => env('GP_INSTALL_LOCK', storage_path('app/installed.lock')),
+    'env_path' => base_path('.env'),
+    // Fichier de base de données quand on choisit SQLite à l'installation.
+    'sqlite_path' => database_path('geniuspress.sqlite'),
+
     // Dossier des plugins.
     'plugins_path' => env('GP_PLUGINS_PATH', base_path('plugins')),
 

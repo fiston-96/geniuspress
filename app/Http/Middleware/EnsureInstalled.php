@@ -2,27 +2,22 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
+use App\Install\InstallState;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
-/** Redirige vers l'installation tant qu'aucun compte administrateur n'existe. */
+/** Redirige vers l'assistant d'installation tant que GeniusPress n'est pas installé. */
 class EnsureInstalled
 {
+    public function __construct(private InstallState $state) {}
+
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is('install', 'up', 'build/*', 'storage/*')) {
+        if ($request->is('install', 'install/*', 'up', 'build/*', 'storage/*') || $this->state->isInstalled()) {
             return $next($request);
         }
 
-        $installed = Cache::get('gp_installed') ?: (User::query()->exists() && Cache::forever('gp_installed', true));
-
-        if (! $installed) {
-            return redirect()->route('install');
-        }
-
-        return $next($request);
+        return redirect()->route('install');
     }
 }
