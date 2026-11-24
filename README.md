@@ -1,3 +1,5 @@
+<p align="center"><img src="public/brand/geniuspress-logo-light.svg" alt="GeniusPress" width="320"></p>
+
 # GeniusPress
 
 **Un CMS open source avec son propre page builder visuel et un assistant IA intégré**, pensé pour les entreprises et les ONG, en particulier en Afrique.
@@ -92,6 +94,10 @@ Les tests de l'assistant IA utilisent un faux modèle : ils ne font aucun appel 
 | `resources/css/site.css` | Styles de base du site public |
 
 Le contenu d'une page est un arbre JSON `sections → colonnes → widgets`. Le même schéma sert au builder, au rendu serveur et à l'assistant IA.
+
+## Marque
+
+Le nom et le logo GeniusPress, ainsi que leurs règles d'usage, sont décrits dans [docs/marque.md](docs/marque.md). Ils ne sont pas couverts par la licence du code.
 
 ## Licence
 

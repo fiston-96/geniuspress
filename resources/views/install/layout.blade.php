@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{{ __('Installation') }} · GeniusPress</title>
+    @include('partials.brand-head')
     @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
@@ -14,8 +15,7 @@
 <main class="mx-auto w-full max-w-2xl px-4 py-10">
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-2">
-            <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-lg font-bold text-white">G</span>
-            <span class="text-xl font-semibold tracking-tight">GeniusPress</span>
+            <x-logo :size="40" />
         </div>
         <nav class="flex gap-2 text-xs">
             @foreach (config('geniuspress.ui_locales') as $code => $name)

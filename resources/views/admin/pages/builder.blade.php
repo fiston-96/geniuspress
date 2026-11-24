@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex">
     <title>{{ __('Builder') }} · {{ $page->title }}</title>
+    @include('partials.brand-head')
     @vite(['resources/css/app.css', 'resources/js/builder/main.jsx'])
     {{-- Scripts des plugins actifs : ils déclarent leurs widgets via window.GeniusPress. --}}
     @foreach (app(\App\Plugins\PluginManager::class)->assets('builder') as $src)

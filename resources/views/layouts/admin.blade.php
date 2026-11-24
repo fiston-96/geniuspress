@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>@yield('title') · {{ \App\Models\Setting::read('site_name') }}</title>
+    @include('partials.brand-head')
     @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
@@ -25,8 +26,7 @@
 <div class="flex min-h-screen">
     <aside class="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-5 py-5">
-            <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-sm font-bold text-white">{{ __('G') }}</span>
-            <span class="font-semibold tracking-tight">{{ __('GeniusPress') }}</span>
+            <x-logo :size="30" />
         </a>
         <nav class="flex-1 space-y-0.5 px-3">
             @foreach ($nav as [$route, $label, $icon])
@@ -64,7 +64,7 @@
 
     <div class="flex min-w-0 flex-1 flex-col">
         <header class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
-            <span class="font-semibold">{{ __('GeniusPress') }}</span>
+            <x-logo :size="24" />
             <nav class="flex gap-3 text-sm">
                 @foreach ($nav as [$route, $label])<a href="{{ route($route) }}" class="text-slate-600">{{ $label }}</a>@endforeach
             </nav>
