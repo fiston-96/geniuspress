@@ -1,0 +1,119 @@
+# Tests automatiques de GeniusPress, à chaque envoi et chaque pull request.
+name: CI
+
+on:
+  push:
+    branches: [main, "phase-*/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.3", "8.4"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, pdo_sqlite, pdo_mysql, zip, gd, fileinfo
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Dépendances
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      - name: Configuration de test
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Builder (Vite)
+        run: npm run build
+
+      - name: Tests
+        run: php artisan test
+
+  docker:
+    name: Image Docker (installation automatique)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construction et démarrage (GeniusPress + MariaDB)
+        env:
+          GP_SITE_NAME: CI GeniusPress
+          GP_ADMIN_NAME: CI
+          GP_ADMIN_EMAIL: ci@geniuspress.test
+          GP_ADMIN_PASSWORD: ci-motdepasse123
+        run: docker compose up -d --build
+
+      - name: Le site répond
+        run: |
+          timeout 240 bash -c 'until curl -fsS http://localhost:8080/up > /dev/null; do sleep 3; done'
+          curl -fsS http://localhost:8080/ | grep -q "CI GeniusPress"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/install)" = "404"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/admin/login)" = "200"
+
+      - name: Redémarrage avec les mêmes volumes (mise à jour)
+        run: |
+          docker compose restart app
+          timeout 120 bash -c 'until curl -fsS http://localhost:8080/up > /dev/null; do sleep 3; done'
+          curl -fsS http://localhost:8080/ | grep -q "CI GeniusPress"
+
+      - name: Journaux en cas d'échec
+        if: failure()
+        run: docker compose logs
+
+  package:
+    name: Paquet zip
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, pdo_sqlite, zip
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Construction du paquet
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci && npm run build
+          php artisan geniuspress:package
+
+      - name: Le paquet s'installe depuis zéro
+        run: |
+          mkdir /tmp/essai && cd /tmp/essai
+          unzip -q "$GITHUB_WORKSPACE"/dist/geniuspress-*.zip
+          cd geniuspress
+          php artisan geniuspress:install --db=sqlite --site-name="Paquet CI" --admin-name=CI \
+            --admin-email=ci@geniuspress.test --admin-password=ci-motdepasse123 -n
+          test -f storage/app/installed.lock
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geniuspress-zip
+          path: dist/geniuspress-*.zip
+          retention-days: 14

@@ -1,0 +1,16 @@
+# Hébergement mutualisé : si le dossier racine de votre site est le dossier de
+# GeniusPress (et non son sous-dossier public/), toutes les adresses sont
+# redirigées vers public/. Si vous pouvez choisir le dossier racine, choisissez
+# public/ : ce fichier n'est alors pas utilisé.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Ne jamais servir les fichiers de configuration, même par erreur.
+<FilesMatch "^(\.env.*|composer\.(json|lock)|package(-lock)?\.json|artisan|.*\.sqlite)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes

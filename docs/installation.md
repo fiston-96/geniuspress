@@ -35,6 +35,51 @@ L'assistant vérifie tout cela à la première étape et indique précisément c
 - Il crée le lien vers les fichiers envoyés (`public/storage`).
 - Il écrit un verrou, `storage/app/installed.lock`, qui ferme l'installateur.
 
+## Hébergement mutualisé (paquet zip)
+
+1. Téléchargez `geniuspress-x.y.z.zip`. Il contient déjà les dépendances PHP et le builder compilé : **ni Composer ni Node.js** ne sont nécessaires.
+2. Décompressez-le et envoyez le dossier `geniuspress` chez votre hébergeur, par FTP ou avec le gestionnaire de fichiers du panneau d'administration.
+3. Si possible, choisissez `geniuspress/public` comme dossier racine du domaine. Sinon, envoyez le contenu dans `public_html` : le fichier `.htaccess` fourni redirige tout vers `public/` et bloque l'accès aux fichiers sensibles.
+4. Ouvrez l'adresse du site : l'assistant d'installation démarre.
+
+Pour fabriquer le paquet vous-même depuis le code source :
+
+```bash
+npm run build
+php artisan geniuspress:package      # crée dist/geniuspress-x.y.z.zip
+```
+
+## Docker
+
+Le fichier `docker-compose.yml` démarre GeniusPress (Apache, PHP 8.3) et MariaDB :
+
+```bash
+docker compose up -d
+```
+
+Ouvrez <http://localhost:8080>. L'assistant s'affiche avec la base de données déjà préremplie : laissez le mot de passe vide, celui du serveur est utilisé.
+
+**Installation automatique**, sans assistant : définissez ces variables dans un fichier `.env` à côté de `docker-compose.yml`, ou dans votre shell, avant le premier démarrage :
+
+```dotenv
+GP_SITE_NAME="ONG Espoir"
+GP_SITE_LOCALE=fr
+GP_ADMIN_NAME=Amani
+GP_ADMIN_EMAIL=admin@ong-espoir.org
+GP_ADMIN_PASSWORD=un-mot-de-passe-solide
+APP_URL=https://ong-espoir.org
+DB_PASSWORD=un-autre-mot-de-passe
+ANTHROPIC_API_KEY=            # facultatif : assistant IA
+```
+
+| Volume | Contenu |
+|---|---|
+| `storage` | Fichiers envoyés, configuration (`.env`), verrou d'installation, journaux |
+| `plugins` | Plugins installés |
+| `db` | Base MariaDB |
+
+**Mise à jour** : `docker compose pull` (ou `docker compose build`) puis `docker compose up -d`. Au démarrage, les nouvelles migrations sont appliquées automatiquement, et les volumes conservent vos données.
+
 ## Installation en ligne de commande
 
 Sur un VPS ou dans un script de déploiement :
@@ -43,16 +88,16 @@ Sur un VPS ou dans un script de déploiement :
 php artisan geniuspress:install
 ```
 
-La commande pose les mêmes questions que l'assistant. Tout peut aussi être donné en options, pour une installation automatique :
+La commande pose les mêmes questions que l'assistant. Tout peut aussi être donné en options, ou par les variables d'environnement indiquées entre parenthèses, pour une installation automatique :
 
 | Option | Rôle |
 |---|---|
-| `--db=mysql` ou `--db=sqlite` | Type de base |
-| `--db-host`, `--db-port`, `--db-name`, `--db-user`, `--db-password` | Connexion MySQL (la base est créée si besoin) |
-| `--site-name` | Nom du site |
-| `--locale` | Langue du contenu : `fr`, `en`, `sw`, `ln`, `pt`, `es`, `ar`, `rw` |
-| `--admin-name`, `--admin-email`, `--admin-password` | Compte administrateur |
-| `--url` | Adresse publique (active le mode production si ce n'est pas une adresse locale) |
+| `--db=mysql` ou `--db=sqlite` | Type de base (`DB_CONNECTION`) |
+| `--db-host`, `--db-port`, `--db-name`, `--db-user`, `--db-password` | Connexion MySQL, créée si besoin (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) |
+| `--site-name` | Nom du site (`GP_SITE_NAME`) |
+| `--locale` | Langue du contenu : `fr`, `en`, `sw`, `ln`, `pt`, `es`, `ar`, `rw` (`GP_SITE_LOCALE`) |
+| `--admin-name`, `--admin-email`, `--admin-password` | Compte administrateur (`GP_ADMIN_NAME`, `GP_ADMIN_EMAIL`, `GP_ADMIN_PASSWORD`) |
+| `--url` | Adresse publique, qui active le mode production si ce n'est pas une adresse locale (`APP_URL`) |
 | `--blank` | Page d'accueil vide |
 
 ```bash

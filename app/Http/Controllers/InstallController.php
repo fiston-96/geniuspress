@@ -36,9 +36,10 @@ class InstallController extends Controller
     /** Étape 2 : base de données. */
     public function database()
     {
-        // Valeurs déjà présentes dans .env (configuration MySQL préparée par l'hébergeur ou à la main).
-        $isMysql = in_array($this->env->get('DB_CONNECTION'), ['mysql', 'mariadb'], true);
-        $current = fn (string $key, string $default = '') => old($key, ($isMysql ? $this->env->get($key) : null) ?: $default);
+        // Valeurs déjà fournies : variables du serveur (Docker, hébergeur) ou fichier .env.
+        $read = fn (string $key) => getenv($key) !== false ? getenv($key) : $this->env->get($key);
+        $isMysql = in_array($read('DB_CONNECTION'), ['mysql', 'mariadb'], true);
+        $current = fn (string $key, string $default = '') => old($key, ($isMysql ? $read($key) : null) ?: $default);
 
         return view('install.database', [
             'values' => [
@@ -50,6 +51,7 @@ class InstallController extends Controller
                 'username' => $current('DB_USERNAME', 'root'),
             ],
             'sqlitePath' => config('geniuspress.sqlite_path'),
+            'serverPassword' => getenv('DB_PASSWORD') !== false && getenv('DB_PASSWORD') !== '',
             'hasMysql' => extension_loaded('pdo_mysql'),
             'hasSqlite' => extension_loaded('pdo_sqlite'),
         ]);
@@ -69,7 +71,8 @@ class InstallController extends Controller
         if ($data['driver'] === 'sqlite') {
             $data['database'] = config('geniuspress.sqlite_path');
         }
-        $data['password'] = $request->input('password', '');
+        // Champ vide : mot de passe fourni par le serveur (Docker, hébergeur), s'il y en a un.
+        $data['password'] = (string) ($request->input('password') ?: (getenv('DB_PASSWORD') ?: ''));
 
         if ($error = $installer->testDatabase($data)) {
             return back()->withInput($request->except('password'))->withErrors(['database' => $error]);

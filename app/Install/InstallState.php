@@ -63,11 +63,14 @@ class InstallState
                 $this->env->createFrom(base_path('.env.example'));
                 // Aucune base tant que l'utilisateur ne l'a pas choisie à l'étape 2 : sinon
                 // les valeurs d'exemple pourraient pointer vers une base existante d'un autre site.
-                $this->env->set(['DB_CONNECTION' => 'sqlite', 'DB_DATABASE' => config('geniuspress.sqlite_path')]);
-                config([
-                    'database.default' => 'sqlite',
-                    'database.connections.sqlite.database' => config('geniuspress.sqlite_path'),
-                ]);
+                // Exception : base fournie par l'environnement du serveur (Docker, hébergeur).
+                if (getenv('DB_CONNECTION') === false) {
+                    $this->env->set(['DB_CONNECTION' => 'sqlite', 'DB_DATABASE' => config('geniuspress.sqlite_path')]);
+                    config([
+                        'database.default' => 'sqlite',
+                        'database.connections.sqlite.database' => config('geniuspress.sqlite_path'),
+                    ]);
+                }
             }
             if (! $this->env->get('APP_KEY')) {
                 $this->env->set(['APP_KEY' => 'base64:'.base64_encode(random_bytes(32))]);

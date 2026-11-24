@@ -24,11 +24,14 @@ use function Laravel\Prompts\text;
 class InstallCommand extends Command
 {
     protected $signature = 'geniuspress:install
-        {--db= : mysql ou sqlite}
-        {--db-host=127.0.0.1} {--db-port=3306} {--db-name=geniuspress} {--db-user=root} {--db-password=}
-        {--site-name= : Nom du site}
-        {--locale=fr : Langue du site}
-        {--admin-name=} {--admin-email=} {--admin-password=}
+        {--db= : mysql ou sqlite (défaut : DB_CONNECTION)}
+        {--db-host= : défaut DB_HOST ou 127.0.0.1} {--db-port= : défaut DB_PORT ou 3306}
+        {--db-name= : défaut DB_DATABASE ou geniuspress} {--db-user= : défaut DB_USERNAME ou root}
+        {--db-password= : défaut DB_PASSWORD}
+        {--site-name= : Nom du site (défaut GP_SITE_NAME)}
+        {--locale= : Langue du site (défaut GP_SITE_LOCALE ou fr)}
+        {--admin-name= : défaut GP_ADMIN_NAME} {--admin-email= : défaut GP_ADMIN_EMAIL}
+        {--admin-password= : défaut GP_ADMIN_PASSWORD (évite de le laisser dans l’historique du shell)}
         {--url= : Adresse publique du site (ex. https://exemple.org)}
         {--blank : Commencer avec une page d’accueil vide}';
 
@@ -55,16 +58,16 @@ class InstallCommand extends Command
 
         // 2. Base de données
         if (! $state->databaseIsReady()) {
-            $driver = $this->option('db') ?: select(__('Base de données'), ['mysql' => 'MySQL / MariaDB', 'sqlite' => 'SQLite'], 'mysql');
+            $driver = $this->opt('db', 'DB_CONNECTION') ?: select(__('Base de données'), ['mysql' => 'MySQL / MariaDB', 'sqlite' => 'SQLite'], 'mysql');
             $db = $driver === 'sqlite'
                 ? ['driver' => 'sqlite', 'database' => config('geniuspress.sqlite_path')]
                 : [
                     'driver' => 'mysql',
-                    'host' => $this->ask(__('Serveur'), $this->option('db-host')),
-                    'port' => (int) $this->ask(__('Port'), $this->option('db-port')),
-                    'database' => $this->ask(__('Nom de la base'), $this->option('db-name')),
-                    'username' => $this->ask(__('Utilisateur'), $this->option('db-user')),
-                    'password' => $this->option('db-password') ?? ($this->input->isInteractive() ? password(__('Mot de passe')) : ''),
+                    'host' => $this->ask(__('Serveur'), $this->opt('db-host', 'DB_HOST', '127.0.0.1')),
+                    'port' => (int) $this->ask(__('Port'), $this->opt('db-port', 'DB_PORT', '3306')),
+                    'database' => $this->ask(__('Nom de la base'), $this->opt('db-name', 'DB_DATABASE', 'geniuspress')),
+                    'username' => $this->ask(__('Utilisateur'), $this->opt('db-user', 'DB_USERNAME', 'root')),
+                    'password' => $this->opt('db-password', 'DB_PASSWORD') ?? ($this->input->isInteractive() ? password(__('Mot de passe')) : ''),
                     'create' => true,
                 ];
 
@@ -79,13 +82,13 @@ class InstallCommand extends Command
 
         // 3. Site et compte administrateur
         $site = [
-            'site_name' => $this->option('site-name') ?: text(__('Nom du site ou de l’organisation'), required: true),
-            'locale' => $this->option('locale'),
-            'name' => $this->option('admin-name') ?: text(__('Votre nom'), required: true),
-            'email' => $this->option('admin-email') ?: text(__('Adresse e-mail'), required: true),
-            'password' => $this->option('admin-password') ?: password(__('Mot de passe'), required: true, hint: __('10 caractères minimum, avec des lettres et des chiffres.')),
+            'site_name' => $this->opt('site-name', 'GP_SITE_NAME') ?: text(__('Nom du site ou de l’organisation'), required: true),
+            'locale' => $this->opt('locale', 'GP_SITE_LOCALE', 'fr'),
+            'name' => $this->opt('admin-name', 'GP_ADMIN_NAME') ?: text(__('Votre nom'), required: true),
+            'email' => $this->opt('admin-email', 'GP_ADMIN_EMAIL') ?: text(__('Adresse e-mail'), required: true),
+            'password' => $this->opt('admin-password', 'GP_ADMIN_PASSWORD') ?: password(__('Mot de passe'), required: true, hint: __('10 caractères minimum, avec des lettres et des chiffres.')),
             'start' => $this->option('blank') ? 'blank' : 'welcome',
-            'url' => $this->option('url'),
+            'url' => $this->opt('url', 'APP_URL'),
         ];
 
         $validator = Validator::make($site, [
@@ -108,5 +111,17 @@ class InstallCommand extends Command
         $this->info(__('GeniusPress est installé. Connectez-vous sur :url', ['url' => rtrim($site['url'] ?: config('app.url'), '/').'/admin/login']));
 
         return self::SUCCESS;
+    }
+
+    /** Option de la commande, sinon variable d'environnement, sinon valeur par défaut. */
+    private function opt(string $option, string $env, ?string $default = null): ?string
+    {
+        $value = $this->option($option);
+        if ($value !== null && $value !== '') {
+            return (string) $value;
+        }
+        $fromEnv = getenv($env);
+
+        return $fromEnv !== false && $fromEnv !== '' ? $fromEnv : $default;
     }
 }

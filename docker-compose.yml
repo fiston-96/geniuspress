@@ -1,0 +1,58 @@
+# GeniusPress avec MariaDB.
+#
+#   docker compose up -d
+#
+# Puis ouvrez http://localhost:8080 : l'assistant d'installation s'affiche,
+# la base de données est déjà préremplie.
+#
+# Installation automatique (sans assistant) : définissez GP_ADMIN_EMAIL et
+# GP_ADMIN_PASSWORD (dans un fichier .env à côté de ce fichier, ou dans votre shell).
+
+services:
+  app:
+    build: .
+    image: geniuspress:latest
+    restart: unless-stopped
+    ports:
+      - "${GP_PORT:-8080}:80"
+    environment:
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: geniuspress
+      DB_USERNAME: geniuspress
+      DB_PASSWORD: ${DB_PASSWORD:-geniuspress}
+      GP_SITE_NAME: ${GP_SITE_NAME:-}
+      GP_SITE_LOCALE: ${GP_SITE_LOCALE:-fr}
+      GP_ADMIN_NAME: ${GP_ADMIN_NAME:-}
+      GP_ADMIN_EMAIL: ${GP_ADMIN_EMAIL:-}
+      GP_ADMIN_PASSWORD: ${GP_ADMIN_PASSWORD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - storage:/var/www/html/storage
+      - plugins:/var/www/html/plugins
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: geniuspress
+      MARIADB_USER: geniuspress
+      MARIADB_PASSWORD: ${DB_PASSWORD:-geniuspress}
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  storage:
+  plugins:
+  db:

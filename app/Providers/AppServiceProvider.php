@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
             return $registry;
         });
 
-        $this->app->singleton(EnvironmentFile::class, fn () => new EnvironmentFile(config('geniuspress.env_path')));
+        $this->app->singleton(EnvironmentFile::class, fn () => new EnvironmentFile(config('geniuspress.env_path') ?? $this->app->environmentFilePath()));
         $this->app->singleton(InstallState::class, fn ($app) => new InstallState(config('geniuspress.install_lock'), $app->make(EnvironmentFile::class)));
 
         $this->app->singleton(PluginManager::class, fn () => new PluginManager(config('geniuspress.plugins_path')));

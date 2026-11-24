@@ -179,6 +179,7 @@
     "La réponse de l’IA était trop longue. Essayez une demande plus courte.": "The AI response was too long. Try a shorter request.",
     "La traduction part de la dernière version enregistrée. Continuer sans enregistrer vos modifications en cours ?": "The translation starts from the last saved version. Continue without saving your current changes?",
     "Laissez vide pour la générer à partir du titre. Exemple : a-propos": "Leave empty to generate it from the title. Example: about-us",
+    "Laissez vide pour utiliser le mot de passe fourni par le serveur.": "Leave empty to use the password provided by the server.",
     "Langue": "Language",
     "Langue de l’interface": "Interface language",
     "Langue de l’interface modifiée.": "Interface language changed.",

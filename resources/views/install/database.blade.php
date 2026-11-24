@@ -35,7 +35,7 @@
             <x-field name="database" :label="__('Nom de la base')" :value="$values['database']" />
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-field name="username" :label="__('Utilisateur')" :value="$values['username']" autocomplete="off" />
-                <x-field name="password" type="password" :label="__('Mot de passe')" autocomplete="off" />
+                <x-field name="password" type="password" :label="__('Mot de passe')" autocomplete="off" :hint="$serverPassword ? __('Laissez vide pour utiliser le mot de passe fourni par le serveur.') : null" />
             </div>
             <label class="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" name="create" value="1" class="rounded border-slate-300" @checked(old('create', true))>

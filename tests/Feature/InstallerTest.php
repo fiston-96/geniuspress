@@ -132,6 +132,28 @@ class InstallerTest extends TestCase
         $this->artisan('geniuspress:install')->expectsOutputToContain('déjà installé')->assertSuccessful();
     }
 
+    /** Utilisé par Docker : tout vient de l'environnement, aucun mot de passe dans la commande. */
+    public function test_command_line_installation_reads_environment_variables(): void
+    {
+        $vars = ['GP_SITE_NAME' => 'Depuis Docker', 'GP_SITE_LOCALE' => 'en', 'GP_ADMIN_NAME' => 'Docker',
+            'GP_ADMIN_EMAIL' => 'docker@test.local', 'GP_ADMIN_PASSWORD' => 'motdepasse123', 'APP_URL' => 'https://docker.test'];
+        foreach ($vars as $k => $v) {
+            putenv("{$k}={$v}");
+        }
+
+        try {
+            $this->artisan('geniuspress:install', ['--no-interaction' => true])->assertSuccessful();
+        } finally {
+            foreach (array_keys($vars) as $k) {
+                putenv($k);
+            }
+        }
+
+        $this->assertSame('docker@test.local', User::sole()->email);
+        $this->assertSame(['en'], Setting::read('locales'));
+        $this->assertSame('https://docker.test', $this->env()->get('APP_URL'));
+    }
+
     public function test_environment_file_keeps_other_lines_and_escapes_values(): void
     {
         file_put_contents($this->env()->path(), "APP_NAME=GeniusPress\n# DB_HOST=127.0.0.1\nDB_PORT=3306\n");

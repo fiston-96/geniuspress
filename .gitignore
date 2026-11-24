@@ -32,3 +32,4 @@ Thumbs.db
 
 # Installation
 /storage/app/installed.lock
+/dist

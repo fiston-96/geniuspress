@@ -30,7 +30,15 @@ class Installer
             if ($db['driver'] === 'sqlite') {
                 $this->prepareSqliteFile($db['database']);
             } elseif (! empty($db['create'])) {
-                $this->createMysqlDatabase($db);
+                try {
+                    $this->createMysqlDatabase($db);
+                } catch (Throwable $e) {
+                    // Pas le droit de créer une base (fréquent chez les hébergeurs) : la base existe
+                    // peut-être déjà. L'erreur ne compte que si la connexion échoue aussi.
+                    if ($e->getMessage() === 'invalid-name') {
+                        throw $e;
+                    }
+                }
             }
             // Connexion d'essai séparée : la connexion principale n'est pas modifiée.
             DatabaseConfig::define('gp_install_check', $db);

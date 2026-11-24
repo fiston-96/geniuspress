@@ -13,7 +13,8 @@ return [
 
     // Fichier verrou écrit à la fin de l'installation, et fichier .env modifié par l'installateur.
     'install_lock' => env('GP_INSTALL_LOCK', storage_path('app/installed.lock')),
-    'env_path' => base_path('.env'),
+    // null = fichier .env de l'application (voir GP_ENV_DIR dans bootstrap/app.php).
+    'env_path' => null,
     // Fichier de base de données quand on choisit SQLite à l'installation.
     'sqlite_path' => database_path('geniuspress.sqlite'),
 

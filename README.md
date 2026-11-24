@@ -29,6 +29,18 @@ Guide complet : [docs/installation.md](docs/installation.md).
 
 Aucune modification manuelle du fichier `.env` n'est nécessaire : il est créé et rempli par l'assistant.
 
+### Avec Docker
+
+```bash
+docker compose up -d
+```
+
+Puis ouvrez <http://localhost:8080>. GeniusPress et MariaDB démarrent ensemble.
+
+### Hébergement mutualisé
+
+Téléchargez le paquet `geniuspress-x.y.z.zip` (dépendances incluses), envoyez-le chez votre hébergeur et ouvrez l'adresse du site. Pour le fabriquer : `npm run build && php artisan geniuspress:package`.
+
 ### En ligne de commande
 
 ```bash
