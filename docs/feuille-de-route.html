@@ -146,11 +146,11 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
   <header>
     <div class="brand"><div class="logo" aria-hidden="true">G</div><strong>GeniusPress</strong></div>
     <h1>Feuille de route GeniusPress</h1>
-    <p class="lead">Un CMS open source avec son propre page builder et un assistant IA intégré, pensé pour les entreprises et les ONG africaines. Voici ce qui existe déjà, ce qui arrive, et dans quel ordre.</p>
+    <p class="lead">Un CMS open source avec son propre page builder, un constructeur de thème, une boutique et un assistant IA intégré, pensé pour les entreprises et les ONG africaines. Voici ce qui existe déjà, ce qui arrive, et dans quel ordre.</p>
     <div class="facts">
-      <div class="fact"><span>Où on en est</span><strong>Phase 1 presque finie · 24 nov. 2026</strong></div>
-      <div class="fact"><span>Prochain jalon</span><strong>Docker validé par la CI, puis phase 2</strong></div>
-      <div class="fact"><span>Objectif 1.0 publique</span><strong>Début mars 2027 (estimation)</strong></div>
+      <div class="fact"><span>Où on en est</span><strong>Phase 2 bien avancée · 24 nov. 2026</strong></div>
+      <div class="fact"><span>Prochain jalon</span><strong>Articles et constructeur de thème</strong></div>
+      <div class="fact"><span>Objectif 1.0 publique</span><strong>Juin 2027 (estimation, périmètre élargi)</strong></div>
       <div class="fact"><span>Licence</span><strong>AGPL-3.0 + exception plugins</strong></div>
     </div>
   </header>
@@ -158,8 +158,8 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
   <section aria-labelledby="t-roadmap">
     <div class="section-head">
       <span class="eyebrow">Roadmap</span>
-      <h2 id="t-roadmap">Cinq phases jusqu’à la version 1.0</h2>
-      <p class="lead">Les dates sont des estimations pour une petite équipe épaulée par l’IA. Chaque phase se termine quand son critère de fin est atteint, pas à une date fixe.</p>
+      <h2 id="t-roadmap">Huit phases jusqu’à la version 1.0</h2>
+      <p class="lead">Le périmètre a grandi le 24 novembre 2026 : constructeur de thème, boutique en ligne, builder enrichi et modèles nouvelle génération font désormais partie de la 1.0. Les dates sont des estimations pour une petite équipe épaulée par l’IA ; chaque phase se termine quand son critère de fin est atteint, pas à une date fixe.</p>
     </div>
 
     <div class="timeline">
@@ -202,43 +202,121 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
             <li>Commande <code>geniuspress:make-plugin</code>, plugin d’exemple Citation, guide développeur <em>(fait)</em></li>
             <li>Interface traduisible, français et anglais, langue choisie par chaque utilisateur <em>(fait)</em></li>
             <li>Installateur depuis zéro, dans le navigateur et en ligne de commande, MySQL ou SQLite <em>(fait)</em></li>
-            <li>Paquet zip pour hébergement mutualisé, testé de bout en bout <em>(fait)</em></li>
-            <li>Export et import de site, avec déménagement possible dès l’installation <em>(fait)</em></li>
+            <li>Paquet zip pour hébergement mutualisé, export et import de site <em>(fait)</em></li>
+            <li>Site officiel geniuspress.site construit avec GeniusPress, en français et en anglais <em>(fait)</em></li>
             <li>Image Docker et tests automatiques sur GitHub : écrits, en attente du déblocage de la facturation GitHub pour être validés</li>
           </ul>
           <p class="done-when"><b>Terminé quand</b> la CI GitHub est au vert, Docker compris, et les branches sont fusionnées dans <code>main</code>.</p>
         </div>
       </article>
 
-      <article class="phase">
-        <div class="when"><b>Phase 2</b><small>janv. 2027 · 3–4 sem.</small></div>
+      <article class="phase now">
+        <div class="when"><b>Phase 2</b><small>nov.–déc. 2026</small></div>
         <div class="rail"><span class="dot"></span></div>
         <div class="body">
-          <div class="phase-title"><h3>Un vrai site complet</h3><span class="pill s-plan">Prévu</span></div>
-          <p class="goal">Combler ce qui manque pour qu’une organisation mette son site en ligne sans aide.</p>
+          <div class="phase-title"><h3>Builder pro et modèles de sites</h3><span class="pill s-wip">En cours</span></div>
+          <p class="goal">Un builder à la hauteur des outils professionnels, et des sites prêts pour chaque secteur.</p>
           <ul>
-            <li>En-tête, menu et pied de page personnalisables (constructeur de thème)</li>
-            <li>Plugin officiel Formulaire de contact</li>
-            <li>Plugin officiel Paiement et dons : Mobile Money et carte bancaire</li>
-            <li>Traductions de l’interface en swahili et en lingala</li>
-            <li>Nouveaux widgets : icônes, galerie, carrousel, compteurs, onglets, FAQ, carte</li>
-            <li>Modèles de pages prêts à l’emploi (ONG, entreprise, école, église, restaurant)</li>
+            <li>Conteneurs imbriqués (ligne, colonne, retour à la ligne), réglages par appareil et au survol, couleurs et polices globales <em>(fait)</em></li>
+            <li>24 widgets : icônes, boîtes d’icône et d’image, compteur, progression, accordéon, onglets, galerie, tarifs, équipe, réseaux sociaux, carte, compte à rebours… <em>(fait)</em></li>
+            <li>Formulaire de contact avec anti-spam, messages dans l’admin et par e-mail <em>(fait)</em></li>
+            <li>60 modèles de sites dans 10 secteurs, 8 pages chacun, français et anglais, photos libres de droits, démonstrations sans installation <em>(fait)</em></li>
+            <li>Page Modèles et assistant IA : questionnaire, propositions de modèles, installation, rédaction des textes <em>(fait)</em></li>
+            <li>Vitrine geniuspress.site refaite avec la page Modèles et ses aperçus <em>(en cours)</em></li>
             <li>Gestion des utilisateurs dans l’admin, assistant IA en tâche de fond</li>
+            <li>Vérification complète dans le navigateur (éditeur et page Modèles) et test avec la vraie API Claude</li>
           </ul>
-          <p class="done-when"><b>Terminé quand</b> une ONG crée un site de 5 pages avec menu, formulaire et page de dons en moins d’une heure.</p>
+          <p class="done-when"><b>Terminé quand</b> une organisation choisit un modèle, laisse l’IA rédiger ses textes et publie un site de 8 pages en moins d’une heure.</p>
         </div>
       </article>
 
       <article class="phase">
-        <div class="when"><b>Phase 3</b><small>févr. 2027 · 2–3 sem.</small></div>
+        <div class="when"><b>Phase 3</b><small>déc. 2026–janv. 2027 · 4 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Articles et constructeur de thème</h3><span class="pill s-plan">Prochaine</span></div>
+          <p class="goal">Passer d’un site de pages à un site dynamique : blog, actualités, archives, et un design maîtrisé partout.</p>
+          <ul>
+            <li>Articles : éditeur dans le builder, image à la une, extrait, auteur, date de publication et publication programmée</li>
+            <li>Catégories et étiquettes, flux RSS, recherche dans le site, plan du site XML</li>
+            <li>Constructeur de thème : gabarits d’en-tête, de pied de page, d’article, d’archive et de catégorie, de résultats de recherche, de page 404 et de page</li>
+            <li>Conditions d’affichage : tout le site, page d’accueil, une catégorie, un type de contenu, une langue ; exclusions et priorités</li>
+            <li>Widgets dynamiques : titre, contenu, image à la une, informations de l’article, auteur, navigation précédent/suivant, titre d’archive, grille et liste d’articles, pagination, fil d’Ariane, recherche, logo, menu</li>
+            <li>En-tête collant, qui se réduit ou change de couleur au défilement ; menu mobile hors-champ ; méga-menu</li>
+            <li>Les 60 modèles reçoivent leur blog et leurs gabarits d’en-tête, de pied de page et d’article</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> une école publie ses actualités par catégorie, avec un gabarit d’article et un en-tête conçus dans le builder, sans toucher au code.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 4</b><small>janv.–févr. 2027 · 6 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Boutique en ligne (plugin Commerce officiel)</h3><span class="pill s-plan">Prévu</span></div>
+          <p class="goal">Vendre en ligne en Afrique, avec les moyens de paiement réellement utilisés.</p>
+          <ul>
+            <li>Produits simples et à variantes (taille, couleur…), attributs, catégories, galerie, prix barré, stock et ruptures</li>
+            <li>Panier, commande sans compte, comptes clients, adresses, codes promo</li>
+            <li>Livraison par zones et tarifs, retrait en boutique, taxes, plusieurs devises (CDF, USD, XOF, XAF, KES, RWF…)</li>
+            <li>Paiements : Mobile Money et carte bancaire par des prestataires africains, paiement à la livraison, virement, commande par WhatsApp</li>
+            <li>Commandes dans l’admin (statuts, remboursements, notes), e-mails de confirmation et d’expédition, factures PDF, rapports de ventes</li>
+            <li>Gabarits de boutique, de catégorie de produits, de fiche produit, de panier, de caisse et de compte client</li>
+            <li>Widgets : grille et carrousel de produits, ajouter au panier, mini-panier, prix, galerie produit, onglets, avis, filtres (prix, attributs, catégories), fil d’Ariane</li>
+            <li>Liste de souhaits et comparaison de produits</li>
+            <li>Les mêmes paiements servent aux dons des ONG et des églises</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> un commerçant de Kinshasa met en ligne 50 produits, reçoit une commande payée par Mobile Money et la suit jusqu’à la livraison.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 5</b><small>mars 2027 · 4 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Builder enrichi : widgets, effets et pop-ups</h3><span class="pill s-plan">Prévu</span></div>
+          <p class="goal">Rattraper les meilleurs builders du marché sur la richesse des éléments.</p>
+          <ul>
+            <li>Plus de 30 nouveaux widgets : slider et carrousel, carte qui se retourne, avant/après, points interactifs, chronologie, tableau de données, graphiques, horaires, liste de prix, partage, bouton double, titre bicolore, liste de taxonomies, barre de lecture, retour en haut, animation Lottie, flux de vidéos, contenu protégé…</li>
+            <li>Constructeur de pop-ups : fenêtre centrée, plein écran, glissante, barre haute ou basse ; déclencheurs (chargement, défilement, intention de sortie, clic, inactivité, date) ; ciblage par page, appareil et rôle</li>
+            <li>Effets : animations d’apparition, parallaxe, sections collantes, effets au survol, particules</li>
+            <li>CSS personnalisé par élément et pour tout le site</li>
+            <li>Bibliothèque de sections et de blocs réutilisables : une section modifiée une fois, mise à jour partout</li>
+            <li>Édition du texte directement sur la page</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> le builder compte au moins 60 widgets et qu’une page d’atterrissage complète, avec pop-up et animations, se construit sans code.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 6</b><small>avril 2027 · 4 sem.</small></div>
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="phase-title"><h3>Modèles nouvelle génération</h3><span class="pill s-plan">Prévu</span></div>
+          <p class="goal">Des modèles d’une qualité professionnelle, chacun avec son propre design.</p>
+          <ul>
+            <li>Nouveaux blocs : plus de 60 variantes de sections (héros, présentations, chiffres, galeries, appels à l’action…), avec sliders, chevauchements et animations</li>
+            <li>Un design distinct par modèle, plus seulement des couleurs et des polices différentes</li>
+            <li>Kits complets : pages, blog, gabarits du thème et, pour les commerces, la boutique</li>
+            <li>Nouveaux secteurs : boutiques de mode, d’électronique, d’alimentation, de cosmétiques ; agences, portfolios, magazines, événements, tourisme</li>
+            <li>Objectif : plus de 120 modèles, avec démonstration et aperçu</li>
+            <li>Bibliothèques de sections et de pop-ups prêtes à insérer</li>
+          </ul>
+          <p class="done-when"><b>Terminé quand</b> chaque secteur propose des modèles visuellement différents les uns des autres, avec au moins 20 kits de boutique.</p>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><b>Phase 7</b><small>mai 2027 · 3 sem.</small></div>
         <div class="rail"><span class="dot"></span></div>
         <div class="body">
           <div class="phase-title"><h3>Hébergement et plateforme</h3><span class="pill s-plan">Prévu</span></div>
           <ul>
             <li>Déploiement sur VPS : Nginx, HTTPS, sauvegardes quotidiennes hors serveur (à partir de <code>geniuspress:export</code>), supervision</li>
+            <li>Catalogue de modèles et démonstrations en ligne sur geniuspress.site</li>
             <li>Mode plateforme multi-sites (SaaS) avec sous-domaines puis domaines personnalisés</li>
             <li>Mises à jour en un clic pour les installations autonomes</li>
-            <li>Export en site statique, utilisable sans Internet ou sur réseau local (le mode local avec SQLite fonctionne déjà)</li>
+            <li>Export en site statique, utilisable sans Internet ou sur réseau local</li>
             <li>Crédits IA GeniusPress pour les sites sans clé API personnelle</li>
           </ul>
           <p class="done-when"><b>Terminé quand</b> un client crée son site sur la plateforme, branche son nom de domaine et reçoit ses sauvegardes automatiquement.</p>
@@ -246,14 +324,15 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
       </article>
 
       <article class="phase">
-        <div class="when"><b>Phase 4</b><small>début mars 2027</small></div>
+        <div class="when"><b>Phase 8</b><small>juin 2027</small></div>
         <div class="rail"><span class="dot"></span></div>
         <div class="body">
           <div class="phase-title"><h3>Lancement public 1.0</h3><span class="pill s-plan">Prévu</span></div>
           <ul>
-            <li>Site de documentation complet en français et en anglais</li>
+            <li>Site de documentation complet en français et en anglais, guides de la boutique et du constructeur de thème</li>
+            <li>Interface en swahili et en lingala</li>
             <li>Dépôt GitHub public, guide de contribution, politique de sécurité</li>
-            <li>Annonce auprès des communautés tech africaines et des réseaux d’ONG</li>
+            <li>Annonce auprès des communautés tech africaines, des réseaux d’ONG et des commerçants</li>
           </ul>
           <p class="done-when"><b>Terminé quand</b> la 1.0 est publiée et documentée, et que les premiers contributeurs externes ont pu installer le projet seuls.</p>
         </div>
@@ -291,20 +370,23 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
           <dt>CMS autonome</dt><dd>Pas un plugin WordPress : GeniusPress a son propre cœur, son builder et son assistant IA.</dd>
           <dt>Laravel, React et MySQL</dt><dd>Laravel sert de fondation technique ; tout le CMS est écrit par l’équipe. Fonctionne sur WAMP, sur un VPS et sur un hébergement mutualisé.</dd>
           <dt>Open source</dt><dd>AGPL-3.0 pour le cœur, avec une exception qui laisse les plugins choisir leur licence, y compris commerciale. Kit de plugins et exemples sous MIT.</dd>
-          <dt>Claude Opus 5.5 pour l’IA</dt><dd>Clé API personnelle du client, chiffrée en base. Crédits GeniusPress prévus en phase 3.</dd>
+          <dt>Claude Opus 5.5 pour l’IA</dt><dd>Clé API personnelle du client, chiffrée en base. Crédits GeniusPress prévus avec la plateforme.</dd>
           <dt>Les données appartiennent au client</dt><dd>Export complet du site à tout moment, import dans une autre installation : c’est fait.</dd>
-          <dt>Quatre façons d’installer</dt><dd>Assistant dans le navigateur, ligne de commande, paquet zip pour hébergement mutualisé, Docker.</dd>
+          <dt>Boutique et constructeur de thème avant la 1.0</dt><dd>Décidé le 24 novembre 2026 : le commerce en ligne est un vrai besoin, il ne doit pas manquer. Il sera livré comme plugin officiel, installé par défaut, pour garder le cœur léger.</dd>
+          <dt>S’inspirer, ne pas copier</dt><dd>Les builders existants (Elementor, Royal Elementor Addons…) servent de référence pour les fonctionnalités ; les designs, textes et images de leurs modèles ne sont jamais repris.</dd>
+          <dt>Photos libres de droits</dt><dd>Pixabay pour les modèles, choisies et vérifiées une à une, crédits conservés.</dd>
         </dl>
       </div>
       <div class="panel">
         <h3>À trancher</h3>
         <ol>
+          <li>Ordre des phases 3 et 4<span>Recommandé : articles et constructeur de thème d’abord, car les pages de la boutique sont des gabarits du thème.</span></li>
+          <li>Prestataires de paiement<span>Agrégateurs Mobile Money et carte selon les pays visés (RDC, Rwanda, Kenya, Afrique de l’Ouest…), avec un compte marchand ouvert par GeniusPress ou par chaque client.</span></li>
+          <li>Pays et devises de la boutique au lancement<span>Pour régler les taxes, les devises et la livraison par défaut.</span></li>
           <li>Compte GitHub<span>Régler la facturation (elle bloque la CI) et choisir si le dépôt reste public avant la 1.0.</span></li>
           <li>Plateforme SaaS, installation par client, ou les deux ?<span>Le code actuel gère un seul site ; le multi-sites ajoute 2 à 4 semaines.</span></li>
-          <li>Fournisseurs de paiement<span>Agrégateur Mobile Money et carte selon les pays visés (RDC, Rwanda, Kenya…).</span></li>
           <li>Hébergeur et région du VPS<span>Recommandation : Europe avec Cloudflare devant.</span></li>
           <li>Nom de domaine et marque<span>Vérifier la disponibilité de « GeniusPress » avant le lancement.</span></li>
-          <li>Langues de l’interface après le français et l’anglais<span>Swahili et lingala sont les candidats naturels.</span></li>
         </ol>
       </div>
     </div>
@@ -317,29 +399,76 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
 // Inventaire des fonctionnalités : status = ok | wip | plan | later ; phase = étiquette affichée.
 const DOMAINS = [
   { name: 'Builder visuel', items: [
-    ['Glisser-déposer de widgets', 'Depuis le panneau ou entre colonnes, avec repère d’insertion', 'ok', 'MVP'],
-    ['Sections de 1 à 4 colonnes', 'Six structures prêtes, largeur et espacement réglables', 'ok', 'MVP'],
-    ['7 widgets de base', 'Titre, texte enrichi, image, bouton, espace, séparateur, vidéo', 'ok', 'MVP'],
-    ['Aperçu ordinateur, tablette, mobile', 'Rendu réel dans une iframe, réglages spécifiques au mobile', 'ok', 'MVP'],
+    ['Conteneurs imbriqués', 'En ligne ou en colonne, retour à la ligne, alignements, largeurs, jusqu’à 8 niveaux', 'ok', 'P2'],
+    ['Réglages par appareil et au survol', 'Ordinateur, tablette, mobile ; couleurs, ombres et bordures au survol', 'ok', 'P2'],
+    ['Style complet', 'Marges, fonds en couleur, dégradé ou image avec superposition, bordures, arrondis, ombres, opacité', 'ok', 'P2'],
+    ['Couleurs et polices globales', 'Un changement dans les réglages met tout le site à jour', 'ok', 'P2'],
+    ['Navigateur de structure', 'Arbre de la page, sélection et déplacement des éléments', 'ok', 'P2'],
     ['Annuler, rétablir, raccourcis clavier', 'Ctrl+Z, Ctrl+Y, Ctrl+S, Ctrl+D, Suppr', 'ok', 'MVP'],
-    ['Brouillon séparé de la version en ligne', 'Enregistrer ne change pas le site tant qu’on ne publie pas', 'ok', 'MVP'],
-    ['Historique des versions', '30 dernières versions, restauration en un clic', 'ok', 'MVP'],
-    ['En-tête, menu et pied de page', 'Constructeur de thème appliqué à tout le site', 'plan', 'P2'],
-    ['Widgets supplémentaires', 'Icônes, galerie, carrousel, compteurs, onglets, FAQ, carte', 'plan', 'P2'],
-    ['Modèles de pages', 'ONG, entreprise, école, église, restaurant', 'plan', 'P2'],
-    ['Blocs réutilisables', 'Une section modifiée une fois, mise à jour partout', 'later', 'Après 1.0'],
-    ['Édition du texte directement sur la page', 'Sans passer par le panneau', 'later', 'Après 1.0'],
-    ['Animations et pop-ups', 'Apparition au défilement, fenêtres d’annonce', 'later', 'Après 1.0'],
+    ['Brouillon et historique des versions', 'Rien ne change en ligne avant la publication ; 30 versions restaurables', 'ok', 'MVP'],
+    ['Effets', 'Animations d’apparition, parallaxe, sections collantes, effets au survol, particules', 'plan', 'P5'],
+    ['Constructeur de pop-ups', 'Formats, déclencheurs, ciblage par page, appareil et rôle', 'plan', 'P5'],
+    ['CSS personnalisé', 'Par élément et pour tout le site', 'plan', 'P5'],
+    ['Sections et blocs réutilisables', 'Une section modifiée une fois, mise à jour partout', 'plan', 'P5'],
+    ['Édition du texte directement sur la page', 'Sans passer par le panneau', 'plan', 'P5'],
+  ]},
+  { name: 'Widgets', items: [
+    ['Contenu', 'Titre, texte, image, vidéo, bouton, icône, liste de liens, espace, séparateur', 'ok', 'P2'],
+    ['Mise en valeur', 'Boîtes d’icône et d’image, liste d’icônes, compteur, barre de progression, témoignage', 'ok', 'P2'],
+    ['Organisation', 'Accordéon avec données FAQ, onglets, galerie avec visionneuse', 'ok', 'P2'],
+    ['Activité', 'Tarifs, membre d’équipe, réseaux sociaux, carte, compte à rebours, formulaire de contact', 'ok', 'P2'],
+    ['Widgets dynamiques du thème', 'Titre, contenu, image à la une, auteur, grille d’articles, pagination, fil d’Ariane, recherche, logo, menu', 'plan', 'P3'],
+    ['Menus avancés', 'Méga-menu, menu mobile hors-champ, navigation une page', 'plan', 'P3'],
+    ['Widgets de boutique', 'Grille de produits, ajouter au panier, mini-panier, prix, galerie produit, filtres, avis', 'plan', 'P4'],
+    ['Slider et carrousels', 'Images, contenus, témoignages, articles et produits', 'plan', 'P5'],
+    ['Éléments interactifs', 'Carte qui se retourne, avant/après, points interactifs, chronologie, contenu à bascule', 'plan', 'P5'],
+    ['Données et pratique', 'Tableau, graphiques, horaires, liste de prix, partage, retour en haut, barre de lecture', 'plan', 'P5'],
+    ['Objectif 60 widgets et plus', 'Tous passent par le registre, comme ceux des plugins', 'plan', 'P5'],
+  ]},
+  { name: 'Constructeur de thème et articles', items: [
+    ['En-tête, menus et pied de page', 'Réglages par langue, en-tête collant, bouton d’action', 'ok', 'P1'],
+    ['Articles', 'Éditeur dans le builder, image à la une, extrait, auteur, publication programmée', 'plan', 'P3'],
+    ['Catégories et étiquettes', 'Pages d’archive, flux RSS, plan du site XML', 'plan', 'P3'],
+    ['Recherche dans le site', 'Page de résultats conçue dans le builder', 'plan', 'P3'],
+    ['Gabarits du thème', 'En-tête, pied de page, article, archive, catégorie, recherche, 404, page', 'plan', 'P3'],
+    ['Conditions d’affichage', 'Tout le site, accueil, catégorie, type de contenu, langue ; exclusions et priorités', 'plan', 'P3'],
+    ['Effets d’en-tête', 'Se réduit, change de couleur ou est remplacé au défilement', 'plan', 'P3'],
+    ['Types de contenu et champs personnalisés', 'Créer ses propres contenus (événements, sermons, offres d’emploi…) et leurs gabarits', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Boutique (plugin Commerce)', items: [
+    ['Produits', 'Simples et à variantes, attributs, catégories, galerie, prix barré, stock', 'plan', 'P4'],
+    ['Panier et commande', 'Commande sans compte, comptes clients, adresses, codes promo', 'plan', 'P4'],
+    ['Livraison, taxes et devises', 'Zones et tarifs, retrait en boutique, CDF, USD, XOF, XAF, KES, RWF…', 'plan', 'P4'],
+    ['Paiements', 'Mobile Money, carte, paiement à la livraison, virement, commande par WhatsApp', 'plan', 'P4'],
+    ['Gestion des commandes', 'Statuts, remboursements, notes, e-mails, factures PDF', 'plan', 'P4'],
+    ['Rapports de ventes', 'Chiffre d’affaires, produits les plus vendus, commandes par période', 'plan', 'P4'],
+    ['Gabarits de boutique', 'Boutique, catégorie, fiche produit, panier, caisse, compte client', 'plan', 'P4'],
+    ['Filtres de produits', 'Prix, attributs, catégories, sans rechargement de la page', 'plan', 'P4'],
+    ['Liste de souhaits et comparaison', 'Pour les clients, avec ou sans compte', 'plan', 'P4'],
+    ['Dons', 'Les ONG et les églises utilisent les mêmes moyens de paiement', 'plan', 'P4'],
+    ['Abonnements et produits numériques', 'Paiements récurrents, téléchargements', 'later', 'Après 1.0'],
+  ]},
+  { name: 'Modèles de sites', items: [
+    ['60 modèles dans 10 secteurs', 'ONG, églises, écoles, gouvernement, hôpitaux, tech, commerce, art et déco, restaurants, cabinets', 'ok', 'P2'],
+    ['8 pages par modèle, en français et en anglais', '480 pages prêtes par langue', 'ok', 'P2'],
+    ['Photos libres de droits', '219 photos Pixabay vérifiées une à une, crédits conservés', 'ok', 'P2'],
+    ['Démonstration sans installation', 'Chaque modèle se visite avant d’être installé', 'ok', 'P2'],
+    ['Installation en un clic', 'Pages, menus, couleurs et polices, langues au choix', 'ok', 'P2'],
+    ['Kits complets', 'Blog, gabarits du thème et boutique dans chaque modèle', 'plan', 'P6'],
+    ['Nouveaux blocs et designs distincts', 'Plus de 60 variantes de sections, un design propre à chaque modèle', 'plan', 'P6'],
+    ['Plus de 120 modèles', 'Dont au moins 20 boutiques : mode, électronique, alimentation, cosmétiques…', 'plan', 'P6'],
+    ['Bibliothèques de sections et de pop-ups', 'À insérer dans n’importe quelle page', 'plan', 'P6'],
   ]},
   { name: 'Assistant IA', items: [
-    ['Créer une page à partir d’une description', '4 à 8 sections, titre et description pour Google', 'ok', 'MVP'],
+    ['Créer une page à partir d’une description', 'Sections complètes, titre et description pour Google', 'ok', 'MVP'],
     ['Assistant de rédaction', 'Écrire, améliorer, raccourcir, développer, corriger, changer de ton', 'ok', 'MVP'],
     ['Traduction de page', 'Copie traduite en brouillon, même mise en page', 'ok', 'MVP'],
     ['Audit SEO et accessibilité', 'Score, problèmes classés, corrections en langage simple', 'ok', 'MVP'],
-    ['Textes alternatifs des images', 'L’IA regarde les images de la médiathèque et propose un texte', 'ok', 'MVP'],
-    ['Suivi de consommation', 'Demandes et jetons du mois dans les réglages', 'ok', 'MVP'],
+    ['Questionnaire et propositions de modèles', 'L’IA comprend l’organisation et propose les modèles adaptés', 'ok', 'P2'],
+    ['Rédaction d’un modèle installé', 'Base de connaissances par secteur, jamais de chiffres ni de contacts inventés', 'ok', 'P2'],
     ['Génération en tâche de fond', 'Plus de limite de durée, notification à la fin', 'plan', 'P2'],
-    ['Crédits IA GeniusPress', 'Pour les sites sans clé API personnelle', 'plan', 'P3'],
+    ['Rédaction d’articles et de fiches produits', 'À partir de quelques mots-clés ou d’une photo', 'plan', 'P4'],
+    ['Crédits IA GeniusPress', 'Pour les sites sans clé API personnelle', 'plan', 'P7'],
     ['Assistant pour les visiteurs du site', 'Répond aux questions à partir du contenu publié', 'later', 'Après 1.0'],
   ]},
   { name: 'Gestion du site', items: [
@@ -347,43 +476,39 @@ const DOMAINS = [
     ['Comptes et rôles', 'Administrateur et éditeur, connexion protégée', 'ok', 'MVP'],
     ['Pages, statuts et référencement', 'Brouillon ou publiée, adresse, titre et description pour Google', 'ok', 'MVP'],
     ['Médiathèque', 'Images et PDF, texte alternatif, envoi par glisser-déposer', 'ok', 'MVP'],
-    ['Site multilingue', '8 langues proposées, adresses /en/…, pages liées entre elles', 'ok', 'MVP'],
-    ['Couleurs, police et identité', 'Réglages globaux utilisés par le builder et le site', 'ok', 'MVP'],
-    ['Interface d’administration traduite', 'Français et anglais, langue choisie par chaque utilisateur', 'ok', 'P1'],
-    ['Interface en swahili et lingala', 'Nouvelles traductions, sans toucher au code', 'plan', 'P2'],
-    ['Installation en ligne de commande', 'Interactive ou entièrement par options et variables', 'ok', 'P1'],
-    ['Export et import de site', 'Un fichier zip avec pages, réglages et médias ; déménagement dès l’installation', 'ok', 'P1'],
+    ['Site multilingue', 'Adresses /en/…, pages liées entre elles', 'ok', 'MVP'],
+    ['Messages du formulaire de contact', 'Liste dans l’admin, notification par e-mail', 'ok', 'P2'],
+    ['Export et import de site', 'Un fichier zip avec pages, réglages et médias', 'ok', 'P1'],
     ['Gestion des utilisateurs dans l’admin', 'Inviter, changer de rôle, désactiver', 'plan', 'P2'],
-    ['Blog et actualités', 'Articles, catégories, flux RSS', 'later', 'Après 1.0'],
+    ['Interface en swahili et lingala', 'Nouvelles traductions, sans toucher au code', 'plan', 'P8'],
     ['Double authentification', 'Code à usage unique à la connexion', 'later', 'Après 1.0'],
   ]},
   { name: 'Plugins et extensions', items: [
     ['Registre de widgets', 'Nos widgets passent par la même API que les plugins', 'ok', 'P1'],
     ['Système de plugins', 'Widgets, routes, vues, tables, hooks ; désactivation automatique en cas d’erreur', 'ok', 'P1'],
-    ['Plugin d’exemple Citation et guide développeur', 'docs/developpeurs/plugins.md', 'ok', 'P1'],
-    ['Générateur de plugin', 'Commande qui crée un plugin d’exemple fonctionnel', 'ok', 'P1'],
-    ['Formulaire de contact', 'Plugin officiel, envoi par e-mail, anti-spam', 'plan', 'P2'],
-    ['Paiement et dons', 'Plugin officiel : Mobile Money et carte bancaire', 'plan', 'P2'],
+    ['Générateur de plugin et guide développeur', 'Commande qui crée un plugin d’exemple fonctionnel', 'ok', 'P1'],
+    ['Plugin Commerce officiel', 'Boutique complète, installée par défaut', 'plan', 'P4'],
     ['API REST', 'Lire et modifier le contenu depuis une autre application', 'later', 'Après 1.0'],
     ['Catalogue de plugins', 'Recherche et installation depuis l’admin', 'later', 'Après 1.0'],
   ]},
   { name: 'Hébergement et distribution', items: [
-    ['Fonctionne en local sur WAMP', 'Environnement de développement actuel', 'ok', 'MVP'],
-    ['Paquet zip pour hébergement mutualisé', 'Sans Composer ni Node.js côté client, testé de bout en bout', 'ok', 'P1'],
+    ['Paquet zip pour hébergement mutualisé', 'Sans Composer ni Node.js côté client', 'ok', 'P1'],
     ['Mode local hors ligne', 'Installation avec SQLite, sans serveur de base de données', 'ok', 'P1'],
     ['Image Docker', 'GeniusPress et MariaDB en une commande ; en attente de validation par la CI', 'wip', 'P1'],
-    ['Déploiement sur VPS', 'HTTPS, sauvegardes hors serveur, supervision', 'plan', 'P3'],
-    ['Plateforme multi-sites', 'Sous-domaines puis domaines personnalisés', 'plan', 'P3'],
-    ['Mises à jour en un clic', 'Sauvegarde automatique avant chaque mise à jour', 'plan', 'P3'],
-    ['Export en site statique', 'Site consultable sans Internet ou sur réseau local', 'plan', 'P3'],
+    ['Catalogue de modèles en ligne', 'Modèles et démonstrations servis par geniuspress.site', 'plan', 'P7'],
+    ['Déploiement sur VPS', 'HTTPS, sauvegardes hors serveur, supervision', 'plan', 'P7'],
+    ['Plateforme multi-sites', 'Sous-domaines puis domaines personnalisés', 'plan', 'P7'],
+    ['Mises à jour en un clic', 'Sauvegarde automatique avant chaque mise à jour', 'plan', 'P7'],
+    ['Export en site statique', 'Site consultable sans Internet ou sur réseau local', 'plan', 'P7'],
   ]},
   { name: 'Sécurité et qualité', items: [
     ['Contenu nettoyé côté serveur', 'HTML, couleurs, liens et vidéos vérifiés avant enregistrement', 'ok', 'MVP'],
     ['Clé API chiffrée', 'Jamais envoyée au navigateur', 'ok', 'MVP'],
-    ['Limites de requêtes', 'Connexion et assistant IA', 'ok', 'MVP'],
-    ['Tests automatiques', '47 tests, IA testée sans appel payant', 'ok', 'P1'],
+    ['Limites de requêtes', 'Connexion, formulaires et assistant IA', 'ok', 'MVP'],
+    ['Tests automatiques', '91 tests, IA testée sans appel payant', 'ok', 'P2'],
     ['Tests à chaque contribution', 'CI GitHub écrite ; bloquée par la facturation du compte', 'wip', 'P1'],
-    ['Politique de sécurité publique', 'Signalement privé des failles', 'plan', 'P4'],
+    ['Paiements sécurisés', 'Aucune donnée de carte stockée, confirmation des paiements par le prestataire', 'plan', 'P4'],
+    ['Politique de sécurité publique', 'Signalement privé des failles', 'plan', 'P8'],
   ]},
 ];
 
