@@ -2,6 +2,7 @@
 
 namespace App\Builder;
 
+use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Str;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
@@ -9,7 +10,8 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 /**
  * Normalise et nettoie l'arbre JSON d'une page : supprime les types et
  * réglages inconnus, borne les valeurs, nettoie le HTML. Tout ce qui sort
- * d'ici peut être rendu sans risque.
+ * d'ici peut être rendu sans risque. Le contenu au format 1 (sections →
+ * colonnes → widgets) est d'abord converti au format 2 (voir Schema).
  */
 class ContentSanitizer
 {
@@ -17,71 +19,79 @@ class ContentSanitizer
 
     public function __construct(private WidgetRegistry $widgets) {}
 
+    private int $count = 0;
+
+    /** @var array<string, true> identifiants déjà utilisés : chaque élément doit avoir le sien. */
+    private array $seen = [];
+
+    /** @var array<string, array<string, string>> règles développées, par type d'élément */
+    private array $rules = [];
+
     public function sanitize(mixed $content): array
     {
-        $sections = is_array($content) && is_array($content['sections'] ?? null) ? $content['sections'] : [];
+        if (ContentMigrator::isV1($content)) {
+            $content = ContentMigrator::toV2($content);
+        }
+        $elements = is_array($content) && is_array($content['elements'] ?? null) ? $content['elements'] : [];
+        $this->count = 0;
+        $this->seen = [];
 
+        return ['version' => Schema::VERSION, 'elements' => $this->children($elements, 0)];
+    }
+
+    private function children(array $items, int $depth): array
+    {
         $out = [];
-        foreach (array_slice(array_values($sections), 0, Schema::MAX_SECTIONS) as $section) {
-            if (is_array($section)) {
-                $out[] = $this->section($section);
+        foreach (array_values($items) as $item) {
+            if ($this->count >= Schema::MAX_ELEMENTS) {
+                break;
+            }
+            if (is_array($item) && ($node = $this->node($item, $depth))) {
+                $out[] = $node;
             }
         }
 
-        return ['version' => 1, 'sections' => $out];
+        return $out;
     }
 
-    private function section(array $s): array
+    private function node(array $n, int $depth): ?array
     {
-        $columns = [];
-        foreach (array_slice(array_values((array) ($s['columns'] ?? [])), 0, Schema::MAX_COLUMNS) as $col) {
-            if (is_array($col)) {
-                $columns[] = $this->column($col);
-            }
+        $type = $n['type'] ?? null;
+        if (! is_string($type)) {
+            return null;
         }
-        if ($columns === []) {
-            $columns[] = $this->column([]);
+        if ($type === 'container') {
+            // Au-delà de la profondeur maximale, les conteneurs sont ignorés.
+            if ($depth >= Schema::MAX_DEPTH) {
+                return null;
+            }
+            $this->count++;
+            $this->rules['container'] ??= Schema::containerRules();
+
+            return [
+                'id' => $this->id($n['id'] ?? null),
+                'type' => 'container',
+                'settings' => $this->settings((array) ($n['settings'] ?? []), $this->rules['container']),
+                'children' => $this->children((array) ($n['children'] ?? []), $depth + 1),
+            ];
+        }
+        if ($this->widgets->has($type)) {
+            $this->count++;
+            $this->rules[$type] ??= $this->widgets->rules($type);
+
+            return [
+                'id' => $this->id($n['id'] ?? null),
+                'type' => $type,
+                'settings' => $this->settings((array) ($n['settings'] ?? []), $this->rules[$type]),
+            ];
+        }
+        if ($orphan = $this->orphan($n)) {
+            $this->count++;
+
+            return $orphan;
         }
 
-        return [
-            'id' => $this->id($s['id'] ?? null),
-            'type' => 'section',
-            'settings' => $this->settings((array) ($s['settings'] ?? []), Schema::SECTION),
-            'columns' => $columns,
-        ];
-    }
-
-    private function column(array $c): array
-    {
-        $widgets = [];
-        foreach (array_slice(array_values((array) ($c['widgets'] ?? [])), 0, Schema::MAX_WIDGETS_PER_COLUMN) as $w) {
-            if (! is_array($w) || ! is_string($w['type'] ?? null)) {
-                continue;
-            }
-            if ($this->widgets->has($w['type'])) {
-                $widgets[] = $this->widget($w);
-            } elseif ($orphan = $this->orphan($w)) {
-                $widgets[] = $orphan;
-            }
-        }
-
-        return [
-            'id' => $this->id($c['id'] ?? null),
-            'type' => 'column',
-            'settings' => $this->settings((array) ($c['settings'] ?? []), Schema::COLUMN),
-            'widgets' => $widgets,
-        ];
-    }
-
-    private function widget(array $w): array
-    {
-        $rules = $this->widgets->rules($w['type']);
-
-        return [
-            'id' => $this->id($w['id'] ?? null),
-            'type' => $w['type'],
-            'settings' => $this->settings((array) ($w['settings'] ?? []), $rules),
-        ];
+        return null;
     }
 
     /**
@@ -104,7 +114,14 @@ class ContentSanitizer
 
     private function id(mixed $id): string
     {
-        return is_string($id) && preg_match('/^[a-zA-Z0-9_-]{4,40}$/', $id) ? $id : Str::lower(Str::random(10));
+        if (! is_string($id) || ! preg_match('/^[a-zA-Z0-9_-]{4,40}$/', $id) || isset($this->seen[$id])) {
+            do {
+                $id = Str::lower(Str::random(10));
+            } while (isset($this->seen[$id]));
+        }
+        $this->seen[$id] = true;
+
+        return $id;
     }
 
     private function settings(array $values, array $rules): array
@@ -132,14 +149,108 @@ class ContentSanitizer
             'string' => is_scalar($v) ? Str::limit(trim((string) $v), (int) $args, '') : null,
             'slug' => is_scalar($v) ? (Str::slug(Str::limit((string) $v, (int) $args, '')) ?: null) : null,
             'html' => is_string($v) ? $this->html()->sanitize(Str::limit($v, 50000, '')) : null,
-            'color' => is_string($v) && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', trim($v)) ? strtolower(trim($v)) : null,
+            'color' => self::color($v),
             'int' => $this->int($v, $args),
             'enum' => in_array((string) $v, explode(',', $args), true) ? (string) $v : null,
             'url' => self::url($v),
             'bool' => filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
             'links' => $this->links($v, (int) ($args ?: 30)),
+            'dim' => self::dim($v),
+            'spacing' => $this->spacing($v),
+            'shadow' => $this->shadow($v),
+            'font' => in_array($v, ['global:heading', 'global:body', ...SettingController::FONTS], true) ? $v : null,
+            'classes' => $this->classes($v, (int) ($args ?: 200)),
             default => null,
         };
+    }
+
+    /**
+     * Couleur : #rgb, #rrggbb, #rrggbbaa, rgb()/rgba(), « transparent », ou
+     * couleur globale du site (« global:primary », « global:c-…»).
+     */
+    public static function color(mixed $v): ?string
+    {
+        if (! is_string($v)) {
+            return null;
+        }
+        $v = strtolower(trim($v));
+        if (preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/', $v) || $v === 'transparent' || preg_match('/^global:[a-z0-9-]{1,40}$/', $v)) {
+            return $v;
+        }
+        if (preg_match('/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(0|1|0?\.\d+)\s*)?\)$/', $v, $m)) {
+            $rgb = array_map(fn ($c) => min(255, (int) $c), [$m[1], $m[2], $m[3]]);
+
+            return isset($m[4]) && $m[4] !== '' ? 'rgba('.implode(',', $rgb).','.(float) $m[4].')' : 'rgb('.implode(',', $rgb).')';
+        }
+
+        return null;
+    }
+
+    /** Dimension CSS : « 50% », « 320px », « 1.5em », « 1.4 » (sans unité), « auto ». */
+    public static function dim(mixed $v): ?string
+    {
+        if (is_int($v) || is_float($v)) {
+            $v = (string) $v;
+        }
+        if (! is_string($v)) {
+            return null;
+        }
+        $v = strtolower(trim($v));
+        if ($v === 'auto') {
+            return $v;
+        }
+        if (! preg_match('/^(-?\d{1,5}(?:\.\d{1,3})?)(px|%|em|rem|vw|vh)?$/', $v, $m)) {
+            return null;
+        }
+
+        return ((float) $m[1] == (int) $m[1] ? (string) (int) $m[1] : rtrim($m[1], '0')).($m[2] ?? '');
+    }
+
+    /** Espacement { t, r, b, l, u } : côtés en nombres entiers, unité px par défaut. */
+    private function spacing(mixed $v): ?array
+    {
+        if (is_numeric($v)) {
+            $v = ['t' => $v, 'r' => $v, 'b' => $v, 'l' => $v];
+        }
+        if (! is_array($v)) {
+            return null;
+        }
+        $out = [];
+        foreach (['t', 'r', 'b', 'l'] as $side) {
+            if (isset($v[$side]) && is_numeric($v[$side])) {
+                $out[$side] = max(-2000, min(2000, (int) round((float) $v[$side])));
+            }
+        }
+        if ($out && in_array($v['u'] ?? 'px', ['%', 'em', 'rem', 'vw', 'vh'], true)) {
+            $out['u'] = $v['u'];
+        }
+
+        return $out ?: null;
+    }
+
+    /** Ombre { x, y, blur, spread, color, inset }. */
+    private function shadow(mixed $v): ?array
+    {
+        if (! is_array($v) || ! ($color = self::color($v['color'] ?? null))) {
+            return null;
+        }
+        $n = fn ($k, $min, $max) => is_numeric($v[$k] ?? null) ? max($min, min($max, (int) $v[$k])) : 0;
+
+        return array_filter([
+            'x' => $n('x', -200, 200), 'y' => $n('y', -200, 200), 'blur' => $n('blur', 0, 300), 'spread' => $n('spread', -200, 200),
+            'color' => $color, 'inset' => ! empty($v['inset']) ? true : null,
+        ], fn ($x) => $x !== null);
+    }
+
+    /** Classes CSS supplémentaires, séparées par des espaces. */
+    private function classes(mixed $v, int $max): ?string
+    {
+        if (! is_string($v)) {
+            return null;
+        }
+        $names = array_filter(preg_split('/\s+/', trim($v)), fn ($c) => preg_match('/^[a-zA-Z_][a-zA-Z0-9_-]{0,60}$/', $c));
+
+        return Str::limit(implode(' ', array_slice(array_unique($names), 0, 12)), $max, '') ?: null;
     }
 
     /** Liste de liens [{label, url}] : libellés en texte brut, adresses vérifiées. */

@@ -2,7 +2,9 @@
 
 namespace App\Ai;
 
+use App\Builder\ContentMigrator;
 use App\Builder\ContentSanitizer;
+use App\Builder\Renderer;
 use App\Builder\Schema;
 use App\Builder\WidgetRegistry;
 use App\Http\Controllers\Admin\SettingController;
@@ -122,7 +124,8 @@ class Assistant
     /** Crée (ou met à jour) la traduction d'une page dans une autre langue, en brouillon. */
     public function translatePage(Page $page, string $targetLocale, int $userId): Page
     {
-        $source = $page->editableContent();
+        // Validé et converti au format actuel avant d'en extraire les textes.
+        $source = $this->sanitizer->sanitize($page->editableContent());
         $strings = $this->extractStrings($source);
         $strings['__title'] = $page->title;
         if ($page->meta_title) {
@@ -341,7 +344,7 @@ class Assistant
 
         $widgets = [];
         foreach ($this->aiWidgets() as $type => $widget) {
-            $rules = $widget->rules() + ['margin_bottom' => Schema::COMMON_WIDGET['margin_bottom']];
+            $rules = $this->aiRules($widget->rules()) + ContentMigrator::V1_WIDGET;
             $rules = array_diff_key($rules, array_flip($widget->aiExcluded()));
             $widgets[] = [
                 'type' => 'object',
@@ -354,11 +357,11 @@ class Assistant
         return [
             'type' => 'object',
             'properties' => [
-                'settings' => $this->settingsSchema(Schema::SECTION, $skip),
+                'settings' => $this->settingsSchema(ContentMigrator::V1_SECTION, $skip),
                 'columns' => ['type' => 'array', 'items' => [
                     'type' => 'object',
                     'properties' => [
-                        'settings' => $this->settingsSchema(Schema::COLUMN, $skip),
+                        'settings' => $this->settingsSchema(ContentMigrator::V1_COLUMN, $skip),
                         'widgets' => ['type' => 'array', 'items' => ['anyOf' => $widgets]],
                     ],
                     'required' => ['settings', 'widgets'],
@@ -368,6 +371,27 @@ class Assistant
             'required' => ['settings', 'columns'],
             'additionalProperties' => false,
         ];
+    }
+
+    /**
+     * Réglages d'un widget proposés à l'IA : réglages simples seulement (pas de
+     * typographie fine, d'ombre ni d'espacement), version ordinateur et mobile.
+     */
+    private function aiRules(array $rules): array
+    {
+        $out = [];
+        foreach (array_diff_key($rules, array_flip(['font_family', 'font_style', 'text_transform', 'line_height', 'letter_spacing'])) as $key => $rule) {
+            [$base, $flags] = Schema::split($rule);
+            if (in_array(explode(':', $base)[0], ['dim', 'spacing', 'shadow', 'font', 'classes'], true)) {
+                continue;
+            }
+            $out[$key] = $base;
+            if (str_contains($flags, 'r')) {
+                $out[$key.'_mobile'] = $base;
+            }
+        }
+
+        return $out;
     }
 
     private function settingsSchema(array $rules, array $skip): array
@@ -420,34 +444,34 @@ class Assistant
     private function extractStrings(array $content): array
     {
         $out = [];
-        foreach ($content['sections'] ?? [] as $s) {
-            foreach ($s['columns'] as $c) {
-                foreach ($c['widgets'] as $w) {
-                    foreach ($this->widgets->get($w['type'])?->translatable() ?? [] as $key) {
-                        if (! empty($w['settings'][$key])) {
-                            $out[$w['id'].'.'.$key] = $w['settings'][$key];
-                        }
-                    }
+        Renderer::walk($content['elements'] ?? [], function ($w) use (&$out) {
+            foreach ($this->widgets->get($w['type'])?->translatable() ?? [] as $key) {
+                if (! empty($w['settings'][$key])) {
+                    $out[$w['id'].'.'.$key] = $w['settings'][$key];
                 }
             }
-        }
+        });
 
         return $out;
     }
 
     private function applyStrings(array $content, array $translated): array
     {
-        foreach ($content['sections'] as &$s) {
-            foreach ($s['columns'] as &$c) {
-                foreach ($c['widgets'] as &$w) {
-                    foreach ($w['settings'] as $key => $value) {
-                        if (isset($translated[$w['id'].'.'.$key])) {
-                            $w['settings'][$key] = $translated[$w['id'].'.'.$key];
-                        }
+        $apply = function (array $nodes) use (&$apply, $translated): array {
+            foreach ($nodes as &$node) {
+                foreach ($node['settings'] ?? [] as $key => $value) {
+                    if (isset($translated[$node['id'].'.'.$key])) {
+                        $node['settings'][$key] = $translated[$node['id'].'.'.$key];
                     }
                 }
+                if (($node['type'] ?? null) === 'container') {
+                    $node['children'] = $apply($node['children'] ?? []);
+                }
             }
-        }
+
+            return $nodes;
+        };
+        $content['elements'] = $apply($content['elements'] ?? []);
 
         return $content;
     }
@@ -455,45 +479,49 @@ class Assistant
     /** Version allégée de la page pour l'audit (structure, textes, couleurs). */
     private function outline(array $content): array
     {
-        $out = [];
-        foreach ($content['sections'] as $s) {
-            $section = ['settings' => array_intersect_key($s['settings'], array_flip(['background_color', 'text_color', 'overlay_color', 'anchor'])), 'columns' => []];
-            foreach ($s['columns'] as $c) {
-                $col = ['background_color' => $c['settings']['background_color'] ?? null, 'widgets' => []];
-                foreach ($c['widgets'] as $w) {
-                    $o = $w['settings'];
-                    $col['widgets'][] = array_filter([
-                        'id' => $w['id'],
-                        'type' => $w['type'],
-                        'tag' => $o['tag'] ?? null,
-                        'text' => isset($o['html']) ? Str::limit(trim(strip_tags($o['html'])), 600) : ($o['text'] ?? null),
-                        'color' => $o['color'] ?? $o['bg_color'] ?? null,
-                        'url' => $o['url'] ?? $o['link'] ?? null,
-                        'alt' => $w['type'] === 'image' ? ($o['alt'] ?? '') : null,
-                        'has_image' => $w['type'] === 'image' ? ! empty($o['url']) : null,
+        $map = function (array $nodes) use (&$map): array {
+            $out = [];
+            foreach ($nodes as $n) {
+                $o = $n['settings'];
+                if ($n['type'] === 'container') {
+                    $out[] = array_filter([
+                        'type' => 'container',
+                        'anchor' => $o['css_id'] ?? null,
+                        'background_color' => $o['background_color'] ?? null,
+                        'text_color' => $o['text_color'] ?? null,
+                        'overlay_color' => $o['overlay_color'] ?? null,
+                        'children' => $map($n['children']),
                     ], fn ($v) => $v !== null);
-                }
-                $section['columns'][] = $col;
-            }
-            $out[] = $section;
-        }
 
-        return $out;
+                    continue;
+                }
+                $out[] = array_filter([
+                    'id' => $n['id'],
+                    'type' => $n['type'],
+                    'tag' => $o['tag'] ?? null,
+                    'text' => isset($o['html']) ? Str::limit(trim(strip_tags($o['html'])), 600) : ($o['text'] ?? null),
+                    'color' => $o['color'] ?? $o['bg_color'] ?? $o['text_color'] ?? null,
+                    'url' => $o['url'] ?? $o['link'] ?? null,
+                    'alt' => $n['type'] === 'image' ? ($o['alt'] ?? '') : null,
+                    'has_image' => $n['type'] === 'image' ? ! empty($o['url']) : null,
+                ], fn ($v) => $v !== null);
+            }
+
+            return $out;
+        };
+
+        return $map($content['elements'] ?? []);
     }
 
     /** Images de la médiathèque envoyées au modèle pour proposer des textes alternatifs (max 8). */
     private function imagesForVision(array $content): array
     {
         $ids = [];
-        foreach ($content['sections'] as $s) {
-            foreach ($s['columns'] as $c) {
-                foreach ($c['widgets'] as $w) {
-                    if ($w['type'] === 'image' && ! empty($w['settings']['media_id'])) {
-                        $ids[$w['id']] = $w['settings']['media_id'];
-                    }
-                }
+        Renderer::walk($content['elements'] ?? [], function ($w) use (&$ids) {
+            if ($w['type'] === 'image' && ! empty($w['settings']['media_id'])) {
+                $ids[$w['id']] = $w['settings']['media_id'];
             }
-        }
+        });
 
         $media = Media::query()->whereIn('id', array_values($ids))->get()->keyBy('id');
         $out = [];

@@ -59,7 +59,7 @@ class Page extends Model
 
     public static function emptyContent(): array
     {
-        return ['version' => 1, 'sections' => []];
+        return ['version' => 2, 'elements' => []];
     }
 
     public function scopePublished(Builder $query): Builder

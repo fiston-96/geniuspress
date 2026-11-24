@@ -17,15 +17,10 @@
     <meta property="og:title" content="{{ $title }}">
     @if ($page->meta_description)<meta property="og:description" content="{{ $page->meta_description }}">@endif
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link rel="stylesheet" href="https://fonts.bunny.net/css?family={{ urlencode(strtolower($font)) }}:400,500,600,700,800&display=swap">
+    <link rel="stylesheet" href="{{ \App\Builder\DesignTokens::fontsUrl($settings, $rendered['fonts'] ?? []) }}">
     @vite(['resources/css/site.css'])
     <style>
-        :root {
-            --gp-primary: {{ $settings['primary_color'] }};
-            --gp-secondary: {{ $settings['secondary_color'] }};
-            --gp-accent: {{ $settings['accent_color'] }};
-            --gp-font: '{{ $font }}', system-ui, -apple-system, 'Segoe UI', sans-serif;
-        }
+        {!! \App\Builder\DesignTokens::css($settings) !!}
         {!! $rendered['css'] !!}
     </style>
     @foreach ($plugins->assets('site_css') as $href)<link rel="stylesheet" href="{{ $href }}">@endforeach

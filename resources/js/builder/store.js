@@ -5,16 +5,19 @@ import { useSyncExternalStore } from 'react';
 const HISTORY_LIMIT = 100;
 
 let state = {
-    content: { version: 1, sections: [] },
-    selected: null, // id du nœud sélectionné
-    hovered: null,
+    content: { version: 2, elements: [] },
+    selected: null, // id de l'élément sélectionné
+    hovered: null, // id de l'élément survolé (canevas ou arborescence)
+    design: { colors: [], fonts: [] }, // couleurs et polices globales du site
+    drop: null, // { parentId, index, line: { x, y, w, h } } pendant un glisser-déposer
+    menu: null, // menu contextuel { x, y, id }
     device: 'desktop',
     dirty: false,
     saving: false,
     status: 'draft',
     savedAt: null,
     revisions: [],
-    drag: null, // { kind: 'new', type } | { kind: 'move', id }
+    drag: null, // { kind: 'new', type } | { kind: 'structure', widths } | { kind: 'move', id }
     panel: 'elements',
     past: [],
     future: [],

@@ -107,7 +107,7 @@ class PluginSystemTest extends TestCase
         Hooks::flush();
 
         $this->putJson("/admin/pages/{$page->id}/content", ['content' => $page->content])->assertOk();
-        $this->assertSame('fixture-quote', $page->fresh()->editableContent()['sections'][0]['columns'][0]['widgets'][0]['type']);
+        $this->assertSame('fixture-quote', $this->widgetsOf($page->fresh()->editableContent())[0]['type']);
 
         auth()->logout();
         $this->get('/citations')->assertOk()->assertDontSee('class="fixture"', false);

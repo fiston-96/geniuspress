@@ -21,6 +21,8 @@ class Setting extends Model
         'secondary_color' => '#0f172a',
         'accent_color' => '#f59e0b',
         'font_family' => 'Inter',
+        'heading_font' => null,
+        'custom_colors' => [],
         'locales' => ['fr'],
         'organization_description' => '',
         'anthropic_api_key' => null,

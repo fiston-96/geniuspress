@@ -8,7 +8,7 @@
 
 ## Fonctionnalités
 
-- **Builder visuel** : glisser-déposer, sections de 1 à 4 colonnes, 7 widgets (titre, texte, image, bouton, espace, séparateur, vidéo), aperçu ordinateur, tablette et mobile, annuler et rétablir, historique des versions.
+- **Builder visuel** : glisser-déposer, conteneurs imbriqués (flexbox), 8 widgets (titre, texte, image, bouton, espace, séparateur, vidéo, liste de liens), réglages par appareil (ordinateur, tablette, mobile) et au survol, fond, dégradé, bordure, ombre, typographie, couleurs et polices globales, arborescence de la page, copier-coller du style, annuler et rétablir, historique des versions.
 - **Brouillon séparé** : enregistrer ne modifie pas le site en ligne tant que la page n'est pas publiée.
 - **Assistant IA (Claude)** : création d'une page à partir d'une description, rédaction et réécriture des textes, traduction des pages, audit SEO et accessibilité.
 - **Site multilingue**, médiathèque, référencement par page, rôles administrateur et éditeur.
@@ -93,7 +93,7 @@ Les tests de l'assistant IA utilisent un faux modèle : ils ne font aucun appel 
 | `resources/js/builder/` | Builder React (canevas dans une iframe, panneau, contrôles) |
 | `resources/css/site.css` | Styles de base du site public |
 
-Le contenu d'une page est un arbre JSON `sections → colonnes → widgets`. Le même schéma sert au builder, au rendu serveur et à l'assistant IA.
+Le contenu d'une page est un arbre JSON de conteneurs imbriqués et de widgets (format décrit dans `app/Builder/Schema.php`). Le même schéma sert au builder, au rendu serveur, à l'import et à l'assistant IA.
 
 ## Marque
 

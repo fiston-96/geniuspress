@@ -102,11 +102,12 @@ class SiteTransferTest extends TestCase
         $this->assertSame('Des enfants', $media->alt);
 
         $home = Page::where('locale', 'fr')->where('is_home', true)->sole();
-        $section = $home->content['sections'][0];
+        $section = $home->content['elements'][0];
+        $widgets = $this->widgetsOf($home->content);
         $this->assertSame($media->url, $section['settings']['background_image']);
-        $this->assertSame($media->id, $section['columns'][0]['widgets'][0]['settings']['media_id']);
-        $this->assertSame($media->url, $section['columns'][0]['widgets'][0]['settings']['url']);
-        $this->assertStringContainsString($media->url, $section['columns'][0]['widgets'][1]['settings']['html']);
+        $this->assertSame($media->id, $widgets[0]['settings']['media_id']);
+        $this->assertSame($media->url, $widgets[0]['settings']['url']);
+        $this->assertStringContainsString($media->url, $widgets[1]['settings']['html']);
         $this->assertStringNotContainsString($oldUrl, json_encode($home->content));
 
         // Traductions toujours liées entre elles, brouillons conservés.
@@ -166,7 +167,7 @@ class SiteTransferTest extends TestCase
 
         $page = Page::sole();
         $this->assertSame('page-admin', $page->slug);
-        $widgets = $page->content['sections'][0]['columns'][0]['widgets'];
+        $widgets = $this->widgetsOf($page->content);
         $this->assertSame('<p>Ok</p>', $widgets[0]['settings']['html']);
         $this->assertArrayNotHasKey('url', $widgets[1]['settings']);
 

@@ -7,6 +7,25 @@ use Illuminate\Support\Facades\File;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Widgets d'un contenu, dans l'ordre, quel que soit leur niveau d'imbrication
+     * (le contenu au format 1 est d'abord converti).
+     */
+    protected function widgetsOf(array $content): array
+    {
+        if (\App\Builder\ContentMigrator::isV1($content)) {
+            $content = \App\Builder\ContentMigrator::toV2($content);
+        }
+        $out = [];
+        \App\Builder\Renderer::walk($content['elements'] ?? [], function ($node) use (&$out) {
+            if ($node['type'] !== 'container') {
+                $out[] = $node;
+            }
+        });
+
+        return $out;
+    }
+
     /** Dossier temporaire propre à chaque test (.env, verrou d'installation, SQLite). */
     protected string $sandbox;
 

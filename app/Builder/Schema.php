@@ -3,48 +3,140 @@
 namespace App\Builder;
 
 /**
- * Réglages autorisés pour les sections, les colonnes et communs à tous les
- * widgets. Les réglages propres à chaque widget sont définis dans sa classe
- * (app/Builder/Widgets) et déclarés dans le WidgetRegistry. Sert à valider tout contenu qui
- * entre dans la base : éditeur, assistant IA, import.
+ * Format du contenu d'une page (version 2) et réglages autorisés.
  *
- * Règles : string:MAX | html | color | int:MIN:MAX | enum:a,b,c | url | bool | links:MAX
+ * Une page est une liste d'éléments. Un élément est soit un conteneur, qui
+ * contient d'autres éléments (imbrication libre), soit un widget :
+ *
+ *   { "version": 2, "elements": [
+ *       { "id": "…", "type": "container", "settings": {…}, "children": [ … ] },
+ *       { "id": "…", "type": "heading",   "settings": {…} } ] }
+ *
+ * Tous les éléments partagent les réglages de style de STYLE (marges, fond,
+ * bordure, ombre…). Les conteneurs ajoutent ceux de CONTAINER (disposition),
+ * les widgets ceux de leur classe (app/Builder/Widgets).
+ *
+ * Règles : string:MAX | html | color | int:MIN:MAX | enum:a,b,c | url | bool |
+ * slug:MAX | links:MAX | dim | spacing | shadow | font | classes:MAX
+ *
+ * Suffixes : « @r » = réglable par appareil (clé, clé_tablet, clé_mobile),
+ * « @h » = réglable au survol (clé_hover), « @rh » = les deux.
  */
 class Schema
 {
-    public const COMMON_WIDGET = [
-        'margin_bottom' => 'int:0:400',
+    public const VERSION = 2;
+
+    /** Appareils : suffixe des clés et largeur maximale (null = sans limite). */
+    public const DEVICES = ['desktop' => '', 'tablet' => '_tablet', 'mobile' => '_mobile'];
+
+    public const BREAKPOINTS = ['tablet' => 1024, 'mobile' => 767];
+
+    /** Réglages de style communs à tous les éléments. */
+    public const STYLE = [
+        // Disposition dans le parent
+        'margin' => 'spacing@r',
+        'padding' => 'spacing@r',
+        'width' => 'dim@r',
+        'min_height' => 'dim@r',
+        'align_self' => 'enum:start,center,end,stretch@r',
+        'order' => 'int:-20:20@r',
+        // Fond
+        'background_type' => 'enum:classic,gradient',
+        'background_color' => 'color@h',
+        'background_image' => 'url',
+        'background_position' => 'enum:center,top,bottom,left,right',
+        'background_size' => 'enum:cover,contain,auto',
+        'background_fixed' => 'bool',
+        'gradient_type' => 'enum:linear,radial',
+        'gradient_from' => 'color',
+        'gradient_to' => 'color',
+        'gradient_angle' => 'int:0:360',
+        // Bordure et ombre
+        'border_style' => 'enum:none,solid,dashed,dotted,double',
+        'border_width' => 'spacing',
+        'border_color' => 'color@h',
+        'border_radius' => 'spacing@r',
+        'box_shadow' => 'shadow@h',
+        // Divers
+        'text_color' => 'color@h',
+        'opacity' => 'int:0:100@h',
+        'z_index' => 'int:-100:9999',
+        'overflow' => 'enum:visible,hidden',
+        'transition' => 'int:0:3000',
         'hide_desktop' => 'bool',
+        'hide_tablet' => 'bool',
         'hide_mobile' => 'bool',
+        'css_id' => 'slug:60',
+        'css_classes' => 'classes:200',
     ];
 
-    public const SECTION = [
-        'background_color' => 'color',
-        'background_image' => 'url',
+    /** Disposition d'un conteneur (flexbox). */
+    public const CONTAINER = [
+        'tag' => 'enum:div,section,header,footer,article,aside,nav,main',
+        'content_width' => 'enum:boxed,full',
+        'max_width' => 'int:200:2400@r',
+        'direction' => 'enum:row,column,row-reverse,column-reverse@r',
+        'wrap' => 'enum:nowrap,wrap@r',
+        'justify' => 'enum:start,center,end,between,around,evenly@r',
+        'align' => 'enum:start,center,end,stretch,baseline@r',
+        'gap' => 'int:0:400@r',
         'overlay_color' => 'color',
         'overlay_opacity' => 'int:0:100',
-        'text_color' => 'color',
-        'padding_top' => 'int:0:600',
-        'padding_bottom' => 'int:0:600',
-        'padding_top_mobile' => 'int:0:600',
-        'padding_bottom_mobile' => 'int:0:600',
-        'content_width' => 'enum:boxed,full',
-        'max_width' => 'int:320:2400',
-        'gap' => 'int:0:200',
-        'vertical_align' => 'enum:start,center,end,stretch',
-        'min_height' => 'int:0:2000',
-        'anchor' => 'slug:60',
     ];
 
-    public const COLUMN = [
-        'width' => 'int:5:100',
-        'padding' => 'int:0:200',
-        'background_color' => 'color',
-        'border_radius' => 'int:0:200',
-        'vertical_align' => 'enum:start,center,end',
+    /** Typographie, à ajouter aux règles des widgets qui affichent du texte. */
+    public const TYPOGRAPHY = [
+        'font_family' => 'font',
+        'font_weight' => 'enum:300,400,500,600,700,800,900',
+        'font_style' => 'enum:normal,italic',
+        'text_transform' => 'enum:none,uppercase,lowercase,capitalize',
+        'line_height' => 'dim@r',
+        'letter_spacing' => 'dim@r',
     ];
 
-    public const MAX_SECTIONS = 200;
-    public const MAX_COLUMNS = 6;
-    public const MAX_WIDGETS_PER_COLUMN = 100;
+    public const MAX_DEPTH = 8;
+
+    public const MAX_ELEMENTS = 3000;
+
+    /** Valeurs par défaut d'un conteneur selon sa profondeur (0 = au premier niveau de la page). */
+    public static function containerDefaults(int $depth): array
+    {
+        return ['content_width' => $depth === 0 ? 'boxed' : 'full', 'max_width' => 1140, 'direction' => 'column', 'gap' => 20];
+    }
+
+    /**
+     * Développe les suffixes @r / @h : « font_size => int:8:160@r » devient
+     * font_size, font_size_tablet et font_size_mobile avec la règle « int:8:160 ».
+     *
+     * @return array<string, string>
+     */
+    public static function expand(array $rules): array
+    {
+        $out = [];
+        foreach ($rules as $key => $rule) {
+            [$base, $flags] = self::split($rule);
+            $out[$key] = $base;
+            if (str_contains($flags, 'r')) {
+                $out[$key.'_tablet'] = $base;
+                $out[$key.'_mobile'] = $base;
+            }
+            if (str_contains($flags, 'h')) {
+                $out[$key.'_hover'] = $base;
+            }
+        }
+
+        return $out;
+    }
+
+    /** @return array{0: string, 1: string} règle sans suffixe, suffixes (« r », « h », « rh ») */
+    public static function split(string $rule): array
+    {
+        return preg_match('/^(.*)@([rh]{1,2})$/', $rule, $m) ? [$m[1], $m[2]] : [$rule, ''];
+    }
+
+    /** Règles complètes d'un conteneur. */
+    public static function containerRules(): array
+    {
+        return self::expand(self::CONTAINER + self::STYLE);
+    }
 }

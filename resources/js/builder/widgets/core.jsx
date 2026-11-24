@@ -25,42 +25,66 @@ const IMPL = {
             const Tag = o.tag || 'h2';
             return <Tag>{o.text}</Tag>;
         },
-        css: (o, { rule, mobile, px, sel }) => {
-            rule(`${sel} > *`, { 'text-align': o.align, color: o.color, 'font-size': px(o.font_size), 'font-weight': o.font_weight });
-            mobile(`${sel} > *`, { 'font-size': px(o.font_size_mobile) });
+        css: (o, { rule, responsive, typography, sel }) => {
+            rule(`${sel} > *`, { color: o.color, 'font-family': o.font_family ? null : 'var(--gp-heading-font)' });
+            responsive('align', (v) => ({ 'text-align': v }), ' > *');
+            responsive('font_size', (v) => ({ 'font-size': `${v}px` }), ' > *');
+            typography(' > *');
         },
     },
     text: {
         preview: (o) => <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(o.html || '') }} />,
-        css: (o, { rule, px, sel }) => rule(sel, { 'text-align': o.align, color: o.color, 'font-size': px(o.font_size) }),
+        css: (o, { rule, responsive, typography, sel }) => {
+            rule(sel, { color: o.color });
+            responsive('align', (v) => ({ 'text-align': v }));
+            responsive('font_size', (v) => ({ 'font-size': `${v}px` }));
+            typography();
+            rule(`${sel} a`, { color: o.link_color });
+            rule(`${sel} a:hover`, { color: o.link_color_hover });
+        },
     },
     image: {
         preview: (o) => (o.url ? <img src={o.url} alt={o.alt || ''} draggable={false} /> : <Placeholder>{o.alt ? t('Image à ajouter : :alt', { alt: o.alt }) : t('Choisissez une image dans le panneau')}</Placeholder>),
-        css: (o, { rule, px, sel }) => {
+        css: (o, { rule, tablet, mobile, responsive, px, sel }) => {
             rule(sel, { 'text-align': o.align ?? 'center' });
-            rule(`${sel} img`, { width: o.width ? `${o.width}%` : null, 'border-radius': px(o.border_radius) });
+            tablet(sel, { 'text-align': o.align_tablet });
+            mobile(sel, { 'text-align': o.align_mobile });
+            rule(`${sel} img`, { 'border-radius': px(o.border_radius) });
+            responsive('width', (v) => ({ width: `${v}%` }), ' img');
         },
     },
     button: {
         preview: (o) => <a className={`gp-btn gp-btn-${o.size || 'md'}`} href={o.url || '#'} draggable={false}>{o.text || 'Bouton'}</a>,
-        css: (o, { rule, px, sel }) => {
+        css: (o, { rule, tablet, mobile, responsive, typography, px, sel }) => {
             const variant = o.variant ?? 'filled';
             const bg = o.bg_color ?? 'var(--gp-primary)';
-            const align = o.align ?? 'left';
-            rule(sel, { 'text-align': align === 'full' ? null : align });
             rule(`${sel} .gp-btn`, {
                 background: variant === 'filled' ? bg : 'transparent',
                 'border-color': bg,
                 color: o.text_color ?? (variant === 'filled' ? '#ffffff' : bg),
                 'border-radius': px(o.border_radius),
-                display: align === 'full' ? 'block' : null,
+            });
+            // Alignement par appareil ; « full » = bouton sur toute la largeur (miroir de ButtonWidget.php).
+            const byDevice = { desktop: [rule, o.align ?? 'left'], tablet: [tablet, o.align_tablet], mobile: [mobile, o.align_mobile] };
+            for (const [add, align] of Object.values(byDevice)) {
+                if (!align) continue;
+                add(sel, { 'text-align': align === 'full' ? 'left' : align });
+                add(`${sel} .gp-btn`, { display: align === 'full' ? 'block' : 'inline-block' });
+            }
+            responsive('font_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-btn');
+            typography(' .gp-btn');
+            rule(`${sel} .gp-btn:hover`, {
+                background: variant === 'filled' ? o.bg_color_hover : null,
+                'border-color': o.bg_color_hover,
+                color: o.text_color_hover,
             });
         },
     },
     spacer: {
         preview: () => null,
-        css: (o, { rule, mobile, px, sel }) => {
+        css: (o, { rule, tablet, mobile, px, sel }) => {
             rule(sel, { height: px(o.height ?? 40) });
+            tablet(sel, { height: px(o.height_tablet) });
             mobile(sel, { height: px(o.height_mobile) });
         },
     },

@@ -7,7 +7,7 @@ class DefaultContent
 {
     public static function home(string $siteName): array
     {
-        return ['version' => 1, 'sections' => [
+        return ContentMigrator::toV2(['version' => 1, 'sections' => [
             [
                 'id' => 'hero000001', 'type' => 'section',
                 'settings' => ['background_color' => '#0f172a', 'text_color' => '#ffffff', 'padding_top' => 120, 'padding_bottom' => 120, 'padding_top_mobile' => 72, 'padding_bottom_mobile' => 72],
@@ -20,6 +20,6 @@ class DefaultContent
                     ],
                 ]],
             ],
-        ]];
+        ]]);
     }
 }

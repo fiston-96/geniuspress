@@ -17,11 +17,20 @@
     <div id="builder"></div>
     <script type="application/json" id="gp-boot">{!! json_encode([
         'page' => $page->only(['id', 'title', 'slug', 'locale', 'status']) + [
-            'content' => $page->editableContent(),
+            // Validé et converti au format actuel (les anciennes pages sont mises à jour ici).
+            'content' => app(\App\Builder\ContentSanitizer::class)->sanitize($page->editableContent()),
             'has_draft' => $page->hasUnpublishedChanges(),
         ],
         'revisions' => $page->revisions->map->only(['id', 'note', 'created_at', 'user']),
         'settings' => $settings,
+        // Couleurs et polices globales du site.
+        'design' => [
+            'colors' => \App\Builder\DesignTokens::colors($settings),
+            'css' => \App\Builder\DesignTokens::css($settings),
+            'fontsUrl' => \App\Builder\DesignTokens::fontsUrl($settings),
+            'fonts' => \App\Http\Controllers\Admin\SettingController::FONTS,
+            'headingFont' => \App\Builder\DesignTokens::headingFont($settings),
+        ],
         'siteCss' => \Illuminate\Support\Facades\Vite::asset('resources/css/site.css'),
         'pluginCss' => app(\App\Plugins\PluginManager::class)->assets('site_css'),
         'csrf' => csrf_token(),

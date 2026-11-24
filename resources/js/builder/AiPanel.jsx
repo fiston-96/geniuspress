@@ -42,7 +42,7 @@ export default function AiPanel({ boot }) {
 
 function Generate({ boot }) {
     const [brief, setBrief] = useState('');
-    const [mode, setMode] = useState(getState().content.sections.length ? 'append' : 'replace');
+    const [mode, setMode] = useState(getState().content.elements.length ? 'append' : 'replace');
     const [busy, setBusy] = useState(false);
     const [meta, setMeta] = useState(null);
 
@@ -52,10 +52,10 @@ function Generate({ boot }) {
         try {
             const r = await api(boot.urls.aiGenerate, { method: 'POST', body: { brief } });
             const current = getState().content;
-            const sections = mode === 'replace' ? r.content.sections : [...current.sections, ...r.content.sections];
-            commit({ ...current, sections }, { selected: null });
+            const elements = mode === 'replace' ? r.content.elements : [...current.elements, ...r.content.elements];
+            commit({ ...current, elements }, { selected: null });
             setMeta({ meta_title: r.meta_title, meta_description: r.meta_description });
-            toast(t('Page générée : :count sections. Ctrl+Z pour annuler.', { count: r.content.sections.length }), 'success');
+            toast(t('Page générée : :count sections. Ctrl+Z pour annuler.', { count: r.content.elements.length }), 'success');
         } catch (e) {
             toast(e.message, 'error');
         } finally {
@@ -143,7 +143,7 @@ function Audit({ boot }) {
         <section className={box}>
             <h3 className="font-semibold">{t('🔎 SEO et accessibilité')}</h3>
             <p className="mt-1 text-xs text-slate-500">{t('L’IA vérifie le référencement, les titres, les contrastes et les images, puis propose des corrections.')}</p>
-            <button className={`${primary} mt-3 w-full`} disabled={busy} onClick={run}>{busy ? <Spinner label={t('Analyse en cours…')} /> : report ? 'Relancer l’analyse' : 'Analyser la page'}</button>
+            <button className={`${primary} mt-3 w-full`} disabled={busy} onClick={run}>{busy ? <Spinner label={t('Analyse en cours…')} /> : report ? t('Relancer l’analyse') : t('Analyser la page')}</button>
             {report && (
                 <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-3">

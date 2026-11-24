@@ -135,18 +135,27 @@ class Widget extends BaseWidget
 |---|---|
 | `string:MAX` | Texte brut, coupé à MAX caractères. À échapper avec `e()` dans `render()`. |
 | `html` | HTML nettoyé par liste blanche (paragraphes, gras, italique, listes, liens). |
-| `color` | `#rgb`, `#rrggbb` ou `#rrggbbaa`. |
+| `color` | `#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()`, `transparent`, ou une couleur globale du site (`global:primary`, `global:{id}`). |
 | `int:MIN:MAX` | Nombre entier, ramené entre MIN et MAX. |
 | `enum:a,b,c` | Une des valeurs listées. |
 | `url` | `https://`, `http://`, `mailto:`, `tel:`, `/chemin` ou `#ancre`. Jamais `javascript:`. |
 | `slug:MAX` | Identifiant en minuscules (ancres). |
 | `bool` | Vrai ou faux. |
+| `dim` | Dimension CSS : `50%`, `320px`, `1.5em`, `1.4` (sans unité) ou `auto`. |
+| `spacing` | Quatre côtés `{ t, r, b, l, u }` (marges, arrondis). |
+| `shadow` | Ombre `{ x, y, blur, spread, color, inset }`. |
+| `font` | Une police proposée par GeniusPress, ou `global:heading` / `global:body`. |
 
-Les réglages communs (`margin_bottom`, `hide_desktop`, `hide_mobile`) sont ajoutés automatiquement.
+Ajoutez `@r` à une règle pour un réglage **par appareil** (`'font_size' => 'int:8:120@r'` accepte aussi `font_size_tablet` et `font_size_mobile`), `@h` pour un réglage **au survol** (`'color' => 'color@h'` accepte aussi `color_hover`), ou `@rh` pour les deux. Ajoutez `+ Schema::TYPOGRAPHY` à vos règles pour proposer la typographie complète.
+
+Les réglages de style communs à tous les éléments (marges, largeur, fond, dégradé, bordure, ombre, opacité, masquage par appareil, ancre, classes CSS…) sont ajoutés automatiquement et appliqués à l'enveloppe du widget. Un réglage de votre widget qui porte le même nom les remplace.
 
 **`RenderContext`**
 
-- `$ctx->rule($id, [propriété => valeur], $mobile = false, $suffixe = '')` ajoute une règle CSS pour `#gp-{id}{suffixe}`. Les valeurs nulles sont ignorées, et `$mobile = true` limite la règle aux écrans de moins de 768 px.
+- `$ctx->rule($id, [propriété => valeur], $appareil = false, $suffixe = '')` ajoute une règle CSS pour `#gp-{id}{suffixe}`. Les valeurs nulles sont ignorées. `$appareil` vaut `false` (tous les écrans), `'tablet'` (1024 px et moins) ou `'mobile'` / `true` (767 px et moins). Pour le survol, utilisez le suffixe `' blockquote:hover'`.
+- `$ctx->responsive($id, $réglages, 'font_size', fn ($v) => ['font-size' => $v.'px'], ' blockquote')` écrit la règle pour chaque appareil où le réglage est défini.
+- `$ctx->typography($id, $réglages, ' blockquote')` applique les réglages de `Schema::TYPOGRAPHY` et charge la police choisie.
+- Les couleurs globales (`global:primary`) sont remplacées automatiquement par leur variable CSS.
 - `RenderContext::px($n)` renvoie `"{n}px"` ou `null`.
 - `$ctx->media($id)` renvoie l'image de la médiathèque correspondant à un réglage `media_id`.
 
@@ -176,11 +185,13 @@ registerWidget('temoignage', {
           options: [{ value: 'left', label: 'Gauche' }, { value: 'center', label: 'Centre' }] },
     ],
     preview: (o, { h }) => h('blockquote', null, h('p', null, o.text)),
-    css: (o, { rule, mobile, px, sel }) => rule(`${sel} blockquote`, { 'border-color': o.accent }),
+    css: (o, { rule, tablet, mobile, responsive, typography, px, sel }) => rule(`${sel} blockquote`, { 'border-color': o.accent }),
 });
 ```
 
-Types de contrôles : `text`, `textarea`, `richtext`, `url`, `select`, `segmented`, `slider` (`min`, `max`, `step`, `default`), `color`, `toggle`, `image`. L'onglet se choisit avec `tab: 'content' | 'style' | 'advanced'`.
+Types de contrôles : `text`, `textarea`, `richtext`, `url`, `select`, `segmented`, `slider` (`min`, `max`, `step`, `default`), `color`, `toggle`, `image`, `links`, `dim` (`units`), `spacing` (`units`), `shadow`, `font`, et `heading` (titre de groupe). L'onglet se choisit avec `tab: 'content' | 'style' | 'advanced'`. Ajoutez `responsive: true` pour un réglage par appareil (règle `@r`) et `hover: true` pour un réglage au survol (règle `@h`).
+
+Dans `css`, `rule`, `tablet` et `mobile` reçoivent un sélecteur complet ; `responsive(clé, fn, suffixe)` et `typography(suffixe)` font la même chose que leurs équivalents PHP.
 
 `preview` doit produire le même HTML que `render()` en PHP, et `css` les mêmes règles. Si `preview` lève une erreur, seul ce widget affiche « aperçu indisponible » : le builder reste utilisable.
 
@@ -192,7 +203,7 @@ Un plugin sans `builder.js` fonctionne aussi. GeniusPress génère alors les con
 |---|---|---|---|
 | `page.saved` | événement | `Page` | Après chaque enregistrement dans le builder. |
 | `page.published` | événement | `Page` | Après une publication. |
-| `page.content` | filtre | arbre JSON validé | Modifier le contenu juste avant le rendu. |
+| `page.content` | filtre | arbre JSON validé (`{ version: 2, elements: [...] }`, conteneurs imbriqués) | Modifier le contenu juste avant le rendu. `App\Builder\Renderer::walk()` parcourt tous les éléments. |
 | `page.head` | filtre | `string $html, Page` | Ajouter des balises dans `<head>`. |
 | `page.body_end` | filtre | `string $html, Page` | Ajouter du HTML avant `</body>`. |
 | `admin.menu` | filtre | `array $nav` | Ajouter une entrée de menu : `[nom de route, libellé, tracé SVG]`. |

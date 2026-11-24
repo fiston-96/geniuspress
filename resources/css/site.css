@@ -10,11 +10,15 @@ h2 { font-size: clamp(1.6rem, 3.5vw, 2.5rem); }
 h3 { font-size: 1.5rem; }
 h4 { font-size: 1.25rem; }
 
-.gp-section { position: relative; padding-left: 20px; padding-right: 20px; }
+:root { --gp-heading-font: var(--gp-font); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
+
+/* Conteneurs : la boîte extérieure porte le fond et les marges intérieures,
+   la boîte intérieure (centrée si « boxed ») dispose les enfants en flexbox. */
+.gp-el { min-width: 0; }
+.gp-con { position: relative; display: flex; flex-direction: column; padding: 10px; }
+.gp-con-inner { position: relative; display: flex; flex-direction: column; gap: 20px; flex: 1 1 auto; width: 100%; margin: 0 auto; }
 .gp-overlay { position: absolute; inset: 0; pointer-events: none; }
-.gp-row { position: relative; display: flex; margin: 0 auto; width: 100%; }
-.gp-column { display: flex; flex-direction: column; min-width: 0; }
-.gp-widget { min-width: 0; }
 .gp-text > :first-child { margin-top: 0; }
 .gp-text > :last-child { margin-bottom: 0; }
 .gp-text ul, .gp-text ol { padding-left: 1.25em; }
@@ -34,12 +38,10 @@ h4 { font-size: 1.25rem; }
 .gp-preview-bar { position: sticky; top: 0; z-index: 50; background: #f59e0b; color: #111; text-align: center;
     font: 600 13px/1 system-ui, sans-serif; padding: 8px; }
 
-@media (min-width: 768px) { .gp-hide-desktop { display: none !important; } }
-@media (max-width: 767px) {
-    .gp-row { flex-direction: column; }
-    .gp-column { flex: 1 1 auto !important; width: 100%; }
-    .gp-hide-mobile { display: none !important; }
-}
+/* Masquer par appareil : ordinateur (plus de 1024 px), tablette (768 à 1024 px), mobile (767 px et moins). */
+@media (min-width: 1025px) { .gp-hide-desktop { display: none !important; } }
+@media (min-width: 768px) and (max-width: 1024px) { .gp-hide-tablet { display: none !important; } }
+@media (max-width: 767px) { .gp-hide-mobile { display: none !important; } }
 
 /* ─── En-tête et pied de page du site ─────────────────────────────────── */
 .gp-site-header { --gp-header-bg: #ffffff; --gp-header-fg: #0f172a; --gp-header-muted: #475569; --gp-header-line: #e2e8f0;

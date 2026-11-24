@@ -58,7 +58,7 @@ class GeniusPressTest extends TestCase
             ['type' => 'heading', 'settings' => ['font_size' => 9999, 'tag' => 'script']],
         ]));
 
-        $widgets = $clean['sections'][0]['columns'][0]['widgets'];
+        $widgets = $this->widgetsOf($clean);
         $this->assertCount(3, $widgets);
         $this->assertSame('<p>Bonjour</p>', $widgets[0]['settings']['html']);
         $this->assertArrayNotHasKey('url', $widgets[1]['settings']);
@@ -75,7 +75,7 @@ class GeniusPressTest extends TestCase
         ]);
 
         $clean = app(ContentSanitizer::class)->sanitize($content);
-        $orphan = $clean['sections'][0]['columns'][0]['widgets'][0];
+        $orphan = $this->widgetsOf($clean)[0];
         $this->assertTrue($orphan['orphan']);
         $this->assertSame(['a.jpg'], $orphan['settings']['images']);
 
@@ -97,7 +97,7 @@ class GeniusPressTest extends TestCase
         $this->assertStringContainsString('&lt;img', $out['html']);
         $this->assertStringNotContainsString('evil.example', $out['html']);
         $this->assertStringContainsString('youtube-nocookie.com/embed/dQw4w9WgXcQ', $out['html']);
-        $this->assertStringContainsString('#gp-heading001 > *{color:#ff0000}', $out['css']);
+        $this->assertStringContainsString('#gp-heading001 > *{color:#ff0000;', $out['css']);
     }
 
     public function test_saving_a_published_page_keeps_live_version_until_publish(): void

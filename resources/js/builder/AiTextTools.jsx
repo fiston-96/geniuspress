@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from './api';
 import { Spinner } from './AiPanel';
 import { commit, getState, toast } from './store';
-import { updateSettings } from './tree';
+import { updateSettings, walk } from './tree';
 import { t } from './i18n';
 
 // Champ texte modifiable par l'IA pour chaque type de widget.
@@ -24,15 +24,11 @@ const ACTIONS = [
 /** Autres textes de la page, pour que l'IA reste cohérente. */
 function pageContext(excludeId) {
     const parts = [];
-    for (const s of getState().content.sections) {
-        for (const c of s.columns) {
-            for (const w of c.widgets) {
-                if (w.id === excludeId) continue;
-                const txt = w.settings.text ?? (w.settings.html ? w.settings.html.replace(/<[^>]+>/g, ' ') : null);
-                if (txt) parts.push(txt.replace(/\s+/g, ' ').trim());
-            }
-        }
-    }
+    walk(getState().content.elements, (w) => {
+        if (w.id === excludeId || w.type === 'container') return;
+        const txt = w.settings.text ?? (w.settings.html ? w.settings.html.replace(/<[^>]+>/g, ' ') : null);
+        if (txt) parts.push(txt.replace(/\s+/g, ' ').trim());
+    });
     return parts.join('\n').slice(0, 3000);
 }
 

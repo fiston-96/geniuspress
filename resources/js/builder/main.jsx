@@ -4,6 +4,7 @@ import App from './App';
 import { allWidgets, getWidget, registerFromRules, registerWidget } from './registry';
 import { t } from './i18n';
 import { setState } from './store';
+import { walk } from './tree';
 import { registerCoreWidgets } from './widgets/core';
 
 registerCoreWidgets();
@@ -17,6 +18,8 @@ window.GeniusPress = Object.freeze({
     getWidget,
     t,
     allWidgets,
+    // Parcourir le contenu d'une page (conteneurs imbriqués) depuis un plugin.
+    walk,
 });
 
 // Les scripts de plugins (type="module") s'exécutent avant DOMContentLoaded :
@@ -30,7 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setState({
-        content: boot.page.content?.sections ? boot.page.content : { version: 1, sections: [] },
+        // Le serveur envoie toujours le format actuel (converti si besoin).
+        content: Array.isArray(boot.page.content?.elements) ? boot.page.content : { version: 2, elements: [] },
+        design: boot.design ?? { colors: [], fonts: [] },
         status: boot.page.status,
         hasDraft: boot.page.has_draft,
         revisions: boot.revisions,

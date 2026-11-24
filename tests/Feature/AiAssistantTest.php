@@ -62,19 +62,22 @@ class AiAssistantTest extends TestCase
 
         $r = $this->actingAs($this->admin)->postJson("/admin/ai/pages/{$page->id}/generate", ['brief' => 'Une page pour notre ONG à Goma'])->assertOk();
 
-        $section = $r->json('content.sections.0');
+        // L'IA décrit des sections et des colonnes : elles arrivent converties en conteneurs.
+        $this->assertSame(2, $r->json('content.version'));
+        $section = $r->json('content.elements.0');
+        $this->assertSame('container', $section['type']);
         $this->assertMatchesRegularExpression('/^[a-z0-9]{10}$/', $section['id']);
         $this->assertSame('#0f172a', $section['settings']['background_color']);
-        $this->assertSame(600, $section['settings']['padding_top']);
-        $this->assertSame('nous-contacter', $section['settings']['anchor']);
-        $widgets = $section['columns'][0]['widgets'];
+        $this->assertSame(600, $section['settings']['padding']['t']);
+        $this->assertSame('nous-contacter', $section['settings']['css_id']);
+        $widgets = $this->widgetsOf($r->json('content'));
         $this->assertArrayNotHasKey('color', $widgets[0]['settings']);
         $this->assertSame('<p>Bonjour</p>', $widgets[1]['settings']['html']);
         $this->assertArrayNotHasKey('url', $widgets[2]['settings']);
         $this->assertSame('ONG Espoir', $r->json('meta_title'));
 
         // Le contenu n'est pas enregistré tant que l'utilisateur ne sauvegarde pas.
-        $this->assertSame('Bienvenue', $page->fresh()->content['sections'][0]['columns'][0]['widgets'][0]['settings']['text']);
+        $this->assertSame('Bienvenue', $this->widgetsOf($page->fresh()->content)[0]['settings']['text']);
         $this->assertSame(1, AiRequest::where('action', 'generate_page')->where('status', 'ok')->count());
         $this->assertStringContainsString('Français', $fake->calls[0]['system']);
     }
@@ -135,7 +138,7 @@ class AiAssistantTest extends TestCase
         $this->assertSame('draft', $translation->status);
         $this->assertSame('home', $translation->slug);
         $this->assertSame($page->translation_group, $translation->translation_group);
-        $widgets = $translation->content['sections'][0]['columns'][0]['widgets'];
+        $widgets = $this->widgetsOf($translation->content);
         $this->assertSame('Welcome', $widgets[0]['settings']['text']);
         $this->assertSame('<p>Our <strong>mission</strong></p>', $widgets[1]['settings']['html']);
 

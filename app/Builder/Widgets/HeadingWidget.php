@@ -3,6 +3,7 @@
 namespace App\Builder\Widgets;
 
 use App\Builder\RenderContext;
+use App\Builder\Schema;
 
 class HeadingWidget extends Widget
 {
@@ -15,12 +16,10 @@ class HeadingWidget extends Widget
         return [
             'text' => 'string:500',
             'tag' => 'enum:h1,h2,h3,h4,h5,h6,p',
-            'align' => 'enum:left,center,right',
+            'align' => 'enum:left,center,right,justify@r',
             'color' => 'color',
-            'font_size' => 'int:8:160',
-            'font_size_mobile' => 'int:8:160',
-            'font_weight' => 'enum:300,400,500,600,700,800,900',
-        ];
+            'font_size' => 'int:8:160@r',
+        ] + Schema::TYPOGRAPHY;
     }
 
     public function translatable(): array { return ['text']; }
@@ -33,13 +32,10 @@ class HeadingWidget extends Widget
     public function render(array $s, string $id, RenderContext $ctx): string
     {
         $tag = $s['tag'] ?? 'h2';
-        $ctx->rule($id, [
-            'text-align' => $s['align'] ?? null,
-            'color' => $s['color'] ?? null,
-            'font-size' => RenderContext::px($s['font_size'] ?? null),
-            'font-weight' => $s['font_weight'] ?? null,
-        ], false, ' > *');
-        $ctx->rule($id, ['font-size' => RenderContext::px($s['font_size_mobile'] ?? null)], true, ' > *');
+        $ctx->rule($id, ['color' => $s['color'] ?? null, 'font-family' => isset($s['font_family']) ? null : 'var(--gp-heading-font)'], false, ' > *');
+        $ctx->responsive($id, $s, 'align', fn ($v) => ['text-align' => $v], ' > *');
+        $ctx->responsive($id, $s, 'font_size', fn ($v) => ['font-size' => $v.'px'], ' > *');
+        $ctx->typography($id, $s, ' > *');
 
         return "<{$tag}>".e($s['text'] ?? '')."</{$tag}>";
     }

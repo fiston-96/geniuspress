@@ -135,18 +135,27 @@ class Widget extends BaseWidget
 |---|---|
 | `string:MAX` | Plain text, truncated to MAX characters. Escape it with `e()` in `render()`. |
 | `html` | HTML cleaned with an allowlist (paragraphs, bold, italic, lists, links). |
-| `color` | `#rgb`, `#rrggbb` or `#rrggbbaa`. |
+| `color` | `#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()`, `transparent`, or a global site color (`global:primary`, `global:{id}`). |
 | `int:MIN:MAX` | Integer, clamped between MIN and MAX. |
 | `enum:a,b,c` | One of the listed values. |
 | `url` | `https://`, `http://`, `mailto:`, `tel:`, `/path` or `#anchor`. Never `javascript:`. |
 | `slug:MAX` | Lowercase identifier (anchors). |
 | `bool` | True or false. |
+| `dim` | CSS dimension: `50%`, `320px`, `1.5em`, `1.4` (unitless) or `auto`. |
+| `spacing` | Four sides `{ t, r, b, l, u }` (margins, radii). |
+| `shadow` | Shadow `{ x, y, blur, spread, color, inset }`. |
+| `font` | A font offered by GeniusPress, or `global:heading` / `global:body`. |
 
-Common settings (`margin_bottom`, `hide_desktop`, `hide_mobile`) are added automatically.
+Add `@r` to a rule for a **per-device** setting (`'font_size' => 'int:8:120@r'` also accepts `font_size_tablet` and `font_size_mobile`), `@h` for a **hover** setting (`'color' => 'color@h'` also accepts `color_hover`), or `@rh` for both. Add `+ Schema::TYPOGRAPHY` to your rules to offer full typography settings.
+
+The style settings shared by all elements (margins, width, background, gradient, border, shadow, opacity, per-device visibility, anchor, CSS classes…) are added automatically and applied to the widget wrapper. A setting of your widget with the same name replaces them.
 
 **`RenderContext`**
 
-- `$ctx->rule($id, [property => value], $mobile = false, $suffix = '')` adds a CSS rule for `#gp-{id}{suffix}`. Null values are ignored, and `$mobile = true` limits the rule to screens narrower than 768 px.
+- `$ctx->rule($id, [property => value], $device = false, $suffix = '')` adds a CSS rule for `#gp-{id}{suffix}`. Null values are ignored. `$device` is `false` (all screens), `'tablet'` (1024 px and below) or `'mobile'` / `true` (767 px and below). For hover, use a suffix such as `' blockquote:hover'`.
+- `$ctx->responsive($id, $settings, 'font_size', fn ($v) => ['font-size' => $v.'px'], ' blockquote')` writes the rule for every device where the setting is defined.
+- `$ctx->typography($id, $settings, ' blockquote')` applies the `Schema::TYPOGRAPHY` settings and loads the chosen font.
+- Global colors (`global:primary`) are replaced with their CSS variable automatically.
 - `RenderContext::px($n)` returns `"{n}px"` or `null`.
 - `$ctx->media($id)` returns the media library image matching a `media_id` setting.
 
@@ -176,11 +185,13 @@ registerWidget('temoignage', {
           options: [{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }] },
     ],
     preview: (o, { h }) => h('blockquote', null, h('p', null, o.text)),
-    css: (o, { rule, mobile, px, sel }) => rule(`${sel} blockquote`, { 'border-color': o.accent }),
+    css: (o, { rule, tablet, mobile, responsive, typography, px, sel }) => rule(`${sel} blockquote`, { 'border-color': o.accent }),
 });
 ```
 
-Control types: `text`, `textarea`, `richtext`, `url`, `select`, `segmented`, `slider` (`min`, `max`, `step`, `default`), `color`, `toggle`, `image`. Choose the tab with `tab: 'content' | 'style' | 'advanced'`.
+Control types: `text`, `textarea`, `richtext`, `url`, `select`, `segmented`, `slider` (`min`, `max`, `step`, `default`), `color`, `toggle`, `image`, `links`, `dim` (`units`), `spacing` (`units`), `shadow`, `font`, and `heading` (group title). Choose the tab with `tab: 'content' | 'style' | 'advanced'`. Add `responsive: true` for a per-device setting (`@r` rule) and `hover: true` for a hover setting (`@h` rule).
+
+In `css`, `rule`, `tablet` and `mobile` take a full selector; `responsive(key, fn, suffix)` and `typography(suffix)` do the same as their PHP counterparts.
 
 `preview` must produce the same HTML as `render()` in PHP, and `css` the same rules. If `preview` throws an error, only that widget shows "Preview unavailable": the builder stays usable.
 
@@ -192,7 +203,7 @@ A plugin without `builder.js` works too. GeniusPress then generates the controls
 |---|---|---|---|
 | `page.saved` | event | `Page` | After every save in the builder. |
 | `page.published` | event | `Page` | After a publication. |
-| `page.content` | filter | validated JSON tree | Modify the content just before rendering. |
+| `page.content` | filter | validated JSON tree (`{ version: 2, elements: [...] }`, nested containers) | Modify the content just before rendering. `App\Builder\Renderer::walk()` visits every element. |
 | `page.head` | filter | `string $html, Page` | Add tags to `<head>`. |
 | `page.body_end` | filter | `string $html, Page` | Add HTML before `</body>`. |
 | `admin.menu` | filter | `array $nav` | Add a menu entry: `[route name, label, SVG path]`. |

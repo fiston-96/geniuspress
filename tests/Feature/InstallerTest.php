@@ -62,7 +62,7 @@ class InstallerTest extends TestCase
         $this->assertTrue($home->is_home);
         $this->assertSame('en', $home->locale);
         $this->assertSame('home', $home->slug);
-        $this->assertSame([], $home->content['sections']);
+        $this->assertSame([], $home->content['elements']);
 
         // Verrou écrit, adresse du site et mode enregistrés dans .env.
         $this->assertFileExists(config('geniuspress.install_lock'));

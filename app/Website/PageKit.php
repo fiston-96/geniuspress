@@ -6,7 +6,8 @@ use League\CommonMark\GithubFlavoredMarkdownConverter;
 
 /**
  * Petite boîte à outils pour décrire des pages GeniusPress en PHP
- * (sections → colonnes → widgets), au même format que le builder.
+ * au format 1 (sections → colonnes → widgets), plus court à écrire : il est
+ * converti en conteneurs (format 2) à l'import, comme tout contenu.
  * Utilisée par le site officiel (website/site.php) et, plus tard, par les
  * modèles de pages.
  */

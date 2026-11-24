@@ -16,8 +16,8 @@ class ImageWidget extends Widget
             'url' => 'url',
             'media_id' => 'int:0:2147483647',
             'alt' => 'string:300',
-            'width' => 'int:5:100',
-            'align' => 'enum:left,center,right',
+            'width' => 'int:5:100@r',
+            'align' => 'enum:left,center,right@r',
             'border_radius' => 'int:0:500',
             'link' => 'url',
         ];
@@ -40,10 +40,9 @@ class ImageWidget extends Widget
             return '';
         }
         $ctx->rule($id, ['text-align' => $s['align'] ?? 'center']);
-        $ctx->rule($id, [
-            'width' => isset($s['width']) ? $s['width'].'%' : null,
-            'border-radius' => RenderContext::px($s['border_radius'] ?? null),
-        ], false, ' img');
+        $ctx->responsive($id, array_diff_key($s, ['align' => 1]), 'align', fn ($v) => ['text-align' => $v]);
+        $ctx->rule($id, ['border-radius' => RenderContext::px($s['border_radius'] ?? null)], false, ' img');
+        $ctx->responsive($id, $s, 'width', fn ($v) => ['width' => $v.'%'], ' img');
 
         $alt = e($s['alt'] ?? $media?->alt ?? '');
         $size = $media?->width ? " width=\"{$media->width}\" height=\"{$media->height}\"" : '';

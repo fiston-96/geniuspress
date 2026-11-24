@@ -29,5 +29,5 @@ Les liens relatifs entre fichiers Markdown deviennent des liens vers les pages d
 pointent vers le fichier sur GitHub.
 
 Les pages sont décrites avec `App\Website\PageKit` (`section`, `col`, `h`, `p`, `btn`, `links`…),
-qui produit le même arbre `sections → columns → widgets` que le builder. Tout passe ensuite par
-`ContentSanitizer` à l'import, comme n'importe quel contenu.
+qui produit l'arbre simplifié `sections → columns → widgets` (format 1). À l'import, `ContentSanitizer`
+le convertit en conteneurs (format 2) et le valide, comme n'importe quel contenu.

@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import MediaPicker from './MediaPicker';
 import { t } from './i18n';
+import { useStore } from './store';
 
 const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
 
-function Label({ children, onReset, hasValue }) {
+function Label({ children, onReset, hasValue, extra }) {
     return (
-        <div className="mb-1 flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-600">{children}</span>
+        <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600">{children}{extra}</span>
             {hasValue && onReset && (
                 <button className="text-[11px] text-slate-400 hover:text-slate-700" onClick={onReset} title={t('Revenir à la valeur par défaut')}>{t('Réinitialiser')}</button>
             )}
@@ -16,76 +17,85 @@ function Label({ children, onReset, hasValue }) {
     );
 }
 
-export function Control({ control, value, onChange, urls, onPickMedia }) {
+const empty = (v) => v === undefined || v === null || v === '';
+
+/**
+ * Un réglage du panneau. « placeholder » est la valeur héritée (d'un écran plus
+ * grand, ou de l'état normal pour le survol) ; « extra » s'affiche à côté du libellé.
+ */
+export function Control({ control, value, onChange, urls, placeholder, extra }) {
     const set = (v) => onChange(control.key, v);
     const reset = () => onChange(control.key, null);
-    const has = value !== undefined && value !== null && value !== '';
+    const has = !empty(value);
+    const label = (props = {}) => <Label extra={extra} {...props}>{control.label}</Label>;
 
     switch (control.type) {
+        case 'heading':
+            return <h3 className="border-t border-slate-100 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 first:border-0 first:pt-0">{control.label}</h3>;
         case 'text':
         case 'url':
             return (
                 <div>
-                    <Label>{control.label}</Label>
-                    <input className={inputCls} type="text" value={value ?? ''} placeholder={control.placeholder ?? (control.type === 'url' ? 'https://… ou /page ou #ancre' : '')} onChange={(e) => set(e.target.value)} />
+                    {label()}
+                    <input className={inputCls} type="text" value={value ?? ''} placeholder={placeholder ?? control.placeholder ?? (control.type === 'url' ? t('https://… ou /page ou #ancre') : '')} onChange={(e) => set(e.target.value)} />
                 </div>
             );
         case 'textarea':
             return (
                 <div>
-                    <Label>{control.label}</Label>
+                    {label()}
                     <textarea className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
                 </div>
             );
         case 'select':
             return (
                 <div>
-                    <Label>{control.label}</Label>
+                    {label({ hasValue: has, onReset: reset })}
                     <select className={inputCls} value={value ?? ''} onChange={(e) => set(e.target.value)}>
-                        {control.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        {control.options.map((o) => (
+                            <option key={o.value} value={o.value}>{o.value === '' && !empty(placeholder) ? `${o.label} (${control.options.find((x) => x.value === placeholder)?.label ?? placeholder})` : o.label}</option>
+                        ))}
                     </select>
                 </div>
             );
         case 'segmented':
             return (
                 <div>
-                    <Label hasValue={has} onReset={reset}>{control.label}</Label>
+                    {label({ hasValue: has, onReset: reset })}
                     <div className="flex flex-wrap gap-1 rounded-md bg-slate-100 p-0.5">
-                        {control.options.map((o) => (
-                            <button key={o.value} onClick={() => set(o.value)}
-                                className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${value === o.value ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
-                                {o.label}
-                            </button>
-                        ))}
+                        {control.options.map((o) => {
+                            const active = value === o.value;
+                            const inherited = !has && placeholder === o.value;
+                            return (
+                                <button key={o.value} onClick={() => set(active ? null : o.value)}
+                                    className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${active ? 'bg-white text-indigo-700 shadow-sm' : inherited ? 'text-indigo-500 ring-1 ring-inset ring-indigo-200' : 'text-slate-600 hover:text-slate-900'}`}>
+                                    {o.label}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             );
-        case 'slider':
+        case 'slider': {
+            const shown = value ?? placeholder ?? control.default ?? control.min;
             return (
                 <div>
-                    <Label hasValue={has} onReset={reset}>{control.label}</Label>
+                    {label({ hasValue: has, onReset: reset })}
                     <div className="flex items-center gap-2">
-                        <input type="range" className="flex-1 accent-indigo-600" min={control.min} max={control.max} step={control.step ?? 1}
-                            value={value ?? control.default ?? control.min} onChange={(e) => set(Number(e.target.value))} />
+                        <input type="range" className={`flex-1 accent-indigo-600 ${has ? '' : 'opacity-50'}`} min={control.min} max={control.max} step={control.step ?? 1}
+                            value={shown} onChange={(e) => set(Number(e.target.value))} />
                         <input type="number" className={`${inputCls} !w-16 !px-1.5 text-right`} min={control.min} max={control.max}
-                            value={value ?? ''} placeholder={control.default ?? '—'} onChange={(e) => set(e.target.value === '' ? null : Number(e.target.value))} />
+                            value={value ?? ''} placeholder={String(placeholder ?? control.default ?? '—')} onChange={(e) => set(e.target.value === '' ? null : Number(e.target.value))} />
                     </div>
                 </div>
             );
+        }
         case 'color':
-            return (
-                <div>
-                    <Label hasValue={has} onReset={reset}>{control.label}</Label>
-                    <div className="flex items-center gap-2">
-                        <input type="color" className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5" value={/^#[0-9a-f]{6}$/i.test(value ?? '') ? value : '#000000'} onChange={(e) => set(e.target.value)} />
-                        <input className={inputCls} value={value ?? ''} placeholder={t('Par défaut')} onChange={(e) => set(e.target.value)} />
-                    </div>
-                </div>
-            );
+            return <ColorControl label={label({ hasValue: has, onReset: reset })} value={value} placeholder={placeholder} onChange={set} />;
         case 'toggle':
             return (
                 <label className="flex cursor-pointer items-center justify-between gap-3 py-0.5">
-                    <span className="text-xs font-medium text-slate-600">{control.label}</span>
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600">{control.label}{extra}</span>
                     <button role="switch" aria-checked={!!value} onClick={() => set(!value)}
                         className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? 'bg-indigo-600' : 'bg-slate-300'}`}>
                         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${value ? 'left-4.5' : 'left-0.5'}`} />
@@ -98,9 +108,171 @@ export function Control({ control, value, onChange, urls, onPickMedia }) {
             return <RichText label={control.label} value={value ?? ''} onChange={set} />;
         case 'links':
             return <LinksControl label={control.label} value={Array.isArray(value) ? value : []} onChange={set} />;
+        case 'dim':
+            return <DimControl label={label({ hasValue: has, onReset: reset })} control={control} value={value} placeholder={placeholder} onChange={set} />;
+        case 'spacing':
+            return <SpacingControl label={label({ hasValue: has, onReset: reset })} control={control} value={value} placeholder={placeholder} onChange={set} />;
+        case 'shadow':
+            return <ShadowControl label={label({ hasValue: has, onReset: reset })} value={value} onChange={set} />;
+        case 'font':
+            return <FontControl label={label({ hasValue: has, onReset: reset })} value={value} placeholder={placeholder} onChange={set} />;
         default:
             return null;
     }
+}
+
+const hex6 = (v) => (/^#[0-9a-f]{6}$/i.test(v ?? '') ? v : /^#[0-9a-f]{3}$/i.test(v ?? '') ? `#${v.slice(1).split('').map((c) => c + c).join('')}` : '#000000');
+
+/** Couleur : sélecteur, saisie libre (#hex, rgba…) et couleurs globales du site. */
+function ColorControl({ label, value, placeholder, onChange }) {
+    const colors = useStore((s) => s.design?.colors ?? []);
+    const globalOf = (v) => (typeof v === 'string' && v.startsWith('global:') ? colors.find((c) => `global:${c.id}` === v) : null);
+    const current = globalOf(value);
+    const inherited = globalOf(placeholder);
+    return (
+        <div>
+            {label}
+            <div className="flex items-center gap-2">
+                <input type="color" className="h-8 w-10 shrink-0 cursor-pointer rounded border border-slate-300 bg-white p-0.5" value={hex6(current ? current.value : value ?? (inherited ? inherited.value : placeholder))} onChange={(e) => onChange(e.target.value)} />
+                {current ? (
+                    <button className={`${inputCls} flex items-center justify-between text-left`} onClick={() => onChange(current.value)} title={t('Détacher de la couleur globale')}>
+                        <span>🌐 {current.name}</span><span className="text-[11px] text-slate-400">{t('Détacher')}</span>
+                    </button>
+                ) : (
+                    <input className={inputCls} value={value ?? ''} placeholder={inherited ? `🌐 ${inherited.name}` : placeholder ?? t('Par défaut')} onChange={(e) => onChange(e.target.value)} />
+                )}
+            </div>
+            {colors.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1" aria-label={t('Couleurs du site')}>
+                    {colors.map((c) => (
+                        <button key={c.id} title={c.name} onClick={() => onChange(`global:${c.id}`)}
+                            className={`h-5 w-5 rounded-full border border-slate-300 ${value === `global:${c.id}` ? 'ring-2 ring-indigo-500 ring-offset-1' : ''}`} style={{ background: c.value }} />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+const parseDim = (v) => {
+    if (v === 'auto') return { n: '', u: 'auto' };
+    const m = String(v ?? '').match(/^(-?\d*\.?\d+)([a-z%]*)$/);
+    return m ? { n: m[1], u: m[2] } : { n: '', u: null };
+};
+
+/** Dimension : nombre + unité (« 50% », « 320px », « 1.5 », « auto »). */
+function DimControl({ label, control, value, placeholder, onChange }) {
+    const units = control.units ?? ['px', '%', 'em', 'rem', 'vw', 'vh'];
+    const cur = parseDim(value);
+    const ph = parseDim(placeholder);
+    const unit = cur.u ?? ph.u ?? units[0];
+    const emit = (n, u) => onChange(u === 'auto' ? 'auto' : n === '' ? null : `${n}${u}`);
+    return (
+        <div>
+            {label}
+            <div className="flex gap-1.5">
+                <input type="number" className={inputCls} disabled={unit === 'auto'} value={cur.n} placeholder={ph.n || '—'} step="any" onChange={(e) => emit(e.target.value, unit)} />
+                <select className={`${inputCls} !w-20`} value={unit} onChange={(e) => emit(cur.n || ph.n, e.target.value)}>
+                    {units.map((u) => <option key={u} value={u}>{u === '' ? t('sans unité') : u}</option>)}
+                </select>
+            </div>
+        </div>
+    );
+}
+
+/** Espacement ou arrondi des coins : quatre valeurs, liées ou non, et une unité. */
+function SpacingControl({ label, control, value, placeholder, onChange }) {
+    const [linked, setLinked] = useState(() => !value || ['t', 'r', 'b', 'l'].every((k) => value[k] === value.t));
+    const v = value ?? {};
+    const ph = placeholder ?? {};
+    const units = control.units ?? ['px'];
+    const names = control.corners
+        ? [['t', t('Haut gauche')], ['r', t('Haut droit')], ['b', t('Bas droit')], ['l', t('Bas gauche')]]
+        : [['t', t('Haut')], ['r', t('Droite')], ['b', t('Bas')], ['l', t('Gauche')]];
+    const emit = (next) => {
+        const clean = Object.fromEntries(Object.entries(next).filter(([k, x]) => k === 'u' || !empty(x)));
+        onChange(Object.keys(clean).some((k) => k !== 'u') ? clean : null);
+    };
+    const setSide = (k, raw) => {
+        const n = raw === '' ? null : Math.max(control.allowNegative ? -2000 : 0, Number(raw));
+        emit(linked ? { t: n, r: n, b: n, l: n, u: v.u } : { ...v, [k]: n });
+    };
+    return (
+        <div>
+            {label}
+            <div className="flex items-end gap-1">
+                {names.map(([k, name]) => (
+                    <label key={k} className="flex-1 text-center">
+                        <input type="number" className={`${inputCls} !px-1 text-center`} value={v[k] ?? ''} placeholder={empty(ph[k]) ? '' : String(ph[k])} onChange={(e) => setSide(k, e.target.value)} />
+                        <span className="mt-0.5 block text-[10px] text-slate-400">{name}</span>
+                    </label>
+                ))}
+                <div className="mb-4 flex flex-col gap-1">
+                    <button title={linked ? t('Valeurs liées') : t('Valeurs séparées')} onClick={() => setLinked(!linked)}
+                        className={`rounded px-1.5 py-1 text-xs ${linked ? 'bg-indigo-50 text-indigo-700' : 'text-slate-400 hover:bg-slate-100'}`}>{linked ? '🔗' : '⛓️‍💥'}</button>
+                </div>
+            </div>
+            {units.length > 1 && (
+                <div className="mt-1 flex gap-1">
+                    {units.map((u) => (
+                        <button key={u} onClick={() => emit({ ...v, u: u === 'px' ? undefined : u })}
+                            className={`rounded px-1.5 py-0.5 text-[11px] ${(v.u ?? 'px') === u ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>{u}</button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+const SHADOWS = {
+    [t('Légère')]: { x: 0, y: 1, blur: 3, spread: 0, color: 'rgba(15,23,42,0.12)' },
+    [t('Moyenne')]: { x: 0, y: 6, blur: 18, spread: -4, color: 'rgba(15,23,42,0.18)' },
+    [t('Forte')]: { x: 0, y: 18, blur: 40, spread: -8, color: 'rgba(15,23,42,0.28)' },
+};
+
+/** Ombre portée : modèles prêts à l'emploi ou réglage fin. */
+function ShadowControl({ label, value, onChange }) {
+    const v = value ?? null;
+    const set = (patch) => onChange({ ...(v ?? SHADOWS[t('Moyenne')]), ...patch });
+    const num = (k, name) => (
+        <label className="flex-1 text-center">
+            <input type="number" className={`${inputCls} !px-1 text-center`} value={v?.[k] ?? 0} onChange={(e) => set({ [k]: Number(e.target.value) })} />
+            <span className="mt-0.5 block text-[10px] text-slate-400">{name}</span>
+        </label>
+    );
+    return (
+        <div>
+            {label}
+            <div className="flex flex-wrap gap-1">
+                {Object.entries(SHADOWS).map(([name, preset]) => (
+                    <button key={name} onClick={() => onChange(preset)} className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-indigo-400">{name}</button>
+                ))}
+            </div>
+            {v && (
+                <div className="mt-2 space-y-2 rounded-md border border-slate-200 p-2">
+                    <div className="flex gap-1">{num('x', 'X')}{num('y', 'Y')}{num('blur', t('Flou'))}{num('spread', t('Étendue'))}</div>
+                    <input className={inputCls} value={v.color ?? ''} onChange={(e) => set({ color: e.target.value })} placeholder="rgba(0,0,0,0.2)" />
+                    <label className="flex items-center gap-2 text-xs text-slate-600"><input type="checkbox" checked={!!v.inset} onChange={(e) => set({ inset: e.target.checked || undefined })} /> {t('Ombre intérieure')}</label>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/** Police : celles du site (texte, titres) ou une police précise. */
+function FontControl({ label, value, placeholder, onChange }) {
+    const fonts = useStore((s) => s.design?.fonts ?? []);
+    return (
+        <div>
+            {label}
+            <select className={inputCls} value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
+                <option value="">{placeholder ? `${t('Par défaut')} (${placeholder})` : t('Par défaut')}</option>
+                <option value="global:body">{t('Police du texte (site)')}</option>
+                <option value="global:heading">{t('Police des titres (site)')}</option>
+                {fonts.map((f) => <option key={f} value={f}>{f}</option>)}
+            </select>
+        </div>
+    );
 }
 
 /** Liste de liens {label, url} : ajouter, modifier, monter, retirer. */

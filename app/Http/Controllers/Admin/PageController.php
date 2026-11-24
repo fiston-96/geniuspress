@@ -149,11 +149,12 @@ class PageController extends Controller
         ]);
     }
 
-    public function restoreRevision(Request $request, Page $page, PageRevision $revision)
+    public function restoreRevision(Request $request, Page $page, PageRevision $revision, ContentSanitizer $sanitizer)
     {
         abort_unless($revision->page_id === $page->id, 404);
 
-        return response()->json(['content' => $revision->content]);
+        // Une ancienne version peut être au format 1 : elle est convertie ici.
+        return response()->json(['content' => $sanitizer->sanitize($revision->content)]);
     }
 
     public function destroy(Page $page)

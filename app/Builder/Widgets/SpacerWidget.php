@@ -12,7 +12,7 @@ class SpacerWidget extends Widget
 
     public function rules(): array
     {
-        return ['height' => 'int:0:600', 'height_mobile' => 'int:0:600'];
+        return ['height' => 'int:0:600@r'];
     }
 
     public function aiHint(): ?string { return 'Vertical space.'; }
@@ -20,7 +20,7 @@ class SpacerWidget extends Widget
     public function render(array $s, string $id, RenderContext $ctx): string
     {
         $ctx->rule($id, ['height' => RenderContext::px($s['height'] ?? 40)]);
-        $ctx->rule($id, ['height' => RenderContext::px($s['height_mobile'] ?? null)], true);
+        $ctx->responsive($id, array_diff_key($s, ['height' => 1]), 'height', fn ($v) => ['height' => $v.'px']);
 
         return '';
     }

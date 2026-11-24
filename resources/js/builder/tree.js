@@ -1,39 +1,83 @@
-// Opérations immuables sur l'arbre { sections: [{ columns: [{ widgets: [] }] }] }.
+// Opérations immuables sur l'arbre { version: 2, elements: [...] }.
+// Un élément est un conteneur ({ type: 'container', children: [...] }) ou un widget.
 import { getWidget } from './registry';
 
 export const uid = () => Math.random().toString(36).slice(2, 12).padEnd(10, '0');
 
 const clone = (v) => structuredClone(v);
 
+export const isContainer = (node) => node?.type === 'container';
+
+export const MAX_DEPTH = 8;
+
 export function makeWidget(type) {
     return { id: uid(), type, settings: { ...(getWidget(type)?.defaults ?? {}) } };
 }
 
-export function makeColumn(width) {
-    return { id: uid(), type: 'column', settings: width ? { width: Math.round(width * 1000) / 1000 } : {}, widgets: [] };
+export function makeContainer(settings = {}, children = []) {
+    return { id: uid(), type: 'container', settings, children };
 }
 
-export function makeSection(widths = [100]) {
-    return { id: uid(), type: 'section', settings: {}, columns: widths.map((w) => makeColumn(widths.length > 1 ? w : null)) };
+/**
+ * Structure prête à l'emploi : [100] = un conteneur simple ; [50, 50] = un
+ * conteneur en ligne (en colonne sur mobile) avec deux conteneurs enfants.
+ * Au premier niveau de la page, le conteneur reçoit des marges confortables.
+ */
+export function makeStructure(widths = [100], topLevel = true) {
+    const outer = topLevel ? { padding: { t: 40, r: 20, b: 40, l: 20 } } : {};
+    if (widths.length === 1) return makeContainer(outer);
+    return makeContainer(
+        { ...outer, direction: 'row', direction_mobile: 'column' },
+        widths.map((w) => makeContainer({ width: `${Math.round(w * 1000) / 1000}%` })),
+    );
 }
 
-/** Retrouve un nœud (section, colonne ou widget) et ses parents. */
-export function locate(content, id) {
-    for (const [si, s] of content.sections.entries()) {
-        if (s.id === id) return { kind: 'section', node: s, section: s, si };
-        for (const [ci, c] of s.columns.entries()) {
-            if (c.id === id) return { kind: 'column', node: c, section: s, column: c, si, ci };
-            for (const [wi, w] of c.widgets.entries()) {
-                if (w.id === id) return { kind: 'widget', node: w, section: s, column: c, widget: w, si, ci, wi };
+/**
+ * Retrouve un élément : le nœud, son parent (null au premier niveau), sa
+ * position, et la liste de ses ancêtres (du plus haut au plus proche).
+ */
+export function find(content, id) {
+    const search = (nodes, parent, path) => {
+        for (const [index, node] of nodes.entries()) {
+            if (node.id === id) return { node, parent, index, path, depth: path.length };
+            if (isContainer(node)) {
+                const found = search(node.children ?? [], node, [...path, node]);
+                if (found) return found;
             }
         }
-    }
-    return null;
+        return null;
+    };
+    return search(content.elements ?? [], null, []);
+}
+
+/** Liste d'enfants d'un parent (null = premier niveau de la page). */
+function listOf(content, parentId) {
+    if (parentId === null || parentId === undefined) return content.elements;
+    const loc = find(content, parentId);
+    return loc && isContainer(loc.node) ? loc.node.children : null;
+}
+
+/** L'élément « id » contient-il (ou est-il) l'élément « other » ? */
+export function contains(node, other) {
+    if (node.id === other) return true;
+    return isContainer(node) && (node.children ?? []).some((c) => contains(c, other));
+}
+
+/** Profondeur maximale de conteneurs sous un élément (lui compris). */
+function containerDepth(node) {
+    if (!isContainer(node)) return 0;
+    return 1 + Math.max(0, ...(node.children ?? []).map(containerDepth));
+}
+
+/** Peut-on placer « node » dans le parent « parentId » sans dépasser la profondeur maximale ? */
+export function fits(content, node, parentId) {
+    const depth = parentId ? (find(content, parentId)?.depth ?? 0) + 1 : 0;
+    return depth + containerDepth(node) <= MAX_DEPTH;
 }
 
 export function updateSettings(content, id, patch) {
     const next = clone(content);
-    const loc = locate(next, id);
+    const loc = find(next, id);
     if (!loc) return content;
     const settings = { ...loc.node.settings, ...patch };
     for (const [k, v] of Object.entries(settings)) {
@@ -43,101 +87,81 @@ export function updateSettings(content, id, patch) {
     return next;
 }
 
-export function insertWidget(content, columnId, index, widget) {
+/** Remplace tous les réglages d'un élément (coller le style). */
+export function replaceSettings(content, id, settings) {
     const next = clone(content);
-    const loc = locate(next, columnId);
-    if (!loc || loc.kind !== 'column') return content;
-    loc.column.widgets.splice(index ?? loc.column.widgets.length, 0, widget);
-    return next;
-}
-
-export function moveWidget(content, widgetId, columnId, index) {
-    const from = locate(content, widgetId);
-    if (!from || from.kind !== 'widget') return content;
-    let next = clone(content);
-    const src = locate(next, widgetId);
-    const [w] = src.column.widgets.splice(src.wi, 1);
-    // Si on déplace dans la même colonne, plus bas, l'index se décale d'un cran.
-    if (from.column.id === columnId && index > from.wi) index -= 1;
-    const dest = locate(next, columnId);
-    dest.column.widgets.splice(index, 0, w);
-    return next;
-}
-
-export function removeNode(content, id) {
-    const next = clone(content);
-    const loc = locate(next, id);
+    const loc = find(next, id);
     if (!loc) return content;
-    if (loc.kind === 'section') next.sections.splice(loc.si, 1);
-    if (loc.kind === 'column') {
-        if (loc.section.columns.length === 1) return content;
-        loc.section.columns.splice(loc.ci, 1);
-        normalizeWidths(loc.section);
-    }
-    if (loc.kind === 'widget') loc.column.widgets.splice(loc.wi, 1);
+    loc.node.settings = settings;
     return next;
 }
 
-function reId(node) {
+export function insert(content, parentId, index, node) {
+    const next = clone(content);
+    const list = listOf(next, parentId);
+    if (!list || !fits(next, node, parentId)) return content;
+    list.splice(index ?? list.length, 0, node);
+    return next;
+}
+
+export function move(content, id, parentId, index) {
+    const from = find(content, id);
+    if (!from) return content;
+    // On ne peut pas déposer un conteneur dans lui-même ou dans un de ses enfants.
+    if (parentId && contains(from.node, parentId)) return content;
+    const fromParentId = from.parent?.id ?? null;
+    if (fromParentId === (parentId ?? null) && (index === from.index || index === from.index + 1)) return content;
+
+    const next = clone(content);
+    const src = find(next, id);
+    const srcList = src.parent ? src.parent.children : next.elements;
+    const [node] = srcList.splice(src.index, 1);
+    if (fromParentId === (parentId ?? null) && index > from.index) index -= 1;
+    const dest = listOf(next, parentId);
+    if (!dest || !fits(next, node, parentId)) return content;
+    dest.splice(index, 0, node);
+    return next;
+}
+
+export function remove(content, id) {
+    const next = clone(content);
+    const loc = find(next, id);
+    if (!loc) return content;
+    (loc.parent ? loc.parent.children : next.elements).splice(loc.index, 1);
+    return next;
+}
+
+/** Donne de nouveaux identifiants à un élément et à tout ce qu'il contient. */
+export function reId(node) {
     node.id = uid();
-    node.columns?.forEach(reId);
-    node.widgets?.forEach(reId);
+    if (isContainer(node)) (node.children ?? []).forEach(reId);
     return node;
 }
 
-export function duplicateNode(content, id) {
+export function duplicate(content, id) {
     const next = clone(content);
-    const loc = locate(next, id);
+    const loc = find(next, id);
     if (!loc) return [content, null];
     const copy = reId(clone(loc.node));
-    if (loc.kind === 'section') next.sections.splice(loc.si + 1, 0, copy);
-    if (loc.kind === 'column') {
-        if (loc.section.columns.length >= 6) return [content, null];
-        loc.section.columns.splice(loc.ci + 1, 0, copy);
-        normalizeWidths(loc.section);
-    }
-    if (loc.kind === 'widget') loc.column.widgets.splice(loc.wi + 1, 0, copy);
+    (loc.parent ? loc.parent.children : next.elements).splice(loc.index + 1, 0, copy);
     return [next, copy.id];
 }
 
-export function addSection(content, index, widths) {
+/** Enveloppe un élément dans un nouveau conteneur, à la même place. */
+export function wrap(content, id) {
     const next = clone(content);
-    const section = makeSection(widths);
-    next.sections.splice(index ?? next.sections.length, 0, section);
-    return [next, section];
+    const loc = find(next, id);
+    if (!loc) return [content, null];
+    const box = makeContainer({}, [loc.node]);
+    if (!fits(next, box, loc.parent?.id ?? null)) return [content, null];
+    (loc.parent ? loc.parent.children : next.elements).splice(loc.index, 1, box);
+    return [next, box.id];
 }
 
-export function moveSection(content, id, delta) {
-    const next = clone(content);
-    const i = next.sections.findIndex((s) => s.id === id);
-    const j = i + delta;
-    if (i < 0 || j < 0 || j >= next.sections.length) return content;
-    [next.sections[i], next.sections[j]] = [next.sections[j], next.sections[i]];
-    return next;
-}
-
-/** Change la structure de colonnes d'une section en conservant les widgets. */
-export function setLayout(content, sectionId, widths) {
-    const next = clone(content);
-    const loc = locate(next, sectionId);
-    if (!loc || loc.kind !== 'section') return content;
-    const old = loc.section.columns;
-    const cols = widths.map((w, i) => {
-        const c = old[i] ?? makeColumn();
-        c.settings = { ...c.settings, width: widths.length > 1 ? w : undefined };
-        if (widths.length === 1) delete c.settings.width;
-        return c;
-    });
-    // Les widgets des colonnes supprimées vont dans la dernière colonne.
-    for (const extra of old.slice(widths.length)) cols[cols.length - 1].widgets.push(...extra.widgets);
-    loc.section.columns = cols;
-    return next;
-}
-
-function normalizeWidths(section) {
-    const n = section.columns.length;
-    for (const c of section.columns) {
-        if (n === 1) delete c.settings.width;
-        else c.settings.width = Math.round((100 / n) * 1000) / 1000;
+/** Parcourt tous les éléments (conteneurs compris). */
+export function walk(nodes, fn, parent = null) {
+    for (const node of nodes ?? []) {
+        fn(node, parent);
+        if (isContainer(node)) walk(node.children, fn, node);
     }
 }

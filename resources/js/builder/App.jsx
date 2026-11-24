@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './api';
 import Canvas from './Canvas';
 import Panel from './Panel';
-import { commit, getState, redo, setState, toast, undo, useStore } from './store';
-import { duplicateNode, removeNode } from './tree';
+import { getState, redo, setState, toast, undo, useStore } from './store';
+import { copyEl, duplicateEl, pasteAfter, pasteStyle, removeEl } from './actions';
 import { t } from './i18n';
+
+// L'ordinateur commence à 1025 px (tablette : 768 à 1024 px, mobile : 767 px et moins).
+const DESKTOP_MIN = 1025;
 
 const DEVICES = [
     { id: 'desktop', label: t('Ordinateur'), width: '100%', icon: 'M3 4h18v12H3zM8 20h8M12 16v4' },
@@ -66,16 +69,21 @@ export default function App({ boot }) {
         const typing = /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable;
         if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return; }
         if (typing) return;
-        if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-        else if (mod && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
-        else if (mod && e.key.toLowerCase() === 'd' && getState().selected) {
+        const key = e.key.toLowerCase();
+        const selected = getState().selected;
+        if (mod && key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+        else if (mod && (key === 'y' || (key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
+        else if (mod && key === 'd' && selected) { e.preventDefault(); duplicateEl(selected); }
+        else if (mod && key === 'c' && selected) {
+            // Du texte sélectionné dans la page se copie normalement.
+            const doc = e.target.ownerDocument;
+            if (doc.getSelection()?.toString()) return;
             e.preventDefault();
-            const [n, id] = duplicateNode(getState().content, getState().selected);
-            commit(n, { selected: id });
-        } else if ((e.key === 'Delete' || e.key === 'Backspace') && getState().selected) {
-            e.preventDefault();
-            commit(removeNode(getState().content, getState().selected), { selected: null, panel: 'elements' });
-        } else if (e.key === 'Escape') setState({ selected: null, panel: 'elements' });
+            copyEl(selected);
+        } else if (mod && key === 'v' && e.shiftKey && selected) { e.preventDefault(); pasteStyle(selected); }
+        else if (mod && key === 'v') { e.preventDefault(); pasteAfter(selected); }
+        else if ((e.key === 'Delete' || e.key === 'Backspace') && selected) { e.preventDefault(); removeEl(selected); }
+        else if (e.key === 'Escape') setState({ selected: null, panel: 'elements', menu: null });
     }, [save]);
 
     useEffect(() => {
@@ -136,11 +144,7 @@ export default function App({ boot }) {
 
             <div className="flex min-h-0 flex-1">
                 <Panel boot={boot} />
-                <div className="flex min-w-0 flex-1 justify-center overflow-auto p-4" onClick={() => setState({ selected: null, panel: 'elements' })}>
-                    <div className="h-full transition-[width] duration-300" style={{ width: current.width, maxWidth: '100%' }} onClick={(e) => e.stopPropagation()}>
-                        <Frame boot={boot} onKey={onKey} />
-                    </div>
-                </div>
+                <Stage device={current} boot={boot} onKey={onKey} />
             </div>
 
             {toastMsg && (
@@ -148,6 +152,35 @@ export default function App({ boot }) {
                     {toastMsg.message}
                 </div>
             )}
+        </div>
+    );
+}
+
+/**
+ * Zone du canevas. En mode ordinateur, si l'écran est trop étroit pour
+ * 1025 px, la page est affichée à 1025 px puis réduite à l'échelle : on voit
+ * ainsi le vrai rendu ordinateur, et non celui de la tablette.
+ */
+function Stage({ device, boot, onKey }) {
+    const ref = useRef(null);
+    const [space, setSpace] = useState({ w: 0, h: 0 });
+    useEffect(() => {
+        const el = ref.current;
+        const observer = new ResizeObserver(() => setSpace({ w: el.clientWidth - 32, h: el.clientHeight - 32 }));
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+    const scale = device.id === 'desktop' && space.w > 0 && space.w < DESKTOP_MIN ? space.w / DESKTOP_MIN : 1;
+    const style = scale < 1
+        ? { width: DESKTOP_MIN, height: space.h / scale, transform: `scale(${scale})`, transformOrigin: 'top left' }
+        : { width: device.width, maxWidth: '100%' };
+
+    return (
+        <div ref={ref} className="relative flex min-w-0 flex-1 justify-center overflow-auto p-4" onClick={() => setState({ selected: null, panel: 'elements' })}>
+            <div className={scale < 1 ? 'absolute left-4 top-4' : 'h-full transition-[width] duration-300'} style={style} onClick={(e) => e.stopPropagation()}>
+                <Frame boot={boot} onKey={onKey} />
+            </div>
+            {scale < 1 && <p className="pointer-events-none absolute bottom-1 right-3 text-[11px] text-slate-400">{t('Affichage ordinateur réduit à :percent %', { percent: Math.round(scale * 100) })}</p>}
         </div>
     );
 }
@@ -174,14 +207,14 @@ function Frame({ boot, onKey }) {
         return () => iframe.removeEventListener('load', mount);
     }, [onKey]);
 
-    const s = boot.settings;
-    const font = s.font_family || 'Inter';
+    // Mêmes couleurs et polices globales que sur le site publié (DesignTokens.php).
+    const design = boot.design;
     const srcDoc = `<!DOCTYPE html><html lang="${boot.page.locale}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://fonts.bunny.net/css?family=${encodeURIComponent(font.toLowerCase())}:400,500,600,700,800&display=swap">
+<link rel="stylesheet" href="${design.fontsUrl}">
 <link rel="stylesheet" href="${boot.siteCss}">
 ${(boot.pluginCss ?? []).map((href) => `<link rel="stylesheet" href="${href}">`).join('')}
-<style>:root{--gp-primary:${s.primary_color};--gp-secondary:${s.secondary_color};--gp-accent:${s.accent_color};--gp-font:'${font}',system-ui,sans-serif}</style>
+<style>${design.css.replace(/</g, '')}</style>
 </head><body><div id="root"></div></body></html>`;
 
     return <iframe ref={ref} title={t('Canevas')} srcDoc={srcDoc} className="h-full w-full rounded-md bg-white shadow-sm ring-1 ring-slate-200" />;

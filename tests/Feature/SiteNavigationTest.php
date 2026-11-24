@@ -119,7 +119,7 @@ class SiteNavigationTest extends TestCase
                 'pas un lien',
             ]],
         ]]]]]]]);
-        $settings = $content['sections'][0]['columns'][0]['widgets'][0]['settings'];
+        $settings = $this->widgetsOf($content)[0]['settings'];
 
         $this->assertSame([['label' => 'Équipe', 'url' => '/equipe'], ['label' => 'Dons', 'url' => '#dons']], $settings['items']);
         $this->assertArrayNotHasKey('layout', $settings);

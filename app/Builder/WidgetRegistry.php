@@ -39,9 +39,21 @@ class WidgetRegistry
         return $this->widgets;
     }
 
-    /** Règles complètes d'un widget, réglages communs compris. */
+    /**
+     * Règles complètes d'un widget, réglages de style communs compris, suffixes
+     * @r / @h développés. Un réglage déclaré par le widget remplace le réglage
+     * commun de même nom.
+     */
     public function rules(string $type): array
     {
-        return isset($this->widgets[$type]) ? $this->widgets[$type]->rules() + Schema::COMMON_WIDGET : [];
+        return isset($this->widgets[$type]) ? Schema::expand($this->widgets[$type]->rules() + Schema::STYLE) : [];
+    }
+
+    /** Réglages de style communs que ce widget ne redéfinit pas (appliqués à son enveloppe). */
+    public function styleKeys(string $type): array
+    {
+        $own = isset($this->widgets[$type]) ? $this->widgets[$type]->rules() : [];
+
+        return array_keys(array_diff_key(Schema::STYLE, $own));
     }
 }

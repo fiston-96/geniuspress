@@ -37,6 +37,8 @@ class SettingController extends Controller
             'secondary_color' => $color,
             'accent_color' => $color,
             'font_family' => ['required', 'in:'.implode(',', self::FONTS)],
+            'heading_font' => ['nullable', 'in:'.implode(',', self::FONTS)],
+            'custom_colors' => ['nullable', 'array', 'max:'.\App\Builder\DesignTokens::MAX_CUSTOM_COLORS],
             'locales' => ['required', 'array', 'min:1'],
             'locales.*' => ['in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
             'default_locale' => ['required', 'in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
@@ -59,6 +61,8 @@ class SettingController extends Controller
         $locales = array_values(array_unique(array_merge([$data['default_locale']], $data['locales'])));
         unset($data['default_locale']);
         $data['locales'] = $locales;
+        $data['heading_font'] ??= null;
+        $data['custom_colors'] = \App\Builder\DesignTokens::customColors($request->input('custom_colors', []));
 
         Setting::write($data);
 

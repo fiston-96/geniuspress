@@ -1,12 +1,36 @@
 import { t } from './i18n';
-// Définition des widgets du cœur côté éditeur : libellé, icône, valeurs par
-// défaut et contrôles. Les clés correspondent aux classes de app/Builder/Widgets.
-// L'aperçu et le CSS sont dans widgets/core.jsx ; l'enregistrement passe par registry.js.
+// Définition des réglages côté éditeur : widgets du cœur, conteneurs, et
+// réglages de style communs à tous les éléments. Les clés correspondent à
+// app/Builder/Schema.php et aux classes de app/Builder/Widgets.
+// L'aperçu et le CSS des widgets sont dans widgets/core.jsx.
+//
+// Un contrôle : { key, label, type, tab: 'content' | 'style' | 'advanced',
+//   responsive: true (réglable par appareil), hover: true (réglable au survol),
+//   when: (settings) => bool (affiché seulement si…) }.
+// { type: 'heading', label } sépare les groupes de réglages.
 
 const ALIGN = [
     { value: 'left', label: t('Gauche') },
     { value: 'center', label: t('Centre') },
     { value: 'right', label: t('Droite') },
+];
+
+const heading = (label, tab = 'style') => ({ type: 'heading', label, tab });
+
+/** Typographie (Schema::TYPOGRAPHY). */
+export const typographyControls = (tab = 'style') => [
+    { key: 'font_family', label: t('Police'), type: 'font', tab },
+    { key: 'font_weight', label: t('Graisse'), type: 'select', tab, options: [
+        { value: '', label: t('Par défaut') }, { value: '300', label: t('Fine') }, { value: '400', label: t('Normale') }, { value: '500', label: t('Moyenne') },
+        { value: '600', label: t('Semi-grasse') }, { value: '700', label: t('Grasse') }, { value: '800', label: t('Très grasse') }, { value: '900', label: t('Noire') },
+    ] },
+    { key: 'font_style', label: t('Style'), type: 'segmented', tab, options: [{ value: 'normal', label: t('Normal') }, { value: 'italic', label: t('Italique') }] },
+    { key: 'text_transform', label: t('Casse'), type: 'select', tab, options: [
+        { value: '', label: t('Par défaut') }, { value: 'none', label: t('Aucune') }, { value: 'uppercase', label: t('MAJUSCULES') },
+        { value: 'lowercase', label: t('minuscules') }, { value: 'capitalize', label: t('Première Lettre') },
+    ] },
+    { key: 'line_height', label: t('Hauteur de ligne'), type: 'dim', tab, responsive: true, units: ['', 'px', 'em'] },
+    { key: 'letter_spacing', label: t('Espacement des lettres'), type: 'dim', tab, responsive: true, units: ['px', 'em'] },
 ];
 
 export const CORE_WIDGETS = {
@@ -17,14 +41,12 @@ export const CORE_WIDGETS = {
         controls: [
             { key: 'text', label: t('Texte'), type: 'textarea' },
             { key: 'tag', label: t('Niveau'), type: 'select', options: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].map((v) => ({ value: v, label: v.toUpperCase() })) },
-            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style' },
+            heading(t('Texte')),
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: [...ALIGN, { value: 'justify', label: t('Justifié') }], tab: 'style', responsive: true },
             { key: 'color', label: t('Couleur'), type: 'color', tab: 'style' },
-            { key: 'font_size', label: t('Taille (px)'), type: 'slider', min: 12, max: 120, tab: 'style' },
-            { key: 'font_size_mobile', label: t('Taille sur mobile (px)'), type: 'slider', min: 12, max: 80, tab: 'style' },
-            { key: 'font_weight', label: t('Graisse'), type: 'select', tab: 'style', options: [
-                { value: '', label: t('Par défaut') }, { value: '400', label: t('Normale') }, { value: '500', label: t('Moyenne') },
-                { value: '600', label: t('Semi-grasse') }, { value: '700', label: t('Grasse') }, { value: '800', label: t('Très grasse') },
-            ] },
+            { key: 'font_size', label: t('Taille (px)'), type: 'slider', min: 8, max: 160, tab: 'style', responsive: true },
+            heading(t('Typographie')),
+            ...typographyControls(),
         ],
     },
     text: {
@@ -33,9 +55,13 @@ export const CORE_WIDGETS = {
         defaults: { html: t('<p>Écrivez votre texte ici. Vous pouvez le mettre en <strong>gras</strong>, en <em>italique</em> ou ajouter des liens.</p>') },
         controls: [
             { key: 'html', label: t('Contenu'), type: 'richtext' },
-            { key: 'align', label: t('Alignement'), type: 'segmented', options: [...ALIGN, { value: 'justify', label: t('Justifié') }], tab: 'style' },
+            heading(t('Texte')),
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: [...ALIGN, { value: 'justify', label: t('Justifié') }], tab: 'style', responsive: true },
             { key: 'color', label: t('Couleur'), type: 'color', tab: 'style' },
-            { key: 'font_size', label: t('Taille (px)'), type: 'slider', min: 12, max: 40, tab: 'style' },
+            { key: 'link_color', label: t('Couleur des liens'), type: 'color', tab: 'style', hover: true },
+            { key: 'font_size', label: t('Taille (px)'), type: 'slider', min: 8, max: 80, tab: 'style', responsive: true },
+            heading(t('Typographie')),
+            ...typographyControls(),
         ],
     },
     image: {
@@ -46,9 +72,10 @@ export const CORE_WIDGETS = {
             { key: 'url', label: t('Image'), type: 'image' },
             { key: 'alt', label: t('Texte alternatif (accessibilité)'), type: 'text', placeholder: t('Décrivez l’image') },
             { key: 'link', label: t('Lien au clic'), type: 'url' },
-            { key: 'width', label: t('Largeur (%)'), type: 'slider', min: 5, max: 100, tab: 'style' },
-            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style' },
-            { key: 'border_radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 200, tab: 'style' },
+            heading(t('Image')),
+            { key: 'width', label: t('Largeur (%)'), type: 'slider', min: 5, max: 100, tab: 'style', responsive: true },
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style', responsive: true },
+            { key: 'border_radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 500, tab: 'style' },
         ],
     },
     button: {
@@ -59,12 +86,16 @@ export const CORE_WIDGETS = {
             { key: 'text', label: t('Texte'), type: 'text' },
             { key: 'url', label: t('Lien'), type: 'url' },
             { key: 'new_tab', label: t('Ouvrir dans un nouvel onglet'), type: 'toggle' },
+            heading(t('Bouton')),
             { key: 'variant', label: t('Style'), type: 'segmented', tab: 'style', options: [{ value: 'filled', label: t('Plein') }, { value: 'outline', label: t('Contour') }] },
             { key: 'size', label: t('Taille'), type: 'segmented', tab: 'style', options: [{ value: 'sm', label: 'S' }, { value: 'md', label: 'M' }, { value: 'lg', label: 'L' }] },
-            { key: 'align', label: t('Alignement'), type: 'segmented', tab: 'style', options: [...ALIGN, { value: 'full', label: t('Pleine largeur') }] },
-            { key: 'bg_color', label: t('Couleur du bouton'), type: 'color', tab: 'style' },
-            { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
-            { key: 'border_radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 50, tab: 'style' },
+            { key: 'align', label: t('Alignement'), type: 'segmented', tab: 'style', responsive: true, options: [...ALIGN, { value: 'full', label: t('Pleine largeur') }] },
+            { key: 'bg_color', label: t('Couleur du bouton'), type: 'color', tab: 'style', hover: true },
+            { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style', hover: true },
+            { key: 'border_radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 100, tab: 'style' },
+            { key: 'font_size', label: t('Taille du texte (px)'), type: 'slider', min: 8, max: 80, tab: 'style', responsive: true },
+            heading(t('Typographie')),
+            ...typographyControls(),
         ],
     },
     spacer: {
@@ -72,8 +103,7 @@ export const CORE_WIDGETS = {
         icon: 'M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4',
         defaults: { height: 40 },
         controls: [
-            { key: 'height', label: t('Hauteur (px)'), type: 'slider', min: 0, max: 400 },
-            { key: 'height_mobile', label: t('Hauteur sur mobile (px)'), type: 'slider', min: 0, max: 400 },
+            { key: 'height', label: t('Hauteur (px)'), type: 'slider', min: 0, max: 600, responsive: true },
         ],
     },
     divider: {
@@ -111,33 +141,89 @@ export const CORE_WIDGETS = {
     },
 };
 
+const FLEX_ALIGN = [
+    { value: 'start', label: t('Début') },
+    { value: 'center', label: t('Centre') },
+    { value: 'end', label: t('Fin') },
+    { value: 'stretch', label: t('Étiré') },
+];
 
-export const SECTION_CONTROLS = [
+/** Disposition d'un conteneur (onglet Contenu). */
+export const CONTAINER_CONTROLS = [
+    heading(t('Disposition'), 'content'),
+    { key: 'direction', label: t('Direction'), type: 'segmented', responsive: true, options: [
+        { value: 'column', label: t('↓ Colonne') }, { value: 'row', label: t('→ Ligne') },
+        { value: 'column-reverse', label: '↑' }, { value: 'row-reverse', label: '←' },
+    ] },
+    { key: 'justify', label: t('Répartition (axe principal)'), type: 'select', responsive: true, options: [
+        { value: '', label: t('Par défaut') }, { value: 'start', label: t('Au début') }, { value: 'center', label: t('Au centre') }, { value: 'end', label: t('À la fin') },
+        { value: 'between', label: t('Espacés (bords collés)') }, { value: 'around', label: t('Espacés autour') }, { value: 'evenly', label: t('Espacés également') },
+    ] },
+    { key: 'align', label: t('Alignement (axe secondaire)'), type: 'segmented', responsive: true, options: FLEX_ALIGN },
+    { key: 'gap', label: t('Espace entre les éléments (px)'), type: 'slider', min: 0, max: 200, default: 20, responsive: true },
+    { key: 'wrap', label: t('Retour à la ligne'), type: 'segmented', responsive: true, options: [{ value: 'nowrap', label: t('Non') }, { value: 'wrap', label: t('Oui') }] },
+    heading(t('Taille'), 'content'),
     { key: 'content_width', label: t('Largeur du contenu'), type: 'segmented', options: [{ value: 'boxed', label: t('Centrée') }, { value: 'full', label: t('Pleine largeur') }] },
-    { key: 'max_width', label: t('Largeur maximale (px)'), type: 'slider', min: 600, max: 1600, step: 10, default: 1140 },
-    { key: 'gap', label: t('Espace entre colonnes (px)'), type: 'slider', min: 0, max: 120, default: 24 },
-    { key: 'vertical_align', label: t('Alignement vertical'), type: 'segmented', options: [{ value: 'start', label: t('Haut') }, { value: 'center', label: t('Milieu') }, { value: 'end', label: t('Bas') }, { value: 'stretch', label: t('Étiré') }] },
-    { key: 'min_height', label: t('Hauteur minimale (px)'), type: 'slider', min: 0, max: 1000, step: 10 },
-    { key: 'background_color', label: t('Couleur de fond'), type: 'color', tab: 'style' },
-    { key: 'background_image', label: t('Image de fond'), type: 'image', tab: 'style' },
-    { key: 'overlay_color', label: t('Voile de couleur'), type: 'color', tab: 'style' },
-    { key: 'overlay_opacity', label: t('Opacité du voile (%)'), type: 'slider', min: 0, max: 100, default: 50, tab: 'style' },
-    { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
-    { key: 'padding_top', label: t('Marge intérieure haute (px)'), type: 'slider', min: 0, max: 300, default: 64, tab: 'style' },
-    { key: 'padding_bottom', label: t('Marge intérieure basse (px)'), type: 'slider', min: 0, max: 300, default: 64, tab: 'style' },
-    { key: 'padding_top_mobile', label: t('Marge haute sur mobile (px)'), type: 'slider', min: 0, max: 300, tab: 'style' },
-    { key: 'padding_bottom_mobile', label: t('Marge basse sur mobile (px)'), type: 'slider', min: 0, max: 300, tab: 'style' },
-    { key: 'anchor', label: t('Ancre (pour les liens #ancre)'), type: 'text', placeholder: t('contact'), tab: 'advanced' },
+    { key: 'max_width', label: t('Largeur maximale du contenu (px)'), type: 'slider', min: 200, max: 2400, step: 10, default: 1140, responsive: true, when: (s, depth) => (s.content_width ?? (depth === 0 ? 'boxed' : 'full')) === 'boxed' },
+    { key: 'tag', label: t('Balise HTML'), type: 'select', options: ['div', 'section', 'header', 'footer', 'article', 'aside', 'nav', 'main'].map((v) => ({ value: v, label: `<${v}>` })), tab: 'advanced' },
+    heading(t('Voile de couleur')),
+    { key: 'overlay_color', label: t('Couleur du voile'), type: 'color', tab: 'style' },
+    { key: 'overlay_opacity', label: t('Opacité du voile (%)'), type: 'slider', min: 0, max: 100, default: 50, tab: 'style', when: (s) => !!s.overlay_color },
 ];
 
-export const COLUMN_CONTROLS = [
-    { key: 'width', label: t('Largeur (%)'), type: 'slider', min: 5, max: 100 },
-    { key: 'vertical_align', label: t('Alignement vertical'), type: 'segmented', options: [{ value: 'start', label: t('Haut') }, { value: 'center', label: t('Milieu') }, { value: 'end', label: t('Bas') }] },
-    { key: 'background_color', label: t('Couleur de fond'), type: 'color', tab: 'style' },
-    { key: 'padding', label: t('Marge intérieure (px)'), type: 'slider', min: 0, max: 120, tab: 'style' },
-    { key: 'border_radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 100, tab: 'style' },
-];
+/** Réglages communs à tous les éléments (Schema::STYLE), ajoutés automatiquement. */
+export const STYLE_CONTROLS = [
+    heading(t('Fond')),
+    { key: 'background_type', label: t('Type de fond'), type: 'segmented', tab: 'style', options: [{ value: 'classic', label: t('Couleur / image') }, { value: 'gradient', label: t('Dégradé') }] },
+    { key: 'background_color', label: t('Couleur de fond'), type: 'color', tab: 'style', hover: true, when: (s) => s.background_type !== 'gradient' },
+    { key: 'background_image', label: t('Image de fond'), type: 'image', tab: 'style', when: (s) => s.background_type !== 'gradient' },
+    { key: 'background_position', label: t('Position de l’image'), type: 'select', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image, options: [
+        { value: '', label: t('Centre') }, { value: 'top', label: t('Haut') }, { value: 'bottom', label: t('Bas') }, { value: 'left', label: t('Gauche') }, { value: 'right', label: t('Droite') },
+    ] },
+    { key: 'background_size', label: t('Taille de l’image'), type: 'segmented', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image, options: [
+        { value: 'cover', label: t('Couvrir') }, { value: 'contain', label: t('Contenir') }, { value: 'auto', label: t('Réelle') },
+    ] },
+    { key: 'background_fixed', label: t('Image fixe au défilement'), type: 'toggle', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image },
+    { key: 'gradient_type', label: t('Forme du dégradé'), type: 'segmented', tab: 'style', when: (s) => s.background_type === 'gradient', options: [{ value: 'linear', label: t('Linéaire') }, { value: 'radial', label: t('Circulaire') }] },
+    { key: 'gradient_from', label: t('Première couleur'), type: 'color', tab: 'style', when: (s) => s.background_type === 'gradient' },
+    { key: 'gradient_to', label: t('Seconde couleur'), type: 'color', tab: 'style', when: (s) => s.background_type === 'gradient' },
+    { key: 'gradient_angle', label: t('Angle (degrés)'), type: 'slider', min: 0, max: 360, default: 180, tab: 'style', when: (s) => s.background_type === 'gradient' && s.gradient_type !== 'radial' },
 
+    heading(t('Bordure')),
+    { key: 'border_style', label: t('Type de bordure'), type: 'select', tab: 'style', options: [
+        { value: '', label: t('Aucune') }, { value: 'solid', label: t('Pleine') }, { value: 'dashed', label: t('Tirets') }, { value: 'dotted', label: t('Points') }, { value: 'double', label: t('Double') },
+    ] },
+    { key: 'border_width', label: t('Épaisseur'), type: 'spacing', tab: 'style', units: ['px'], when: (s) => s.border_style && s.border_style !== 'none' },
+    { key: 'border_color', label: t('Couleur de la bordure'), type: 'color', tab: 'style', hover: true, when: (s) => s.border_style && s.border_style !== 'none' },
+    { key: 'border_radius', label: t('Arrondi des coins'), type: 'spacing', tab: 'style', responsive: true, corners: true, units: ['px', '%'] },
+    { key: 'box_shadow', label: t('Ombre'), type: 'shadow', tab: 'style', hover: true },
+
+    heading(t('Couleur et opacité')),
+    { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style', hover: true },
+    { key: 'opacity', label: t('Opacité (%)'), type: 'slider', min: 0, max: 100, default: 100, tab: 'style', hover: true },
+    { key: 'transition', label: t('Durée de l’effet au survol (ms)'), type: 'slider', min: 0, max: 3000, step: 50, default: 300, tab: 'style', hover: 'only' },
+
+    heading(t('Espacements'), 'advanced'),
+    { key: 'margin', label: t('Marge extérieure'), type: 'spacing', tab: 'advanced', responsive: true, units: ['px', '%', 'em', 'rem'], allowNegative: true },
+    { key: 'padding', label: t('Marge intérieure'), type: 'spacing', tab: 'advanced', responsive: true, units: ['px', '%', 'em', 'rem'] },
+    heading(t('Dimensions'), 'advanced'),
+    { key: 'width', label: t('Largeur'), type: 'dim', tab: 'advanced', responsive: true, units: ['%', 'px', 'vw', 'auto'] },
+    { key: 'min_height', label: t('Hauteur minimale'), type: 'dim', tab: 'advanced', responsive: true, units: ['px', 'vh', 'em'] },
+    { key: 'align_self', label: t('Alignement dans le parent'), type: 'segmented', tab: 'advanced', responsive: true, options: FLEX_ALIGN },
+    { key: 'order', label: t('Ordre d’affichage'), type: 'slider', min: -20, max: 20, tab: 'advanced', responsive: true },
+    heading(t('Position'), 'advanced'),
+    { key: 'z_index', label: t('Superposition (z-index)'), type: 'slider', min: -100, max: 100, tab: 'advanced' },
+    { key: 'overflow', label: t('Contenu qui dépasse'), type: 'segmented', tab: 'advanced', options: [{ value: 'visible', label: t('Visible') }, { value: 'hidden', label: t('Masqué') }] },
+    heading(t('Affichage'), 'advanced'),
+    { key: 'hide_desktop', label: t('Masquer sur ordinateur'), type: 'toggle', tab: 'advanced' },
+    { key: 'hide_tablet', label: t('Masquer sur tablette'), type: 'toggle', tab: 'advanced' },
+    { key: 'hide_mobile', label: t('Masquer sur mobile'), type: 'toggle', tab: 'advanced' },
+    heading(t('Attributs'), 'advanced'),
+    { key: 'css_id', label: t('Ancre (pour les liens #ancre)'), type: 'text', placeholder: t('contact'), tab: 'advanced' },
+    { key: 'css_classes', label: t('Classes CSS'), type: 'text', placeholder: 'ma-classe autre-classe', tab: 'advanced' },
+].map((c) => ({ ...c, common: true }));
+
+/** Structures proposées pour un nouveau conteneur. */
 export const LAYOUTS = [
     { label: t('1 colonne'), widths: [100] },
     { label: t('2 colonnes'), widths: [50, 50] },

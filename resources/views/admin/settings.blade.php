@@ -20,11 +20,56 @@
                     </label>
                 @endforeach
             </div>
-            <label class="block text-sm font-medium text-slate-700">{{ __('Police') }}
-                <select name="font_family" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
-                    @foreach ($fonts as $font)<option @selected($settings['font_family'] === $font)>{{ $font }}</option>@endforeach
-                </select>
-            </label>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-sm font-medium text-slate-700">{{ __('Police du texte') }}
+                    <select name="font_family" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        @foreach ($fonts as $font)<option @selected($settings['font_family'] === $font)>{{ $font }}</option>@endforeach
+                    </select>
+                </label>
+                <label class="block text-sm font-medium text-slate-700">{{ __('Police des titres') }}
+                    <select name="heading_font" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">{{ __('Comme le texte') }}</option>
+                        @foreach ($fonts as $font)<option @selected(($settings['heading_font'] ?? null) === $font)>{{ $font }}</option>@endforeach
+                    </select>
+                </label>
+            </div>
+
+            <div>
+                <p class="text-sm font-medium text-slate-700">{{ __('Couleurs personnalisées') }}</p>
+                <p class="mb-2 text-xs text-slate-500">{{ __('Proposées dans le builder à côté des trois couleurs du site. Modifier une couleur ici met à jour tous les éléments qui l’utilisent.') }}</p>
+                <div class="space-y-2" id="gp-custom-colors">
+                    @foreach (\App\Builder\DesignTokens::customColors($settings['custom_colors'] ?? []) as $i => $color)
+                        <div class="flex items-center gap-2" data-color-row>
+                            <input type="hidden" name="custom_colors[{{ $i }}][id]" value="{{ $color['id'] }}">
+                            <input type="color" name="custom_colors[{{ $i }}][value]" value="{{ preg_match('/^#[0-9a-f]{6}$/', $color['value']) ? $color['value'] : '#000000' }}" class="h-9 w-12 cursor-pointer rounded border border-slate-300 bg-white p-0.5">
+                            <input name="custom_colors[{{ $i }}][name]" value="{{ $color['name'] }}" maxlength="40" placeholder="{{ __('Nom de la couleur') }}" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                            <button type="button" class="shrink-0 rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100" data-remove-color title="{{ __('Retirer') }}">✕</button>
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="mt-2 text-sm font-medium text-indigo-600" id="gp-add-color">{{ __('+ Ajouter une couleur') }}</button>
+                <template id="gp-color-template">
+                    <div class="flex items-center gap-2" data-color-row>
+                        <input type="color" name="custom_colors[__I__][value]" value="#4f46e5" class="h-9 w-12 cursor-pointer rounded border border-slate-300 bg-white p-0.5">
+                        <input name="custom_colors[__I__][name]" maxlength="40" placeholder="{{ __('Nom de la couleur') }}" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <button type="button" class="shrink-0 rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100" data-remove-color title="{{ __('Retirer') }}">✕</button>
+                    </div>
+                </template>
+                <script>
+                    (() => {
+                        const list = document.getElementById('gp-custom-colors');
+                        let next = list.children.length;
+                        document.getElementById('gp-add-color').addEventListener('click', () => {
+                            const html = document.getElementById('gp-color-template').innerHTML.replaceAll('__I__', String(next++));
+                            list.insertAdjacentHTML('beforeend', html);
+                            list.lastElementChild.querySelector('input[name$="[name]"]').focus();
+                        });
+                        list.addEventListener('click', (e) => {
+                            if (e.target.closest('[data-remove-color]')) e.target.closest('[data-color-row]').remove();
+                        });
+                    })();
+                </script>
+            </div>
         </section>
 
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">

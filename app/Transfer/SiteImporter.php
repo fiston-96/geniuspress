@@ -197,6 +197,12 @@ class SiteImporter
         if (in_array($settings['font_family'] ?? null, SettingController::FONTS, true)) {
             $values['font_family'] = $settings['font_family'];
         }
+        if (in_array($settings['heading_font'] ?? null, SettingController::FONTS, true)) {
+            $values['heading_font'] = $settings['heading_font'];
+        }
+        if (is_array($settings['custom_colors'] ?? null)) {
+            $values['custom_colors'] = \App\Builder\DesignTokens::customColors($settings['custom_colors']);
+        }
         if (is_string($settings['logo_url'] ?? null) && preg_match('#^(https?://|/(?!/))#', $settings['logo_url'])) {
             $values['logo_url'] = Str::limit($settings['logo_url'], 2000, '');
         }
