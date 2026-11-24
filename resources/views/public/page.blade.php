@@ -13,6 +13,7 @@
     <link rel="icon" href="{{ $settings['favicon_url'] ?? asset('favicon.svg') }}">
     @if ($page->meta_description)<meta name="description" content="{{ $page->meta_description }}">@endif
     @if (! empty($preview))<meta name="robots" content="noindex">@endif
+    @foreach ($nav['languages'] as $lang)@if ($lang['translated'])<link rel="alternate" hreflang="{{ $lang['code'] }}" href="{{ $lang['url'] }}">@endif @endforeach
     <meta property="og:title" content="{{ $title }}">
     @if ($page->meta_description)<meta property="og:description" content="{{ $page->meta_description }}">@endif
     <link rel="preconnect" href="https://fonts.bunny.net">

@@ -37,9 +37,6 @@
                         <option value="dark" @selected($nav['header']['style'] === 'dark')>{{ __('Sombre (couleur secondaire)') }}</option>
                     </select>
                 </label>
-                <label class="block text-sm font-medium text-slate-700">{{ __('Lien du bouton d’action') }}
-                    <input name="header[cta_url]" value="{{ $nav['header']['cta_url'] }}" placeholder="/contact" class="mt-1.5 {{ $input }}">
-                </label>
             </div>
             <label class="block text-sm font-medium text-slate-700">{{ __('Icône du site (favicon)') }}
                 <input name="favicon_url" value="{{ $faviconUrl }}" placeholder="{{ __('Adresse d’une image carrée depuis la médiathèque') }}" class="mt-1.5 {{ $input }}">
@@ -59,6 +56,10 @@
 
                 <label class="block text-sm font-medium text-slate-700">{{ __('Texte du bouton d’action') }}
                     <input name="locales[{{ $code }}][cta_label]" value="{{ $l['cta_label'] ?? '' }}" maxlength="40" placeholder="{{ __('Faire un don') }}" class="mt-1.5 {{ $input }}">
+                </label>
+
+                <label class="block text-sm font-medium text-slate-700">{{ __('Lien du bouton d’action') }}
+                    <input name="locales[{{ $code }}][cta_url]" value="{{ $l['cta_url'] ?? $nav['header']['cta_url'] }}" placeholder="/contact" class="mt-1.5 {{ $input }}">
                 </label>
 
                 <label class="block text-sm font-medium text-slate-700">{{ __('Texte du pied de page') }}

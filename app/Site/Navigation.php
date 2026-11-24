@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
  * Les libellés et les liens existent pour chaque langue du site.
  *
  * Réglage « navigation » :
- *   header: { enabled, sticky, style: light|dark, cta_url }
- *   locales: { fr: { menu: [{label, url}], cta_label, footer_text, footer_links: [{label, url}] }, … }
+ *   header: { enabled, sticky, style: light|dark, cta_url (ancien réglage commun, utilisé en repli) }
+ *   locales: { fr: { menu: [{label, url}], cta_label, cta_url, footer_text, footer_links: [{label, url}] }, … }
  *   footer: { enabled, credit }
  */
 class Navigation
@@ -47,6 +47,7 @@ class Navigation
             'footer' => $nav['footer'],
             'menu' => $l['menu'] ?? [],
             'cta_label' => $l['cta_label'] ?? null,
+            'cta_url' => $l['cta_url'] ?? $nav['header']['cta_url'],
             'footer_text' => $l['footer_text'] ?? null,
             'footer_links' => $l['footer_links'] ?? [],
             'home_url' => self::homeUrl($page->locale),
@@ -89,6 +90,7 @@ class Navigation
             $nav['locales'][$locale] = [
                 'menu' => $links($l['menu'] ?? []),
                 'cta_label' => $text($l['cta_label'] ?? null, 40),
+                'cta_url' => ContentSanitizer::url($l['cta_url'] ?? null),
                 'footer_text' => $text($l['footer_text'] ?? null, 500),
                 'footer_links' => $links($l['footer_links'] ?? []),
             ];
@@ -122,6 +124,7 @@ class Navigation
                 'name' => $names[$locale] ?? $locale,
                 'url' => $target ? $target->url() : self::homeUrl($locale),
                 'current' => $locale === $page->locale,
+                'translated' => $target !== null,
             ];
         }
 

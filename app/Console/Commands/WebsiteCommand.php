@@ -42,11 +42,12 @@ class WebsiteCommand extends Command
         ]));
         $zip->addFromString('settings.json', $json($site['settings']));
         $zip->addFromString('media.json', '[]');
-        $zip->addFromString('pages.json', $json(array_map(fn ($p) => $p + [
+        // « group » relie les versions d'une même page dans les différentes langues.
+        $zip->addFromString('pages.json', $json(array_map(fn ($p) => array_diff_key($p, ['group' => 1]) + [
             'locale' => 'fr',
             'status' => 'published',
             'is_home' => false,
-            'translation_group' => 'site-'.md5($p['slug']),
+            'translation_group' => 'site-'.md5($p['group'] ?? $p['slug']),
             'published_at' => now()->toIso8601String(),
         ], $site['pages'])));
         $zip->close();

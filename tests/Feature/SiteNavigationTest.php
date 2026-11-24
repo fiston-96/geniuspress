@@ -35,12 +35,12 @@ class SiteNavigationTest extends TestCase
     private function saveNavigation(array $overrides = []): void
     {
         Navigation::save(array_replace_recursive([
-            'header' => ['enabled' => '1', 'sticky' => '1', 'style' => 'dark', 'cta_url' => '/dons'],
+            'header' => ['enabled' => '1', 'sticky' => '1', 'style' => 'dark', 'cta_url' => '/ancien'],
             'footer' => ['enabled' => '1', 'credit' => '1'],
             'locales' => [
                 'fr' => [
                     'menu' => [['label' => 'Projets', 'url' => '/projets'], ['label' => 'Piège', 'url' => 'javascript:alert(1)'], ['label' => '', 'url' => '/vide']],
-                    'cta_label' => 'Faire un don', 'footer_text' => '<b>Ensemble</b> pour l’éducation',
+                    'cta_label' => 'Faire un don', 'cta_url' => '/dons', 'footer_text' => '<b>Ensemble</b> pour l’éducation',
                     'footer_links' => [['label' => 'Contact', 'url' => '/contact']],
                 ],
                 'en' => ['menu' => [['label' => 'Projects', 'url' => '/en/projects']], 'cta_label' => 'Donate'],
@@ -75,7 +75,7 @@ class SiteNavigationTest extends TestCase
         $this->get('/projets')->assertOk()
             ->assertSee('gp-site-header--dark', false)
             ->assertSee('<a href="/projets" aria-current="page">Projets</a>', false)
-            ->assertSee('Faire un don')
+            ->assertSee('<a class="gp-btn gp-btn-sm gp-site-cta" href="/dons">Faire un don</a>', false)
             ->assertSee('href="'.url('/en/projects').'" hreflang="en"', false)
             ->assertSee('Ensemble pour l’éducation')
             ->assertSee('Propulsé par')
@@ -85,7 +85,7 @@ class SiteNavigationTest extends TestCase
         $this->get('/projets/ecoles')->assertOk()->assertSee('<a href="/projets" aria-current="true">Projets</a>', false);
 
         // Version anglaise : menu anglais et crédit traduit dans la langue de la page.
-        $this->get('/en/projects')->assertOk()->assertSee('Projects')->assertSee('Donate')->assertSee('Powered by');
+        $this->get('/en/projects')->assertOk()->assertSee('Projects')->assertSee('href="/ancien">Donate</a>', false)->assertSee('Powered by');
 
         // Tout peut être masqué.
         $this->saveNavigation(['header' => ['enabled' => '0'], 'footer' => ['enabled' => '0']]);
@@ -166,13 +166,27 @@ class SiteNavigationTest extends TestCase
         $zip->close();
 
         $this->assertSame('GeniusPress', Setting::read('site_name'));
-        $this->assertSame('accueil', Page::where('is_home', true)->sole()->slug);
+        $this->assertSame('accueil', Page::where('locale', 'fr')->where('is_home', true)->sole()->slug);
         $this->assertTrue(Page::where('slug', 'documentation/plugins')->exists());
 
         $this->get('/')->assertOk()->assertSee('Construisez le site de votre organisation');
         $this->get('/documentation/installation')->assertOk()
             ->assertSee('Installer GeniusPress')
             ->assertSee('<pre>', false)
-            ->assertSee('<a href="/documentation" aria-current="true">Documentation</a>', false);
+            ->assertSee('<a href="/documentation" aria-current="true">Documentation</a>', false)
+            ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/en/documentation/installation').'">', false);
+
+        // Version anglaise : pages liées à leur version française, menus et bouton en anglais.
+        $this->assertSame(['fr', 'en'], Setting::read('locales'));
+        $backup = Page::where('locale', 'en')->where('slug', 'documentation/backup')->sole();
+        $this->assertSame(Page::where('locale', 'fr')->where('slug', 'documentation/sauvegarde')->sole()->translation_group, $backup->translation_group);
+        $this->assertSame('home', Page::where('locale', 'en')->where('is_home', true)->sole()->slug);
+
+        $this->get('/en')->assertOk()->assertSee('Build your organization’s website')
+            ->assertSee('<a class="gp-btn gp-btn-sm gp-site-cta" href="/en/download">Download</a>', false);
+        $this->get('/en/documentation/backup')->assertOk()
+            ->assertSee('<html lang="en"', false)
+            ->assertSee('<a href="/en/documentation/backup" aria-current="page">Backup, export and import</a>', false)
+            ->assertSee('href="'.url('/documentation/sauvegarde').'" hreflang="fr"', false);
     }
 }

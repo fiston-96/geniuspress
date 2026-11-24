@@ -22,7 +22,7 @@
             <span>{{ $settings['site_name'] }}</span>
         </a>
 
-        @if ($nav['menu'] || $nav['languages'] || ($nav['cta_label'] && $nav['header']['cta_url']))
+        @if ($nav['menu'] || $nav['languages'] || ($nav['cta_label'] && $nav['cta_url']))
             <input type="checkbox" id="gp-nav-toggle" class="gp-nav-toggle">
             <label for="gp-nav-toggle" class="gp-nav-burger" aria-label="{{ __('Ouvrir le menu', [], $page->locale) }}"><span></span></label>
 
@@ -41,8 +41,8 @@
                         @endforeach
                     </ul>
                 @endif
-                @if ($nav['cta_label'] && $nav['header']['cta_url'])
-                    <a class="gp-btn gp-btn-sm gp-site-cta" href="{{ $nav['header']['cta_url'] }}">{{ $nav['cta_label'] }}</a>
+                @if ($nav['cta_label'] && $nav['cta_url'])
+                    <a class="gp-btn gp-btn-sm gp-site-cta" href="{{ $nav['cta_url'] }}">{{ $nav['cta_label'] }}</a>
                 @endif
             </nav>
         @endif
