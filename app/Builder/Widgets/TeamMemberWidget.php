@@ -29,6 +29,8 @@ class TeamMemberWidget extends Widget
 
     public function translatable(): array { return ['role', 'bio']; }
 
+    public function fillable(): array { return ['name', 'role', 'bio']; }
+
     public function aiExcluded(): array { return ['url', 'media_id', 'socials']; }
 
     public function aiHint(): ?string

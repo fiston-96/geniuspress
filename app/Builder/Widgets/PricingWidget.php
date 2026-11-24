@@ -31,6 +31,8 @@ class PricingWidget extends Widget
 
     public function translatable(): array { return ['title', 'period', 'description', 'features.*.text', 'button_text', 'badge']; }
 
+    public function fillable(): array { return [...$this->translatable(), 'price', 'currency']; }
+
     public function aiHint(): ?string
     {
         return 'Price card (plan, membership, school fees, service package) with a features list ("features": [{text, included}]). Never invent prices: use "[à compléter]" as price when unknown.';

@@ -35,6 +35,16 @@ abstract class Widget
         return [];
     }
 
+    /**
+     * Réglages que l'assistant IA réécrit quand il remplit un modèle pour une organisation :
+     * les textes traduisibles, plus des données (chiffres, prix, adresse) à adapter.
+     * Notation « items.*.text » pour les champs d'une liste.
+     */
+    public function fillable(): array
+    {
+        return $this->translatable();
+    }
+
     /** Réglages que l'assistant IA ne doit pas remplir (ex. adresses d'images). */
     public function aiExcluded(): array
     {

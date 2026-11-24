@@ -71,6 +71,22 @@ class AiController extends Controller
         });
     }
 
+    /** Réécrit une page de modèle pour l'organisation (profil saisi sur la page Modèles). */
+    public function fill(Request $request, Page $page): JsonResponse
+    {
+        $profile = (array) Setting::read('site_profile', []);
+        if (empty($profile['name'])) {
+            return response()->json(['message' => __('Remplissez d’abord le questionnaire de la page Modèles.')], 422);
+        }
+        $titles = Page::query()->where('locale', $page->locale)->where('id', '!=', $page->id)->orderBy('id')->limit(30)->pluck('title')->all();
+
+        return $this->run(function () use ($page, $profile, $titles, $request) {
+            $page = $this->assistant->fillPage($page, $profile, $titles, $request->user()->id);
+
+            return ['page' => $page->only(['id', 'title', 'locale']), 'builder_url' => route('admin.pages.builder', $page)];
+        });
+    }
+
     public function audit(Request $request, Page $page): JsonResponse
     {
         $request->validate(['content' => ['required', 'array']]);

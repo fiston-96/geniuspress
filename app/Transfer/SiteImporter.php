@@ -46,8 +46,11 @@ class SiteImporter
 
     public function __construct(private ContentSanitizer $sanitizer) {}
 
-    /** @return array{pages: int, media: int, settings: bool, warnings: list<string>} */
-    public function import(string $zipPath, ?User $author = null, bool $replace = false, bool $withSettings = true): array
+    /**
+     * @param  list<string>|null  $locales  langues à importer (null = toutes) ; sert à installer un modèle dans une seule langue
+     * @return array{pages: int, media: int, settings: bool, warnings: list<string>, page_ids: list<int>}
+     */
+    public function import(string $zipPath, ?User $author = null, bool $replace = false, bool $withSettings = true, ?array $locales = null): array
     {
         $zip = new ZipArchive;
         if ($zip->open($zipPath, ZipArchive::RDONLY) !== true) {
@@ -63,10 +66,16 @@ class SiteImporter
                 throw new RuntimeException(__('Cette archive vient d’une version plus récente de GeniusPress. Mettez GeniusPress à jour avant de l’importer.'));
             }
 
-            $report = ['pages' => 0, 'media' => 0, 'settings' => false, 'warnings' => []];
+            $report = ['pages' => 0, 'media' => 0, 'settings' => false, 'warnings' => [], 'page_ids' => []];
             $pages = array_slice((array) $this->json($zip, 'pages.json'), 0, self::MAX_PAGES);
+            if ($locales !== null) {
+                $pages = array_values(array_filter($pages, fn ($p) => is_array($p) && in_array($p['locale'] ?? null, $locales, true)));
+            }
             $mediaList = array_slice((array) $this->json($zip, 'media.json', []), 0, self::MAX_MEDIA);
             $settings = (array) $this->json($zip, 'settings.json', []);
+            if ($locales !== null && isset($settings['locales'])) {
+                $settings['locales'] = array_values(array_intersect((array) $settings['locales'], $locales));
+            }
 
             // Les fichiers sont copiés avant la transaction ; supprimés si elle échoue.
             [$mediaIds, $urlMap, $created] = $this->importMedia($zip, $mediaList, $manifest, $author, $report);
@@ -284,6 +293,7 @@ class SiteImporter
             $page->author_id ??= $author?->id;
             $page->save();
             $report['pages']++;
+            $report['page_ids'][] = $page->id;
         }
     }
 

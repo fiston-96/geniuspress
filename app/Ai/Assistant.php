@@ -192,6 +192,154 @@ class Assistant
         return $translation;
     }
 
+    // ─── Modèles de sites ────────────────────────────────────────────────
+
+    /** Profil de l'organisation (questionnaire de la page Modèles), en texte pour le modèle. */
+    public static function profileText(array $profile): string
+    {
+        $labels = [
+            'name' => 'Name', 'sector' => 'Sector', 'description' => 'What they do', 'offerings' => 'Services, programs or products',
+            'audience' => 'Audience', 'city' => 'City', 'country' => 'Country', 'tone' => 'Desired tone',
+            'phone' => 'Phone', 'email' => 'E-mail', 'address' => 'Address', 'extra' => 'Other information',
+        ];
+        $lines = [];
+        foreach ($labels as $key => $label) {
+            if (! empty($profile[$key])) {
+                $lines[] = $label.': '.Str::limit(trim((string) $profile[$key]), 2000);
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Propose les 3 modèles du catalogue les mieux adaptés au profil, avec une raison
+     * (dans la langue de l'interface). Les identifiants inconnus sont écartés.
+     *
+     * @return array{sector: ?string, items: list<array{id: string, reason: string}>}
+     */
+    public function recommendTemplates(array $profile, array $catalog): array
+    {
+        $templates = $catalog['templates'];
+        $ids = array_column($templates, 'id');
+        $sectors = array_keys($catalog['sectors']);
+        $ui = $this->localeName(app()->getLocale());
+        $list = implode("\n", array_map(fn ($t) => sprintf('%s | sector: %s | %s | %s | style: hero %s, cards %s | tags: %s',
+            $t['id'], $t['sector'], $t['name']['en'] ?? $t['id'], $t['description']['en'] ?? '', $t['style']['hero'] ?? '', $t['style']['cards'] ?? '', implode(', ', $t['tags'] ?? [])), $templates));
+
+        $system = "You help organisations choose a website template in GeniusPress, a website builder used by businesses and NGOs, especially in Africa.\n"
+            ."Pick the sector that best matches the organisation, then the 3 best templates for it (prefer that sector; vary the visual styles). "
+            ."For each, give one short sentence in {$ui} explaining why it suits this organisation (style, tone, pages). Do not invent facts about the organisation.";
+        $result = $this->call('recommend_templates', null, $system, [[
+            'type' => 'text',
+            'text' => "Organisation profile:\n".self::profileText($profile)."\n\nTemplates (id | sector | name | description | style | tags):\n".$list,
+        ]], [
+            'type' => 'object',
+            'properties' => [
+                'sector' => ['type' => 'string', 'enum' => [...$sectors, 'autre']],
+                'items' => ['type' => 'array', 'items' => [
+                    'type' => 'object',
+                    'properties' => ['id' => ['type' => 'string', 'enum' => $ids], 'reason' => ['type' => 'string']],
+                    'required' => ['id', 'reason'],
+                    'additionalProperties' => false,
+                ]],
+            ],
+            'required' => ['sector', 'items'],
+            'additionalProperties' => false,
+        ], 'low', 4000);
+
+        $items = [];
+        foreach ($result['items'] ?? [] as $item) {
+            if (in_array($item['id'] ?? null, $ids, true) && ! isset($items[$item['id']])) {
+                $items[$item['id']] = ['id' => $item['id'], 'reason' => Str::limit(trim(strip_tags((string) ($item['reason'] ?? ''))), 300)];
+            }
+        }
+        $sector = in_array($result['sector'] ?? null, $sectors, true) ? $result['sector'] : null;
+
+        return ['sector' => $sector, 'items' => array_slice(array_values($items), 0, 3)];
+    }
+
+    /**
+     * Réécrit les textes d'une page de modèle pour l'organisation : titres, textes, listes,
+     * chiffres clés, prix, adresse de la carte, titre et description de la page (et le texte
+     * du pied de page pour la page d'accueil). Rien n'est inventé : les faits inconnus restent
+     * entre crochets. L'ancienne version est gardée dans l'historique.
+     *
+     * @param  list<string>  $siteTitles  titres des autres pages, pour la cohérence
+     */
+    public function fillPage(Page $page, array $profile, array $siteTitles, int $userId): Page
+    {
+        $source = $this->sanitizer->sanitize($page->editableContent());
+        $strings = $this->extractStrings($source, 'fillable');
+        $strings['__title'] = $page->title;
+        if ($page->meta_description) {
+            $strings['__meta_description'] = $page->meta_description;
+        }
+        $navigation = \App\Site\Navigation::all();
+        if ($page->is_home && ! empty($navigation['locales'][$page->locale]['footer_text'])) {
+            $strings['__footer_text'] = $navigation['locales'][$page->locale]['footer_text'];
+        }
+
+        $system = $this->baseSystem($page->locale)."\n\n".SectorKnowledge::for($profile['sector'] ?? null)
+            ."\n\nOrganisation profile (given by the site owner — the only source of facts):\n".self::profileText($profile)
+            ."\n\nYou receive the texts of one page of a ready-made website template. Rewrite every item so the page fits this organisation, in {$this->localeName($page->locale)}. "
+            .'Keep each item’s purpose and approximate length, keep HTML tags and their structure, keep text in square brackets as placeholders unless the profile gives the real value. '
+            .'Items ending in “.number” are key figures: return digits only, or 0 if the profile does not give the figure. Items ending in “.price” are prices: return the profile’s price or [à compléter]. '
+            .'Use the profile’s contact details (phone, e-mail, address, city) wherever the template shows sample contact details. Return every key exactly once.';
+
+        $items = [];
+        foreach ($strings as $key => $text) {
+            $items[] = ['key' => $key, 'text' => $text];
+        }
+        $result = $this->call('fill_page', $page, $system, [[
+            'type' => 'text',
+            'text' => 'Other pages of the website: '.implode(', ', $siteTitles)."\nPage: {$page->title}\nItems:\n".json_encode(['items' => $items], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+        ]], [
+            'type' => 'object',
+            'properties' => ['items' => ['type' => 'array', 'items' => [
+                'type' => 'object',
+                'properties' => ['key' => ['type' => 'string'], 'text' => ['type' => 'string']],
+                'required' => ['key', 'text'],
+                'additionalProperties' => false,
+            ]]],
+            'required' => ['items'],
+            'additionalProperties' => false,
+        ], 'medium', 32000);
+
+        $filled = [];
+        foreach ($result['items'] ?? [] as $item) {
+            if (isset($item['key'], $item['text']) && array_key_exists($item['key'], $strings)) {
+                $text = (string) $item['text'];
+                // Chiffres clés : un nombre entier, ou 0 s'il est inconnu.
+                $filled[$item['key']] = str_ends_with($item['key'], '.number') ? (int) preg_replace('/[^\d-]/', '', $text) : $text;
+            }
+        }
+
+        $content = $this->sanitizer->sanitize($this->applyStrings($source, array_diff_key($filled, array_flip(['__title', '__meta_description', '__footer_text']))));
+
+        \App\Models\PageRevision::create(['page_id' => $page->id, 'user_id' => $userId, 'content' => $source, 'note' => 'Avant l’assistant IA']);
+        // Une page publiée qui a déjà un brouillon garde sa version en ligne ; sinon on écrit directement.
+        if ($page->isPublished() && $page->hasUnpublishedChanges()) {
+            $page->draft_content = $content;
+        } else {
+            $page->content = $content;
+        }
+        if (! empty($filled['__title'])) {
+            $page->title = Str::limit(trim(strip_tags($filled['__title'])), 190, '');
+        }
+        if (isset($filled['__meta_description'])) {
+            $page->meta_description = Str::limit(trim(strip_tags($filled['__meta_description'])), 320, '');
+        }
+        $page->save();
+
+        if (! empty($filled['__footer_text'])) {
+            $navigation['locales'][$page->locale]['footer_text'] = Str::limit(trim(strip_tags($filled['__footer_text'])), 500, '');
+            \App\Site\Navigation::save($navigation, (array) Setting::read('locales', ['fr']));
+        }
+
+        return $page;
+    }
+
     // ─── SEO et accessibilité ────────────────────────────────────────────
 
     public function audit(Page $page, array $content): array
@@ -448,11 +596,12 @@ class Assistant
      * Textes traduisibles de l'arbre, indexés par "idWidget.clé" ou, dans une
      * liste, "idWidget.clé.position.champ" (un widget déclare alors « items.*.title »).
      */
-    private function extractStrings(array $content): array
+    private function extractStrings(array $content, string $which = 'translatable'): array
     {
         $out = [];
-        Renderer::walk($content['elements'] ?? [], function ($w) use (&$out) {
-            foreach ($this->widgets->get($w['type'])?->translatable() ?? [] as $key) {
+        Renderer::walk($content['elements'] ?? [], function ($w) use (&$out, $which) {
+            $widget = $this->widgets->get($w['type']);
+            foreach ($widget ? ($which === 'fillable' ? $widget->fillable() : $widget->translatable()) : [] as $key) {
                 if (str_contains($key, '.*.')) {
                     [$list, $field] = explode('.*.', $key, 2);
                     foreach ((array) ($w['settings'][$list] ?? []) as $i => $item) {
@@ -460,8 +609,8 @@ class Assistant
                             $out[$w['id'].'.'.$list.'.'.$i.'.'.$field] = $item[$field];
                         }
                     }
-                } elseif (! empty($w['settings'][$key]) && is_string($w['settings'][$key])) {
-                    $out[$w['id'].'.'.$key] = $w['settings'][$key];
+                } elseif (isset($w['settings'][$key]) && (is_string($w['settings'][$key]) || is_int($w['settings'][$key])) && $w['settings'][$key] !== '') {
+                    $out[$w['id'].'.'.$key] = (string) $w['settings'][$key];
                 }
             }
         });

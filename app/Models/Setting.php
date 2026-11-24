@@ -39,7 +39,7 @@ class Setting extends Model
     }
 
     /** Réglages qui ne doivent jamais être envoyés au navigateur. */
-    public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint', 'forms_email'];
+    public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint', 'forms_email', 'site_profile'];
 
     public static function publicValues(): array
     {

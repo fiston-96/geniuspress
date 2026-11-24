@@ -30,6 +30,8 @@ class CounterWidget extends Widget
 
     public function translatable(): array { return ['label', 'suffix', 'prefix']; }
 
+    public function fillable(): array { return [...$this->translatable(), 'number']; }
+
     public function aiHint(): ?string
     {
         return 'Key figure with a label (e.g. 1200 + "children supported"). Never invent figures: use 0 and a label such as "[à compléter] bénéficiaires" when the brief does not give the number.';

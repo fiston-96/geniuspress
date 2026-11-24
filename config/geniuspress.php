@@ -29,6 +29,12 @@ return [
         'path' => env('GP_CATALOG_PATH', base_path('dist/catalog/v1')),
         // Démonstrations en ligne des modèles sur /catalogue/{modèle} (toujours actives en local).
         'demos' => (bool) env('GP_CATALOG_DEMOS', false),
+        // Lire le catalogue dans « path » plutôt qu'en ligne (par défaut : en local, s'il a été construit).
+        'local' => env('GP_CATALOG_LOCAL'),
+        // Adresse des démonstrations quand le catalogue est en ligne.
+        'demo_url' => env('GP_CATALOG_DEMO_URL', 'https://geniuspress.site/catalogue'),
+        // Taille maximale d'un modèle téléchargé (octets).
+        'max_bytes' => 50 * 1024 * 1024,
     ],
 
     'ai' => [

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogDemoController;
@@ -59,6 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::post('/ai/pages/{page}/generate', [AiController::class, 'generate'])->name('ai.generate');
         Route::post('/ai/pages/{page}/translate', [AiController::class, 'translate'])->name('ai.translate');
         Route::post('/ai/pages/{page}/audit', [AiController::class, 'audit'])->name('ai.audit');
+        Route::post('/ai/pages/{page}/fill', [AiController::class, 'fill'])->middleware('can:admin')->name('ai.fill');
     });
 
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
@@ -69,6 +71,11 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
+        Route::post('/templates/recommend', [TemplateController::class, 'recommend'])->middleware('throttle:ai')->name('templates.recommend');
+        Route::post('/templates/{template}/install', [TemplateController::class, 'install'])->where('template', '[a-z0-9-]{2,60}')->name('templates.install');
+        Route::get('/templates/fill', [TemplateController::class, 'fill'])->name('templates.fill');
 
         Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');

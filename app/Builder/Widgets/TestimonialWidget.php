@@ -28,6 +28,8 @@ class TestimonialWidget extends Widget
 
     public function translatable(): array { return ['text', 'role']; }
 
+    public function fillable(): array { return ['text', 'name', 'role']; }
+
     public function aiExcluded(): array { return ['url', 'media_id']; }
 
     public function aiHint(): ?string

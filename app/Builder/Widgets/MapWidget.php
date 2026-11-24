@@ -24,6 +24,8 @@ class MapWidget extends Widget
 
     public function aiExcluded(): array { return ['address']; }
 
+    public function fillable(): array { return ['address']; }
+
     public static function embedUrl(string $address, int $zoom): string
     {
         return 'https://maps.google.com/maps?q='.rawurlencode($address).'&z='.$zoom.'&output=embed';
