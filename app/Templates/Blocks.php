@@ -229,7 +229,7 @@ final class Blocks
     {
         $info = K::col([
             self::title(['eyebrow' => $d['eyebrow'] ?? null, 'title' => $d['title'], 'intro' => $d['intro'] ?? null], 'left'),
-            K::w('icon-list', ['items' => array_map(fn ($i) => ['icon' => 'lucide:'.$i[0], 'text' => $i[1], 'url' => $i[2] ?? null], $d['items']), 'icon_color' => 'global:primary', 'icon_size' => 22, 'gap' => 16]),
+            K::w('icon-list', ['items' => array_map(fn ($i) => array_filter(['icon' => 'lucide:'.$i[0], 'text' => $i[1], 'url' => $i[2] ?? null]), $d['items']), 'icon_color' => 'global:primary', 'icon_size' => 22, 'gap' => 16]),
             ! empty($d['social']) ? K::w('social-icons', ['items' => array_map(fn ($s) => ['icon' => 'brand:'.$s, 'url' => 'https://'], $d['social']), 'shape' => 'circle', 'size' => 18]) : null,
         ], '42%', ['gap' => 24]);
         $form = K::col([K::w('contact-form', [

@@ -21,14 +21,39 @@ class TemplateCatalogTest extends TestCase
 
     private string $catalog;
 
+    /** Le catalogue (60 modèles) n'est construit qu'une fois pour toute la classe. */
+    private static ?string $built = null;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutVite();
         Storage::fake('public');
         User::create(['name' => 'Admin', 'email' => 'admin@test.local', 'password' => 'secret-password-1', 'role' => 'admin']);
-        $this->catalog = $this->sandbox.'/catalog';
-        $this->artisan('geniuspress:templates', ['--output' => $this->catalog])->assertSuccessful();
+        if (self::$built === null) {
+            self::$built = sys_get_temp_dir().'/gp-catalog-test-'.getmypid();
+            $this->artisan('geniuspress:templates', ['--output' => self::$built])->assertSuccessful();
+        }
+        $this->catalog = self::$built;
+    }
+
+    public function test_every_palette_is_readable(): void
+    {
+        $luminance = function (string $hex) {
+            $c = array_map(fn ($x) => hexdec($x) / 255, str_split(ltrim($hex, '#'), 2));
+            $c = array_map(fn ($v) => $v <= 0.03928 ? $v / 12.92 : (($v + 0.055) / 1.055) ** 2.4, $c);
+
+            return 0.2126 * $c[0] + 0.7152 * $c[1] + 0.0722 * $c[2];
+        };
+        $ratio = fn ($a, $b) => (max($luminance($a), $luminance($b)) + 0.05) / (min($luminance($a), $luminance($b)) + 0.05);
+
+        foreach (require base_path('templates/catalog.php') as $id => $def) {
+            $c = $def['theme']->colors;
+            // WCAG AA : texte blanc sur la couleur principale, texte foncé sur l'accent, texte secondaire sur fond clair.
+            $this->assertGreaterThanOrEqual(4.5, $ratio($c['primary'], '#ffffff'), "{$id} : texte blanc sur la couleur principale");
+            $this->assertGreaterThanOrEqual(4.5, $ratio($c['accent'], $c['secondary']), "{$id} : texte foncé sur l’accent");
+            $this->assertGreaterThanOrEqual(4.5, $ratio($c['muted'], $c['light']), "{$id} : texte secondaire sur fond clair");
+        }
     }
 
     private function zipJson(string $id, string $file): array

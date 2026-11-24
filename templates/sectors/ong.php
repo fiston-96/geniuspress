@@ -184,17 +184,17 @@ return [
                 B::donate($theme, [
                     'eyebrow' => $T('Campagne en cours', 'Current campaign'),
                     'title' => $T('Une rentrée scolaire pour 500 enfants', 'Back to school for 500 children'),
-                    'text' => $T('Avec 25 $, un enfant reçoit son kit scolaire complet. Avec 100 $, une classe entière est équipée en manuels.', 'With $25, a child receives a full school kit. With $100, a whole class gets textbooks.'),
+                    'text' => $T('Avec 25 $, un enfant reçoit son kit scolaire complet. Avec 100 $, une classe entière est équipée en manuels.', 'With $25, a child receives a full school kit. With $100, a whole class gets textbooks.'),
                     'goal' => $T('Objectif atteint', 'Goal reached'), 'percent' => 68,
-                    'amounts' => ['10 $', '25 $', '50 $', '100 $'],
+                    'amounts' => ['10 $', '25 $', '50 $', '100 $'],
                     'button' => $T('Je fais un don', 'I donate'), 'url' => $contact,
                     'photo' => ['ong-don', 'gift', $T('Enfant recevant un kit scolaire', 'Child receiving a school kit')],
                     'bg' => 'white',
                 ]),
                 B::pillars($theme, ['title' => $T('Ce que permet votre don', 'What your gift makes possible'), 'bg' => 'light', 'items' => [
-                    ['book-open', '25 $', $T('Un kit scolaire complet pour un enfant.', 'A full school kit for one child.')],
-                    ['droplet', '150 $', $T('L’entretien d’un point d’eau pendant un an.', 'Maintaining a water point for a year.')],
-                    ['stethoscope', '500 $', $T('Une journée de clinique mobile pour un village.', 'A mobile clinic day for a village.')],
+                    ['book-open', '25 $', $T('Un kit scolaire complet pour un enfant.', 'A full school kit for one child.')],
+                    ['droplet', '150 $', $T('L’entretien d’un point d’eau pendant un an.', 'Maintaining a water point for a year.')],
+                    ['stethoscope', '500 $', $T('Une journée de clinique mobile pour un village.', 'A mobile clinic day for a village.')],
                 ]]),
                 B::faq($theme, ['title' => $T('Vos questions sur les dons', 'Your questions about donations'), 'items' => [
                     [$T('Comment donner ?', 'How can I give?'), $T('Par Mobile Money, virement bancaire ou carte. Contactez-nous pour recevoir les coordonnées.', 'By Mobile Money, bank transfer or card. Contact us to receive the details.')],
