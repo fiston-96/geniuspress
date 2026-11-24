@@ -12,6 +12,6 @@
         @endif
     </div>
     @if ($nav['footer']['credit'])
-        <p class="gp-site-footer__credit">{!! __('Propulsé par :name', ['name' => '<a href="https://geniuspress.site">GeniusPress</a>'], $page->locale) !!}</p>
+        <p class="gp-site-footer__credit">{!! __('Propulsé par :name', ['name' => '<a href="https://geniuspress.site">GeniusPress</a>'], $site->locale) !!}</p>
     @endif
 </footer>

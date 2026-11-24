@@ -4,7 +4,9 @@ namespace App\Site;
 
 use App\Builder\ContentSanitizer;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Setting;
+use App\Models\Term;
 use Illuminate\Support\Str;
 
 /**
@@ -39,8 +41,14 @@ class Navigation
     /** Tout ce qu'il faut pour afficher l'en-tête et le pied de page d'une page. */
     public static function forPage(Page $page): array
     {
+        return self::forContext(SiteContext::forPage($page));
+    }
+
+    /** En-tête et pied de page pour ce que regarde le visiteur (page, article, archive…). */
+    public static function forContext(SiteContext $site): array
+    {
         $nav = self::all();
-        $l = $nav['locales'][$page->locale] ?? [];
+        $l = $nav['locales'][$site->locale] ?? [];
 
         return [
             'header' => $nav['header'],
@@ -50,8 +58,8 @@ class Navigation
             'cta_url' => $l['cta_url'] ?? $nav['header']['cta_url'],
             'footer_text' => $l['footer_text'] ?? null,
             'footer_links' => $l['footer_links'] ?? [],
-            'home_url' => self::homeUrl($page->locale),
-            'languages' => self::languages($page),
+            'home_url' => self::homeUrl($site->locale),
+            'languages' => self::languages($site),
         ];
     }
 
@@ -106,25 +114,36 @@ class Navigation
         return url($locale === $default ? '/' : $locale);
     }
 
-    /** Liens vers la même page dans les autres langues (ou leur page d'accueil). */
-    private static function languages(Page $page): array
+    /** Liens vers le même contenu dans les autres langues (ou leur page d'accueil). */
+    private static function languages(SiteContext $site): array
     {
         $locales = (array) Setting::read('locales', ['fr']);
         if (count($locales) < 2) {
             return [];
         }
-        $translations = Page::query()->published()->where('translation_group', $page->translation_group)->get()->keyBy('locale');
+        // Traductions du contenu affiché : même groupe de traduction (page, article, catégorie).
+        $translations = match (true) {
+            $site->page !== null => Page::query()->published()->where('translation_group', $site->page->translation_group)->get()->keyBy('locale'),
+            $site->post !== null => Post::query()->published()->where('translation_group', $site->post->translation_group)->get()->keyBy('locale'),
+            $site->term !== null => Term::query()->where('translation_group', $site->term->translation_group)->get()->keyBy('locale'),
+            default => collect(),
+        };
         $names = \App\Http\Controllers\Admin\SettingController::AVAILABLE_LOCALES;
 
         $out = [];
         foreach ($locales as $locale) {
             $target = $translations[$locale] ?? null;
+            $url = match (true) {
+                $target !== null => $target->url(),
+                $site->kind === SiteContext::BLOG => Permalinks::blog($locale),
+                default => self::homeUrl($locale),
+            };
             $out[] = [
                 'code' => $locale,
                 'name' => $names[$locale] ?? $locale,
-                'url' => $target ? $target->url() : self::homeUrl($locale),
-                'current' => $locale === $page->locale,
-                'translated' => $target !== null,
+                'url' => $url,
+                'current' => $locale === $site->locale,
+                'translated' => $target !== null || $site->kind === SiteContext::BLOG,
             ];
         }
 

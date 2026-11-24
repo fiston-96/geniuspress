@@ -13,9 +13,11 @@
     $nav = [
         ['admin.dashboard', __('Tableau de bord'), 'M3 12l9-9 9 9M5 10v10h14V10'],
         ['admin.pages.index', __('Pages'), 'M7 3h7l5 5v13H7zM14 3v5h5'],
+        ['admin.posts.index', __('Articles'), 'M4 4h16v16H4zM8 8h8M8 12h8M8 16h5'],
         ['admin.media.index', __('Médias'), 'M4 5h16v14H4zM4 15l4-4 5 5 3-3 4 4'],
     ];
     if (auth()->user()->isAdmin()) {
+        $nav[] = ['admin.layouts.index', __('Thème'), 'M3 4h18v4H3zM3 10h5v10H3zM10 10h11v10H10z'];
         $nav[] = ['admin.templates.index', __('Modèles'), 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z'];
         $nav[] = ['admin.messages.index', __('Messages'), 'M4 4h16v12H5.2L4 17.2zM8 9h8M8 12h5'];
         $nav[] = ['admin.appearance.edit', __('Apparence'), 'M4 5h16v4H4zM4 13h7v6H4zM15 13h5v6h-5z'];

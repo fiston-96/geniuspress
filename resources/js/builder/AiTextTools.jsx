@@ -46,7 +46,7 @@ export default function AiTextTools({ boot, widget }) {
         try {
             const r = await api(boot.urls.aiText, {
                 method: 'POST',
-                body: { action, format: field.format, text: current, instructions, context: pageContext(widget.id), page_id: boot.page.id },
+                body: { action, format: field.format, text: current, instructions, context: pageContext(widget.id), page_id: (boot.document ?? 'page') === 'page' ? boot.page.id : null },
             });
             commit(updateSettings(getState().content, widget.id, { [field.key]: r.text }));
             toast(t('Texte mis à jour. Ctrl+Z pour revenir en arrière.'), 'success');

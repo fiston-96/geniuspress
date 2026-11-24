@@ -31,11 +31,12 @@ export function NotConfigured({ boot }) {
 
 export default function AiPanel({ boot }) {
     if (!boot.ai.configured) return <NotConfigured boot={boot} />;
+    // Génération, audit et traduction existent pour les pages ; ailleurs (articles, gabarits),
+    // l'assistant de rédaction reste disponible sur chaque texte.
+    const tools = [boot.urls.aiGenerate && <Generate key="g" boot={boot} />, boot.urls.aiAudit && <Audit key="a" boot={boot} />, boot.urls.aiTranslate && <Translate key="t" boot={boot} />].filter(Boolean);
     return (
         <div className="space-y-4 p-4">
-            <Generate boot={boot} />
-            <Audit boot={boot} />
-            <Translate boot={boot} />
+            {tools.length ? tools : <p className="text-sm text-slate-600">{t('Sélectionnez un texte ou un titre : le bouton ✨ de ses réglages vous aide à rédiger, améliorer ou traduire.')}</p>}
         </div>
     );
 }

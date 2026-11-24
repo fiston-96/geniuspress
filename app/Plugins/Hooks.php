@@ -9,8 +9,10 @@ use Throwable;
  *
  *  - Événements : Hooks::listen('page.published', fn (Page $page) => …);
  *                 Hooks::dispatch('page.published', $page);
- *  - Filtres    : Hooks::addFilter('page.head', fn (string $html, Page $page) => $html.'…');
- *                 $html = Hooks::filter('page.head', '', $page);
+ *  - Filtres    : Hooks::addFilter('page.head', fn (string $html, ?Page $page, SiteContext $site) => $html.'…');
+ *                 $html = Hooks::filter('page.head', '', $page, $site);
+ *                 (« page.head » et « page.body_end » s'appliquent à tout le site public : $page est
+ *                 null sur un article, une archive, la recherche ou la page introuvable.)
  *
  * Une fonction de plugin qui lève une exception est ignorée (et journalisée)
  * pour ne jamais casser le site.

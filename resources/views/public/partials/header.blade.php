@@ -24,9 +24,9 @@
 
         @if ($nav['menu'] || $nav['languages'] || ($nav['cta_label'] && $nav['cta_url']))
             <input type="checkbox" id="gp-nav-toggle" class="gp-nav-toggle">
-            <label for="gp-nav-toggle" class="gp-nav-burger" aria-label="{{ __('Ouvrir le menu', [], $page->locale) }}"><span></span></label>
+            <label for="gp-nav-toggle" class="gp-nav-burger" aria-label="{{ __('Ouvrir le menu', [], $site->locale) }}"><span></span></label>
 
-            <nav class="gp-site-nav" aria-label="{{ __('Menu principal', [], $page->locale) }}">
+            <nav class="gp-site-nav" aria-label="{{ __('Menu principal', [], $site->locale) }}">
                 @if ($nav['menu'])
                     <ul class="gp-site-menu">
                         @foreach ($nav['menu'] as $link)
@@ -35,7 +35,7 @@
                     </ul>
                 @endif
                 @if ($nav['languages'])
-                    <ul class="gp-site-langs" aria-label="{{ __('Langue', [], $page->locale) }}">
+                    <ul class="gp-site-langs" aria-label="{{ __('Langue', [], $site->locale) }}">
                         @foreach ($nav['languages'] as $lang)
                             <li><a href="{{ $lang['url'] }}" hreflang="{{ $lang['code'] }}" lang="{{ $lang['code'] }}" title="{{ $lang['name'] }}"@if ($lang['current']) aria-current="true"@endif>{{ strtoupper($lang['code']) }}</a></li>
                         @endforeach

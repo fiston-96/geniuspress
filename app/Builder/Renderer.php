@@ -4,6 +4,7 @@ namespace App\Builder;
 
 use App\Models\Media;
 use App\Plugins\Hooks;
+use App\Site\SiteContext;
 use Throwable;
 
 /**
@@ -16,11 +17,11 @@ class Renderer
     public function __construct(private ContentSanitizer $sanitizer, private WidgetRegistry $widgets) {}
 
     /** @return array{html: string, css: string, fonts: string[]} */
-    public function render(mixed $content, ?int $pageId = null): array
+    public function render(mixed $content, ?int $pageId = null, ?SiteContext $site = null): array
     {
         $tree = $this->sanitizer->sanitize($content);
         $tree = Hooks::filter('page.content', $tree);
-        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []), $pageId);
+        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []), $pageId, $site);
 
         $html = $this->children($tree['elements'] ?? [], null, 0, $ctx);
 

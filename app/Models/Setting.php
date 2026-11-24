@@ -25,6 +25,8 @@ class Setting extends Model
         'custom_colors' => [],
         'locales' => ['fr'],
         'organization_description' => '',
+        // Blog : adresse et titre par langue ({fr: {base: 'actualites', title: 'Actualités'}}), articles par page.
+        'blog' => ['locales' => [], 'per_page' => 9],
         'forms_email' => null,
         'anthropic_api_key' => null,
         'anthropic_api_key_hint' => null,

@@ -62,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EnvironmentFile::class, fn () => new EnvironmentFile(config('geniuspress.env_path') ?? $this->app->environmentFilePath()));
         $this->app->singleton(InstallState::class, fn ($app) => new InstallState(config('geniuspress.install_lock'), $app->make(EnvironmentFile::class)));
 
+        // Gabarits du thème : chargés une fois par requête.
+        $this->app->scoped(\App\Site\ThemeLayouts::class);
         $this->app->singleton(PluginManager::class, fn () => new PluginManager(config('geniuspress.plugins_path')));
     }
 

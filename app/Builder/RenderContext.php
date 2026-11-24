@@ -3,6 +3,7 @@
 namespace App\Builder;
 
 use App\Models\Media;
+use App\Site\SiteContext;
 
 /**
  * Contexte passé aux widgets pendant le rendu : collecte du CSS (par appareil),
@@ -17,11 +18,26 @@ class RenderContext
     /** @var array<string, true> */
     private array $fonts = [];
 
+    /** @var string[] CSS déjà assemblé (contenu d'un article inclus dans un gabarit) */
+    private array $embedded = [];
+
     /**
      * @param  array<int, Media>  $media
      * @param  int|null  $pageId  page rendue (pour les formulaires), null dans un aperçu sans page
+     * @param  SiteContext|null  $site  ce que regarde le visiteur (article, archive…), pour les widgets dynamiques
      */
-    public function __construct(private array $media = [], public readonly ?int $pageId = null) {}
+    public function __construct(private array $media = [], public readonly ?int $pageId = null, public readonly ?SiteContext $site = null) {}
+
+    /** Ajoute le résultat d'un autre rendu (CSS et polices), par exemple le contenu d'un article. */
+    public function embed(array $rendered): void
+    {
+        if (($rendered['css'] ?? '') !== '') {
+            $this->embedded[] = $rendered['css'];
+        }
+        foreach ($rendered['fonts'] ?? [] as $font) {
+            $this->fonts[$font] = true;
+        }
+    }
 
     /**
      * Ajoute une règle CSS pour l'élément #gp-{id}{suffixe}.
