@@ -30,6 +30,14 @@ class Setting extends Model
         'anthropic_api_key_hint' => null,
     ];
 
+    /** Valeurs remplacées le temps d'une requête (démonstration d'un modèle du catalogue). */
+    private static array $overrides = [];
+
+    public static function override(array $values): void
+    {
+        self::$overrides = $values;
+    }
+
     /** Réglages qui ne doivent jamais être envoyés au navigateur. */
     public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint', 'forms_email'];
 
@@ -43,14 +51,16 @@ class Setting extends Model
         return ['value' => 'json'];
     }
 
-    /** Tous les réglages, fusionnés avec les valeurs par défaut. */
+    /** Tous les réglages, fusionnés avec les valeurs par défaut (et les remplacements de la requête). */
     public static function allValues(): array
     {
-        return Cache::rememberForever('settings', function () {
+        $values = Cache::rememberForever('settings', function () {
             $stored = static::query()->pluck('value', 'key')->all();
 
             return array_merge(self::DEFAULTS, $stored);
         });
+
+        return self::$overrides ? array_merge($values, self::$overrides) : $values;
     }
 
     public static function read(string $key, mixed $default = null): mixed

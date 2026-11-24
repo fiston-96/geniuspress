@@ -134,9 +134,14 @@ export const shadowCss = (v) => `${v.inset ? 'inset ' : ''}${v.x ?? 0}px ${v.y ?
 const round2 = (n) => Math.round(n * 100) / 100;
 
 function basis(width, parent, device) {
-    const count = parent.children?.length ?? 0;
+    let count = parent.children?.length ?? 0;
     const gap = parseInt(at(parent.settings, 'gap', device) ?? 20, 10);
     if (!String(width).endsWith('%') || count < 2 || gap === 0) return width;
+    // Grille sur plusieurs rangées (miroir de ElementStyle::basis).
+    if ((at(parent.settings, 'wrap', device) ?? 'nowrap') === 'wrap') {
+        count = Math.max(1, Math.round(100 / Math.max(1, parseFloat(width))));
+        if (count < 2) return width;
+    }
     return `calc(${width} - ${round2((gap * (count - 1)) / count)}px)`;
 }
 

@@ -44,8 +44,19 @@ class IconBoxWidget extends Widget
     public function render(array $s, string $id, RenderContext $ctx): string
     {
         IconWidget::iconCss($ctx, $id, $s, '', 'icon_', 40);
-        $ctx->rule($id, ['text-align' => $s['align'] ?? (($s['position'] ?? 'top') === 'top' ? 'center' : null)]);
+        $top = ($s['position'] ?? 'top') === 'top';
+        $ctx->rule($id, ['text-align' => $s['align'] ?? ($top ? 'center' : null)]);
         $ctx->responsive($id, array_diff_key($s, ['align' => 1]), 'align', fn ($v) => ['text-align' => $v]);
+        // Icône au-dessus du texte : elle suit l'alignement sans s'étirer sur toute la largeur.
+        if ($top) {
+            $self = ['left' => 'flex-start', 'center' => 'center', 'right' => 'flex-end'];
+            $ctx->rule($id, ['align-self' => $self[$s['align'] ?? 'center']], false, ' .gp-ibox__icon');
+            foreach (['tablet', 'mobile'] as $device) {
+                if (isset($s['align_'.$device])) {
+                    $ctx->rule($id, ['align-self' => $self[$s['align_'.$device]]], $device, ' .gp-ibox__icon');
+                }
+            }
+        }
         $ctx->rule($id, ['color' => $s['title_color'] ?? null], false, ' .gp-ibox__title');
         $ctx->responsive($id, $s, 'title_size', fn ($v) => ['font-size' => $v.'px'], ' .gp-ibox__title');
         $ctx->rule($id, ['color' => $s['text_color'] ?? null], false, ' .gp-ibox__text');

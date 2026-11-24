@@ -197,6 +197,13 @@ class ElementStyle
         if (! str_ends_with($width, '%') || $count < 2 || $gap === 0) {
             return $width;
         }
+        // Grille sur plusieurs rangées : l'espace se répartit entre les éléments d'une même rangée.
+        if ((self::at($parent['settings'], 'wrap', $device) ?? 'nowrap') === 'wrap') {
+            $count = max(1, (int) round(100 / max(1, (float) $width)));
+            if ($count < 2) {
+                return $width;
+            }
+        }
         $share = round($gap * ($count - 1) / $count, 2);
 
         return "calc({$width} - {$share}px)";

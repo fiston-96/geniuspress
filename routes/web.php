@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CatalogDemoController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\PluginAssetController;
@@ -85,6 +86,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::post('/plugins/{slug}/deactivate', [PluginController::class, 'deactivate'])->name('plugins.deactivate');
     });
 });
+
+// Démonstrations des modèles du catalogue (en local, et sur geniuspress.site)
+Route::get('/catalogue/{template}/media/{file}', [CatalogDemoController::class, 'media'])->name('catalog.media');
+Route::get('/catalogue/{template}/{path?}', [CatalogDemoController::class, 'show'])->where('path', '.*')->name('catalog.demo');
 
 // Formulaires de contact du site public
 Route::post('/formulaire', [FormController::class, 'submit'])->middleware('throttle:forms')->name('forms.submit');

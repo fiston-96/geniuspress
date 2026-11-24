@@ -39,7 +39,7 @@ class Page extends Model
     }
 
     /** Premiers segments d'adresse réservés au fonctionnement de GeniusPress. */
-    public const RESERVED_SLUGS = ['admin', 'install', 'storage', 'build', 'up', 'plugins', 'plugin-assets', 'brand'];
+    public const RESERVED_SLUGS = ['admin', 'install', 'storage', 'build', 'up', 'plugins', 'plugin-assets', 'brand', 'catalogue', 'formulaire'];
 
     /**
      * Normalise une adresse de page : « Documentation / Installation » → « documentation/installation ».

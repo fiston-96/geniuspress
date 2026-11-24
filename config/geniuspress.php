@@ -21,6 +21,16 @@ return [
     // Dossier des plugins.
     'plugins_path' => env('GP_PLUGINS_PATH', base_path('plugins')),
 
+    // Catalogue des modèles de sites (voir app/Templates et templates/).
+    'catalog' => [
+        // Adresse du catalogue en ligne consulté par les sites GeniusPress.
+        'url' => env('GP_CATALOG_URL', 'https://geniuspress.site/catalogue/v1'),
+        // Dossier où « geniuspress:templates » construit le catalogue, servi par geniuspress.site.
+        'path' => env('GP_CATALOG_PATH', base_path('dist/catalog/v1')),
+        // Démonstrations en ligne des modèles sur /catalogue/{modèle} (toujours actives en local).
+        'demos' => (bool) env('GP_CATALOG_DEMOS', false),
+    ],
+
     'ai' => [
         // Modèle Claude utilisé par l'assistant.
         'model' => env('GP_AI_MODEL', 'claude-opus-5-5'),

@@ -65,8 +65,14 @@ export const LIBRARY_IMPL = {
         },
         css: (o, h) => {
             iconCss(o, h, '', 'icon_', 40);
-            h.rule(h.sel, { 'text-align': o.align ?? ((o.position ?? 'top') === 'top' ? 'center' : null) });
+            const top = (o.position ?? 'top') === 'top';
+            h.rule(h.sel, { 'text-align': o.align ?? (top ? 'center' : null) });
             smallAlign(o, h, h.sel, (v) => ({ 'text-align': v }));
+            // Miroir de IconBoxWidget : l'icône suit l'alignement sans s'étirer.
+            if (top) {
+                h.rule(`${h.sel} .gp-ibox__icon`, { 'align-self': JUSTIFY[o.align ?? 'center'] });
+                smallAlign(o, h, `${h.sel} .gp-ibox__icon`, (v) => ({ 'align-self': JUSTIFY[v] }));
+            }
             h.rule(`${h.sel} .gp-ibox__title`, { color: o.title_color });
             h.responsive('title_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-ibox__title');
             h.rule(`${h.sel} .gp-ibox__text`, { color: o.text_color });
