@@ -42,28 +42,13 @@ Chaque essai a **son propre nom d'hôte** : `{essai}.{domaine des essais}`. Une 
 
 - **En local** : `GP_HOSTING_DOMAIN=localhost`, `GP_HOSTING_SCHEME=http`, `GP_HOSTING_PORT=8000` → `http://cooperative.localhost:8000` (les navigateurs résolvent `*.localhost` sans configuration).
 - **Avec un nom de domaine** (cible) : un enregistrement DNS générique `*.essai.{domaine}` vers le VPS, un certificat générique `*.essai.{domaine}` (Let's Encrypt, défi DNS-01), un bloc Nginx `server_name *.essai.{domaine}`. Les essais devenus payants pourront rattacher leur propre domaine (index `hosts/`).
-- **En attendant, avec `vps127199.serveur-vps.net`** : on ne peut pas créer de sous-domaines de `serveur-vps.net` (domaine de LWS). Deux solutions :
-  1. un DNS générique public gratuit comme `sslip.io` : `cooperative.{ip-du-vps}.sslip.io` arrive sur le VPS sans rien configurer ; `GP_HOSTING_DOMAIN={ip-avec-tirets}.sslip.io`. Certificat Let's Encrypt par essai (défi HTTP-01, demandé à la création). Pratique pour tester, mais on dépend d'un service tiers et des limites de Let's Encrypt : à réserver aux essais internes ;
-  2. acheter dès maintenant le domaine de la plateforme (nous comptons de toute façon vendre des noms de domaine).
+- **En attendant (choix retenu pour tester)** : on ne peut pas créer de sous-domaines de `serveur-vps.net` (domaine de LWS). Les essais utilisent `sslip.io`, un DNS public gratuit : `cooperative.78-24-248-103.sslip.io` arrive sur le VPS (78.24.248.103) sans rien configurer. Pas de certificat générique possible (le DNS n'est pas à nous) : un certificat Let's Encrypt par essai (défi HTTP-01), obtenu dans la minute par `scripts/hosting/certificats-essais.sh` ; la plateforme ne propose le site qu'une fois son certificat prêt (`GP_HOSTING_CERTIFICATES=per-site`). Voir « Mise en place de test sur le VPS » (§ 8).
+  - Limites (vérifiées en novembre 2026) : `sslip.io` n'est pas dans la Public Suffix List, donc Let's Encrypt compte ensemble tous les certificats `*.sslip.io` de tous ses utilisateurs. Leur plafond hebdomadaire a été relevé (3 000 en 2021, puis 200 000 en mars 2026 après avoir été épuisé en février 2026 — ticket cunnie/sslip.io#108). Si le plafond est atteint, la création du certificat échoue et le site reste « en sécurisation » : acceptable pour tester, pas pour la production. On dépend aussi de la disponibilité du DNS de sslip.io.
+  - Pour la production : acheter le domaine des essais (nous comptons de toute façon vendre des noms de domaine) et passer à un certificat générique.
 
 Recommandation : les essais sur un domaine **distinct** de celui de la plateforme où se trouvent les comptes et les paiements (comme `github.io` pour `github.com`), ou au minimum sur un sous-domaine dédié (`*.essai.{domaine}`), pour qu'un site d'essai ne puisse jamais poser de cookie sur la plateforme.
 
-Nginx, pour un domaine (à faire par l'exploitant, pas par cette branche) :
-
-```nginx
-map $host $gp_site { default ""; ~^(?<s>[a-z0-9-]+)\.essai\.exemple\.org$ $s; }
-server {
-    listen 443 ssl; server_name *.essai.exemple.org;
-    ssl_certificate /etc/letsencrypt/live/essai.exemple.org/fullchain.pem;  # certificat générique
-    root /var/www/geniuspress/public;
-    # Médias de chaque essai, servis sans PHP.
-    location /storage/ { alias /var/www/geniuspress/storage/hosting/sites/$gp_site/storage/app/public/; }
-    location / { try_files $uri /index.php?$query_string; }
-    location ~ \.php$ { include fastcgi_params; fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; fastcgi_pass unix:/run/php/php8.3-fpm.sock; }
-}
-```
-
-Sans cette règle `/storage/`, Laravel sert lui-même les médias d'un essai (route de secours, plus lente).
+Nginx : [`scripts/hosting/nginx-essais.conf`](../../scripts/hosting/nginx-essais.conf) (à installer par l'exploitant) — adresses d'essai, certificat choisi d'après l'adresse, médias de chaque essai servis sans PHP depuis son dossier. Avec un vrai domaine et un certificat générique, seuls le domaine et le chemin du certificat changent. Sans la règle `/storage/`, Laravel sert lui-même les médias d'un essai (plus lent).
 
 ## 3. Durée et limites
 
@@ -121,7 +106,7 @@ GP_SITE=cooperative php artisan …        # n'importe quelle commande dans le c
 
 Le planificateur Laravel doit tourner (`* * * * * php artisan schedule:run` dans la crontab de l'utilisateur du site).
 
-Variables (`.env` de la plateforme) : `GP_HOSTING_ENABLED`, `GP_HOSTING_DOMAIN`, `GP_HOSTING_SCHEME`, `GP_HOSTING_PORT`, `GP_HOSTING_DB` (`mysql` ou `sqlite`), `GP_HOSTING_DB_HOST`, `GP_HOSTING_DB_PORT`, `GP_HOSTING_DB_USERNAME`, `GP_HOSTING_DB_PASSWORD`, `GP_HOSTING_AI_KEY`, `GP_HOSTING_MAX_SITES`. Le dossier des essais (`storage/hosting` par défaut) se change avec la variable d'environnement du serveur `GP_HOSTING_PATH` (lue avant le `.env`, donc à déclarer dans PHP-FPM et la crontab, pas dans `.env`). Ne jamais définir `DB_*` dans l'environnement du serveur : ces valeurs l'emporteraient sur le `.env` de chaque essai.
+Variables (`.env` de la plateforme) : `GP_HOSTING_ENABLED`, `GP_HOSTING_DOMAIN`, `GP_HOSTING_SCHEME`, `GP_HOSTING_PORT`, `GP_HOSTING_CERTIFICATES` (`wildcard` ou `per-site`), `GP_HOSTING_DB` (`mysql` ou `sqlite`), `GP_HOSTING_DB_HOST`, `GP_HOSTING_DB_PORT`, `GP_HOSTING_DB_USERNAME`, `GP_HOSTING_DB_PASSWORD`, `GP_HOSTING_AI_KEY`, `GP_HOSTING_MAX_SITES`. Le dossier des essais (`storage/hosting` par défaut) se change avec la variable d'environnement du serveur `GP_HOSTING_PATH` (lue avant le `.env`, donc à déclarer dans PHP-FPM et la crontab, pas dans `.env`). Ne jamais définir `DB_*` dans l'environnement du serveur : ces valeurs l'emporteraient sur le `.env` de chaque essai.
 
 Événements pour la plateforme : `SiteProvisioned`, `TrialExpired`, `SiteDeleted` (`App\Hosting\Events`) — par exemple pour envoyer un e-mail.
 
@@ -140,10 +125,41 @@ interface HostingAccounts
 
 Implémentation provisoire : `LocalHostingAccounts` (tout compte connecté de ce site a droit à un essai, offre d'essai de `config/hosting.php`, pas de page d'offres). La plateforme la remplace dans son fournisseur de services : `$this->app->bind(HostingAccounts::class, PlatformHostingAccounts::class)`. Les routes de l'essai utilisent le middleware `config('hosting.middleware')` (`web` + `auth` par défaut), à adapter au garde des comptes plateforme.
 
-## 8. Questions ouvertes (hébergement réel)
+## 8. Mise en place de test sur le VPS (sslip.io)
 
-1. Nom de domaine des essais : `sslip.io` en attendant, ou achat immédiat d'un domaine ? Domaine distinct de celui de la plateforme ?
-2. Certificat générique (défi DNS-01 : il faut un accès à l'API DNS du registraire) ou un certificat par essai (défi HTTP-01, limité à 50 par semaine et par domaine chez Let's Encrypt) ?
-3. Taille du disque du VPS, pour fixer le nombre d'essais simultanés et le quota de médias.
-4. Un utilisateur MySQL dédié au provisionnement (droits `CREATE`, `DROP`, `CREATE USER`, `GRANT OPTION`) sur le VPS.
-5. Crontab du planificateur et, si on le souhaite, un `php artisan queue:work` en service pour créer les essais hors de la requête.
+À faire par l'exploitant, en root, dans `/var/www/geniuspress` après déploiement de cette branche. Rien de tout cela n'a été fait sur le serveur.
+
+1. **Utilisateur MySQL de provisionnement**, limité aux bases `gpe_…` :
+   ```sql
+   CREATE USER 'gp_provision'@'localhost' IDENTIFIED BY 'mot-de-passe-long-et-aléatoire';
+   GRANT ALL PRIVILEGES ON `gpe\_%`.* TO 'gp_provision'@'localhost' WITH GRANT OPTION;
+   GRANT CREATE USER ON *.* TO 'gp_provision'@'localhost';
+   ```
+2. **`.env` de la plateforme** :
+   ```dotenv
+   GP_HOSTING_ENABLED=true
+   GP_HOSTING_DOMAIN=78-24-248-103.sslip.io
+   GP_HOSTING_SCHEME=https
+   GP_HOSTING_CERTIFICATES=per-site
+   GP_HOSTING_DB=mysql
+   GP_HOSTING_DB_HOST=localhost        # socket : correspond aux utilisateurs 'gpe_…'@'localhost'
+   GP_HOSTING_DB_USERNAME=gp_provision
+   GP_HOSTING_DB_PASSWORD=…
+   GP_HOSTING_AI_KEY=…                 # clé Anthropic de la plateforme pour l'IA des essais
+   GP_HOSTING_MAX_SITES=20             # prudent pour la phase de test
+   ```
+   puis `php artisan migrate --force` et `php artisan config:clear`.
+3. **Nginx** : installer `scripts/hosting/nginx-essais.conf` (instructions en tête du fichier), `nginx -t`, recharger.
+4. **Certificats** : `apt install certbot`, `chmod +x scripts/hosting/certificats-essais.sh`, puis dans la crontab de root :
+   `* * * * * GP_CERT_EMAIL=… /var/www/geniuspress/scripts/hosting/certificats-essais.sh`
+5. **Planificateur** (expiration des essais), dans la crontab de `www-data` :
+   `* * * * * cd /var/www/geniuspress && php artisan schedule:run >> /dev/null 2>&1`
+6. **Essai** : se connecter à la plateforme, ouvrir `/essayer`, créer un site ; la page attend le certificat (environ une minute) puis propose « Ouvrir mon site ». En ligne de commande : `sudo -u www-data php artisan geniuspress:trial list`.
+
+Les commandes `geniuspress:trial` doivent être lancées avec l'utilisateur du site (`www-data`), pour que les dossiers créés lui appartiennent.
+
+## 9. Questions ouvertes (production)
+
+1. Achat du domaine des essais, distinct de celui de la plateforme, et certificat générique (défi DNS-01 : il faut un accès à l'API DNS du registraire).
+2. Taille du disque du VPS, pour fixer le nombre d'essais simultanés et le quota de médias.
+3. Un `php artisan queue:work` en service (`GP_HOSTING_QUEUE=database`) pour créer les essais hors de la requête web.

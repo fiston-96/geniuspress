@@ -88,6 +88,20 @@ class Site extends Model
         return $scheme.'://'.$this->host.($port && ! $default ? ':'.$port : '').($path !== '' ? '/'.ltrim($path, '/') : '');
     }
 
+    /**
+     * Certificat HTTPS propre au site pas encore obtenu. Avec un certificat par site
+     * (GP_HOSTING_CERTIFICATES=per-site, ex. sslip.io), le script des certificats
+     * (scripts/hosting/certificats-essais.sh) dépose un témoin dans {hosting.path}/certs/{hôte}.
+     */
+    public function awaitingCertificate(): bool
+    {
+        if (config('hosting.certificates') !== 'per-site' || ! $this->host) {
+            return false;
+        }
+
+        return ! is_file(config('hosting.path').DIRECTORY_SEPARATOR.'certs'.DIRECTORY_SEPARATOR.$this->host);
+    }
+
     public function directory(): string
     {
         return HostedBootstrap::siteDir((string) config('hosting.path'), (string) $this->slug);

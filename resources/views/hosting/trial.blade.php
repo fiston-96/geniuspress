@@ -1,14 +1,14 @@
 @extends('hosting.layout')
 @section('title', __('Essayer GeniusPress'))
-@if ($status === 'provisioning')
+@if (in_array($status, ['provisioning', 'securing'], true))
     @push('head')
-        {{-- Préparation en cours : la page se recharge quand le site est prêt. --}}
+        {{-- Préparation (ou certificat HTTPS) en cours : la page se recharge quand le site est prêt. --}}
         <script>
             (function poll() {
                 setTimeout(function () {
                     fetch(@json(route('hosting.trial.status')), { headers: { Accept: 'application/json' } })
                         .then(function (r) { return r.json(); })
-                        .then(function (d) { d.status === 'provisioning' ? poll() : location.reload(); })
+                        .then(function (d) { d.status === @json($status) ? poll() : location.reload(); })
                         .catch(poll);
                 }, 2000);
             })();
@@ -54,10 +54,10 @@
     @else
         <p class="mt-2 text-sm text-slate-600">{{ $site->name }} · <span class="font-mono text-slate-500">{{ $site->host ?? '—' }}</span></p>
 
-        @if ($status === 'provisioning')
+        @if (in_array($status, ['provisioning', 'securing'], true))
             <div class="mt-6 flex items-center gap-3 rounded-lg bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
                 <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-                {{ __('Votre site est en préparation…') }}
+                {{ $status === 'securing' ? __('Votre site est prêt ; sécurisation de son adresse (certificat HTTPS), environ une minute…') : __('Votre site est en préparation…') }}
             </div>
         @elseif ($status === 'active')
             <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">

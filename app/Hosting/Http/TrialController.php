@@ -23,7 +23,7 @@ class TrialController extends Controller
 
         return view('hosting.trial', [
             'site' => $site,
-            'status' => $site?->effectiveStatus(),
+            'status' => $this->statusOf($site),
             'refusal' => $site ? null : $this->trials->refusal($user),
             // Dernière tentative échouée (dans l'heure) : on le dit au lieu de réafficher le formulaire sans explication.
             'failed' => ! $site && Site::query()->where('account_id', $this->accounts->accountId($user))
@@ -60,17 +60,25 @@ class TrialController extends Controller
     {
         $site = $this->trials->siteFor($request->user());
 
-        return response()->json(['status' => $site?->effectiveStatus()]);
+        return response()->json(['status' => $this->statusOf($site)]);
     }
 
     /** Connexion en un clic à l'administration du site. */
     public function open(Request $request)
     {
         $site = $this->trials->siteFor($request->user());
-        if (! $site || ! in_array($site->effectiveStatus(), [Site::STATUS_ACTIVE, Site::STATUS_EXPIRED], true)) {
+        if (! $site || ! in_array($this->statusOf($site), [Site::STATUS_ACTIVE, Site::STATUS_EXPIRED], true)) {
             return redirect()->route('hosting.trial')->with('warnings', [__('Ce site n’est pas disponible.')]);
         }
 
         return redirect()->away($this->provisioner->loginUrl($site));
+    }
+
+    /** État affiché : « securing » tant que le certificat HTTPS du site n'est pas prêt. */
+    private function statusOf(?Site $site): ?string
+    {
+        $status = $site?->effectiveStatus();
+
+        return $status === Site::STATUS_ACTIVE && $site->awaitingCertificate() ? 'securing' : $status;
     }
 }

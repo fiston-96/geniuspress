@@ -18,6 +18,11 @@ return [
     'scheme' => env('GP_HOSTING_SCHEME', 'https'),
     'port' => env('GP_HOSTING_PORT'),
 
+    // Certificats HTTPS : « wildcard » (un certificat générique, ou http en local) ou « per-site »
+    // (un certificat par essai, obtenu par scripts/hosting/certificats-essais.sh : le site
+    // n'est proposé qu'une fois son certificat prêt). sslip.io : per-site.
+    'certificates' => env('GP_HOSTING_CERTIFICATES', 'wildcard'),
+
     // Middleware des pages de la plateforme (garde des comptes plateforme).
     'middleware' => ['web', 'auth'],
 

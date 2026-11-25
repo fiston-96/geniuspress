@@ -150,6 +150,26 @@ class HostedTrialTest extends TestCase
         $this->assertSame(1, Site::query()->where('status', '!=', Site::STATUS_DELETED)->count());
     }
 
+    public function test_with_one_certificate_per_site_the_trial_opens_once_its_certificate_is_ready(): void
+    {
+        config(['hosting.certificates' => 'per-site', 'hosting.domain' => '78-24-248-103.sslip.io', 'hosting.scheme' => 'https', 'hosting.port' => null]);
+        $site = Site::create(['slug' => 'cooperative', 'name' => 'Coopérative', 'account_id' => 'user:'.$this->user->id, 'kind' => 'trial', 'status' => Site::STATUS_ACTIVE, 'host' => 'cooperative.78-24-248-103.sslip.io', 'expires_at' => now()->addDays(14)]);
+        File::ensureDirectoryExists($site->directory());
+        app(\App\Hosting\LocalSiteProvisioner::class)->writeManifest($site);
+        $this->actingAs($this->user);
+
+        $this->get(route('hosting.trial'))->assertOk()->assertSee('sécurisation de son adresse')->assertDontSee('Ouvrir mon site');
+        $this->getJson(route('hosting.trial.status'))->assertJson(['status' => 'securing']);
+        $this->get(route('hosting.trial.open'))->assertRedirect(route('hosting.trial'));
+
+        // Témoin déposé par scripts/hosting/certificats-essais.sh.
+        File::ensureDirectoryExists(config('hosting.path').'/certs');
+        touch(config('hosting.path').'/certs/cooperative.78-24-248-103.sslip.io');
+        $this->getJson(route('hosting.trial.status'))->assertJson(['status' => 'active']);
+        $this->get(route('hosting.trial.open'))->assertRedirect();
+        $this->assertStringStartsWith('https://cooperative.78-24-248-103.sslip.io/_essai/connexion?', $this->get(route('hosting.trial.open'))->headers->get('Location'));
+    }
+
     public function test_trial_pages_are_hidden_unless_hosting_is_enabled(): void
     {
         config(['hosting.enabled' => false]);
