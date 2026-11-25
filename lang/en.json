@@ -1363,5 +1363,19 @@
     "Par nom": "By name",
     "Les plus utilisées": "Most used",
     "Nombre maximum": "Maximum number",
-    "Masquer celles sans article": "Hide those without posts"
+    "Masquer celles sans article": "Hide those without posts",
+    "mot de passe actuel": "current password",
+    "Votre profil est enregistré.": "Your profile has been saved.",
+    "nouveau mot de passe": "new password",
+    "Votre mot de passe est modifié.": "Your password has been changed.",
+    "Mon compte": "My account",
+    "Votre nom, votre adresse e-mail de connexion et votre mot de passe.": "Your name, your sign-in email address and your password.",
+    "Profil": "Profile",
+    "C’est l’identifiant pour vous connecter.": "This is the identifier you sign in with.",
+    "Mot de passe actuel": "Current password",
+    "Pour confirmer que c’est bien vous.": "To confirm it is really you.",
+    "Enregistrer le profil": "Save profile",
+    "Nouveau mot de passe": "New password",
+    "Confirmez le nouveau mot de passe": "Confirm the new password",
+    "Changer le mot de passe": "Change password"
 }

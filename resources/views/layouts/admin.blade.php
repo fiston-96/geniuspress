@@ -54,10 +54,10 @@
                 </select>
             </form>
             <div class="flex items-center justify-between">
-                <div class="min-w-0">
+                <a href="{{ route('admin.account.edit') }}" title="{{ __('Mon compte') }}" @class(['-m-1.5 min-w-0 rounded-lg p-1.5 transition hover:bg-slate-100', 'bg-indigo-50' => request()->routeIs('admin.account.*')])>
                     <p class="truncate text-sm font-medium">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-slate-500">{{ auth()->user()->isAdmin() ? __('Administrateur') : __('Éditeur') }}</p>
-                </div>
+                    <p class="text-xs text-slate-500">{{ auth()->user()->isAdmin() ? __('Administrateur') : __('Éditeur') }} · {{ __('Mon compte') }}</p>
+                </a>
                 <form method="POST" action="{{ route('logout') }}">@csrf
                     <button class="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900" title="{{ __('Se déconnecter') }}">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 12H3m12 0l-4-4m4 4l-4 4M21 3v18"/></svg>
@@ -72,6 +72,7 @@
             <x-logo :size="24" />
             <nav class="flex gap-3 text-sm">
                 @foreach ($nav as [$route, $label])<a href="{{ route($route) }}" class="text-slate-600">{{ $label }}</a>@endforeach
+                <a href="{{ route('admin.account.edit') }}" class="text-slate-600">{{ __('Mon compte') }}</a>
             </nav>
         </header>
         <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-8">

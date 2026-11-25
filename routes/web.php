@@ -44,6 +44,11 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::put('/locale', LocaleController::class)->name('locale');
 
+    // Mon compte : nom, e-mail et mot de passe (essais limités : mot de passe actuel demandé).
+    Route::get('/account', [\App\Http\Controllers\Admin\AccountController::class, 'edit'])->name('account.edit');
+    Route::put('/account', [\App\Http\Controllers\Admin\AccountController::class, 'update'])->middleware('throttle:6,1')->name('account.update');
+    Route::put('/account/password', [\App\Http\Controllers\Admin\AccountController::class, 'password'])->middleware('throttle:6,1')->name('account.password');
+
     Route::get('/pages', [PageController::class, 'index'])->name('pages.index');
     Route::get('/pages/create', [PageController::class, 'create'])->name('pages.create');
     Route::post('/pages', [PageController::class, 'store'])->name('pages.store');
