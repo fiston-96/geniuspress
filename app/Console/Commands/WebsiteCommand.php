@@ -22,7 +22,7 @@ use ZipArchive;
  */
 class WebsiteCommand extends Command
 {
-    protected $signature = 'geniuspress:website {--output= : Fichier zip à créer} {--import : Importer directement dans ce site (remplace les pages de même adresse)}';
+    protected $signature = 'geniuspress:website {--output= : Fichier zip à créer} {--import : Importer directement dans ce site (remplace les pages de même adresse)} {--host= : Adresse du site affichée dans les miniatures des modèles (par défaut geniuspress.site)}';
 
     protected $description = 'Construit le site officiel de GeniusPress (archive d’import)';
 
@@ -30,6 +30,9 @@ class WebsiteCommand extends Command
     {
         // Les pages vitrines utilisent les photos des modèles (emplacements de Kit).
         Kit::reset();
+        if ($host = $this->option('host')) {
+            \App\Website\Showcase::$host = preg_replace('#^https?://|/+$#', '', (string) $host);
+        }
         $site = require base_path('website/site.php');
 
         $path = $this->option('output') ?: base_path('dist/geniuspress-site.zip');

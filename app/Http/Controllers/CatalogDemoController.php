@@ -49,6 +49,17 @@ class CatalogDemoController extends Controller
 
         try {
             [$posts, $terms] = $this->blog($data, $locale, $base, $template);
+
+            // Flux RSS du blog de la démonstration (annoncé dans l'en-tête de chaque page).
+            if ($segments === [Permalinks::blogBase($locale), 'rss']) {
+                return response()->view('public.feed', [
+                    'locale' => $locale,
+                    'posts' => $posts->where('locale', $locale)->sortByDesc(fn ($p) => $p->published_at?->timestamp ?? 0)->take(20)->values(),
+                    'title' => $settings['site_name'].' · '.Permalinks::blogTitle($locale),
+                    'link' => Permalinks::blog($locale),
+                    'self' => Permalinks::feed($locale),
+                ])->header('Content-Type', 'application/rss+xml; charset=UTF-8')->header('X-Robots-Tag', 'noindex');
+            }
             $layouts->useLayouts(collect($data['layouts'])
                 ->filter(fn ($l) => empty($l['locale']) || $l['locale'] === $locale)
                 ->map(fn ($l) => $this->model(Layout::class, $l + ['content' => $this->rewrite($l['content'] ?? [], $base, $template)])));

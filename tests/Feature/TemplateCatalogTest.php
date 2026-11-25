@@ -202,6 +202,11 @@ class TemplateCatalogTest extends TestCase
         $this->get('/catalogue/ong-horizon?s=village')->assertOk()->assertSee('Un nouveau partenariat pour l’eau');
         $this->get('/catalogue/ong-horizon/en/news/annual-report')->assertOk()->assertSee('href="'.url('/catalogue/ong-horizon/en/news').'"', false);
         $this->get('/catalogue/ong-horizon/actualites/absent')->assertNotFound();
+
+        // Flux RSS annoncé dans l'en-tête des pages : les articles de la démonstration, en français et en anglais.
+        $feed = $this->get('/catalogue/ong-horizon/actualites/rss')->assertOk()->assertHeader('Content-Type', 'application/rss+xml; charset=UTF-8')->getContent();
+        $this->assertStringContainsString('<link>'.url('/catalogue/ong-horizon/actualites/rapport-annuel').'</link>', $feed);
+        $this->assertStringContainsString('Annual report', $this->get('/catalogue/ong-horizon/en/news/rss')->assertOk()->getContent());
         $this->assertSame(0, \App\Models\Post::count(), 'Rien n’est installé.');
 
         // Les réglages du site ne sont pas modifiés par une démonstration.

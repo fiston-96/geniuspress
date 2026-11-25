@@ -19,6 +19,9 @@ final class Showcase
     /** @var array<string, array>|null */
     private static ?array $catalog = null;
 
+    /** Adresse du site affichée dans la barre des miniatures (option --host de geniuspress:website). */
+    public static string $host = 'geniuspress.site';
+
     /** @var array<string, array> métadonnées des secteurs (nom, icône) */
     private static array $sectors = [];
 
@@ -104,7 +107,7 @@ final class Showcase
 
         return K::box([
             $dot('#f87171'), $dot('#fbbf24'), $dot('#34d399'),
-            K::h('geniuspress.site/catalogue/'.$id, 'p', ['font_size' => 11, 'color' => '#64748b', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
+            K::h(self::$host.'/catalogue/'.$id, 'p', ['font_size' => 11, 'color' => '#64748b', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
         ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f1f5f9', 'padding' => ['t' => 8, 'r' => 12, 'b' => 8, 'l' => 12]]);
     }
 
