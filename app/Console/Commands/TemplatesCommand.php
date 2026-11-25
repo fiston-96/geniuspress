@@ -48,9 +48,10 @@ class TemplatesCommand extends Command
         // On ne garde que les modèles encore déclarés, dans l'ordre du catalogue.
         $entries = array_values(array_filter(array_map(fn ($id) => $entries[$id] ?? null, array_keys($catalog))));
 
+        // Un secteur peut réunir plusieurs packs (Médias : journal, radio, télévision…) : sa fiche vient du premier.
         $sectors = [];
-        foreach (array_unique(array_column($entries, 'sector')) as $sector) {
-            $sectors[$sector] = $builder->pack($sector)['sector'] ?? ['name' => ['fr' => $sector, 'en' => $sector]];
+        foreach ($entries as $entry) {
+            $sectors[$entry['sector']] ??= $builder->pack($catalog[$entry['id']]['pack'] ?? $entry['sector'])['sector'] ?? ['name' => ['fr' => $entry['sector'], 'en' => $entry['sector']]];
         }
         file_put_contents($indexFile, json_encode([
             'format' => 'geniuspress-catalog',

@@ -1,9 +1,10 @@
 <?php
 
 /*
- * Catalogue des modèles de sites : 10 secteurs × 6 modèles = 60 modèles,
- * 8 pages chacun, en français et en anglais. Un modèle = un pack de secteur
- * (templates/sectors/{secteur}.php : pages et textes) + un thème. Construire avec :
+ * Catalogue des modèles de sites : 10 secteurs × 6 modèles, plus le secteur
+ * Médias et presse (6 packs × 2 modèles) = 72 modèles, 8 pages chacun, en
+ * français et en anglais. Un modèle = un pack de secteur (templates/sectors/{pack}.php :
+ * pages et textes ; par défaut le pack porte le nom du secteur) + un thème. Construire avec :
  *
  *   php artisan geniuspress:templates
  *
@@ -15,9 +16,10 @@
 
 use App\Templates\Theme;
 
-$tpl = function (string $sector, array $name, array $description, array $tags, array $c, string $font, ?string $heading, string $hero, string $cards, string $buttons, int $radius): array {
+$tpl = function (string $sector, array $name, array $description, array $tags, array $c, string $font, ?string $heading, string $hero, string $cards, string $buttons, int $radius, ?string $pack = null): array {
     return [
         'sector' => $sector,
+        ...($pack ? ['pack' => $pack] : []),
         'name' => ['fr' => $name[0], 'en' => $name[1]],
         'description' => ['fr' => $description[0], 'en' => $description[1]],
         'tags' => $tags,
@@ -168,4 +170,30 @@ return [
         ['#334155', '#0f172a', '#fbbf24', '#f8fafc'], 'Lato', 'Playfair Display', 'split', 'border', 'square', 2),
     'cabinet-strategie' => $tpl('cabinet', ['Stratégie', 'Strategy'], ['Ambitieux : indigo et orange, présentation centrée, boutons arrondis.', 'Ambitious: indigo and orange, centered layout, pill buttons.'], ['stratégie', 'transformation'],
         ['#4f46e5', '#111827', '#fb923c', '#eef2ff'], 'Inter', null, 'center', 'shadow', 'pill', 16),
+
+    // ─── Médias et presse : un pack par type de média, deux modèles chacun ───
+    'medias-journal-quotidien' => $tpl('medias', ['Le Quotidien', 'The Daily'], ['Journal en ligne : la une en diaporama, flash info, rubriques et enquêtes, rouge et noir.', 'Online newspaper: front-page slider, breaking news ticker, sections and investigations, red and black.'], ['journal', 'actualité'],
+        ['#b91c1c', '#111827', '#facc15', '#f8fafc'], 'Roboto', 'Merriweather', 'split', 'border', 'square', 4, 'medias-journal'),
+    'medias-journal-continent' => $tpl('medias', ['Continent', 'Continent'], ['Grand journal d’information : bleu nuit et or, titres à empattements, photo plein écran.', 'Major news outlet: navy and gold, serif headings, full-screen photo.'], ['journal', 'national'],
+        ['#1e3a8a', '#0b1220', '#fbbf24', '#f1f5f9'], 'Inter', 'Playfair Display', 'image', 'shadow', 'rounded', 8, 'medias-journal'),
+    'medias-magazine-iris' => $tpl('medias', ['Iris', 'Iris'], ['Magazine culture et mode : framboise et or, photo plein écran, titres élégants, articles en carrousel.', 'Culture and fashion magazine: raspberry and gold, full-screen photo, elegant headings, story carousel.'], ['magazine', 'mode'],
+        ['#9d174d', '#1f0a17', '#fbbf24', '#fdf2f8'], 'Lato', 'Playfair Display', 'image', 'flat', 'square', 2, 'medias-magazine'),
+    'medias-magazine-safari' => $tpl('medias', ['Safari', 'Safari'], ['Magazine société et voyages : terre cuite et ocre, photo à côté du titre, abonnements mis en avant.', 'Society and travel magazine: terracotta and ochre, photo beside the headline, subscriptions up front.'], ['magazine', 'voyages'],
+        ['#9a3412', '#1c1917', '#fcd34d', '#fdf8f3', '#1c1917', '#57534e'], 'Nunito', 'Montserrat', 'split', 'shadow', 'pill', 16, 'medias-magazine'),
+    'medias-radio-onde' => $tpl('medias', ['Onde', 'Wave'], ['Radio musicale et populaire : dégradé violet, bouton « Écouter en direct », grille des programmes.', 'Popular music radio: purple gradient, “Listen live” button, program schedule.'], ['radio', 'musique'],
+        ['#6d28d9', '#1e1033', '#facc15', '#f5f3ff'], 'Poppins', null, 'gradient', 'shadow', 'pill', 18, 'medias-radio'),
+    'medias-radio-fm' => $tpl('medias', ['FM', 'FM'], ['Radio d’information locale : orange et bleu ciel, photo plein écran, flash « À l’antenne ».', 'Local news radio: orange and sky blue, full-screen photo, “On air” ticker.'], ['radio', 'information'],
+        ['#c2410c', '#111827', '#22d3ee', '#fff7ed', '#1c1917', '#57534e'], 'Inter', 'Montserrat', 'image', 'border', 'rounded', 12, 'medias-radio'),
+    'medias-tv-ecran' => $tpl('medias', ['Écran', 'Screen'], ['Chaîne de télévision : bleu électrique et corail, direct en vidéo, replays et grille des programmes.', 'TV channel: electric blue and coral, live video, replays and program schedule.'], ['télévision', 'replay'],
+        ['#1d4ed8', '#0b1020', '#fb7185', '#eff4ff'], 'Inter', 'Poppins', 'image', 'shadow', 'rounded', 12, 'medias-tv'),
+    'medias-tv-antenne' => $tpl('medias', ['Antenne', 'Broadcast'], ['Chaîne d’information : sarcelle et or, dégradé, cartes teintées, angles nets.', 'News channel: teal and gold, gradient, tinted cards, sharp corners.'], ['télévision', 'information'],
+        ['#0f766e', '#042f2e', '#fbbf24', '#f0fdfa'], 'Roboto', 'Montserrat', 'gradient', 'tinted', 'square', 4, 'medias-tv'),
+    'medias-journaliste-plume' => $tpl('medias', ['Plume', 'Quill'], ['Journaliste indépendant : ardoise et ambre, portfolio sobre, titres à empattements.', 'Independent journalist: slate and amber, understated portfolio, serif headings.'], ['journaliste', 'portfolio'],
+        ['#334155', '#0f172a', '#fbbf24', '#f8fafc'], 'Lato', 'Playfair Display', 'split', 'border', 'square', 2, 'medias-journaliste'),
+    'medias-journaliste-terrain' => $tpl('medias', ['Terrain', 'Field'], ['Reporter de terrain : vert olive et orange, photo plein écran, reportages vidéo et photo.', 'Field reporter: olive green and orange, full-screen photo, video and photo reports.'], ['reporter', 'photo'],
+        ['#3f6212', '#1a2310', '#fb923c', '#f7fee7'], 'Nunito', 'Merriweather', 'image', 'flat', 'rounded', 10, 'medias-journaliste'),
+    'medias-podcast-echo' => $tpl('medias', ['Écho', 'Echo'], ['Podcast : indigo et vert citron, présentation centrée, plateformes d’écoute et épisodes.', 'Podcast: indigo and lime, centered layout, listening platforms and episodes.'], ['podcast', 'audio'],
+        ['#4f46e5', '#111827', '#a3e635', '#eef2ff'], 'Poppins', null, 'center', 'border', 'pill', 16, 'medias-podcast'),
+    'medias-podcast-voix' => $tpl('medias', ['Voix', 'Voices'], ['Podcast chaleureux : framboise et or, photo à côté du titre, soutien des auditeurs.', 'Warm podcast: raspberry and gold, photo beside the headline, listener support.'], ['podcast', 'communauté'],
+        ['#be185d', '#2d0a1c', '#fbbf24', '#fdf2f8'], 'Nunito', 'Poppins', 'split', 'shadow', 'rounded', 20, 'medias-podcast'),
 ];
