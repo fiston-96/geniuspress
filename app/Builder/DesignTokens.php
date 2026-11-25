@@ -67,6 +67,28 @@ class DesignTokens
     }
 
     /** Variables CSS à placer dans :root. */
+    /** Transitions entre les pages proposées (images clés gp-pt-… dans site.css). */
+    public const PAGE_TRANSITIONS = ['fade', 'slide', 'zoom'];
+
+    /**
+     * Transition entre les pages du site, sans script : le navigateur enchaîne l'ancienne et la
+     * nouvelle page (View Transitions, ignoré sans effet par les navigateurs qui ne l'ont pas).
+     * L'en-tête du thème reste en place pendant que le contenu change.
+     */
+    public static function pageTransition(array $settings): string
+    {
+        $type = $settings['page_transition'] ?? null;
+        if (! in_array($type, self::PAGE_TRANSITIONS, true)) {
+            return '';
+        }
+        $ms = max(150, min(1500, (int) ($settings['page_transition_duration'] ?? 400)));
+
+        return '@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto}'
+            .'.gp-theme-header{view-transition-name:gp-site-header}'
+            ."::view-transition-old(root){animation:gp-pt-{$type}-out ".(int) round($ms * 0.6)."ms ease-in both}"
+            ."::view-transition-new(root){animation:gp-pt-{$type}-in {$ms}ms cubic-bezier(.22,1,.36,1) both}}";
+    }
+
     public static function css(array $settings): string
     {
         $vars = [

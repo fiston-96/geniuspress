@@ -106,6 +106,41 @@ class AnimationsTest extends TestCase
         $this->assertStringContainsString('class="gp-el gp-con"', $out['html'], 'Pas de parallaxe sur un dégradé.');
     }
 
+    public function test_animated_heading(): void
+    {
+        $typing = $this->render([['id' => 'w000000001', 'type' => 'animated-heading', 'settings' => [
+            'before' => 'Nous aidons', 'words' => "les écoles\n\n les ONG <b>\nles entreprises", 'after' => 'à grandir', 'effect' => 'typing', 'tag' => 'h1', 'speed' => 8, 'pause' => 3000,
+        ]]])['html'];
+        $this->assertStringContainsString('<h1 class="gp-ah gp-ah--typing" data-gp-ah data-pause="3000" data-speed="8">', $typing);
+        $this->assertStringContainsString('<span class="gp-sr-only">Nous aidons les écoles à grandir</span>', $typing, 'Phrase complète pour les lecteurs d’écran.');
+        $this->assertStringContainsString('<span class="gp-ah__word is-on">les écoles</span><span class="gp-ah__word">les ONG &lt;b&gt;</span><span class="gp-ah__word">les entreprises</span>', $typing, 'Lignes vides ignorées, texte échappé.');
+
+        $hl = $this->render([['id' => 'w000000002', 'type' => 'animated-heading', 'settings' => ['words' => "demain\nautre", 'effect' => 'highlight', 'shape' => 'underline', 'loop' => true, 'shape_width' => 12]]]);
+        $this->assertStringContainsString('<span class="gp-ah__hl">demain<svg class="gp-ah__shape"', $hl['html']);
+        $this->assertStringContainsString('<path d="'.\App\Builder\Widgets\AnimatedHeadingWidget::SHAPES['underline'].'" pathLength="1"/>', $hl['html']);
+        $this->assertStringContainsString(' data-loop>', $hl['html']);
+        $this->assertStringNotContainsString('autre', $hl['html'], 'Un seul mot surligné.');
+        $this->assertStringContainsString('#gp-w000000002 .gp-ah__shape{stroke-width:12}', $hl['css']);
+    }
+
+    public function test_page_transition_setting(): void
+    {
+        $this->withoutVite();
+        $admin = \App\Models\User::create(['name' => 'Admin', 'email' => 'a@test.local', 'password' => 'secret-password-1', 'role' => 'admin']);
+        Page::create(['title' => 'Accueil', 'slug' => 'accueil', 'is_home' => true, 'status' => 'published', 'content' => ['version' => 2, 'elements' => []]]);
+        $this->assertStringNotContainsString('@view-transition', $this->get('/')->getContent(), 'Désactivée par défaut.');
+
+        $settings = ['site_name' => 'Site', 'primary_color' => '#2563eb', 'secondary_color' => '#0f172a', 'accent_color' => '#f59e0b', 'font_family' => 'Inter', 'locales' => ['fr'], 'default_locale' => 'fr'];
+        $this->actingAs($admin)->put(route('admin.settings.update'), $settings + ['page_transition' => 'explode'])->assertSessionHasErrors('page_transition');
+        $this->put(route('admin.settings.update'), $settings + ['page_transition' => 'slide', 'page_transition_duration' => 500])->assertSessionHasNoErrors();
+
+        $html = $this->get('/')->getContent();
+        $this->assertStringContainsString('@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto}', $html);
+        $this->assertStringContainsString('::view-transition-old(root){animation:gp-pt-slide-out 300ms ease-in both}', $html);
+        $this->assertStringContainsString('::view-transition-new(root){animation:gp-pt-slide-in 500ms cubic-bezier(.22,1,.36,1) both}', $html);
+        $this->assertStringContainsString('.gp-theme-header{view-transition-name:gp-site-header}', $html, 'L’en-tête reste en place.');
+    }
+
     public function test_sticky_element_in_the_theme_header_sticks_to_the_whole_page(): void
     {
         $this->withoutVite();

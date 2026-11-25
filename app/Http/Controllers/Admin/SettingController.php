@@ -39,6 +39,8 @@ class SettingController extends Controller
             'font_family' => ['required', 'in:'.implode(',', self::FONTS)],
             'heading_font' => ['nullable', 'in:'.implode(',', self::FONTS)],
             'custom_colors' => ['nullable', 'array', 'max:'.\App\Builder\DesignTokens::MAX_CUSTOM_COLORS],
+            'page_transition' => ['nullable', 'in:'.implode(',', \App\Builder\DesignTokens::PAGE_TRANSITIONS)],
+            'page_transition_duration' => ['nullable', 'integer', 'between:150,1500'],
             'locales' => ['required', 'array', 'min:1'],
             'locales.*' => ['in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
             'default_locale' => ['required', 'in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
@@ -63,6 +65,8 @@ class SettingController extends Controller
         unset($data['default_locale']);
         $data['locales'] = $locales;
         $data['heading_font'] ??= null;
+        $data['page_transition'] ??= null;
+        $data['page_transition_duration'] ??= 400;
         $data['custom_colors'] = \App\Builder\DesignTokens::customColors($request->input('custom_colors', []));
 
         Setting::write($data);

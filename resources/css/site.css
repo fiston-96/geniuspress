@@ -791,3 +791,33 @@ body { overflow-x: clip; }
 .gp-sc--scale { scale: calc(1 - var(--gp-spe, 0) * var(--gp-sc-k, .5) * .5); }
 .gp-sc--blur { filter: blur(calc(var(--gp-spe, 0) * var(--gp-sc-k, .5) * 16px)); }
 .gp-sc--rotate { rotate: calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * 30deg); }
+
+/* ─── Transition entre les pages (réglage du site, voir DesignTokens::pageTransition) ─── */
+@keyframes gp-pt-fade-out { to { opacity: 0; } }
+@keyframes gp-pt-fade-in { from { opacity: 0; } }
+@keyframes gp-pt-slide-out { to { opacity: 0; transform: translateY(-24px); } }
+@keyframes gp-pt-slide-in { from { opacity: 0; transform: translateY(24px); } }
+@keyframes gp-pt-zoom-out { to { opacity: 0; transform: scale(.97); } }
+@keyframes gp-pt-zoom-in { from { opacity: 0; transform: scale(1.03); } }
+
+/* ─── Titre animé ──────────────────────────────────────────────────────── */
+.gp-ah__words { position: relative; display: inline-block; color: var(--gp-primary); }
+/* Mots qui se succèdent : empilés dans la même case, la plus large donne la largeur (pas de saut). */
+.gp-ah--rotate .gp-ah__words { display: inline-grid; vertical-align: bottom; overflow: hidden; }
+.gp-ah--rotate .gp-ah__word { grid-area: 1 / 1; opacity: 0; transform: translateY(.7em); transition: opacity .45s, transform .45s cubic-bezier(.22,1,.36,1); }
+.gp-ah--rotate .gp-ah__word.is-on { opacity: 1; transform: none; }
+.gp-ah--rotate .gp-ah__word.is-off { opacity: 0; transform: translateY(-.7em); }
+/* Machine à écrire : un seul mot visible et un curseur qui clignote. */
+.gp-ah--typing .gp-ah__word:not(.is-on) { display: none; }
+.gp-ah--typing .gp-ah__words::after { content: ''; display: inline-block; width: .08em; height: 1em; margin-left: .06em; vertical-align: -.12em; background: currentColor; animation: gp-ah-caret 1s steps(1) infinite; }
+@keyframes gp-ah-caret { 50% { opacity: 0; } }
+/* Surlignage dessiné : tracé visible sans script, dessiné à l'arrivée à l'écran avec le script. */
+.gp-ah__hl { position: relative; display: inline-block; }
+.gp-ah__shape { position: absolute; left: -4%; top: -10%; width: 108%; height: 120%; overflow: visible; pointer-events: none; color: var(--gp-accent); stroke-width: 8; }
+.gp-ah__shape path { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.gp-js .gp-ah--highlight:not(.is-drawn) .gp-ah__shape path { stroke-dashoffset: 1; }
+.gp-ah--highlight.is-drawn .gp-ah__shape path { transition: stroke-dashoffset 1.2s cubic-bezier(.65,0,.35,1); }
+@media (prefers-reduced-motion: reduce) {
+    .gp-ah--typing .gp-ah__words::after { animation: none; }
+    .gp-ah--highlight.is-drawn .gp-ah__shape path { transition: none; }
+}

@@ -74,6 +74,21 @@
         </section>
 
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+            <h2 class="font-semibold">{{ __('Transition entre les pages') }}</h2>
+            <p class="text-xs text-slate-500">{{ __('Quand un visiteur passe d’une page à l’autre, la nouvelle page apparaît en douceur et l’en-tête reste en place. Sans effet dans les navigateurs qui ne le permettent pas, et pour les visiteurs qui demandent moins d’animations.') }}</p>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-sm font-medium text-slate-700">{{ __('Effet') }}
+                    <select name="page_transition" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        @foreach (['' => __('Aucun'), 'fade' => __('Fondu'), 'slide' => __('Glissement vers le haut'), 'zoom' => __('Zoom léger')] as $value => $label)
+                            <option value="{{ $value }}" @selected((old('page_transition', $settings['page_transition'] ?? '')) === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <x-field name="page_transition_duration" type="number" :label="__('Durée (ms)')" :value="$settings['page_transition_duration'] ?? 400" min="150" max="1500" step="50" />
+            </div>
+        </section>
+
+        <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
             <h2 class="font-semibold">{{ __('Langues') }}</h2>
             <label class="block text-sm font-medium text-slate-700">{{ __('Langue par défaut') }}
                 <select name="default_locale" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">

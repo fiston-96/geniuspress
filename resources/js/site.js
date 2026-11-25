@@ -346,3 +346,67 @@ if (moving.length || stickies.length) {
     window.addEventListener('resize', schedule);
     update();
 }
+
+// ─── Titres animés ───────────────────────────────────────────────────────
+// Machine à écrire, mots qui se succèdent, surlignage dessiné à l'arrivée à l'écran.
+// Sans script (ou si le visiteur demande moins d'animations), le premier mot reste affiché.
+for (const h of document.querySelectorAll('[data-gp-ah]')) {
+    const pause = Number(h.dataset.pause) || 2500;
+    if (h.classList.contains('gp-ah--highlight')) {
+        const draw = () => {
+            h.classList.add('is-drawn');
+            if (h.hasAttribute('data-loop') && !reduceMotion) {
+                setInterval(() => {
+                    h.classList.remove('is-drawn');
+                    setTimeout(() => h.classList.add('is-drawn'), 400);
+                }, pause + 1600);
+            }
+        };
+        if (!('IntersectionObserver' in window)) {
+            draw();
+            continue;
+        }
+        const io = new IntersectionObserver((entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+                io.disconnect();
+                setTimeout(draw, 200);
+            }
+        }, { rootMargin: '0px 0px -10% 0px' });
+        io.observe(h);
+        continue;
+    }
+
+    const spans = [...h.querySelectorAll('.gp-ah__word')];
+    if (spans.length < 2 || reduceMotion) continue;
+    let i = 0;
+    if (h.classList.contains('gp-ah--rotate')) {
+        setInterval(() => {
+            const prev = spans[i];
+            prev.classList.replace('is-on', 'is-off');
+            setTimeout(() => prev.classList.remove('is-off'), 500);
+            i = (i + 1) % spans.length;
+            spans[i].classList.add('is-on');
+        }, pause);
+        continue;
+    }
+
+    // Machine à écrire : le premier mot sert d'affichage, les autres donnent le texte.
+    const texts = spans.map((s) => s.textContent);
+    const shown = spans[0];
+    spans.slice(1).forEach((s) => s.remove());
+    const delay = 170 - (Number(h.dataset.speed) || 5) * 14;
+    const type = (word, n) => {
+        shown.textContent = word.slice(0, n);
+        if (n < word.length) setTimeout(() => type(word, n + 1), delay);
+        else setTimeout(() => erase(word, word.length), pause);
+    };
+    const erase = (word, n) => {
+        shown.textContent = word.slice(0, n);
+        if (n > 0) setTimeout(() => erase(word, n - 1), delay / 2);
+        else {
+            i = (i + 1) % texts.length;
+            setTimeout(() => type(texts[i], 1), 300);
+        }
+    };
+    setTimeout(() => erase(texts[0], texts[0].length), pause);
+}

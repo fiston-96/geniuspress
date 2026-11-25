@@ -48,6 +48,7 @@ class AdvancedWidgetsTest extends TestCase
             'reading-progress' => ['color' => 'global:primary', 'height' => 6, 'position' => 'bottom'],
             'video-playlist' => ['items' => [['title' => 'Intro', 'url' => 'https://www.youtube.com/watch?v=abcdefghijk', 'duration' => '3:20']], 'layout' => 'below', 'accent' => '#ff0000', 'list_bg' => '#000000'],
             'page-nav' => ['items' => [['label' => 'Services', 'anchor' => 'services']], 'position' => 'left', 'color' => '#999999', 'active_color' => '#ff0000'],
+            'animated-heading' => ['before' => 'Nous', 'words' => "a\nb", 'after' => 'fin', 'effect' => 'rotate', 'shape' => 'curly', 'tag' => 'h1', 'speed' => 7, 'pause' => 2000, 'loop' => true, 'align' => 'center', 'color' => '#111111', 'words_color' => 'global:primary', 'shape_color' => '#ff0000', 'shape_width' => 10, 'font_size' => 48],
             'chart' => ['kind' => 'area', 'data' => "Jan | 10 | 4\nFév | 25 | 9", 'series' => 'A | B', 'title' => 'Dons', 'ratio' => '4:3', 'show_values' => false, 'show_grid' => false, 'show_legend' => true, 'prefix' => '$', 'suffix' => ' k', 'color_1' => 'global:primary', 'color_2' => '#ff0000', 'color_3' => '#00ff00', 'color_4' => '#0000ff', 'text_color' => '#111111', 'grid_color' => '#eeeeee', 'max_width' => 700],
         ];
         $registry = app(WidgetRegistry::class);

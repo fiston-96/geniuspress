@@ -1,5 +1,6 @@
 // Widgets avancés (lot 2) : réglages, miroir des rules() de app/Builder/Widgets/*Widget.php.
 import { t } from '../i18n';
+import { typographyControls } from '../widgets';
 
 const ALIGN = [
     { value: 'left', label: t('Gauche') },
@@ -225,6 +226,33 @@ export const PRO2_WIDGETS = {
             { key: 'color_4', label: t('Couleur 4'), type: 'color', tab: 'style' },
             { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
             { key: 'grid_color', label: t('Couleur des repères'), type: 'color', tab: 'style' },
+        ],
+    },
+    'animated-heading': {
+        label: t('Titre animé'),
+        icon: 'M4 7h9M4 12h6M4 17h9M16 9l4 3-4 3',
+        defaults: { before: t('Nous accompagnons'), words: [t('les écoles'), t('les ONG'), t('les entreprises')].join('\n'), after: '', effect: 'typing', tag: 'h2', shape: 'circle' },
+        controls: [
+            { key: 'effect', label: t('Effet'), type: 'segmented', options: [{ value: 'typing', label: t('Machine à écrire') }, { value: 'rotate', label: t('Mots qui changent') }, { value: 'highlight', label: t('Surlignage') }] },
+            { key: 'before', label: t('Texte avant'), type: 'text' },
+            { key: 'words', label: t('Mots animés (un par ligne)'), type: 'textarea', when: (o) => (o.effect ?? 'typing') !== 'highlight' },
+            { key: 'words', label: t('Mot surligné'), type: 'text', when: (o) => o.effect === 'highlight' },
+            { key: 'after', label: t('Texte après'), type: 'text' },
+            { key: 'shape', label: t('Forme du trait'), type: 'select', when: (o) => o.effect === 'highlight', options: [
+                { value: 'circle', label: t('Cercle') }, { value: 'underline', label: t('Soulignement') }, { value: 'curly', label: t('Vague') },
+                { value: 'double', label: t('Double trait') }, { value: 'strike', label: t('Barré') }, { value: 'diagonal', label: t('Diagonale') },
+            ] },
+            { key: 'tag', label: t('Niveau'), type: 'select', options: ['h1', 'h2', 'h3', 'h4', 'p'].map((v) => ({ value: v, label: v.toUpperCase() })) },
+            { key: 'speed', label: t('Vitesse de frappe'), type: 'slider', min: 1, max: 10, default: 5, when: (o) => (o.effect ?? 'typing') === 'typing' },
+            { key: 'pause', label: t('Pause entre les mots (ms)'), type: 'slider', min: 500, max: 10000, step: 100, default: 2500, when: (o) => o.effect !== 'highlight' || !!o.loop },
+            { key: 'loop', label: t('Redessiner le trait en boucle'), type: 'toggle', when: (o) => o.effect === 'highlight' },
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style', responsive: true },
+            { key: 'color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
+            { key: 'words_color', label: t('Couleur des mots animés'), type: 'color', tab: 'style' },
+            { key: 'shape_color', label: t('Couleur du trait'), type: 'color', tab: 'style', when: (o) => o.effect === 'highlight' },
+            { key: 'shape_width', label: t('Épaisseur du trait'), type: 'slider', min: 1, max: 30, default: 8, tab: 'style', when: (o) => o.effect === 'highlight' },
+            { key: 'font_size', label: t('Taille (px)'), type: 'slider', min: 8, max: 160, tab: 'style', responsive: true },
+            ...typographyControls(),
         ],
     },
 };

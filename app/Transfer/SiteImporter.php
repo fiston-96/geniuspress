@@ -224,6 +224,10 @@ class SiteImporter
         if (in_array($settings['heading_font'] ?? null, SettingController::FONTS, true)) {
             $values['heading_font'] = $settings['heading_font'];
         }
+        if (in_array($settings['page_transition'] ?? null, \App\Builder\DesignTokens::PAGE_TRANSITIONS, true)) {
+            $values['page_transition'] = $settings['page_transition'];
+            $values['page_transition_duration'] = max(150, min(1500, (int) ($settings['page_transition_duration'] ?? 400)));
+        }
         if (is_array($settings['custom_colors'] ?? null)) {
             $values['custom_colors'] = \App\Builder\DesignTokens::customColors($settings['custom_colors']);
         }

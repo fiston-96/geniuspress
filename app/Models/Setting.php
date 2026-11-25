@@ -23,6 +23,9 @@ class Setting extends Model
         'font_family' => 'Inter',
         'heading_font' => null,
         'custom_colors' => [],
+        // Transition entre les pages du site (fondu, glissement, zoom) et sa durée en ms.
+        'page_transition' => null,
+        'page_transition_duration' => 400,
         'locales' => ['fr'],
         'organization_description' => '',
         // Blog : adresse et titre par langue ({fr: {base: 'actualites', title: 'Actualités'}}), articles par page.

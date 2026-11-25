@@ -72,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         Widgets\VideoPlaylistWidget::class,
         Widgets\PageNavWidget::class,
         Widgets\ChartWidget::class,
+        Widgets\AnimatedHeadingWidget::class,
         // Widgets dynamiques du thème (articles, archives, en-tête)
         Widgets\PostTitleWidget::class,
         Widgets\PostContentWidget::class,

@@ -35,6 +35,7 @@
     @vite(['resources/css/site.css', 'resources/js/site.js'])
     <style>
         {!! \App\Builder\DesignTokens::css($settings) !!}
+        {!! \App\Builder\DesignTokens::pageTransition($settings) !!}
         {!! $themeHeader['css'] ?? '' !!}
         {!! $rendered['css'] !!}
         {!! $themeFooter['css'] ?? '' !!}

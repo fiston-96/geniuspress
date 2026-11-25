@@ -9,6 +9,17 @@ import { getState } from '../store';
 import { chartHtml, parseChart } from './chart';
 
 const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
+
+/** AnimatedHeadingWidget::SHAPES et ::words */
+const SHAPES = {
+    circle: 'M250,8C385,6 497,38 494,77C491,117 382,144 250,143C112,142 6,118 7,76C8,38 112,12 268,17',
+    underline: 'M6,134C150,121 350,120 494,131',
+    curly: 'M4,138C40,112 80,112 120,138C160,162 200,162 240,136C280,110 320,110 360,137C400,162 440,162 496,128',
+    double: 'M6,126C170,116 330,116 494,124M32,146C190,136 320,136 468,144',
+    strike: 'M6,82C170,72 330,72 494,78',
+    diagonal: 'M10,140L490,14',
+};
+const animatedWords = (text) => String(text ?? '').split(/\r\n|\r|\n/).map((w) => w.trim()).filter((w) => w !== '').slice(0, 10);
 const set = (v) => v !== undefined && v !== null && v !== '';
 const px = (v) => (set(v) ? `${v}px` : null);
 const html = (s) => ({ __html: DOMPurify.sanitize(s ?? '') });
@@ -272,6 +283,35 @@ export const PRO2_IMPL = {
             if (!parseChart(o.data).length) return;
             h.rule(`${h.sel} .gp-chart`, { '--gp-c1': o.color_1, '--gp-c2': o.color_2, '--gp-c3': o.color_3, '--gp-c4': o.color_4, '--gp-chart-grid': o.grid_color, color: o.text_color });
             h.responsive('max_width', (v) => ({ 'max-width': `${v}px` }), ' .gp-chart');
+        },
+    },
+    'animated-heading': {
+        preview: (o) => {
+            const Tag = o.tag || 'h2';
+            const words = animatedWords(o.words);
+            const effect = o.effect ?? 'typing';
+            const first = words[0] ?? '';
+            return (
+                <Tag className={`gp-ah gp-ah--${effect}`}>
+                    <span aria-hidden="true">
+                        {o.before ? `${o.before} ` : ''}
+                        <span className="gp-ah__words">
+                            {effect === 'highlight'
+                                ? <span className="gp-ah__hl">{first}<svg className="gp-ah__shape" viewBox="0 0 500 150" preserveAspectRatio="none"><path d={SHAPES[o.shape ?? 'circle']} pathLength="1" /></svg></span>
+                                : (words.length ? words : ['']).map((w, i) => <span key={i} className={`gp-ah__word${i === 0 ? ' is-on' : ''}`}>{w}</span>)}
+                        </span>
+                        {o.after ? ` ${o.after}` : ''}
+                    </span>
+                </Tag>
+            );
+        },
+        css: (o, h) => {
+            h.rule(`${h.sel} > *`, { color: o.color, 'font-family': o.font_family ? null : 'var(--gp-heading-font)' });
+            h.responsive('align', (v) => ({ 'text-align': v }), ' > *');
+            h.responsive('font_size', (v) => ({ 'font-size': `${v}px` }), ' > *');
+            h.typography(' > *');
+            h.rule(`${h.sel} .gp-ah__words`, { color: o.words_color });
+            h.rule(`${h.sel} .gp-ah__shape`, { color: o.shape_color, 'stroke-width': o.shape_width ?? null });
         },
     },
 };
