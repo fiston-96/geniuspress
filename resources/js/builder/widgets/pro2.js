@@ -11,7 +11,7 @@ const motion = [
     { key: 'autoplay', label: t('Défilement automatique'), type: 'toggle' },
     { key: 'interval', label: t('Durée de chaque diapositive (secondes)'), type: 'slider', min: 2, max: 20, default: 6, when: (o) => !!o.autoplay },
     { key: 'arrows', label: t('Flèches'), type: 'toggle' },
-    { key: 'dots', label: t('Points'), type: 'toggle' },
+    { key: 'dots', label: t('Points de navigation'), type: 'toggle' },
 ];
 
 export const PRO2_WIDGETS = {
@@ -198,6 +198,33 @@ export const PRO2_WIDGETS = {
             { key: 'position', label: t('Position'), type: 'segmented', options: SIDE },
             { key: 'color', label: t('Couleur des points'), type: 'color', tab: 'style' },
             { key: 'active_color', label: t('Couleur de la section affichée'), type: 'color', tab: 'style' },
+        ],
+    },
+    chart: {
+        label: t('Graphique'),
+        icon: 'M3 3v18h18M7 16v-5M12 16V8M17 16v-8',
+        defaults: { kind: 'bar', ratio: '16:9', show_values: true, show_grid: true, show_legend: true, data: '2022 | 120\n2023 | 180\n2024 | 260\n2025 | 340' },
+        controls: [
+            { key: 'kind', label: t('Type'), type: 'select', options: [
+                { value: 'bar', label: t('Barres') }, { value: 'hbar', label: t('Barres horizontales') }, { value: 'line', label: t('Courbe') },
+                { value: 'area', label: t('Aire') }, { value: 'pie', label: t('Camembert') }, { value: 'doughnut', label: t('Anneau') },
+            ] },
+            { key: 'title', label: t('Titre (facultatif)'), type: 'text' },
+            { key: 'data', label: t('Données : une ligne par élément, « Libellé | valeur » (jusqu’à 4 valeurs pour comparer plusieurs séries)'), type: 'textarea' },
+            { key: 'series', label: t('Noms des séries, séparés par « | » (légende)'), type: 'text', when: (o) => !['pie', 'doughnut'].includes(o.kind ?? 'bar') },
+            { key: 'prefix', label: t('Avant les valeurs (ex. $)'), type: 'text' },
+            { key: 'suffix', label: t('Après les valeurs (ex. %)'), type: 'text' },
+            { key: 'show_values', label: t('Afficher les valeurs'), type: 'toggle' },
+            { key: 'show_grid', label: t('Lignes de repère'), type: 'toggle', when: (o) => !['pie', 'doughnut', 'hbar'].includes(o.kind ?? 'bar') },
+            { key: 'show_legend', label: t('Légende'), type: 'toggle' },
+            { key: 'ratio', label: t('Proportions'), type: 'select', tab: 'style', options: ['16:9', '2:1', '4:3', '1:1'].map((v) => ({ value: v, label: v })), when: (o) => !['pie', 'doughnut'].includes(o.kind ?? 'bar') },
+            { key: 'max_width', label: t('Largeur maximale (px)'), type: 'slider', min: 120, max: 1200, tab: 'style', responsive: true },
+            { key: 'color_1', label: t('Couleur 1'), type: 'color', tab: 'style' },
+            { key: 'color_2', label: t('Couleur 2'), type: 'color', tab: 'style' },
+            { key: 'color_3', label: t('Couleur 3'), type: 'color', tab: 'style' },
+            { key: 'color_4', label: t('Couleur 4'), type: 'color', tab: 'style' },
+            { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
+            { key: 'grid_color', label: t('Couleur des repères'), type: 'color', tab: 'style' },
         ],
     },
 };

@@ -7,7 +7,7 @@ use App\Models\Post;
 use App\Site\Permalinks;
 
 /**
- * Grille ou liste d'articles. Source « current » : les articles de l'archive,
+ * Grille, liste ou carrousel d'articles. Source « current » : les articles de l'archive,
  * de la recherche ou du blog affiché (paginés) ; ailleurs, les derniers articles.
  */
 class PostsWidget extends ThemeWidget
@@ -22,7 +22,7 @@ class PostsWidget extends ThemeWidget
             'source' => 'enum:current,latest,category',
             'category' => 'int:0:2147483647',
             'count' => 'int:1:24',
-            'layout' => 'enum:grid,list',
+            'layout' => 'enum:grid,list,carousel',
             'columns' => 'int:1:4@r',
             'gap' => 'int:0:80',
             'style' => 'enum:shadow,border,flat',
@@ -36,6 +36,11 @@ class PostsWidget extends ThemeWidget
             'pagination' => 'bool',
             'title_size' => 'int:10:60@r',
             'accent' => 'color',
+            // Carrousel
+            'autoplay' => 'bool',
+            'interval' => 'int:2:20',
+            'arrows' => 'bool',
+            'dots' => 'bool',
         ];
     }
 
@@ -69,9 +74,10 @@ class PostsWidget extends ThemeWidget
         }
 
         $layout = $s['layout'] ?? 'grid';
+        $carousel = $layout === 'carousel';
         $ctx->rule($id, [
             'grid-template-columns' => $layout === 'grid' ? 'repeat('.($s['columns'] ?? 3).', minmax(0, 1fr))' : null,
-            'gap' => isset($s['gap']) ? $s['gap'].'px' : null,
+            'gap' => (! $carousel && isset($s['gap'])) ? $s['gap'].'px' : null,
             '--gp-posts-accent' => $s['accent'] ?? null,
         ], false, ' .gp-plist');
         if ($layout === 'grid') {
@@ -79,11 +85,14 @@ class PostsWidget extends ThemeWidget
                 $ctx->rule($id, ['grid-template-columns' => 'repeat('.($s['columns_'.$device] ?? ($device === 'tablet' ? min(2, $s['columns'] ?? 3) : 1)).', minmax(0, 1fr))'], $device, ' .gp-plist');
             }
         }
+        if ($carousel) {
+            CarouselWidget::slidesCss($ctx, $id, ['per_view' => $s['columns'] ?? null, 'per_view_tablet' => $s['columns_tablet'] ?? null, 'per_view_mobile' => $s['columns_mobile'] ?? null, 'gap' => $s['gap'] ?? null], 3);
+        }
         $ctx->rule($id, ['aspect-ratio' => str_replace(':', ' / ', $s['ratio'] ?? '16:9')], false, ' .gp-plist__media img');
         $ctx->responsive($id, $s, 'title_size', fn ($v) => ['font-size' => $v.'px'], ' .gp-plist__title');
 
         $more = $s['more_text'] ?? __('Lire la suite', [], $locale);
-        $html = '<div class="gp-plist gp-plist--'.$layout.' gp-plist--'.e($s['style'] ?? 'shadow').'">';
+        $html = '<div class="gp-plist gp-plist--'.$layout.' gp-plist--'.e($s['style'] ?? 'shadow').($carousel ? ' gp-slides' : '').'">';
         foreach ($posts as $post) {
             $media = ($s['show_image'] ?? true) ? $post->featuredMedia : null;
             $category = ($s['show_category'] ?? true) ? $post->categories->first() : null;
@@ -99,6 +108,10 @@ class PostsWidget extends ThemeWidget
         }
         $html .= '</div>';
 
+        if ($carousel) {
+            return '<div class="gp-slider" data-gp-slider'.(! empty($s['autoplay']) ? ' data-autoplay="'.($s['interval'] ?? 5).'"' : '').' aria-roledescription="carousel">'
+                .$html.SliderWidget::controls($s, $posts->count(), $locale).'</div>';
+        }
         if ($paginator && ($s['pagination'] ?? true) && $paginator->hasPages()) {
             $html .= view('public.partials.pagination', ['paginator' => $paginator, 'locale' => $locale])->render();
         }

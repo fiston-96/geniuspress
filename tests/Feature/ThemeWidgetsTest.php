@@ -134,4 +134,40 @@ class ThemeWidgetsTest extends TestCase
         $this->assertStringContainsString('>Chercher</button>', $html);
         $this->assertStringNotContainsString('gp-site-header', $html);
     }
+
+    public function test_terms_list_and_posts_carousel(): void
+    {
+        $news = Term::create(['taxonomy' => Term::CATEGORY, 'name' => 'Nouvelles']);
+        $camps = Term::create(['taxonomy' => Term::CATEGORY, 'name' => 'Camps']);
+        Term::create(['taxonomy' => Term::CATEGORY, 'name' => 'Vide']);
+        Term::create(['taxonomy' => Term::CATEGORY, 'name' => 'News', 'locale' => 'en']);
+        $tag = Term::create(['taxonomy' => Term::TAG, 'name' => 'Jeunes']);
+        $this->article('A')->terms()->attach([$news->id, $tag->id]);
+        $this->article('B')->terms()->attach($news);
+        $this->article('C')->terms()->attach($camps);
+        $this->article('Brouillon', ['status' => 'draft'])->terms()->attach($camps);
+
+        Page::create(['title' => 'Blog', 'slug' => 'rubriques', 'status' => 'published', 'content' => $this->tree([
+            ['terms-list', ['order' => 'count']],
+            ['terms-list', ['taxonomy' => 'tag', 'layout' => 'cloud', 'show_count' => false]],
+            ['terms-list', ['hide_empty' => false, 'layout' => 'inline']],
+            ['posts', ['source' => 'latest', 'layout' => 'carousel', 'columns' => 2, 'gap' => 16, 'autoplay' => true, 'interval' => 4]],
+        ])]);
+        $html = $this->get('/rubriques')->assertOk()->getContent();
+
+        // Les plus utilisées d'abord ; brouillons, catégories vides et autres langues exclus.
+        $this->assertMatchesRegularExpression('~<ul class="gp-terms gp-terms--list"><li><a class="gp-terms__link" href="[^"]*/blog/categorie/nouvelles"><span class="gp-terms__name">Nouvelles</span><span class="gp-terms__count">2</span></a></li><li><a class="gp-terms__link" href="[^"]*/blog/categorie/camps"><span class="gp-terms__name">Camps</span><span class="gp-terms__count">1</span>~', $html);
+        $this->assertStringContainsString('<a class="gp-terms__link" href="'.url('/blog/etiquette/jeunes').'" style="--gp-w:0.5"><span class="gp-terms__name">Jeunes</span></a>', $html);
+        $this->assertStringContainsString('<span class="gp-terms__name">Vide</span><span class="gp-terms__count">0</span>', $html);
+        $this->assertStringNotContainsString('>News<', $html);
+
+        // Carrousel d'articles : glissière, colonnes par appareil, défilement automatique.
+        $this->assertStringContainsString('<div class="gp-slider" data-gp-slider data-autoplay="4" aria-roledescription="carousel"><div class="gp-plist gp-plist--carousel gp-plist--shadow gp-slides">', $html);
+        $this->assertMatchesRegularExpression('/ \.gp-slides\{--gp-per:2;--gp-gap:16px\}/', $html);
+        $this->assertStringContainsString('data-gp-next hidden', $html);
+
+        // Sur une archive, la catégorie affichée est marquée.
+        Layout::create(['name' => 'Archive', 'type' => 'archive', 'status' => 'published', 'content' => $this->tree([['terms-list', []], ['posts', ['source' => 'current']]])]);
+        $this->assertStringContainsString('href="'.url('/blog/categorie/camps').'" aria-current="page"', $this->get('/blog/categorie/camps')->assertOk()->getContent());
+    }
 }

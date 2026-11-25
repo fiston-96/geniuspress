@@ -328,6 +328,7 @@ form.gp-search-form button { padding: 12px 20px; border: 0; border-radius: 10px;
 .gp-plist__excerpt { margin: 0; color: #475569; flex: 1 1 auto; }
 .gp-plist__more { color: var(--gp-posts-accent); font-weight: 600; text-decoration: none; margin-top: 4px; }
 .gp-plist--list { grid-template-columns: 1fr; }
+.gp-plist--carousel { grid-template-columns: none; }
 .gp-plist--list .gp-plist__item { flex-direction: row; align-items: stretch; }
 .gp-plist--list .gp-plist__media { flex: 0 0 34%; }
 .gp-plist--list .gp-plist__media img { height: 100%; }
@@ -664,3 +665,43 @@ a.gp-card:hover .gp-card__title { color: var(--gp-primary); }
 .gp-pnav a[aria-current] .gp-pnav__dot { background: var(--gp-pnav-on); transform: scale(1.4); }
 .gp-pnav.is-preview { position: static; transform: none; }
 @media (max-width: 767px) { .gp-pnav { display: none; } }
+
+/* ─── Catégories et étiquettes ─────────────────────────────────────────── */
+.gp-terms { --gp-terms-accent: var(--gp-primary); list-style: none; margin: 0; padding: 0; }
+.gp-terms__link { color: inherit; text-decoration: none; transition: color .2s, background .2s, border-color .2s; }
+.gp-terms__link:hover, .gp-terms__link[aria-current] { color: var(--gp-terms-accent); }
+.gp-terms--list { display: grid; }
+.gp-terms--list li + li { border-top: 1px solid #e2e8f0; }
+.gp-terms--list .gp-terms__link { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+.gp-terms--list .gp-terms__count { min-width: 28px; padding: 2px 8px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: .8em; text-align: center; }
+.gp-terms--inline, .gp-terms--cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.gp-terms--inline .gp-terms__link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 999px; font-size: .9em; }
+.gp-terms--inline .gp-terms__link:hover, .gp-terms--inline .gp-terms__link[aria-current] { background: var(--gp-terms-accent); border-color: var(--gp-terms-accent); color: #fff; }
+.gp-terms--inline .gp-terms__count { opacity: .7; font-size: .85em; }
+.gp-terms--inline .gp-terms__count::before { content: '('; }
+.gp-terms--inline .gp-terms__count::after { content: ')'; }
+.gp-terms--cloud { align-items: baseline; gap: 6px 16px; }
+.gp-terms--cloud .gp-terms__link { font-size: calc(.85em + var(--gp-w, .5) * .9em); font-weight: 600; line-height: 1.3; }
+.gp-terms--cloud .gp-terms__count { margin-left: 2px; font-size: .6em; vertical-align: super; opacity: .6; }
+.gp-terms__empty { margin: 0; color: #64748b; }
+
+/* ─── Graphique ────────────────────────────────────────────────────────── */
+.gp-chart { --gp-c1: var(--gp-primary); --gp-c2: var(--gp-secondary); --gp-c3: var(--gp-accent); --gp-c4: #94a3b8; --gp-c5: #22c55e; --gp-c6: #ef4444; --gp-chart-grid: #e2e8f0; position: relative; margin: 0 auto; color: #334155; }
+.gp-chart__title { margin: 0 0 12px; font-family: var(--gp-heading-font); font-weight: 700; font-size: 1.1rem; text-align: center; }
+.gp-chart__svg { display: block; width: 100%; height: auto; overflow: visible; }
+.gp-chart--pie .gp-chart__svg, .gp-chart--doughnut .gp-chart__svg { max-width: 320px; margin: 0 auto; }
+.gp-chart__svg text { fill: currentColor; font-family: inherit; font-size: 15px; }
+.gp-chart__axis { opacity: .75; }
+.gp-chart__slice { stroke: var(--gp-chart-gap, #fff); stroke-width: 2; stroke-linejoin: round; }
+.gp-chart__svg .gp-chart__value { font-weight: 700; font-size: 14px; }
+.gp-chart__grid { stroke: var(--gp-chart-grid); stroke-width: 1; }
+.gp-chart__c1 { color: var(--gp-c1); }
+.gp-chart__c2 { color: var(--gp-c2); }
+.gp-chart__c3 { color: var(--gp-c3); }
+.gp-chart__c4 { color: var(--gp-c4); }
+.gp-chart__c5 { color: var(--gp-c5); }
+.gp-chart__c6 { color: var(--gp-c6); }
+.gp-chart__legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; margin: 14px 0 0; padding: 0; list-style: none; font-size: .9rem; }
+.gp-chart__legend li { display: inline-flex; align-items: center; gap: 8px; }
+.gp-chart__swatch { width: 12px; height: 12px; border-radius: 3px; background: currentColor; flex: none; }
+.gp-chart__legend-value { opacity: .7; }

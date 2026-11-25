@@ -139,23 +139,30 @@ export const THEME_IMPL = {
             const count = (o.source ?? 'current') === 'current' ? list.length : Math.min(o.count ?? 6, list.length);
             if (!count) return <p className="gp-plist__empty">{t('Aucun article pour le moment.')}</p>;
             const layout = o.layout ?? 'grid';
-            return (
-                <div className={`gp-plist gp-plist--${layout} gp-plist--${o.style ?? 'shadow'}`}>
+            const grid = (
+                <div className={`gp-plist gp-plist--${layout} gp-plist--${o.style ?? 'shadow'}${layout === 'carousel' ? ' gp-slides' : ''}`}>
                     {list.slice(0, count).map((p, i) => <PostCard key={i} p={p} o={o} />)}
                 </div>
             );
+            return layout === 'carousel' ? <div className="gp-slider">{grid}</div> : grid;
         },
         css: (o, h) => {
             const layout = o.layout ?? 'grid';
             const columns = o.columns ?? 3;
             h.rule(`${h.sel} .gp-plist`, {
                 'grid-template-columns': layout === 'grid' ? `repeat(${columns}, minmax(0, 1fr))` : null,
-                gap: o.gap !== undefined && o.gap !== null ? `${o.gap}px` : null,
+                gap: layout !== 'carousel' && o.gap !== undefined && o.gap !== null ? `${o.gap}px` : null,
                 '--gp-posts-accent': o.accent,
             });
             if (layout === 'grid') {
                 h.tablet(`${h.sel} .gp-plist`, { 'grid-template-columns': `repeat(${o.columns_tablet ?? Math.min(2, columns)}, minmax(0, 1fr))` });
                 h.mobile(`${h.sel} .gp-plist`, { 'grid-template-columns': `repeat(${o.columns_mobile ?? 1}, minmax(0, 1fr))` });
+            }
+            if (layout === 'carousel') {
+                // CarouselWidget::slidesCss
+                h.rule(`${h.sel} .gp-slides`, { '--gp-per': String(o.columns ?? 3), '--gp-gap': o.gap !== undefined && o.gap !== null ? `${o.gap}px` : null });
+                h.tablet(`${h.sel} .gp-slides`, { '--gp-per': String(o.columns_tablet ?? Math.min(2, o.columns ?? 3)) });
+                h.mobile(`${h.sel} .gp-slides`, { '--gp-per': String(o.columns_mobile ?? 1) });
             }
             h.rule(`${h.sel} .gp-plist__media img`, { 'aspect-ratio': (o.ratio ?? '16:9').replace(':', ' / ') });
             h.responsive('title_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-plist__title');
@@ -239,6 +246,39 @@ export const THEME_IMPL = {
             h.rule(`${h.sel} .gp-menu__list a:hover`, { color: o.color_hover });
             h.rule(`${h.sel} .gp-menu__burger`, { color: o.color });
             h.rule(`${h.sel} .gp-menu__cta`, { background: o.cta_color, 'border-color': o.cta_color });
+        },
+    },
+    'terms-list': {
+        preview: (o) => {
+            const taxonomy = o.taxonomy ?? 'category';
+            const examples = taxonomy === 'tag'
+                ? [[t('Éducation'), 4], [t('Santé'), 2], [t('Jeunesse'), 3], [t('Environnement'), 1]]
+                : [[t('Actualités'), 5], [t('Événements'), 2], [t('Projets'), 3]];
+            const real = sample().terms?.[taxonomy];
+            let items = (real?.length ? real : examples.map(([name, count]) => ({ name, count })));
+            if (o.hide_empty !== false) items = items.filter((i) => i.count > 0);
+            items = [...items].sort((a, b) => ((o.order ?? 'name') === 'count' && b.count !== a.count ? b.count - a.count : a.name.localeCompare(b.name))).slice(0, o.limit ?? 30);
+            if (!items.length) return <p className="gp-terms__empty">{taxonomy === 'tag' ? t('Aucune étiquette pour le moment.') : t('Aucune catégorie pour le moment.')}</p>;
+            const layout = o.layout ?? 'list';
+            const min = Math.min(...items.map((i) => i.count));
+            const max = Math.max(...items.map((i) => i.count));
+            return (
+                <ul className={`gp-terms gp-terms--${layout}`}>
+                    {items.map((i, k) => (
+                        <li key={k}>
+                            <a className="gp-terms__link" style={layout === 'cloud' ? { '--gp-w': max > min ? Math.round(((i.count - min) / (max - min)) * 100) / 100 : 0.5 } : undefined}>
+                                <span className="gp-terms__name">{i.name}</span>
+                                {o.show_count !== false && <span className="gp-terms__count">{i.count}</span>}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            );
+        },
+        css: (o, h) => {
+            h.rule(`${h.sel} .gp-terms`, { '--gp-terms-accent': o.accent, color: o.color });
+            h.responsive('align', (v) => ({ 'justify-content': JUSTIFY[v], 'text-align': v }), ' .gp-terms');
+            h.responsive('font_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-terms');
         },
     },
 };

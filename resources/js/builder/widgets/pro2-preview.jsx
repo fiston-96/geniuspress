@@ -5,6 +5,8 @@ import DOMPurify from 'dompurify';
 import { Icon } from '../icons';
 import { t } from '../i18n';
 import { embedUrl } from './core';
+import { getState } from '../store';
+import { chartHtml, parseChart } from './chart';
 
 const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
 const set = (v) => v !== undefined && v !== null && v !== '';
@@ -258,6 +260,18 @@ export const PRO2_IMPL = {
         css: (o, h) => {
             if (!(o.items ?? []).some((i) => set(i.anchor))) return;
             h.rule(`${h.sel} .gp-pnav`, { '--gp-pnav': o.color, '--gp-pnav-on': o.active_color });
+        },
+    },
+    chart: {
+        preview: (o) => {
+            const inner = chartHtml(o, getState().sample?.locale ?? 'fr');
+            if (inner === null) return <Ph>{t('Saisissez les données du graphique dans le panneau')}</Ph>;
+            return <figure className={`gp-chart gp-chart--${o.kind ?? 'bar'}`} dangerouslySetInnerHTML={{ __html: inner }} />;
+        },
+        css: (o, h) => {
+            if (!parseChart(o.data).length) return;
+            h.rule(`${h.sel} .gp-chart`, { '--gp-c1': o.color_1, '--gp-c2': o.color_2, '--gp-c3': o.color_3, '--gp-c4': o.color_4, '--gp-chart-grid': o.grid_color, color: o.text_color });
+            h.responsive('max_width', (v) => ({ 'max-width': `${v}px` }), ' .gp-chart');
         },
     },
 };

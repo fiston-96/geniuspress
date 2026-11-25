@@ -98,6 +98,10 @@ final class BuilderBoot
             'categories' => \App\Models\Term::query()->where('taxonomy', \App\Models\Term::CATEGORY)->orderBy('locale')->orderBy('name')->get()
                 ->map(fn ($c) => ['value' => $c->id, 'label' => $c->name.' ('.strtoupper($c->locale).')'])->all(),
             'languages' => array_values((array) $settings['locales']),
+            // Aperçu du widget « Catégories et étiquettes ».
+            'terms' => collect(\App\Models\Term::TAXONOMIES)->mapWithKeys(fn ($taxonomy) => [$taxonomy => \App\Models\Term::query()
+                ->where('taxonomy', $taxonomy)->where('locale', $locale)->withCount(['posts' => fn ($q) => $q->published()])
+                ->orderBy('name')->limit(100)->get()->map(fn ($t) => ['name' => $t->name, 'count' => (int) $t->posts_count])->all()])->all(),
         ];
     }
 }

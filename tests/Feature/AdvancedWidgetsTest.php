@@ -48,6 +48,7 @@ class AdvancedWidgetsTest extends TestCase
             'reading-progress' => ['color' => 'global:primary', 'height' => 6, 'position' => 'bottom'],
             'video-playlist' => ['items' => [['title' => 'Intro', 'url' => 'https://www.youtube.com/watch?v=abcdefghijk', 'duration' => '3:20']], 'layout' => 'below', 'accent' => '#ff0000', 'list_bg' => '#000000'],
             'page-nav' => ['items' => [['label' => 'Services', 'anchor' => 'services']], 'position' => 'left', 'color' => '#999999', 'active_color' => '#ff0000'],
+            'chart' => ['kind' => 'area', 'data' => "Jan | 10 | 4\nFév | 25 | 9", 'series' => 'A | B', 'title' => 'Dons', 'ratio' => '4:3', 'show_values' => false, 'show_grid' => false, 'show_legend' => true, 'prefix' => '$', 'suffix' => ' k', 'color_1' => 'global:primary', 'color_2' => '#ff0000', 'color_3' => '#00ff00', 'color_4' => '#0000ff', 'text_color' => '#111111', 'grid_color' => '#eeeeee', 'max_width' => 700],
         ];
         $registry = app(WidgetRegistry::class);
         $sanitizer = app(ContentSanitizer::class);
@@ -129,6 +130,37 @@ class AdvancedWidgetsTest extends TestCase
 
         $nav = $this->render('page-nav', ['items' => [['label' => 'Nos services', 'anchor' => 'Nos Services !']]]);
         $this->assertStringContainsString('href="#nos-services"', $nav, 'Ancre nettoyée.');
+    }
+
+    public function test_chart_is_drawn_on_the_server(): void
+    {
+        $bar = $this->render('chart', ['data' => "2023 | 1 250,5\n2024 | <b>x</b>\nVide", 'title' => 'Budget <i>', 'suffix' => ' $']);
+        $this->assertStringContainsString('<figcaption class="gp-chart__title">Budget &lt;i&gt;</figcaption>', $bar);
+        $this->assertStringContainsString('<svg class="gp-chart__svg" viewBox="0 0 640 360"', $bar);
+        $this->assertSame(3, substr_count($bar, '<rect '), 'Une barre par ligne ; valeurs illisibles comptées pour 0.');
+        $this->assertStringContainsString(">1 250,5\u{00A0}$</text>", $bar, 'Nombre au format français.');
+        $this->assertStringContainsString("<table class=\"gp-sr-only\"><tbody><tr><th scope=\"row\">2023</th><td>1 250,5\u{00A0}$</td></tr>", $bar, 'Données lisibles par les lecteurs d’écran.');
+        $this->assertStringNotContainsString('<b>', $bar);
+
+        $pie = $this->render('chart', ['kind' => 'pie', 'data' => "A | 75\nB | 25"]);
+        $this->assertStringContainsString('d="M160 160 L160 10 A150 150 0 1 1 10 160 Z"', $pie, 'Les trois quarts, de midi à 9 h.');
+        $this->assertStringContainsString('d="M160 160 L10 160 A150 150 0 0 1 160 10 Z"', $pie);
+        $this->assertStringContainsString(' A90 90 ', $this->render('chart', ['kind' => 'doughnut', 'data' => 'Tout | 5']), 'Anneau entier.');
+        $this->assertStringContainsString("75 · 75\u{00A0}%", $pie);
+
+        $series = $this->render('chart', ['kind' => 'line', 'data' => "A | 1 | 2\nB | 3 | 4", 'series' => 'Hommes | Femmes']);
+        $this->assertSame(2, substr_count($series, 'stroke-width="3"'));
+        $this->assertStringContainsString('<span class="gp-chart__swatch gp-chart__c2"></span>Femmes', $series);
+
+        $unit = fn (...$a) => \App\Builder\Widgets\ChartWidget::unit(...$a);
+        $this->assertSame("45\u{00A0}%", $unit(45, '', '%', 'fr'));
+        $this->assertSame('45%', $unit(45, '', '%', 'en'));
+        $this->assertSame('$1,500', $unit(1500, '$', '', 'en'));
+        $this->assertSame("FC\u{00A0}1 500", $unit(1500, 'FC', '', 'fr'));
+        $this->assertSame("3\u{00A0}k", $unit(3, '', 'k', 'en'));
+        $this->assertSame([5.0, 20.0], \App\Builder\Widgets\ChartWidget::scale(17));
+        $this->assertSame([0.25, 1.0], \App\Builder\Widgets\ChartWidget::scale(0.9));
+        $this->assertSame('', $this->widgetHtml('chart', ['data' => '  ']));
     }
 
     /** Contenu du widget, sans son enveloppe. */

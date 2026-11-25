@@ -71,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         Widgets\ReadingProgressWidget::class,
         Widgets\VideoPlaylistWidget::class,
         Widgets\PageNavWidget::class,
+        Widgets\ChartWidget::class,
         // Widgets dynamiques du thème (articles, archives, en-tête)
         Widgets\PostTitleWidget::class,
         Widgets\PostContentWidget::class,
@@ -84,6 +85,7 @@ class AppServiceProvider extends ServiceProvider
         Widgets\SearchFormWidget::class,
         Widgets\SiteLogoWidget::class,
         Widgets\NavMenuWidget::class,
+        Widgets\TermsListWidget::class,
     ];
 
     public function register(): void
