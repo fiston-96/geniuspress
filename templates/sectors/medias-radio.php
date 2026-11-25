@@ -9,6 +9,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -62,13 +63,13 @@ return [
                     'buttons' => [$listen, [$T('Grille des programmes', 'Program schedule'), $schedule]],
                     'photo' => ['medias-radio-accueil', 'mic', $T('Animatrice au micro dans un studio de radio', 'Host at the microphone in a radio studio')],
                 ]),
-                B::ticker($theme, ['label' => $T('À l’antenne', 'On air'), 'items' => [
+                M::ticker($theme, ['label' => $T('À l’antenne', 'On air'), 'items' => [
                     [$T('6 h – 9 h : La Matinale, infos et invités', '6–9 am: The Morning Show, news and guests'), $schedule],
                     [$T('12 h : Le Grand Débat, appelez le +243 000 000 000', '12 pm: The Big Debate, call +243 000 000 000'), $schedule],
                     [$T('Samedi 16 h : le derby commenté en direct', 'Saturday 4 pm: the derby, live commentary'), $post('derby-en-direct', 'derby-live-on-air')],
                     [$T('Concours : gagnez vos places pour le festival', 'Contest: win tickets to the festival'), $post('concours-festival', 'festival-contest')],
                 ]]),
-                B::live($theme, [
+                M::live($theme, [
                     'badge' => $T('En direct', 'Live now'),
                     'title' => $T('La Matinale, avec [Prénom Nom]', 'The Morning Show, with [First Last]'),
                     'text' => $T('Le journal de 7 h, la revue de presse, la météo et l’invité du jour. Réagissez en direct par téléphone ou sur WhatsApp.', 'The 7 am news, the press review, the weather and today’s guest. React live by phone or on WhatsApp.'),
@@ -77,10 +78,10 @@ return [
                     'photo' => ['medias-radio-studio', 'mic', $T('Studio de radio en direct', 'Radio studio on air')],
                 ]),
                 B::cards($theme, ['eyebrow' => $T('Nos émissions', 'Our shows'), 'title' => $T('Les rendez-vous de la semaine', 'This week’s highlights'), 'more' => $T('Horaires', 'Times'), 'items' => array_slice($showItems, 0, 3)]),
-                B::platforms($theme, ['title' => $T('Écoutez-nous où vous voulez', 'Listen wherever you are'), 'intro' => $T('Émissions en podcast, extraits vidéo et dédicaces sur nos réseaux.', 'Shows as podcasts, video clips and dedications on our networks.'), 'items' => [
+                M::platforms($theme, ['title' => $T('Écoutez-nous où vous voulez', 'Listen wherever you are'), 'intro' => $T('Émissions en podcast, extraits vidéo et dédicaces sur nos réseaux.', 'Shows as podcasts, video clips and dedications on our networks.'), 'items' => [
                     ['spotify', 'Spotify'], ['youtube', 'YouTube'], ['soundcloud', 'SoundCloud'], ['whatsapp', 'WhatsApp'], ['facebook', 'Facebook'], ['tiktok', 'TikTok'],
                 ]]),
-                B::posts($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Les nouvelles de la radio', 'News from the station'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more')]),
+                M::posts($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Les nouvelles de la radio', 'News from the station'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more')]),
                 B::testimonials($theme, ['eyebrow' => $T('Auditeurs', 'Listeners'), 'title' => $T('Ils nous écoutent chaque jour', 'They listen every day'), 'items' => [
                     [$T('La Matinale m’accompagne dans le bus tous les matins. Je sais tout avant d’arriver au bureau.', 'The Morning Show keeps me company on the bus every morning. I know everything before I get to the office.'), '[Prénom Nom]', $T('Auditrice à Kinshasa', 'Listener in Kinshasa')],
                     [$T('Le Grand Débat donne vraiment la parole aux gens. J’ai pu poser ma question en direct.', 'The Big Debate really gives people a voice. I got to ask my question live.'), '[Prénom Nom]', $T('Commerçant', 'Shopkeeper')],
@@ -92,7 +93,7 @@ return [
         $pages[] = ['key' => 'live', 'slug' => $u('direct', 'live'), 'title' => $T('Direct', 'Live'),
             'description' => $T('Écoutez la radio en direct : FM, en ligne, sur l’appli. Ce qui passe à l’antenne aujourd’hui.', 'Listen live: FM, online, on the app. What’s on air today.'),
             'sections' => [
-                B::live($theme, [
+                M::live($theme, [
                     'tag' => 'h1', 'badge' => $T('En direct', 'Live now'),
                     'title' => $T('Écoutez la radio en direct', 'Listen to the station live'),
                     'text' => $T('Le lecteur s’ouvre dans un nouvel onglet : continuez à naviguer pendant l’écoute. Sur téléphone, l’appli consomme très peu de données.', 'The player opens in a new tab: keep browsing while you listen. On your phone, the app uses very little data.'),
@@ -100,7 +101,7 @@ return [
                     'buttons' => [$listen, [$T('Télécharger l’appli', 'Get the app'), 'https://example.com/appli', 'outline-light']],
                     'photo' => ['medias-radio-direct', 'headphones', $T('Auditeur avec un casque', 'Listener wearing headphones')],
                 ]),
-                B::table($theme, ['eyebrow' => $T('Aujourd’hui', 'Today'), 'title' => $T('À l’antenne aujourd’hui', 'On air today'), 'rows' => [
+                M::table($theme, ['eyebrow' => $T('Aujourd’hui', 'Today'), 'title' => $T('À l’antenne aujourd’hui', 'On air today'), 'rows' => [
                     [$T('Heure', 'Time'), $T('Émission', 'Show'), $T('Animation', 'Host')],
                     ['06:00', $T('La Matinale', 'The Morning Show'), '[Prénom Nom]'],
                     ['09:00', $T('Bonjour la ville', 'Hello City'), '[Prénom Nom]'],
@@ -129,7 +130,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Émissions', 'Shows'), 'title' => $T('Des programmes pour toute la famille', 'Programs for the whole family'), 'intro' => $T('Information, débat, musique et divertissement, du lever au coucher.', 'News, debate, music and entertainment, from sunrise to bedtime.')]),
                 B::cards($theme, ['more' => $T('Horaires', 'Times'), 'items' => $showItems]),
-                B::videos($theme, ['eyebrow' => $T('En vidéo', 'On video'), 'title' => $T('Nos émissions filmées', 'Our filmed shows'), 'intro' => $T('Le studio en images : retrouvez les moments forts de la semaine.', 'The studio on camera: the week’s highlights.'), 'bg' => 'light', 'items' => [
+                M::videos($theme, ['eyebrow' => $T('En vidéo', 'On video'), 'title' => $T('Nos émissions filmées', 'Our filmed shows'), 'intro' => $T('Le studio en images : retrouvez les moments forts de la semaine.', 'The studio on camera: the week’s highlights.'), 'bg' => 'light', 'items' => [
                     [$T('La Matinale — l’invité du jour', 'The Morning Show — today’s guest'), $yt('eRsGyueVLvQ'), '14:48'],
                     [$T('Le Grand Débat — l’emploi des jeunes', 'The Big Debate — youth jobs'), $yt('R6MlUcmOul8'), '12:14'],
                     [$T('Rythmes d’Afrique — session live', 'African Rhythms — live session'), $yt('WhWc3b3KhnY'), '7:44'],
@@ -142,7 +143,7 @@ return [
             'description' => $T('La grille complète de la semaine : heure par heure, du lundi au dimanche.', 'The full weekly schedule: hour by hour, Monday to Sunday.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Programmes', 'Programs'), 'title' => $T('Grille des programmes', 'Program schedule'), 'intro' => $T('Heure par heure, toute la semaine. Les horaires peuvent changer lors des événements en direct.', 'Hour by hour, all week. Times may change during live events.')]),
-                B::table($theme, ['rows' => [
+                M::table($theme, ['rows' => [
                     [$T('Heure', 'Time'), $T('Lundi – vendredi', 'Monday – Friday'), $T('Samedi', 'Saturday'), $T('Dimanche', 'Sunday')],
                     ['06:00', $T('La Matinale', 'The Morning Show'), $T('Le Réveil du week-end', 'Weekend Wake-up'), $T('Louanges et gospel', 'Praise and Gospel')],
                     ['09:00', $T('Bonjour la ville', 'Hello City'), $T('Marché et cuisine', 'Market and Cooking'), $T('Louanges et gospel', 'Praise and Gospel')],
@@ -192,8 +193,8 @@ return [
             'description' => $T('Les nouvelles de la radio : infos locales, musique, sport, concours et événements.', 'News from the station: local news, music, sport, contests and events.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Les nouvelles de la radio', 'News from the station'), 'intro' => $T('Infos locales, coulisses, concours et événements.', 'Local news, behind the scenes, contests and events.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
             ]];
 
         $pages[] = ['key' => 'advertise', 'slug' => $u('annonceurs', 'advertise'), 'title' => $T('Annonceurs', 'Advertise'),
@@ -201,7 +202,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Annonceurs', 'Advertisers'), 'title' => $T('Votre message, sur toutes les ondes', 'Your message, all over the airwaves'), 'intro' => $T('La radio reste le média le plus écouté : au marché, en voiture, au travail et à la maison.', 'Radio remains the most listened-to medium: at the market, in the car, at work and at home.')]),
                 B::stats($theme, $audience + ['bg' => 'primary']),
-                B::chart($theme, [
+                M::chart($theme, [
                     'eyebrow' => $T('Audience', 'Audience'),
                     'title' => $T('Choisissez le bon moment', 'Pick the right time slot'),
                     'html' => '<p>'.e($T('Part des auditeurs à l’écoute selon la tranche horaire, en semaine (enquête d’audience, [année]). Le matin et la fin d’après-midi sont les moments forts.', 'Share of listeners tuned in by time slot, on weekdays (audience survey, [year]). Mornings and late afternoons are peak times.')).'</p>',

@@ -8,6 +8,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -51,7 +52,7 @@ return [
                     'buttons' => [[$T('Lire le magazine', 'Read the magazine'), $articles], [$T('S’abonner', 'Subscribe'), $subscribe]],
                     'photo' => ['medias-magazine-accueil', 'sparkles', $T('Créatrice de mode dans son atelier', 'Fashion designer in her studio')],
                 ]),
-                B::posts($theme, ['eyebrow' => $T('À la une', 'Featured'), 'title' => $T('Les histoires du moment', 'Stories of the moment'), 'count' => 6, 'layout' => 'carousel', 'more' => $T('Lire l’article', 'Read the story'), 'ratio' => '4:3']),
+                M::posts($theme, ['eyebrow' => $T('À la une', 'Featured'), 'title' => $T('Les histoires du moment', 'Stories of the moment'), 'count' => 6, 'layout' => 'carousel', 'more' => $T('Lire l’article', 'Read the story'), 'ratio' => '4:3']),
                 B::features($theme, ['eyebrow' => $T('Rubriques', 'Sections'), 'title' => $T('Six univers à explorer', 'Six worlds to explore'), 'items' => $rubriques, 'bg' => 'light']),
                 B::split($theme, [
                     'eyebrow' => $T('Le magazine papier', 'The print magazine'),
@@ -62,7 +63,7 @@ return [
                     'photo' => ['medias-magazine-numero', 'book-open', $T('Magazine ouvert sur une table', 'Open magazine on a table')],
                     'reverse' => true,
                 ]),
-                B::posts($theme, ['eyebrow' => $T('Derniers articles', 'Latest stories'), 'title' => $T('Fraîchement publiés', 'Freshly published'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more')]),
+                M::posts($theme, ['eyebrow' => $T('Derniers articles', 'Latest stories'), 'title' => $T('Fraîchement publiés', 'Freshly published'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more')]),
                 B::testimonials($theme, ['eyebrow' => $T('Lecteurs', 'Readers'), 'title' => $T('Ils ne manquent aucun numéro', 'They never miss an issue'), 'items' => [
                     [$T('Un magazine beau et exigeant, qui montre une Afrique créative et ambitieuse.', 'A beautiful, demanding magazine that shows a creative, ambitious Africa.'), '[Prénom Nom]', $T('Abonnée depuis 3 ans', 'Subscriber for 3 years')],
                     [$T('Les portraits d’entrepreneurs m’ont donné le courage de lancer mon activité.', 'The entrepreneur profiles gave me the courage to start my business.'), '[Prénom Nom]', $T('Créateur d’entreprise', 'Business founder')],
@@ -75,9 +76,9 @@ return [
             'description' => $T('Tous les articles du magazine : portraits, culture, mode, entrepreneuriat, voyages et saveurs.', 'Every story from the magazine: profiles, culture, fashion, business, travel and food.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => 'Articles', 'title' => $T('Le magazine en ligne', 'The magazine online'), 'intro' => $T('Nos histoires, nos rencontres et nos coups de cœur.', 'Our stories, encounters and favorites.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more'), 'ratio' => '4:3']),
-                B::terms($theme, ['title' => $T('Thèmes', 'Topics'), 'taxonomy' => 'tag', 'layout' => 'cloud', 'count' => false, 'bg' => 'light']),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more'), 'ratio' => '4:3']),
+                M::terms($theme, ['title' => $T('Thèmes', 'Topics'), 'taxonomy' => 'tag', 'layout' => 'cloud', 'count' => false, 'bg' => 'light']),
             ]];
 
         $pages[] = ['key' => 'sections', 'slug' => $u('rubriques', 'sections'), 'title' => $T('Rubriques', 'Sections'),
@@ -179,7 +180,7 @@ return [
                     [90, ' k', $T('abonnés Instagram', 'Instagram followers')],
                     [12, '', $T('pays de diffusion', 'countries of distribution')],
                 ], 'bg' => 'primary']),
-                B::chart($theme, [
+                M::chart($theme, [
                     'eyebrow' => $T('Lectorat', 'Readership'),
                     'title' => $T('Qui lit le magazine ?', 'Who reads the magazine?'),
                     'html' => '<p>'.e($T('Répartition de nos lecteurs par âge (enquête lecteurs, [année]). Un lectorat jeune et actif, à 58 % féminin.', 'Our readers by age group (reader survey, [year]). A young, active readership, 58% women.')).'</p>',

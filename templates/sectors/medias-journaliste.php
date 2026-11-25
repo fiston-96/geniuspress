@@ -8,6 +8,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -68,7 +69,7 @@ return [
                     [4, '', $T('prix de journalisme', 'journalism awards')],
                 ]]),
                 B::cards($theme, ['eyebrow' => $T('Sélection', 'Selected work'), 'title' => $T('Reportages récents', 'Recent reports'), 'more' => $T('Lire', 'Read'), 'items' => array_slice($reports, 0, 3)]),
-                B::posts($theme, ['eyebrow' => $T('Articles', 'Articles'), 'title' => $T('Derniers articles', 'Latest articles'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more'), 'bg' => 'light']),
+                M::posts($theme, ['eyebrow' => $T('Articles', 'Articles'), 'title' => $T('Derniers articles', 'Latest articles'), 'count' => 3, 'more' => $T('Lire la suite', 'Read more'), 'bg' => 'light']),
                 B::testimonials($theme, ['eyebrow' => $T('Ils travaillent avec moi', 'Who I work with'), 'title' => $T('Ce qu’en disent les rédactions', 'What editors say'), 'items' => [
                     [$T('Des sujets solides, des sources fiables, des délais respectés : une correspondante sur qui l’on peut compter.', 'Solid stories, reliable sources, deadlines met: a correspondent you can count on.'), '[Prénom Nom]', $T('Chef du service Afrique, [média]', 'Africa editor, [outlet]')],
                     [$T('Son enquête sur les mines a été l’un de nos articles les plus lus de l’année.', 'Her mining investigation was one of our most-read stories of the year.'), '[Prénom Nom]', $T('Rédactrice en chef, [média]', 'Editor-in-chief, [outlet]')],
@@ -87,7 +88,7 @@ return [
                     'html' => '<p>'.e($T('J’ai commencé à 19 ans dans une radio communautaire de mon quartier. Après des études de journalisme, j’ai rejoint la rédaction d’un quotidien national, puis choisi l’indépendance pour prendre le temps des sujets longs.', 'I started at 19 at a community radio station in my neighborhood. After studying journalism, I joined a national daily, then went freelance to take the time long stories need.')).'</p><p>'.e($T('Je collabore aujourd’hui avec des médias nationaux et internationaux, et je forme de jeunes journalistes à la vérification des faits.', 'Today I work with national and international outlets, and train young journalists in fact-checking.')).'</p>',
                     'photo' => ['medias-journaliste-bio', 'notebook-pen', $T('Journaliste prenant des notes pendant une interview', 'Journalist taking notes during an interview')],
                 ]),
-                B::timeline($theme, ['eyebrow' => $T('Parcours', 'Career'), 'title' => $T('Les grandes étapes', 'Key milestones'), 'bg' => 'light', 'items' => [
+                M::timeline($theme, ['eyebrow' => $T('Parcours', 'Career'), 'title' => $T('Les grandes étapes', 'Key milestones'), 'bg' => 'light', 'items' => [
                     ['2012', $T('Radio communautaire', 'Community radio'), $T('Premiers reportages et présentation du journal local.', 'First reports and presenting the local news.')],
                     ['2014', $T('Diplôme de journalisme', 'Journalism degree'), $T('Spécialisation en journalisme d’investigation.', 'Specialized in investigative journalism.')],
                     ['2015', $T('Reporter dans un quotidien national', 'Reporter at a national daily'), $T('Rubriques société et environnement.', 'Society and environment desks.')],
@@ -107,7 +108,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Portfolio', 'Portfolio'), 'title' => $T('Mes reportages', 'My work'), 'intro' => $T('Une sélection de travaux publiés : écrit, vidéo et photographie.', 'A selection of published work: text, video and photography.')]),
                 B::cards($theme, ['more' => $T('Lire', 'Read'), 'items' => $reports]),
-                B::videos($theme, ['eyebrow' => $T('Vidéo', 'Video'), 'title' => $T('Reportages filmés', 'Video reports'), 'intro' => $T('Tournés et montés en solo, au téléphone ou à la caméra.', 'Filmed and edited solo, on a phone or a camera.'), 'bg' => 'light', 'items' => [
+                M::videos($theme, ['eyebrow' => $T('Vidéo', 'Video'), 'title' => $T('Reportages filmés', 'Video reports'), 'intro' => $T('Tournés et montés en solo, au téléphone ou à la caméra.', 'Filmed and edited solo, on a phone or a camera.'), 'bg' => 'light', 'items' => [
                     [$T('Les gardiennes du lac', 'Guardians of the lake'), $yt('Y-rmzh0PI3c'), '12:10'],
                     [$T('L’école sous les arbres', 'School under the trees'), $yt('SkVqJ1SGeL0'), '2:30'],
                     [$T('La nouvelle vague de la rumba', 'Rumba’s new wave'), $yt('WhWc3b3KhnY'), '7:44'],
@@ -126,8 +127,8 @@ return [
             'description' => $T('Mes articles : reportages, enquêtes, carnets de terrain et conseils sur le métier.', 'My articles: reports, investigations, field notes and advice on the craft.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => 'Articles', 'title' => $T('Articles et carnets de terrain', 'Articles and field notes'), 'intro' => $T('Reportages, enquêtes et coulisses du métier.', 'Reports, investigations and behind-the-scenes of the craft.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
             ]];
 
         $pages[] = ['key' => 'services', 'slug' => $u('prestations', 'services'), 'title' => $T('Prestations', 'Services'),
@@ -194,7 +195,7 @@ return [
                     ['mic', '[Nom de la radio]', $T('Chroniques hebdomadaires sur l’environnement.', 'Weekly environment segments.')],
                     ['video', '[Nom de la chaîne]', $T('Documentaires et reportages filmés.', 'Documentaries and filmed reports.')],
                 ]]),
-                B::timeline($theme, ['eyebrow' => $T('Distinctions', 'Awards'), 'title' => $T('Prix et récompenses', 'Prizes and awards'), 'bg' => 'light', 'items' => [
+                M::timeline($theme, ['eyebrow' => $T('Distinctions', 'Awards'), 'title' => $T('Prix et récompenses', 'Prizes and awards'), 'bg' => 'light', 'items' => [
                     ['2024', $T('Prix du journalisme d’investigation', 'Investigative journalism prize'), $T('Pour l’enquête « Dans les mines artisanales ».', 'For the investigation “Inside artisanal mines”.')],
                     ['2022', $T('Prix du reportage environnemental', 'Environmental reporting prize'), $T('Pour « Les gardiennes du lac ».', 'For “Guardians of the lake”.')],
                     ['2020', $T('Bourse de reportage', 'Reporting fellowship'), $T('Six mois de reportage sur l’économie informelle.', 'Six months reporting on the informal economy.')],

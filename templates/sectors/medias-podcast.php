@@ -9,6 +9,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -50,8 +51,8 @@ return [
                     'buttons' => [[$T('Écouter le dernier épisode', 'Listen to the latest episode'), $post('ep-42-entreprendre-sans-capital', 'ep-42-starting-up-with-no-capital')], [$T('Tous les épisodes', 'All episodes'), $episodes]],
                     'photo' => ['medias-podcast-accueil', 'mic', $T('Deux personnes enregistrant un podcast', 'Two people recording a podcast')],
                 ]),
-                B::platforms($theme, ['title' => $T('Disponible sur toutes vos plateformes', 'Available on all your platforms'), 'items' => $platforms]),
-                B::posts($theme, ['eyebrow' => $T('Épisodes', 'Episodes'), 'title' => $T('Les derniers épisodes', 'Latest episodes'), 'count' => 3, 'more' => $T('Écouter', 'Listen')]),
+                M::platforms($theme, ['title' => $T('Disponible sur toutes vos plateformes', 'Available on all your platforms'), 'items' => $platforms]),
+                M::posts($theme, ['eyebrow' => $T('Épisodes', 'Episodes'), 'title' => $T('Les derniers épisodes', 'Latest episodes'), 'count' => 3, 'more' => $T('Écouter', 'Listen')]),
                 B::split($theme, [
                     'eyebrow' => $T('Le podcast', 'The podcast'),
                     'title' => $T('Une heure, une voix, une histoire', 'One hour, one voice, one story'),
@@ -62,7 +63,7 @@ return [
                     'reverse' => true,
                     'bg' => 'light',
                 ]),
-                B::videos($theme, ['eyebrow' => $T('En vidéo', 'On video'), 'title' => $T('Regardez les épisodes', 'Watch the episodes'), 'intro' => $T('Les conversations filmées en studio, en intégralité.', 'Full studio conversations, on camera.'), 'items' => [
+                M::videos($theme, ['eyebrow' => $T('En vidéo', 'On video'), 'title' => $T('Regardez les épisodes', 'Watch the episodes'), 'intro' => $T('Les conversations filmées en studio, en intégralité.', 'Full studio conversations, on camera.'), 'items' => [
                     [$T('Épisode 42 — Entreprendre sans capital', 'Episode 42 — Starting up with no capital'), $yt('PVGeM40dABA'), '3:05'],
                     [$T('Épisode 41 — La rumba, patrimoine vivant', 'Episode 41 — Rumba, a living heritage'), $yt('WhWc3b3KhnY'), '7:44'],
                     [$T('Épisode 40 — Coder depuis Kigali', 'Episode 40 — Coding from Kigali'), $yt('R6MlUcmOul8'), '12:14'],
@@ -79,9 +80,9 @@ return [
             'description' => $T('Tous les épisodes du podcast, par série : entreprendre, culture, société et coulisses.', 'Every episode of the podcast, by series: business, culture, society and behind the scenes.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Épisodes', 'Episodes'), 'title' => $T('Tous les épisodes', 'All episodes'), 'intro' => $T('Notes, invités et liens d’écoute de chaque épisode.', 'Notes, guests and listening links for every episode.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Écouter', 'Listen')]),
-                B::platforms($theme, ['title' => $T('Abonnez-vous pour ne rien manquer', 'Subscribe so you never miss one'), 'items' => $platforms]),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Écouter', 'Listen')]),
+                M::platforms($theme, ['title' => $T('Abonnez-vous pour ne rien manquer', 'Subscribe so you never miss one'), 'items' => $platforms]),
             ]];
 
         $pages[] = ['key' => 'seasons', 'slug' => $u('saisons', 'seasons'), 'title' => $T('Saisons et séries', 'Seasons and series'),
@@ -124,7 +125,7 @@ return [
                     ['[Prénom Nom]', $T('Réalisation et montage', 'Producer and editor'), 'medias-podcast-equipe-3'],
                     ['[Prénom Nom]', $T('Recherche et invités', 'Research and bookings'), 'medias-podcast-equipe-4'],
                 ]]),
-                B::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Quatre saisons', 'Four seasons'), 'bg' => 'light', 'items' => [
+                M::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Quatre saisons', 'Four seasons'), 'bg' => 'light', 'items' => [
                     ['2021', $T('Épisode 1', 'Episode 1'), $T('Enregistré dans une chambre, écouté par 200 personnes.', 'Recorded in a bedroom, heard by 200 people.')],
                     ['2022', $T('Premier studio', 'First studio'), $T('Un vrai studio et la version vidéo sur YouTube.', 'A real studio and the video version on YouTube.')],
                     ['2023', $T('Un million d’écoutes', 'A million plays'), $T('Et une première rencontre en public.', 'And a first live recording.')],
@@ -189,7 +190,7 @@ return [
             'description' => $T('Devenez partenaire du podcast : mentions, épisodes sponsorisés et séries. Audience et offres.', 'Sponsor the podcast: mentions, sponsored episodes and series. Audience and offers.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Partenaires', 'Sponsors'), 'title' => $T('Associez votre marque à des voix qui inspirent', 'Pair your brand with inspiring voices'), 'intro' => $T('Une audience attentive, qui écoute jusqu’au bout.', 'An attentive audience that listens to the end.')]),
-                B::chart($theme, [
+                M::chart($theme, [
                     'eyebrow' => $T('Audience', 'Audience'),
                     'title' => $T('Des écoutes en hausse, saison après saison', 'Plays growing, season after season'),
                     'html' => '<p>'.e($T('Écoutes mensuelles cumulées sur toutes les plateformes (statistiques des plateformes, [année]). 78 % des auditeurs écoutent plus de la moitié de chaque épisode.', 'Monthly plays across all platforms (platform statistics, [year]). 78% of listeners hear more than half of each episode.')).'</p>',

@@ -42,12 +42,14 @@ photos sont alors préfixés par le nom du pack (`medias-radio-accueil`).
   thème, « Article » et « Archive » (`App\Templates\BlogKit`), dans le style du thème. La page qui
   porte l'adresse du blog (Actualités, Enseignements…) affiche les articles avec `Blocks::posts`.
   Options du blog : `layout` (`share` : barre de lecture et boutons de partage sur l'article ;
-  `terms` : rubriques et sujets populaires) et `interval` (jours entre deux articles d'exemple).
-- **Blocs des médias** : `ticker` (flash info), `headlines` (la une : diaporama et dernières infos),
-  `live` (direct radio ou télévision, lien externe vers le flux), `videos` (replays), `table` (grille
-  des programmes), `chart` (audience), `terms` (rubriques), `timeline` (parcours), `platforms`
-  (plateformes d'écoute) ; `posts` accepte `layout => carousel`. Les vidéos d'exemple sont des films
-  libres de la Blender Foundation (CC BY), à remplacer par celles du média.
+  `terms` : rubriques et sujets populaires, appliquées par `MediaBlocks::blogLayouts`) et
+  `interval` (jours entre deux articles d'exemple).
+- **Blocs des médias** (`App\Templates\MediaBlocks`, à part des blocs communs) : `ticker` (flash
+  info), `headlines` (la une : diaporama et dernières infos), `live` (direct radio ou télévision, lien
+  externe vers le flux), `videos` (replays), `table` (grille des programmes), `chart` (audience),
+  `terms` (rubriques), `timeline` (parcours), `platforms` (plateformes d'écoute) et `posts` (grille
+  d'articles avec `layout => carousel`). Les vidéos d'exemple sont des films libres de la Blender
+  Foundation (CC BY), à remplacer par celles du média.
 - Les photos sont des **emplacements** (`{pack}-accueil`, `{pack}-equipe-1`…). Chacun reçoit une
   photo libre de droits de [Pixabay](https://pixabay.com/service/license-summary/) (ou
   [Pexels](https://www.pexels.com/license/)) ; un emplacement sans photo garde

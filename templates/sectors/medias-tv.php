@@ -9,6 +9,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -73,13 +74,13 @@ return [
         $pages[] = ['key' => 'home', 'home' => true, 'slug' => $u('accueil', 'home'), 'title' => $T('Accueil', 'Home'),
             'description' => $T('La chaîne d’information et de divertissement : direct, programmes, replays et actualité.', 'The news and entertainment channel: live, programs, replays and news.'),
             'sections' => [
-                B::ticker($theme, ['label' => $T('En ce moment', 'Right now'), 'items' => [
+                M::ticker($theme, ['label' => $T('En ce moment', 'Right now'), 'items' => [
                     [$T('20 h : Le Journal, en direct et en ligne', '8 pm: The News, live on TV and online'), $live],
                     [$T('Talents d’Afrique : la grande finale samedi à 20 h 45', 'African Talents: the grand final on Saturday at 8:45 pm'), $post('finale-talents-afrique', 'african-talents-final')],
                     [$T('Nouvelle série : Les Héritiers, tous les jours à 14 h', 'New series: The Heirs, every day at 2 pm'), $post('nouvelle-serie-les-heritiers', 'new-series-the-heirs')],
                     [$T('Face à Face : posez vos questions aux invités', 'Face to Face: ask the guests your questions'), $contact],
                 ]]),
-                B::headlines($theme, [
+                M::headlines($theme, [
                     'side' => $T('L’info', 'News'), 'read' => $T('Découvrir', 'Find out more'), 'count' => 3,
                     'button' => [$T('Toute l’info', 'All the news'), $news],
                     'slides' => [
@@ -88,7 +89,7 @@ return [
                         ['medias-tv-une-3', 'newspaper', $T('Le Journal de 20 h fait peau neuve', 'The 8 pm News gets a new look'), $T('Nouveau plateau, nouveaux reportages en région, plus de place pour vos questions.', 'A new set, more regional reports, more room for your questions.'), $post('nouveau-journal-20h', 'new-8pm-news'), $T('Information', 'News')],
                     ],
                 ]),
-                B::live($theme, [
+                M::live($theme, [
                     'badge' => $T('En direct', 'Live now'),
                     'title' => $T('Suivez la chaîne en direct, partout', 'Watch the channel live, anywhere'),
                     'text' => $T('Sur la TNT, le satellite, le câble ou en ligne : nos programmes sont aussi diffusés en direct sur Internet, gratuitement.', 'On digital terrestrial, satellite, cable or online: our programs also stream live on the Internet, for free.'),
@@ -96,9 +97,9 @@ return [
                     'buttons' => [$watch, [$T('Programme du jour', 'Today’s schedule'), $live]],
                     'video' => $yt('aqz-KE-bpKQ'),
                 ]),
-                B::videos($theme, ['eyebrow' => $T('Replay', 'Replay'), 'title' => $T('Vous les avez manqués ?', 'Missed them?'), 'intro' => $T('Nos émissions en intégralité, disponibles juste après leur diffusion.', 'Our full shows, available right after they air.'), 'items' => $replays]),
+                M::videos($theme, ['eyebrow' => $T('Replay', 'Replay'), 'title' => $T('Vous les avez manqués ?', 'Missed them?'), 'intro' => $T('Nos émissions en intégralité, disponibles juste après leur diffusion.', 'Our full shows, available right after they air.'), 'items' => $replays]),
                 B::cards($theme, ['eyebrow' => $T('Nos émissions', 'Our shows'), 'title' => $T('Les programmes phares', 'Flagship programs'), 'more' => $T('Horaires', 'Times'), 'bg' => 'light', 'items' => array_slice($showItems, 0, 3)]),
-                B::posts($theme, ['eyebrow' => $T('L’info', 'News'), 'title' => $T('L’actualité de la chaîne', 'Latest news'), 'count' => 6, 'layout' => 'carousel', 'excerpt' => false, 'more' => $T('Lire', 'Read')]),
+                M::posts($theme, ['eyebrow' => $T('L’info', 'News'), 'title' => $T('L’actualité de la chaîne', 'Latest news'), 'count' => 6, 'layout' => 'carousel', 'excerpt' => false, 'more' => $T('Lire', 'Read')]),
                 B::stats($theme, $audience),
                 B::cta($theme, $cta),
             ]];
@@ -106,7 +107,7 @@ return [
         $pages[] = ['key' => 'live', 'slug' => $u('direct', 'live'), 'title' => $T('Direct', 'Live'),
             'description' => $T('Regardez la chaîne en direct : TNT, satellite, câble et en ligne. Le programme du jour.', 'Watch the channel live: digital terrestrial, satellite, cable and online. Today’s schedule.'),
             'sections' => [
-                B::live($theme, [
+                M::live($theme, [
                     'tag' => 'h1', 'badge' => $T('En direct', 'Live now'),
                     'title' => $T('Regardez la chaîne en direct', 'Watch the channel live'),
                     'text' => $T('Le direct est diffusé sur notre chaîne en ligne : il s’ouvre dans un nouvel onglet. Certains programmes (films, sport) peuvent être indisponibles en ligne pour des raisons de droits.', 'The live stream plays on our online channel and opens in a new tab. Some programs (films, sport) may be unavailable online for rights reasons.'),
@@ -114,7 +115,7 @@ return [
                     'buttons' => [$watch],
                     'video' => $yt('aqz-KE-bpKQ'),
                 ]),
-                B::table($theme, ['eyebrow' => $T('Aujourd’hui', 'Today'), 'title' => $T('Programme du jour', 'Today’s schedule'), 'rows' => $tonight, 'note' => $T('Horaires donnés à titre indicatif, sous réserve de modification.', 'Times are indicative and subject to change.')]),
+                M::table($theme, ['eyebrow' => $T('Aujourd’hui', 'Today'), 'title' => $T('Programme du jour', 'Today’s schedule'), 'rows' => $tonight, 'note' => $T('Horaires donnés à titre indicatif, sous réserve de modification.', 'Times are indicative and subject to change.')]),
                 B::features($theme, ['eyebrow' => $T('Où nous regarder', 'Where to watch'), 'title' => $T('La chaîne sur tous les écrans', 'The channel on every screen'), 'cols' => 4, 'bg' => 'light', 'items' => [
                     ['monitor', 'TNT', $T('Canal 23, avec un simple décodeur TNT et une antenne.', 'Channel 23, with a simple digital decoder and an antenna.')],
                     ['globe', $T('Satellite', 'Satellite'), $T('Canal 112 sur les principaux bouquets satellite.', 'Channel 112 on the main satellite packages.')],
@@ -132,7 +133,7 @@ return [
             'description' => $T('La grille des programmes de la semaine et les soirées spéciales.', 'The weekly program schedule and special evenings.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Programmes', 'Schedule'), 'title' => $T('La grille de la semaine', 'This week’s schedule'), 'intro' => $T('Information, séries, magazines et divertissement : tout ce qui passe à l’antenne.', 'News, series, magazines and entertainment: everything on air.')]),
-                B::table($theme, ['rows' => [
+                M::table($theme, ['rows' => [
                     [$T('Heure', 'Time'), $T('Lundi – vendredi', 'Monday – Friday'), $T('Samedi', 'Saturday'), $T('Dimanche', 'Sunday')],
                     ['06:30', $T('Bonjour l’Afrique', 'Good Morning Africa'), $T('Dessins animés', 'Cartoons'), $T('Dessins animés', 'Cartoons')],
                     ['12:30', $T('Le Journal de 13 h', 'The 1 pm News'), $T('Le Journal de 13 h', 'The 1 pm News'), $T('Le Journal de 13 h', 'The 1 pm News')],
@@ -155,7 +156,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Émissions', 'Shows'), 'title' => $T('Nos émissions', 'Our shows'), 'intro' => $T('Des programmes produits dans le pays, par des équipes passionnées.', 'Programs produced in the country, by passionate teams.')]),
                 B::cards($theme, ['more' => $T('Horaires', 'Times'), 'items' => $showItems]),
-                B::videos($theme, ['eyebrow' => $T('Replay', 'Replay'), 'title' => $T('Les derniers replays', 'Latest replays'), 'bg' => 'light', 'items' => $replays]),
+                M::videos($theme, ['eyebrow' => $T('Replay', 'Replay'), 'title' => $T('Les derniers replays', 'Latest replays'), 'bg' => 'light', 'items' => $replays]),
                 B::split($theme, [
                     'eyebrow' => $T('Participer', 'Take part'),
                     'title' => $T('Venez sur le plateau', 'Come to the studio'),
@@ -171,8 +172,8 @@ return [
             'description' => $T('L’actualité de la chaîne et du pays : information, programmes, sport et culture.', 'News from the channel and the country: current affairs, programs, sport and culture.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('L’info', 'News'), 'title' => $T('L’actualité de la chaîne', 'Channel news'), 'intro' => $T('Nos reportages, nos programmes et les coulisses de la chaîne.', 'Our reports, our programs and behind the scenes.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
             ]];
 
         $pages[] = ['key' => 'about', 'slug' => $u('la-chaine', 'about'), 'title' => $T('La chaîne', 'About'),
@@ -185,7 +186,7 @@ return [
                     'html' => '<p>'.e($T('La chaîne a commencé par trois heures de programmes par jour, diffusées dans la capitale. Elle émet aujourd’hui 24 heures sur 24 sur tout le territoire et en ligne, avec plus de 200 collaborateurs.', 'The channel started with three hours of programming a day in the capital. Today it broadcasts 24 hours a day across the country and online, with more than 200 staff.')).'</p>',
                     'photo' => ['medias-tv-studio', 'camera', $T('Caméra de télévision sur un plateau', 'TV camera in a studio')],
                 ]),
-                B::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Les grandes étapes', 'Key milestones'), 'bg' => 'light', 'items' => [
+                M::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Les grandes étapes', 'Key milestones'), 'bg' => 'light', 'items' => [
                     ['2005', $T('Premières émissions', 'First broadcasts'), $T('Trois heures par jour, dans la capitale.', 'Three hours a day, in the capital.')],
                     ['2011', $T('Diffusion nationale', 'Nationwide coverage'), $T('Le satellite porte la chaîne dans tout le pays.', 'Satellite takes the channel nationwide.')],
                     ['2017', $T('Passage à la TNT et à la HD', 'Digital terrestrial and HD'), $T('Une image plus nette sur le canal 23.', 'A sharper picture on channel 23.')],
@@ -214,7 +215,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Annonceurs', 'Advertisers'), 'title' => $T('Faites-vous voir de tout le pays', 'Get seen across the country'), 'intro' => $T('La télévision reste le média qui rassemble les familles, chaque soir.', 'Television is still the medium that brings families together every evening.')]),
                 B::stats($theme, $audience + ['bg' => 'primary']),
-                B::chart($theme, [
+                M::chart($theme, [
                     'eyebrow' => $T('Audience', 'Audience'),
                     'title' => $T('Le soir, la famille se retrouve devant la chaîne', 'In the evening, families gather around the channel'),
                     'html' => '<p>'.e($T('Répartition de notre audience par tranche horaire en semaine (mesure d’audience, [année]). Le Journal de 20 h et la soirée concentrent plus de la moitié des téléspectateurs.', 'Our weekday audience by time slot (audience measurement, [year]). The 8 pm News and prime time draw more than half of viewers.')).'</p>',

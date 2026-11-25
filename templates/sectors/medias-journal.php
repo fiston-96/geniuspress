@@ -9,6 +9,7 @@
  */
 
 use App\Templates\Blocks as B;
+use App\Templates\MediaBlocks as M;
 use App\Templates\Theme;
 
 return [
@@ -53,14 +54,14 @@ return [
         $pages[] = ['key' => 'home', 'home' => true, 'slug' => $u('accueil', 'home'), 'title' => $T('Accueil', 'Home'),
             'description' => $T('L’actualité locale et nationale vérifiée : politique, économie, société, culture, sport et enquêtes.', 'Checked local and national news: politics, economy, society, culture, sports and investigations.'),
             'sections' => [
-                B::ticker($theme, ['label' => $T('Flash info', 'Breaking'), 'items' => [
+                M::ticker($theme, ['label' => $T('Flash info', 'Breaking'), 'items' => [
                     [$T('Le marché central rouvre ses portes après six mois de travaux', 'Central market reopens after six months of works'), $post('marche-central-rouvre', 'central-market-reopens')],
                     [$T('Budget communal : les grandes lignes votées hier soir', 'City budget: main lines voted last night'), $post('budget-communal-ce-qui-change', 'city-budget-what-changes')],
                     [$T('Football : les cadets qualifiés pour la finale régionale', 'Football: under-17s reach the regional final'), $post('cadets-qualifies-finale', 'under-17-reach-regional-final')],
                     [$T('Météo : fortes pluies attendues ce week-end dans la région', 'Weather: heavy rain expected in the region this weekend')],
                     [$T('Festival des musiques urbaines : la programmation dévoilée', 'Urban music festival: line-up revealed'), $post('festival-musiques-urbaines', 'urban-music-festival-returns')],
                 ]]),
-                B::headlines($theme, [
+                M::headlines($theme, [
                     'side' => $T('Dernières infos', 'Latest news'), 'read' => $T('Lire l’article', 'Read the story'), 'count' => 3,
                     'button' => [$T('Toute l’actualité', 'All the news'), $news],
                     'slides' => [
@@ -70,7 +71,7 @@ return [
                     ],
                 ]),
                 B::features($theme, ['eyebrow' => $T('Nos rubriques', 'Our sections'), 'title' => $T('Toute l’actualité, rubrique par rubrique', 'All the news, section by section'), 'intro' => $T('Une rédaction présente sur le terrain chaque jour, des articles vérifiés avant publication.', 'A newsroom on the ground every day, stories checked before publication.'), 'items' => $rubriques, 'bg' => 'light']),
-                B::posts($theme, ['eyebrow' => $T('À ne pas manquer', 'Don’t miss'), 'title' => $T('Les articles les plus lus', 'Most read stories'), 'count' => 6, 'layout' => 'carousel', 'excerpt' => false, 'more' => $T('Lire', 'Read')]),
+                M::posts($theme, ['eyebrow' => $T('À ne pas manquer', 'Don’t miss'), 'title' => $T('Les articles les plus lus', 'Most read stories'), 'count' => 6, 'layout' => 'carousel', 'excerpt' => false, 'more' => $T('Lire', 'Read')]),
                 B::split($theme, [
                     'eyebrow' => $T('Enquêtes', 'Investigations'),
                     'title' => $T('Le journalisme qui prend le temps', 'Journalism that takes its time'),
@@ -81,7 +82,7 @@ return [
                     'reverse' => true,
                 ]),
                 B::stats($theme, $audience),
-                B::posts($theme, ['eyebrow' => $T('En continu', 'Live updates'), 'title' => $T('Les dernières nouvelles', 'The latest news'), 'count' => 6, 'more' => $T('Lire la suite', 'Read more'), 'bg' => 'light']),
+                M::posts($theme, ['eyebrow' => $T('En continu', 'Live updates'), 'title' => $T('Les dernières nouvelles', 'The latest news'), 'count' => 6, 'more' => $T('Lire la suite', 'Read more'), 'bg' => 'light']),
                 B::cta($theme, $cta),
             ]];
 
@@ -89,9 +90,9 @@ return [
             'description' => $T('Tous nos articles : politique, économie, société, culture, sport et enquêtes.', 'All our stories: politics, economy, society, culture, sports and investigations.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Toute l’actualité', 'All the news'), 'intro' => $T('Des informations vérifiées, publiées chaque jour par notre rédaction.', 'Checked news, published every day by our newsroom.')]),
-                B::terms($theme, ['bg' => 'light']),
-                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
-                B::terms($theme, ['title' => $T('Sujets du moment', 'Trending topics'), 'taxonomy' => 'tag', 'layout' => 'cloud', 'count' => false, 'bg' => 'light']),
+                M::terms($theme, ['bg' => 'light']),
+                M::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
+                M::terms($theme, ['title' => $T('Sujets du moment', 'Trending topics'), 'taxonomy' => 'tag', 'layout' => 'cloud', 'count' => false, 'bg' => 'light']),
             ]];
 
         $pages[] = ['key' => 'sections', 'slug' => $u('rubriques', 'sections'), 'title' => $T('Rubriques', 'Sections'),
@@ -172,7 +173,7 @@ return [
                     'html' => '<p>'.e($T('Tout a commencé avec quatre journalistes et une feuille de huit pages vendue au marché. Aujourd’hui, notre rédaction publie chaque jour en ligne, envoie sa lettre du matin à des dizaines de milliers d’abonnés et informe sur tous les réseaux.', 'It all started with four journalists and an eight-page sheet sold at the market. Today our newsroom publishes online every day, sends its morning newsletter to tens of thousands of subscribers and reports across every network.')).'</p><p>'.e($T('Notre ligne n’a pas changé : informer juste, expliquer clairement, donner la parole à tous.', 'Our line hasn’t changed: report accurately, explain clearly, give everyone a voice.')).'</p>',
                     'photo' => ['medias-journal-histoire', 'newspaper', $T('Pile de journaux imprimés', 'Stack of printed newspapers')],
                 ]),
-                B::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Douze ans d’information', 'Twelve years of news'), 'bg' => 'light', 'items' => [
+                M::timeline($theme, ['eyebrow' => $T('Repères', 'Milestones'), 'title' => $T('Douze ans d’information', 'Twelve years of news'), 'bg' => 'light', 'items' => [
                     ['2013', $T('Premier numéro', 'First issue'), $T('Un hebdomadaire de huit pages, imprimé à 2 000 exemplaires.', 'An eight-page weekly, 2,000 copies printed.')],
                     ['2016', $T('Lancement du site', 'Website launch'), $T('L’actualité publiée chaque jour en ligne, gratuitement.', 'News published online every day, free of charge.')],
                     ['2019', $T('La lettre du matin', 'The morning newsletter'), $T('L’essentiel de l’actualité par e-mail et sur WhatsApp à 7 h.', 'The day’s essentials by email and WhatsApp at 7 am.')],
@@ -197,7 +198,7 @@ return [
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Annonceurs', 'Advertisers'), 'title' => $T('Touchez un public qui nous fait confiance', 'Reach an audience that trusts us'), 'intro' => $T('Des formats clairs, une audience mesurée, une publicité toujours séparée de l’information.', 'Clear formats, a measured audience, advertising always kept apart from the news.')]),
                 B::stats($theme, $audience + ['bg' => 'primary']),
-                B::chart($theme, [
+                M::chart($theme, [
                     'eyebrow' => $T('Audience', 'Audience'),
                     'title' => $T('Une audience qui grandit chaque mois', 'An audience that grows every month'),
                     'html' => '<p>'.e($T('Lecteurs uniques par mois sur le site et la lettre d’information, mesurés par notre outil de statistiques. Le rapport détaillé est inclus dans notre kit média.', 'Unique monthly readers on the website and newsletter, measured by our analytics tool. The detailed report is included in our media kit.')).'</p>',

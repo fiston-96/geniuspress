@@ -141,7 +141,7 @@ final class TemplateBuilder
      * Blog d'un modèle dans une langue : réglage (adresse, titre), catégories,
      * articles d'exemple (photos du pack) et gabarits « Article » et « Archive ».
      * $data : base, title, categories [clé => nom], posts [[key, slug, title, excerpt, category, photo, body, heading?, quote?, tags?]],
-     * layout (options des gabarits, voir BlogKit::layouts), interval (jours entre deux articles, 14 par défaut).
+     * layout (options des gabarits des médias, voir MediaBlocks::blogLayouts), interval (jours entre deux articles, 14 par défaut).
      */
     private function blog(string $id, string $lang, string $prefix, Theme $theme, array $data, array &$blog, array &$terms, array &$posts, array &$layouts): void
     {
@@ -180,7 +180,7 @@ final class TemplateBuilder
                 'terms' => [...(isset($termIds[$p['category']]) ? [$termIds[$p['category']]] : []), ...$tags],
             ];
         }
-        foreach (BlogKit::layouts($theme, $T, $data['layout'] ?? []) as $layout) {
+        foreach (MediaBlocks::blogLayouts(BlogKit::layouts($theme, $T), $theme, $T, $data['layout'] ?? []) as $layout) {
             $layouts[] = $layout + ['id' => count($layouts) + 1, 'locale' => $lang, 'status' => 'published', 'priority' => 0, 'conditions' => [['mode' => 'include', 'target' => 'all']]];
         }
     }
