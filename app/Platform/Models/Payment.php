@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Tentative de paiement d'une commande auprès d'un prestataire. */
-#[Fillable(['order_id', 'gateway', 'method', 'operator', 'phone', 'reference', 'status', 'amount', 'currency', 'failure'])]
+#[Fillable(['order_id', 'gateway', 'method', 'operator', 'phone', 'reference', 'gateway_reference', 'status', 'amount', 'currency', 'failure'])]
 class Payment extends Model
 {
     protected $table = 'platform_payments';

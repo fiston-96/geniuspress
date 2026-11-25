@@ -1700,5 +1700,16 @@
     "Voir la démo ↗": "View the demo ↗",
     "Tous les modèles sont gratuits pour le moment.": "All templates are free for now.",
     "Espace client GeniusPress": "GeniusPress customer area",
-    "Modèle d’IA": "AI model"
+    "Modèle d’IA": "AI model",
+    "Le paiement Mobile Money n’est pas disponible dans la devise :currency. Choisissez une offre en francs (CDF, XAF, XOF…).": "Mobile Money payment is not available in :currency. Choose a plan priced in francs (CDF, XAF, XOF…).",
+    "Le montant doit être un nombre entier de francs congolais.": "The amount must be a whole number of Congolese francs.",
+    "Cet opérateur demande un code reçu par SMS, ce qui n’est pas encore pris en charge. Choisissez un autre opérateur.": "This operator requires a code received by SMS, which is not supported yet. Choose another operator.",
+    "Composez :code sur votre téléphone pour valider le paiement, puis cliquez sur « J’ai payé : vérifier ».": "Dial :code on your phone to approve the payment, then click “I have paid: check”.",
+    "Le service de paiement est injoignable. Réessayez dans un instant.": "The payment service cannot be reached. Please try again in a moment.",
+    "Ce numéro Mobile Money est invalide. Indiquez-le avec l’indicatif du pays.": "This Mobile Money number is invalid. Enter it with the country code.",
+    "Cet opérateur Mobile Money n’est pas disponible pour ce numéro.": "This Mobile Money operator is not available for this number.",
+    "Le paiement Mobile Money n’est pas encore disponible pour ce pays ou cette devise.": "Mobile Money payment is not yet available for this country or currency.",
+    "Ce montant ne peut pas être payé par Mobile Money (minimum, plafond ou limite du jour de l’opérateur).": "This amount cannot be paid by Mobile Money (operator minimum, maximum or daily limit).",
+    "Le service de paiement est momentanément indisponible. Réessayez dans un instant.": "The payment service is temporarily unavailable. Please try again in a moment.",
+    "Le paiement n’a pas pu être lancé. Réessayez plus tard.": "The payment could not be started. Please try again later."
 }

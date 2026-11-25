@@ -10,13 +10,14 @@ class PaymentManager
     /** Prestataires connus : nom => classe. Les prestataires réels s'ajoutent ici. */
     public const GATEWAYS = [
         'sandbox' => SandboxPaymentGateway::class,
+        'monerails' => MonerailsGateway::class,
     ];
 
     public function gateway(?string $name = null): PaymentGateway
     {
         $name ??= (string) config('geniuspress.platform.payment_gateway');
         $class = self::GATEWAYS[$name] ?? throw new PlatformException(__('Aucun moyen de paiement n’est configuré. Réessayez plus tard.'));
-        if ($name === 'sandbox' && ! self::sandboxAllowed()) {
+        if (($name === 'sandbox' && ! self::sandboxAllowed()) || ($name === 'monerails' && ! MonerailsGateway::usable())) {
             throw new PlatformException(__('Aucun moyen de paiement n’est configuré. Réessayez plus tard.'));
         }
 

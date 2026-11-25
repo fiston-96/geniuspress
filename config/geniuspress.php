@@ -65,6 +65,12 @@ return [
         'domain_registrar' => env('GP_DOMAIN_REGISTRAR', 'sandbox'),
         // Paiements et domaines simulés : jamais en production, sauf GP_PLATFORM_SANDBOX=true.
         'sandbox' => env('GP_PLATFORM_SANDBOX'),
+        // Monerails (GP_PAYMENT_GATEWAY=monerails) : Mobile Money. Clés dans le .env uniquement.
+        'monerails' => [
+            'base_url' => env('GP_MONERAILS_URL', 'https://api.monerails.com/v1'),
+            'key' => env('GP_MONERAILS_KEY'),
+            'webhook_secret' => env('GP_MONERAILS_WEBHOOK_SECRET'),
+        ],
         // Relais IA : demandes par minute et par licence, plafond de jetons de sortie, taille maximale d'une demande.
         'relay_per_minute' => (int) env('GP_RELAY_PER_MINUTE', 30),
         'relay_max_tokens' => 32000,

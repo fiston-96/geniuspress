@@ -59,7 +59,15 @@ Interfaces :
 - `App\Platform\Payments\PaymentGateway` — `name()`, `methods()`, `start(Payment, array $details)`, `verify(Payment)`, `webhookReference(Request)`. Implémentation de test : `SandboxPaymentGateway` (aucun appel réseau : une page `/compte/paiement-test/{référence}` permet de simuler la réussite ou l'échec). Choix par `GP_PAYMENT_GATEWAY` (défaut `sandbox`).
 - `App\Platform\Domains\DomainRegistrar` — `name()`, `check(array $domains)`, `register(string $domain, int $years, array $contact)`, `renew(string $domain, int $years)`. Implémentation de test : `SandboxRegistrar` (règles déterministes, aucun appel réseau). Choix par `GP_DOMAIN_REGISTRAR` (défaut `sandbox`).
 
-**À décider par l'exploitant** : le prestataire de paiement (Flutterwave, CinetPay, PawaPay, Stripe… : Mobile Money dans les pays visés, cartes, frais, délai de versement) et le registraire (LWS, OVH, Namecheap, ResellerClub… : API revendeur, extensions africaines comme `.cd`, `.ci`, `.sn`, `.cm`). Chaque implémentation réelle est une classe de plus derrière l'interface ; ses clés vont dans le `.env` uniquement.
+**Prestataire de paiement retenu : Monerails** (`MonerailsGateway`, `GP_PAYMENT_GATEWAY=monerails`, documentation : https://docs.monerails.com). Une seule API pour le Mobile Money dans 22 pays africains, dont la RDC (Airtel Money, M-Pesa, Orange Money, Afrimoney, Vodacom).
+
+- Encaissement : `POST /v1/collections` avec `Idempotency-Key` et `client_reference` = notre référence de paiement ; l'identifiant de la collecte est gardé dans `platform_payments.gateway_reference`. État relu par `GET /v1/collections/{id}` (montant et devise comparés à la commande).
+- Notifications : `POST /api/platform/v1/payments/monerails/webhook`, à déclarer dans le tableau de bord Monerails (événements `collection.*`). Signature `Monerail-Signature: t=…,v1=…` (HMAC-SHA256 de `t.corps` avec le secret `whsec_…`), horodatage à ±5 minutes.
+- Clés dans le `.env` seulement : `GP_MONERAILS_KEY` (`mr_test_…` ou `mr_live_…`) et `GP_MONERAILS_WEBHOOK_SECRET`. Une clé de test est refusée en production (elle validerait des paiements sans argent réel), sauf `GP_PLATFORM_SANDBOX=true`.
+- **Limites à connaître** : Monerails n'encaisse **pas les cartes** de nos clients (ses cartes Visa virtuelles sont des cartes que nous détenons, rechargées en cryptomonnaie depuis son tableau de bord) ; en RDC, seul le **CDF** est ouvert (l'USD est « en ouverture ») : les offres vendues en RDC doivent donc avoir un prix en CDF, en francs entiers. Les opérateurs qui valident par code SMS (`requires_otp`) ne sont pas encore pris en charge. Les codes d'opérateurs sont à confirmer avec `GET /v1/operators?currency=CDF&country=CD` avant la mise en service. Monerails n'a pas de SDK PHP : l'intégration utilise le client HTTP de Laravel.
+- Pour les cartes, il faudra un second prestataire (CinetPay, Flutterwave…) ; `PaymentManager` ne gère aujourd'hui qu'un prestataire à la fois : le choix du prestataire selon le moyen de paiement est à ajouter à ce moment-là.
+
+**À décider par l'exploitant** : le prestataire des paiements par carte, et le registraire (LWS, OVH, Namecheap, ResellerClub… : API revendeur, extensions africaines comme `.cd`, `.ci`, `.sn`, `.cm`). Chaque implémentation réelle est une classe de plus derrière l'interface ; ses clés vont dans le `.env` uniquement.
 
 ## 4. Crédits IA et règle de prix
 
@@ -124,7 +132,9 @@ Côté facturation, `activatePlan($customer, $plan)` (appelé à la livraison d'
 ```
 GP_PLATFORM=true                 # active la plateforme sur ce serveur
 GP_PLATFORM_CURRENCY=USD         # devise par défaut des offres
-GP_PAYMENT_GATEWAY=sandbox       # prestataire de paiement
+GP_PAYMENT_GATEWAY=sandbox       # prestataire de paiement : sandbox | monerails
+GP_MONERAILS_KEY=…               # mr_test_… ou mr_live_… (jamais affichée)
+GP_MONERAILS_WEBHOOK_SECRET=…    # whsec_…
 GP_DOMAIN_REGISTRAR=sandbox      # registraire
 GP_RELAY_PER_MINUTE=30
 ANTHROPIC_API_KEY=…              # clé de la plateforme pour le relais (jamais affichée)
@@ -138,6 +148,6 @@ GP_PLATFORM_URL=https://geniuspress.site
 
 - `npm run build` au déploiement : les vues de la plateforme utilisent quelques classes Tailwind nouvelles.
 
-- Implémentations réelles du prestataire de paiement et du registraire, après choix de l'exploitant.
+- Prestataire des paiements par carte et registraire, après choix de l'exploitant ; validation des paiements Monerails par code SMS.
 - Retirer des fichiers publics du catalogue les zips des modèles payants (servis seulement par `/templates/{id}/download`).
 - Factures PDF, e-mails de confirmation et rappels d'échéance, vérification de l'adresse e-mail des clients.
