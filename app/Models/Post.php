@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 #[Fillable(['title', 'slug', 'locale', 'translation_group', 'status', 'content', 'draft_content', 'excerpt', 'featured_media_id', 'meta_title', 'meta_description', 'author_id', 'published_at'])]
 class Post extends Model
 {
-    use HasBuilderContent, SoftDeletes;
+    use HasBuilderContent, SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['name', 'type', 'locale', 'status', 'conditions', 'priority', 'content', 'draft_content'])]
 class Layout extends Model
 {
-    use HasBuilderContent, SoftDeletes;
+    use HasBuilderContent, SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
     public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found'];
 

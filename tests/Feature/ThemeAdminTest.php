@@ -162,4 +162,26 @@ class ThemeAdminTest extends TestCase
 
         $this->put(route('admin.posts.settings'), ['per_page' => 6, 'blog' => ['fr' => ['base' => 'admin']]])->assertSessionHasErrors('blog');
     }
+
+    public function test_admin_lists_do_not_load_builder_content(): void
+    {
+        // Contenu volumineux : MySQL ne peut pas trier ces lignes avec son tampon par défaut.
+        $big = ['version' => 2, 'elements' => [['id' => 'w000000001', 'type' => 'text', 'settings' => ['html' => '<p>'.str_repeat('x', 5000).'</p>']]]];
+        Page::create(['title' => 'Grande page', 'slug' => 'grande', 'status' => 'published', 'content' => $big, 'draft_content' => $big]);
+        Post::create(['title' => 'Grand article', 'slug' => 'grand', 'status' => 'published', 'published_at' => now(), 'content' => $big]);
+        Layout::create(['name' => 'En-tête', 'type' => 'header', 'status' => 'published', 'content' => $big]);
+
+        foreach ([Page::class, Post::class, Layout::class] as $model) {
+            $row = $model::query()->withoutContent()->first();
+            $this->assertArrayNotHasKey('content', $row->getAttributes(), $model);
+            $this->assertArrayNotHasKey('draft_content', $row->getAttributes(), $model);
+            $this->assertArrayHasKey('updated_at', $row->getAttributes(), $model);
+        }
+
+        $this->actingAs($this->admin);
+        $this->get(route('admin.dashboard'))->assertOk()->assertSee('Grande page');
+        $this->get(route('admin.pages.index'))->assertOk()->assertSee('Grande page');
+        $this->get(route('admin.posts.index'))->assertOk()->assertSee('Grand article');
+        $this->get(route('admin.layouts.index'))->assertOk()->assertSee('En-tête');
+    }
 }

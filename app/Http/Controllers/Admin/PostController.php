@@ -23,7 +23,7 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $posts = Post::query()
+        $posts = Post::query()->withoutContent()
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('title', 'like', "%{$term}%"))
             ->when($request->string('status')->toString(), fn ($q, $s) => match ($s) {
                 'scheduled' => $q->where('status', Post::STATUS_PUBLISHED)->where('published_at', '>', now()),

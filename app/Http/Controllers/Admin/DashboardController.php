@@ -17,7 +17,7 @@ class DashboardController extends Controller
                 'drafts' => Page::where('status', Page::STATUS_DRAFT)->count(),
                 'media' => Media::count(),
             ],
-            'recent' => Page::latest('updated_at')->limit(6)->get(),
+            'recent' => Page::query()->withoutContent()->latest('updated_at')->limit(6)->get(),
         ]);
     }
 }

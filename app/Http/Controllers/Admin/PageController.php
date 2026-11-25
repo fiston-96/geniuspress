@@ -19,7 +19,7 @@ class PageController extends Controller
 
     public function index(Request $request)
     {
-        $pages = Page::query()
+        $pages = Page::query()->withoutContent()
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('title', 'like', "%{$term}%"))
             ->when($request->string('status')->toString(), fn ($q, $s) => $q->where('status', $s))
             ->with('author:id,name')

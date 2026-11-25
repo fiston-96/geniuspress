@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 #[Fillable(['title', 'slug', 'locale', 'translation_group', 'status', 'is_home', 'content', 'draft_content', 'meta_title', 'meta_description', 'author_id', 'published_at'])]
 class Page extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';

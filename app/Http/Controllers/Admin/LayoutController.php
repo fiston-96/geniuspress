@@ -23,7 +23,7 @@ class LayoutController extends Controller
 {
     public function index()
     {
-        $layouts = Layout::query()->orderByDesc('status')->orderByDesc('priority')->orderBy('name')->get()->groupBy('type');
+        $layouts = Layout::query()->withoutContent()->orderByDesc('status')->orderByDesc('priority')->orderBy('name')->get()->groupBy('type');
 
         return view('admin.layouts.index', ['layouts' => $layouts, 'types' => Layout::typeLabels(), 'locales' => $this->locales()]);
     }
@@ -174,7 +174,7 @@ class LayoutController extends Controller
                 'not_found' => __('Page introuvable (404)'),
             ],
         ];
-        $groups[__('Pages')] = Page::query()->orderBy('locale')->orderBy('title')->limit(300)->get()
+        $groups[__('Pages')] = Page::query()->withoutContent()->orderBy('locale')->orderBy('title')->limit(300)->get()
             ->mapWithKeys(fn ($p) => ['page:'.$p->id => $p->title.' ('.strtoupper($p->locale).')'])->all();
         $categories = Term::query()->where('taxonomy', Term::CATEGORY)->orderBy('name')->get();
         $groups[__('Articles d’une catégorie')] = $categories->mapWithKeys(fn ($t) => ['in_category:'.$t->id => $t->name.' ('.strtoupper($t->locale).')'])->all();
