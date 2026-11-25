@@ -53,4 +53,29 @@ return [
         // Nombre maximal de requêtes IA par utilisateur et par minute.
         'per_minute' => (int) env('GP_AI_PER_MINUTE', 10),
     ],
+
+    // Plateforme commerciale (app/Platform, docs/developpeurs/plateforme-commerciale.md).
+    'platform' => [
+        // Active la plateforme (comptes clients, offres, relais IA) sur ce serveur. Désactivée par défaut.
+        'enabled' => (bool) env('GP_PLATFORM', false),
+        // Devise par défaut des offres.
+        'currency' => env('GP_PLATFORM_CURRENCY', 'USD'),
+        // Prestataire de paiement et registraire de domaines (« sandbox » : tests, aucun appel réel).
+        'payment_gateway' => env('GP_PAYMENT_GATEWAY', 'sandbox'),
+        'domain_registrar' => env('GP_DOMAIN_REGISTRAR', 'sandbox'),
+        // Paiements et domaines simulés : jamais en production, sauf GP_PLATFORM_SANDBOX=true.
+        'sandbox' => env('GP_PLATFORM_SANDBOX'),
+        // Relais IA : demandes par minute et par licence, plafond de jetons de sortie, taille maximale d'une demande.
+        'relay_per_minute' => (int) env('GP_RELAY_PER_MINUTE', 30),
+        'relay_max_tokens' => 32000,
+        'relay_max_bytes' => 8 * 1024 * 1024,
+        // Multiplicateur appliqué au coût réel de l'IA, si l'exploitant ne l'a pas réglé.
+        'ai_multiplier' => 2,
+    ],
+
+    // Côté site d'un client : plateforme consultée et clé de licence (ou réglage « gp_license_key »).
+    'license' => [
+        'platform_url' => env('GP_PLATFORM_URL', 'https://geniuspress.site'),
+        'key' => env('GP_LICENSE_KEY'),
+    ],
 ];

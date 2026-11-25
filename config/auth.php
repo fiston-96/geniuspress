@@ -42,6 +42,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        // Clients de la plateforme commerciale (app/Platform), distincts des utilisateurs du site.
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'platform_customers',
+        ],
     ],
 
     /*
@@ -65,6 +70,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+        'platform_customers' => [
+            'driver' => 'eloquent',
+            'model' => App\Platform\Models\Customer::class,
         ],
 
         // 'users' => [
