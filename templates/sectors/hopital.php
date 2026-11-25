@@ -219,12 +219,7 @@ return [
             'description' => $T('Conseils de prévention, paludisme, vaccination, santé maternelle et hygiène, ainsi que nos campagnes et journées de dépistage.', 'Prevention tips on malaria, vaccination, maternal health and hygiene, plus our campaigns and screening days.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Santé et prévention', 'Health and prevention'), 'title' => $T('Mieux vaut prévenir', 'Prevention matters'), 'intro' => $T('Des conseils généraux pour protéger votre santé. Ils ne remplacent pas l’avis d’un médecin.', 'General advice to protect your health. It does not replace a doctor’s advice.')]),
-                B::cards($theme, ['cols' => 2, 'items' => [
-                    ['hopital-prevention-paludisme', 'thermometer', $T('Se protéger du paludisme', 'Protecting yourself from malaria'), $T('Moustiquaire, assainissement autour de la maison et consultation rapide en cas de fièvre.', 'Bed nets, a clean surrounding environment and prompt consultation in case of fever.')],
-                    ['hopital-prevention-vaccination', 'syringe', $T('La vaccination des enfants', 'Vaccinating children'), $T('Gardez le carnet de vaccination à jour et demandez conseil à votre centre de santé.', 'Keep the vaccination record up to date and ask your health center for advice.')],
-                    ['hopital-maternite', 'baby', $T('Une grossesse suivie', 'A monitored pregnancy'), $T('Les consultations prénatales régulières aident à protéger la mère et l’enfant.', 'Regular prenatal visits help protect mother and child.')],
-                    ['hopital-prevention-hygiene', 'droplet', $T('Les gestes d’hygiène', 'Hygiene habits'), $T('Lavage des mains, eau propre et conservation des aliments au quotidien.', 'Handwashing, clean water and safe food storage every day.')],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['eyebrow' => $T('Agenda santé', 'Health calendar'), 'title' => $T('Campagnes et journées de dépistage', 'Campaigns and screening days'), 'bg' => 'light', 'items' => [
                     [$T('Campagne de vaccination', 'Vaccination campaign'), $T('[Date à compléter]', '[Date to be completed]'), $T('Hôpital, entrée principale', 'Hospital, main entrance')],
                     [$T('Journée de dépistage', 'Screening day'), $T('[Date à compléter]', '[Date to be completed]'), $T('Centre de santé', 'Health center')],
@@ -254,8 +249,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('sante-prevention', 'health-tips'),
+            'title' => $T('Santé et prévention', 'Health and prevention'),
+            'categories' => ['prevention' => $T('Prévention', 'Prevention'), 'enfants' => $T('Enfants', 'Children'), 'conseils' => $T('Conseils', 'Advice')],
+            'posts' => [
+                ['key' => 'paludisme', 'slug' => $u('se-proteger-du-paludisme', 'protecting-yourself-from-malaria'), 'category' => 'prevention', 'tags' => [$T('Paludisme', 'Malaria')],
+                    'title' => $T('Se protéger du paludisme', 'Protecting yourself from malaria'),
+                    'excerpt' => $T('Moustiquaire, assainissement autour de la maison et consultation rapide en cas de fièvre.', 'Bed nets, a clean surrounding environment and prompt consultation in case of fever.'),
+                    'photo' => ['hopital-prevention-paludisme', 'thermometer', $T('Lit avec moustiquaire', 'Bed with a mosquito net')],
+                    'heading' => $T('En cas de fièvre', 'In case of fever'),
+                    'body' => [
+                        $T('Dormez chaque nuit sous une moustiquaire imprégnée, y compris les enfants, et supprimez les eaux stagnantes autour de la maison.', 'Sleep under an insecticide-treated net every night, children included, and remove standing water around the house.'),
+                        $T('Une fièvre doit faire consulter rapidement : un test permet de confirmer le paludisme et de commencer le bon traitement sans attendre.', 'A fever calls for a prompt visit: a test confirms malaria so the right treatment can start without delay.'),
+                        $T('Ces conseils sont généraux et ne remplacent pas l’avis d’un médecin.', 'This advice is general and does not replace a doctor’s opinion.'),
+                    ]],
+                ['key' => 'vaccination', 'slug' => $u('vaccination-des-enfants', 'vaccinating-children'), 'category' => 'enfants', 'tags' => [$T('Vaccination', 'Vaccination')],
+                    'title' => $T('La vaccination des enfants', 'Vaccinating children'),
+                    'excerpt' => $T('Gardez le carnet de vaccination à jour et demandez conseil à votre centre de santé.', 'Keep the vaccination record up to date and ask your health center for advice.'),
+                    'photo' => ['hopital-prevention-vaccination', 'syringe', $T('Enfant vacciné', 'Child being vaccinated')],
+                    'quote' => $T('« Un enfant vacciné protège aussi ceux qui l’entourent. »', '“A vaccinated child also protects those around them.”'),
+                    'body' => [
+                        $T('Les vaccins protègent les enfants contre des maladies graves comme la rougeole, la poliomyélite ou la coqueluche.', 'Vaccines protect children against serious diseases such as measles, polio and whooping cough.'),
+                        $T('Apportez le carnet de vaccination à chaque consultation : notre équipe vérifie les rappels et vous indique les prochaines dates.', 'Bring the vaccination record to every visit: our team checks the boosters and tells you the next dates.'),
+                        $T('Les vaccinations du programme national sont proposées à la clinique pédiatrique, du lundi au vendredi.', 'National program vaccinations are offered at the pediatric clinic, Monday to Friday.'),
+                    ]],
+                ['key' => 'hygiene', 'slug' => $u('gestes-d-hygiene', 'hygiene-habits'), 'category' => 'conseils', 'tags' => [$T('Hygiène', 'Hygiene')],
+                    'title' => $T('Les gestes d’hygiène', 'Hygiene habits'),
+                    'excerpt' => $T('Lavage des mains, eau propre et conservation des aliments au quotidien.', 'Handwashing, clean water and safe food storage every day.'),
+                    'photo' => ['hopital-prevention-hygiene', 'droplet', $T('Lavage des mains', 'Handwashing')],
+                    'heading' => $T('Au quotidien', 'Every day'),
+                    'body' => [
+                        $T('Se laver les mains au savon avant de cuisiner, avant de manger et après être allé aux toilettes évite une grande partie des maladies diarrhéiques.', 'Washing hands with soap before cooking, before eating and after using the toilet prevents a large share of diarrheal diseases.'),
+                        $T('Buvez une eau traitée ou bouillie, couvrez les aliments et conservez-les au frais.', 'Drink treated or boiled water, cover food and keep it cool.'),
+                        $T('En cas de diarrhée chez un enfant, donnez-lui à boire et consultez sans tarder.', 'If a child has diarrhea, give them fluids and see a health worker without delay.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('À propos', 'About'), 'url' => $about],

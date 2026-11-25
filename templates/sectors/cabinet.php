@@ -193,14 +193,7 @@ return [
             'description' => $T('Guides pratiques, analyses juridiques et fiscales, et séminaires pour dirigeants et entrepreneurs.', 'Practical guides, legal and tax insights, and seminars for executives and entrepreneurs.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Ressources', 'Insights'), 'title' => $T('Comprendre pour mieux décider', 'Understand to decide better'), 'intro' => $T('Guides et analyses rédigés par nos équipes. Ils ne remplacent pas un conseil personnalisé.', 'Guides and insights written by our teams. They do not replace personalized advice.')]),
-                B::cards($theme, ['items' => [
-                    ['cabinet-guide-creation', 'book-open', $T('Guide : créer sa société en zone OHADA', 'Guide: setting up a company in the OHADA zone'), $T('Formes juridiques, étapes et pièges à éviter pour bien démarrer.', 'Legal forms, steps and pitfalls to avoid for a strong start.')],
-                    ['cabinet-article-fiscal', 'newspaper', $T('Calendrier fiscal : ne manquez aucune échéance', 'Tax calendar: never miss a deadline'), $T('Les principales déclarations et paiements de l’année, expliqués simplement.', 'The main filings and payments of the year, explained simply.')],
-                    ['cabinet-article-social', 'file-text', $T('Contrat de travail : les clauses essentielles', 'Employment contracts: the essential clauses'), $T('Ce qu’un employeur doit prévoir pour se protéger et protéger ses salariés.', 'What an employer must provide for to protect itself and its employees.')],
-                    ['cabinet-article-conformite', 'shield-check', $T('Anti-blanchiment : obligations des entreprises', 'Anti-money laundering: business obligations'), $T('Vigilance, déclarations et bonnes pratiques de conformité.', 'Due diligence, reporting and compliance good practice.')],
-                    ['cabinet-article-immobilier', 'house', $T('Acheter un terrain en sécurité', 'Buying land safely'), $T('Titres, vérifications et précautions avant de signer.', 'Titles, checks and precautions before signing.')],
-                    ['cabinet-article-gouvernance', 'landmark', $T('Gouvernance et pacte d’associés', 'Governance and shareholders’ agreements'), $T('Anticiper les désaccords pour préserver l’entreprise.', 'Anticipating disagreements to protect the business.')],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['eyebrow' => $T('Séminaires', 'Seminars'), 'title' => $T('Prochains séminaires', 'Upcoming seminars'), 'bg' => 'light', 'items' => [
                     [$T('Fiscalité des PME : les nouveautés', 'SME taxation: what’s new'), $T('12 février, 9 h', 'February 12, 9 am'), $T('Salle de conférence du cabinet', 'Firm’s conference room')],
                     [$T('Droit du travail pour dirigeants', 'Labor law for executives'), $T('18 mars, 14 h', 'March 18, 2 pm'), $T('Hôtel partenaire, centre-ville', 'Partner hotel, city center')],
@@ -228,8 +221,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('ressources', 'insights'),
+            'title' => $T('Ressources', 'Insights'),
+            'categories' => ['entreprise' => $T('Entreprise', 'Business'), 'fiscalite' => $T('Fiscalité', 'Tax'), 'immobilier' => $T('Immobilier', 'Real estate')],
+            'posts' => [
+                ['key' => 'ohada', 'slug' => $u('creer-societe-ohada', 'company-ohada-zone'), 'category' => 'entreprise', 'tags' => ['OHADA'],
+                    'title' => $T('Guide : créer sa société en zone OHADA', 'Guide: setting up a company in the OHADA zone'),
+                    'excerpt' => $T('Formes juridiques, étapes et pièges à éviter pour bien démarrer.', 'Legal forms, steps and pitfalls to avoid for a strong start.'),
+                    'photo' => ['cabinet-guide-creation', 'book-open', $T('Entrepreneur au travail', 'Entrepreneur at work')],
+                    'heading' => $T('Les étapes', 'The steps'),
+                    'body' => [
+                        $T('SARL, SA ou SAS : la forme juridique dépend du nombre d’associés, du capital et de vos projets de croissance.', 'LLC, PLC or simplified company: the legal form depends on the number of partners, the capital and your growth plans.'),
+                        $T('Rédaction des statuts, dépôt du capital, immatriculation au registre du commerce et déclarations fiscales : chaque étape a ses pièces à fournir.', 'Drafting the articles, depositing the capital, registering with the trade register and tax filings: each step has its own documents.'),
+                        $T('Ce guide est général : pour votre situation, prenez rendez-vous avec l’un de nos conseils.', 'This guide is general: for your own situation, book a meeting with one of our advisers.'),
+                    ]],
+                ['key' => 'fiscal', 'slug' => $u('calendrier-fiscal', 'tax-calendar'), 'category' => 'fiscalite', 'tags' => [$T('Échéances', 'Deadlines')],
+                    'title' => $T('Calendrier fiscal : ne manquez aucune échéance', 'Tax calendar: never miss a deadline'),
+                    'excerpt' => $T('Les principales déclarations et paiements de l’année, expliqués simplement.', 'The main filings and payments of the year, explained simply.'),
+                    'photo' => ['cabinet-article-fiscal', 'newspaper', $T('Calculatrice et documents', 'Calculator and documents')],
+                    'quote' => $T('« Une échéance anticipée coûte toujours moins cher qu’une pénalité. »', '“A deadline met early always costs less than a penalty.”'),
+                    'body' => [
+                        $T('Déclarations mensuelles, acomptes, déclaration annuelle des résultats : les dates varient selon le pays et le régime de l’entreprise.', 'Monthly returns, installments, the annual results filing: dates vary with the country and the company’s tax regime.'),
+                        $T('Tenez un calendrier partagé avec votre comptable et préparez les pièces justificatives au fil de l’eau.', 'Keep a calendar shared with your accountant and prepare supporting documents as you go.'),
+                        $T('Notre équipe peut prendre en charge le suivi de vos échéances et vous alerter à l’avance.', 'Our team can monitor your deadlines and alert you in advance.'),
+                    ]],
+                ['key' => 'terrain', 'slug' => $u('acheter-terrain', 'buying-land-safely'), 'category' => 'immobilier', 'tags' => [$T('Foncier', 'Land')],
+                    'title' => $T('Acheter un terrain en sécurité', 'Buying land safely'),
+                    'excerpt' => $T('Titres, vérifications et précautions avant de signer.', 'Titles, checks and precautions before signing.'),
+                    'photo' => ['cabinet-article-immobilier', 'house', $T('Terrain à bâtir', 'Building land')],
+                    'heading' => $T('Avant de signer', 'Before you sign'),
+                    'body' => [
+                        $T('Vérifiez le titre de propriété auprès du service des affaires foncières et assurez-vous que le vendeur est bien le propriétaire.', 'Check the title deed with the land registry and make sure the seller is really the owner.'),
+                        $T('Faites borner le terrain, consultez le plan d’urbanisme et demandez l’historique des transactions.', 'Have the land surveyed, check the zoning plan and ask for the transaction history.'),
+                        $T('Un acte rédigé ou relu par un professionnel vous protège en cas de litige.', 'A deed drafted or reviewed by a professional protects you in case of dispute.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('Expertises', 'Expertise'), 'url' => $expertise],

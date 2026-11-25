@@ -241,8 +241,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('conseils', 'tips'),
+            'title' => $T('Conseils et nouveautés', 'Tips and news'),
+            'categories' => ['nouveautes' => $T('Nouveautés', 'New arrivals'), 'conseils' => $T('Conseils', 'Tips'), 'boutique' => $T('La boutique', 'The store')],
+            'posts' => [
+                ['key' => 'arrivages', 'slug' => $u('nouveaux-arrivages', 'new-arrivals'), 'category' => 'nouveautes', 'tags' => [$T('Arrivages', 'Arrivals')],
+                    'title' => $T('Les nouveaux arrivages du mois', 'This month’s new arrivals'),
+                    'excerpt' => $T('Produits frais, articles ménagers et téléphones : ce qui vient d’arriver en rayon.', 'Fresh produce, household goods and phones: what just arrived on the shelves.'),
+                    'photo' => ['commerce-nouveautes', 'package', $T('Rayons approvisionnés', 'Stocked shelves')],
+                    'heading' => $T('À découvrir en magasin', 'Come and see in store'),
+                    'body' => [
+                        $T('Ce mois-ci, nous avons élargi le rayon alimentation et reçu une nouvelle gamme de téléphones et d’accessoires.', 'This month, we expanded the grocery section and received a new range of phones and accessories.'),
+                        $T('Les quantités sont limitées pour certains produits : passez tôt ou réservez par téléphone.', 'Quantities are limited for some products: come early or reserve by phone.'),
+                        $T('Les prix et les disponibilités sont à confirmer en magasin.', 'Prices and availability are to be confirmed in store.'),
+                    ]],
+                ['key' => 'fidelite', 'slug' => $u('carte-de-fidelite', 'loyalty-card'), 'category' => 'boutique', 'tags' => [$T('Fidélité', 'Loyalty')],
+                    'title' => $T('Notre carte de fidélité, comment ça marche', 'How our loyalty card works'),
+                    'excerpt' => $T('Cumulez des points à chaque achat et profitez de réductions réservées.', 'Earn points with every purchase and enjoy exclusive discounts.'),
+                    'photo' => ['commerce-fidelite', 'credit-card', $T('Cliente en boutique', 'Customer in the store')],
+                    'quote' => $T('« Merci à nos clients fidèles : vous êtes la raison d’être de notre boutique. »', '“Thank you to our loyal customers: you are the reason our store exists.”'),
+                    'body' => [
+                        $T('La carte est gratuite : demandez-la en caisse, il suffit d’un nom et d’un numéro de téléphone.', 'The card is free: ask for it at the checkout, all we need is a name and a phone number.'),
+                        $T('Chaque achat vous rapporte des points, échangeables contre des bons de réduction.', 'Every purchase earns points that can be exchanged for discount vouchers.'),
+                        $T('Les titulaires de la carte reçoivent aussi nos offres en avant-première.', 'Cardholders also receive our offers first.'),
+                    ]],
+                ['key' => 'panier', 'slug' => $u('bien-remplir-son-panier', 'smart-shopping-tips'), 'category' => 'conseils', 'tags' => [$T('Budget', 'Budget')],
+                    'title' => $T('Faire ses courses malin', 'Smart shopping tips'),
+                    'excerpt' => $T('Liste, saisons et formats familiaux : nos conseils pour maîtriser votre budget.', 'Lists, seasons and family packs: our tips to keep your budget under control.'),
+                    'photo' => ['commerce-rayon-alimentation', 'shopping-cart', $T('Rayon alimentation', 'Grocery section')],
+                    'heading' => $T('Nos trois conseils', 'Our three tips'),
+                    'body' => [
+                        $T('Préparez une liste avant de venir : elle évite les achats imprévus.', 'Make a list before you come: it avoids impulse buys.'),
+                        $T('Privilégiez les fruits et légumes de saison, plus frais et moins chers, et comparez le prix au kilo des formats familiaux.', 'Choose seasonal fruit and vegetables, fresher and cheaper, and compare the price per kilo of family packs.'),
+                        $T('Notre équipe est là pour vous conseiller en rayon.', 'Our team is here to help you on the shop floor.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('Produits', 'Products'), 'url' => $products],
@@ -256,6 +295,7 @@ return [
                 'cta_url' => $contact,
                 'footer_text' => $T('Votre magasin de proximité : produits de qualité, prix justes et livraison rapide dans toute la ville.', 'Your neighborhood store: quality products, fair prices and fast delivery across the city.'),
                 'footer_links' => [
+                    ['label' => $blog['title'], 'url' => '/'.$blog['base']],
                     ['label' => $T('Nos produits', 'Our products'), 'url' => $products],
                     ['label' => $T('Offres et promotions', 'Offers and promotions'), 'url' => $offers],
                     ['label' => 'FAQ', 'url' => $faq],

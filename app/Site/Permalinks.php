@@ -21,6 +21,19 @@ use App\Models\Term;
  */
 final class Permalinks
 {
+    /** Racine des adresses (démonstration d'un modèle : /catalogue/{modèle}) ; null = le site. */
+    private static ?string $root = null;
+
+    public static function useRoot(?string $root): void
+    {
+        self::$root = $root ? rtrim($root, '/') : null;
+    }
+
+    private static function url(string $path): string
+    {
+        return self::$root !== null ? self::$root.($path === '' || $path === '/' ? '' : '/'.ltrim($path, '/')) : url($path);
+    }
+
     /** Mots des archives, par langue (anglais par défaut). */
     private const WORDS = [
         'fr' => ['category' => 'categorie', 'tag' => 'etiquette'],
@@ -65,33 +78,33 @@ final class Permalinks
 
     public static function blog(string $locale): string
     {
-        return url(self::prefix($locale).self::blogBase($locale));
+        return self::url(self::prefix($locale).self::blogBase($locale));
     }
 
     public static function post(Post $post): string
     {
-        return url(self::prefix($post->locale).self::blogBase($post->locale).'/'.$post->slug);
+        return self::url(self::prefix($post->locale).self::blogBase($post->locale).'/'.$post->slug);
     }
 
     public static function term(Term $term): string
     {
-        return url(self::prefix($term->locale).self::blogBase($term->locale).'/'.self::word($term->locale, $term->taxonomy).'/'.$term->slug);
+        return self::url(self::prefix($term->locale).self::blogBase($term->locale).'/'.self::word($term->locale, $term->taxonomy).'/'.$term->slug);
     }
 
     public static function feed(string $locale): string
     {
-        return url(self::prefix($locale).self::blogBase($locale).'/rss');
+        return self::url(self::prefix($locale).self::blogBase($locale).'/rss');
     }
 
     public static function search(string $locale, ?string $query = null): string
     {
-        $home = url(rtrim(self::prefix($locale), '/') ?: '/');
+        $home = self::url(rtrim(self::prefix($locale), '/') ?: '/');
 
         return $query === null ? $home : $home.'?'.http_build_query(['s' => $query]);
     }
 
     public static function home(string $locale): string
     {
-        return url(rtrim(self::prefix($locale), '/') ?: '/');
+        return self::url(rtrim(self::prefix($locale), '/') ?: '/');
     }
 }

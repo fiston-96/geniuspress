@@ -199,11 +199,7 @@ return [
             'description' => $T('Articles techniques, retours d’expérience et webinaires sur le développement, le cloud, les données et la sécurité.', 'Technical articles, lessons learned and webinars on development, cloud, data and security.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => 'Blog', 'title' => $T('Ressources et retours d’expérience', 'Resources and lessons learned'), 'intro' => $T('Ce que nous apprenons en construisant des produits numériques.', 'What we learn while building digital products.')]),
-                B::cards($theme, ['items' => [
-                    ['tech-blog-1', 'smartphone', $T('Concevoir une application mobile qui fonctionne hors ligne', 'Designing a mobile app that works offline'), $T('Synchronisation, stockage local et gestion des conflits : les bonnes pratiques.', 'Sync, local storage and conflict handling: best practices.')],
-                    ['tech-blog-2', 'shield-check', $T('Cinq réflexes de cybersécurité pour les PME', 'Five cybersecurity habits for small businesses'), $T('Des mesures simples qui évitent la majorité des incidents.', 'Simple measures that prevent most incidents.')],
-                    ['tech-blog-3', 'cloud', $T('Cloud public ou hébergement local ?', 'Public cloud or local hosting?'), $T('Coûts, latence, conformité : comment choisir selon votre situation.', 'Cost, latency, compliance: how to choose for your situation.')],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['icon' => 'video', 'eyebrow' => $T('Événements', 'Events'), 'title' => $T('Prochains webinaires et rencontres', 'Upcoming webinars and meetups'), 'bg' => 'light', 'items' => [
                     [$T('Webinaire : migrer vers le cloud sans interruption', 'Webinar: migrating to the cloud with no downtime'), $T('12 mars, 15 h', 'March 12, 3 pm'), $T('En ligne', 'Online')],
                     [$T('Atelier : l’IA appliquée à vos données', 'Workshop: AI applied to your data'), $T('9 avril, 10 h', 'April 9, 10 am'), 'Kinshasa'],
@@ -232,8 +228,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => 'blog',
+            'title' => 'Blog',
+            'categories' => ['produit' => $T('Produit', 'Product'), 'securite' => $T('Sécurité', 'Security'), 'infra' => $T('Infrastructure', 'Infrastructure')],
+            'posts' => [
+                ['key' => 'hors-ligne', 'slug' => $u('application-hors-ligne', 'offline-mobile-app'), 'category' => 'produit', 'tags' => ['Mobile'],
+                    'title' => $T('Concevoir une application mobile qui fonctionne hors ligne', 'Designing a mobile app that works offline'),
+                    'excerpt' => $T('Synchronisation, stockage local et gestion des conflits : les bonnes pratiques.', 'Sync, local storage and conflict handling: best practices.'),
+                    'photo' => ['tech-blog-1', 'smartphone', $T('Application sur un téléphone', 'App on a phone')],
+                    'heading' => $T('Trois principes', 'Three principles'),
+                    'body' => [
+                        $T('Dans beaucoup de régions, la connexion est intermittente. Une application utile doit continuer à fonctionner quand le réseau disparaît.', 'In many regions, connectivity is intermittent. A useful app must keep working when the network drops.'),
+                        $T('Stockez localement d’abord, synchronisez ensuite ; affichez clairement ce qui n’est pas encore envoyé ; prévoyez comment résoudre deux modifications contradictoires.', 'Store locally first, sync later; clearly show what has not been sent yet; plan how to resolve two conflicting edits.'),
+                        $T('Ces choix se font dès la conception : les ajouter après coup coûte beaucoup plus cher.', 'These choices are made at design time: adding them afterwards costs far more.'),
+                    ]],
+                ['key' => 'cyber', 'slug' => $u('cybersecurite-pme', 'cybersecurity-small-business'), 'category' => 'securite', 'tags' => [$T('PME', 'Small business')],
+                    'title' => $T('Cinq réflexes de cybersécurité pour les PME', 'Five cybersecurity habits for small businesses'),
+                    'excerpt' => $T('Des mesures simples qui évitent la majorité des incidents.', 'Simple measures that prevent most incidents.'),
+                    'photo' => ['tech-blog-2', 'shield-check', $T('Écran de sécurité', 'Security screen')],
+                    'quote' => $T('« La plupart des attaques réussies exploitent une négligence, pas une faille sophistiquée. »', '“Most successful attacks exploit carelessness, not a sophisticated flaw.”'),
+                    'body' => [
+                        $T('Activez la double authentification, faites des sauvegardes régulières hors ligne et mettez à jour vos logiciels.', 'Turn on two-factor authentication, make regular offline backups and keep your software up to date.'),
+                        $T('Formez vos équipes à reconnaître les messages piégés et limitez les droits d’administration aux personnes qui en ont vraiment besoin.', 'Train your teams to spot phishing messages and limit admin rights to the people who really need them.'),
+                        $T('Ces cinq réflexes ne coûtent presque rien et protègent l’essentiel de votre activité.', 'These five habits cost almost nothing and protect most of your business.'),
+                    ]],
+                ['key' => 'cloud', 'slug' => $u('cloud-ou-local', 'cloud-or-local'), 'category' => 'infra', 'tags' => ['Cloud'],
+                    'title' => $T('Cloud public ou hébergement local ?', 'Public cloud or local hosting?'),
+                    'excerpt' => $T('Coûts, latence, conformité : comment choisir selon votre situation.', 'Cost, latency, compliance: how to choose for your situation.'),
+                    'photo' => ['tech-blog-3', 'cloud', $T('Salle de serveurs', 'Server room')],
+                    'heading' => $T('Notre conseil', 'Our advice'),
+                    'body' => [
+                        $T('Le cloud public offre souplesse et services prêts à l’emploi ; l’hébergement local rassure sur la localisation des données et réduit la latence pour les utilisateurs proches.', 'The public cloud offers flexibility and ready-made services; local hosting reassures about data location and reduces latency for nearby users.'),
+                        $T('Comparez le coût total sur trois ans, les exigences réglementaires de votre secteur et la qualité de la connexion de vos utilisateurs.', 'Compare the total cost over three years, your sector’s regulatory requirements and your users’ connection quality.'),
+                        $T('Souvent, la bonne réponse est hybride : les données sensibles en local, le reste dans le cloud.', 'Often, the right answer is hybrid: sensitive data locally, the rest in the cloud.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => 'Solutions', 'url' => $solutions],

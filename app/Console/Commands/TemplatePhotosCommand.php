@@ -79,7 +79,11 @@ class TemplatePhotosCommand extends Command
                 continue;
             }
             Kit::reset();
-            ($builder->pack($sector)['build'])('en', $theme, []);
+            $site = ($builder->pack($sector)['build'])('en', $theme, []);
+            // Les articles du blog ont aussi leurs photos (image à la une).
+            foreach ($site['blog']['posts'] ?? [] as $post) {
+                Kit::photoFields(...$post['photo']);
+            }
             foreach (Kit::slots() as $slot => $info) {
                 $slots[$slot] = ['sector' => $sector, 'alt' => $info['alt'], 'icon' => $info['icon']];
             }

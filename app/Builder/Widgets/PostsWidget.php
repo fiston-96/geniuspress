@@ -54,13 +54,18 @@ class PostsWidget extends ThemeWidget
         $paginator = $source === 'current' ? $ctx->site?->posts() : null;
         if ($paginator) {
             $posts = $paginator->getCollection();
+        } elseif ($ctx->site?->library !== null) {
+            // Démonstration d'un modèle : articles en mémoire.
+            $posts = $ctx->site->library->where('locale', $locale)
+                ->when($source === 'category' && ! empty($s['category']), fn ($c) => $c->filter(fn ($p) => $p->categories->contains('id', $s['category'])))
+                ->sortByDesc(fn ($p) => $p->published_at?->timestamp ?? 0)->take($count)->values();
         } else {
             $posts = Post::query()->published()->where('locale', $locale)
                 ->when($source === 'category' && ! empty($s['category']), fn ($q) => $q->whereHas('terms', fn ($t) => $t->whereKey($s['category'])))
                 ->with(['categories', 'featuredMedia'])->orderByDesc('published_at')->orderByDesc('id')->limit($count)->get();
         }
         if ($posts->isEmpty()) {
-            return '<p class="gp-posts__empty">'.e(__('Aucun article pour le moment.', [], $locale)).'</p>';
+            return '<p class="gp-plist__empty">'.e(__('Aucun article pour le moment.', [], $locale)).'</p>';
         }
 
         $layout = $s['layout'] ?? 'grid';
@@ -68,28 +73,28 @@ class PostsWidget extends ThemeWidget
             'grid-template-columns' => $layout === 'grid' ? 'repeat('.($s['columns'] ?? 3).', minmax(0, 1fr))' : null,
             'gap' => isset($s['gap']) ? $s['gap'].'px' : null,
             '--gp-posts-accent' => $s['accent'] ?? null,
-        ], false, ' .gp-posts');
+        ], false, ' .gp-plist');
         if ($layout === 'grid') {
             foreach (['tablet', 'mobile'] as $device) {
-                $ctx->rule($id, ['grid-template-columns' => 'repeat('.($s['columns_'.$device] ?? ($device === 'tablet' ? min(2, $s['columns'] ?? 3) : 1)).', minmax(0, 1fr))'], $device, ' .gp-posts');
+                $ctx->rule($id, ['grid-template-columns' => 'repeat('.($s['columns_'.$device] ?? ($device === 'tablet' ? min(2, $s['columns'] ?? 3) : 1)).', minmax(0, 1fr))'], $device, ' .gp-plist');
             }
         }
-        $ctx->rule($id, ['aspect-ratio' => str_replace(':', ' / ', $s['ratio'] ?? '16:9')], false, ' .gp-posts__media img');
-        $ctx->responsive($id, $s, 'title_size', fn ($v) => ['font-size' => $v.'px'], ' .gp-posts__title');
+        $ctx->rule($id, ['aspect-ratio' => str_replace(':', ' / ', $s['ratio'] ?? '16:9')], false, ' .gp-plist__media img');
+        $ctx->responsive($id, $s, 'title_size', fn ($v) => ['font-size' => $v.'px'], ' .gp-plist__title');
 
         $more = $s['more_text'] ?? __('Lire la suite', [], $locale);
-        $html = '<div class="gp-posts gp-posts--'.$layout.' gp-posts--'.e($s['style'] ?? 'shadow').'">';
+        $html = '<div class="gp-plist gp-plist--'.$layout.' gp-plist--'.e($s['style'] ?? 'shadow').'">';
         foreach ($posts as $post) {
             $media = ($s['show_image'] ?? true) ? $post->featuredMedia : null;
             $category = ($s['show_category'] ?? true) ? $post->categories->first() : null;
-            $html .= '<article class="gp-posts__item">'
-                .($media ? '<a class="gp-posts__media" href="'.e($post->url()).'" tabindex="-1" aria-hidden="true"><img src="'.e($media->url).'" alt="" loading="lazy"></a>' : '')
-                .'<div class="gp-posts__body">'
-                .($category ? '<a class="gp-posts__category" href="'.e($category->url()).'">'.e($category->name).'</a>' : '')
-                .'<h3 class="gp-posts__title"><a href="'.e($post->url()).'">'.e($post->title).'</a></h3>'
-                .(($s['show_date'] ?? true) ? '<p class="gp-posts__date">'.$this->date($post, $locale).'</p>' : '')
-                .(($s['show_excerpt'] ?? true) ? '<p class="gp-posts__excerpt">'.e($post->summary()).'</p>' : '')
-                .(($s['show_more'] ?? true) ? '<a class="gp-posts__more" href="'.e($post->url()).'">'.e($more).' <span aria-hidden="true">→</span></a>' : '')
+            $html .= '<article class="gp-plist__item">'
+                .($media ? '<a class="gp-plist__media" href="'.e($post->url()).'" tabindex="-1" aria-hidden="true"><img src="'.e($media->url).'" alt="" loading="lazy"></a>' : '')
+                .'<div class="gp-plist__body">'
+                .($category ? '<a class="gp-plist__category" href="'.e($category->url()).'">'.e($category->name).'</a>' : '')
+                .'<h3 class="gp-plist__title"><a href="'.e($post->url()).'">'.e($post->title).'</a></h3>'
+                .(($s['show_date'] ?? true) ? '<p class="gp-plist__date">'.$this->date($post, $locale).'</p>' : '')
+                .(($s['show_excerpt'] ?? true) ? '<p class="gp-plist__excerpt">'.e($post->summary()).'</p>' : '')
+                .(($s['show_more'] ?? true) ? '<a class="gp-plist__more" href="'.e($post->url()).'">'.e($more).' <span aria-hidden="true">→</span></a>' : '')
                 .'</div></article>';
         }
         $html .= '</div>';

@@ -207,11 +207,7 @@ return [
             'description' => $T('Les dernières nouvelles de nos programmes, nos événements et nos rapports.', 'The latest news from our programs, events and reports.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Les nouvelles du terrain', 'News from the field'), 'intro' => $T('Événements, résultats et histoires de nos programmes.', 'Events, results and stories from our programs.')]),
-                B::cards($theme, ['items' => [
-                    ['ong-actu-1', 'newspaper', $T('Rapport annuel : une année de résultats', 'Annual report: a year of results'), $T('Découvrez les chiffres clés et les histoires qui ont marqué l’année.', 'Discover the key figures and stories that marked the year.')],
-                    ['ong-actu-2', 'calendar-days', $T('Journée portes ouvertes', 'Open day'), $T('Venez rencontrer nos équipes et nos bénévoles le premier samedi du mois.', 'Come and meet our teams and volunteers on the first Saturday of the month.')],
-                    ['ong-actu-3', 'handshake', $T('Un nouveau partenariat pour l’eau', 'A new water partnership'), $T('Grâce à un nouveau partenaire, dix villages auront accès à l’eau potable.', 'Thanks to a new partner, ten villages will have access to safe water.')],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['eyebrow' => $T('Agenda', 'Calendar'), 'title' => $T('Prochains événements', 'Upcoming events'), 'bg' => 'light', 'items' => [
                     [$T('Assemblée générale', 'General assembly'), $T('15 mars, 9 h', 'March 15, 9 am'), $T('Siège de l’organisation', 'Head office')],
                     [$T('Collecte solidaire', 'Charity drive'), $T('22 avril, toute la journée', 'April 22, all day'), $T('Place du marché', 'Market square')],
@@ -239,8 +235,48 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('actualites', 'news'),
+            'title' => $T('Actualités', 'News'),
+            'categories' => ['rapports' => $T('Rapports', 'Reports'), 'evenements' => $T('Événements', 'Events'), 'projets' => $T('Projets', 'Projects')],
+            'posts' => [
+                ['key' => 'rapport', 'slug' => $u('rapport-annuel', 'annual-report'), 'category' => 'rapports', 'tags' => [$T('Transparence', 'Transparency')],
+                    'title' => $T('Rapport annuel : une année de résultats', 'Annual report: a year of results'),
+                    'excerpt' => $T('Découvrez les chiffres clés et les histoires qui ont marqué l’année.', 'Discover the key figures and stories that marked the year.'),
+                    'photo' => ['ong-actu-1', 'newspaper', $T('Enfants en classe', 'Children in class')],
+                    'heading' => $T('Ce que vos dons ont permis', 'What your donations made possible'),
+                    'quote' => $T('« Chaque famille accompagnée est une victoire partagée avec nos donateurs. »', '“Every family we support is a victory shared with our donors.”'),
+                    'body' => [
+                        $T('Notre rapport annuel présente le travail accompli avec les communautés : [nombre] enfants scolarisés, [nombre] familles accompagnées et [nombre] points d’eau entretenus.', 'Our annual report presents the work carried out with communities: [number] children in school, [number] families supported and [number] water points maintained.'),
+                        $T('Les comptes ont été vérifiés par un cabinet indépendant. Le document complet détaille l’utilisation de chaque franc reçu, programme par programme.', 'The accounts were checked by an independent firm. The full document details how every franc received was used, program by program.'),
+                        $T('Vous pouvez demander une copie du rapport à notre équipe, ou le consulter lors de notre prochaine assemblée générale.', 'You can ask our team for a copy of the report, or consult it at our next general assembly.'),
+                    ]],
+                ['key' => 'portes-ouvertes', 'slug' => $u('journee-portes-ouvertes', 'open-day'), 'category' => 'evenements', 'tags' => [$T('Bénévolat', 'Volunteering')],
+                    'title' => $T('Journée portes ouvertes', 'Open day'),
+                    'excerpt' => $T('Venez rencontrer nos équipes et nos bénévoles le premier samedi du mois.', 'Come and meet our teams and volunteers on the first Saturday of the month.'),
+                    'photo' => ['ong-actu-2', 'calendar-days', $T('Enfants de la communauté', 'Children from the community')],
+                    'heading' => $T('Au programme', 'On the program'),
+                    'body' => [
+                        $T('Chaque premier samedi du mois, nos locaux sont ouverts à toutes celles et ceux qui veulent découvrir notre action, de 9 h à 13 h.', 'Every first Saturday of the month, our offices are open to anyone who wants to discover our work, from 9 am to 1 pm.'),
+                        $T('Présentation des programmes, rencontre avec les équipes de terrain et témoignages de familles accompagnées : une matinée pour comprendre comment nous travaillons.', 'Program presentations, meetings with field teams and testimonies from the families we support: a morning to understand how we work.'),
+                        $T('C’est aussi le bon moment pour devenir bénévole : nous vous présentons les missions ouvertes et le parcours d’accueil.', 'It is also the right time to become a volunteer: we present the open missions and the welcome program.'),
+                    ]],
+                ['key' => 'eau', 'slug' => $u('nouveau-partenariat-eau', 'new-water-partnership'), 'category' => 'projets', 'tags' => [$T('Eau potable', 'Safe water')],
+                    'title' => $T('Un nouveau partenariat pour l’eau', 'A new water partnership'),
+                    'excerpt' => $T('Grâce à un nouveau partenaire, dix villages auront accès à l’eau potable.', 'Thanks to a new partner, ten villages will have access to safe water.'),
+                    'photo' => ['ong-actu-3', 'handshake', $T('Point d’eau dans un village', 'Water point in a village')],
+                    'heading' => $T('Les prochaines étapes', 'Next steps'),
+                    'body' => [
+                        $T('Nous avons signé un partenariat avec [nom du partenaire] pour construire et entretenir des points d’eau dans dix villages de la région.', 'We have signed a partnership with [partner name] to build and maintain water points in ten villages in the region.'),
+                        $T('Les comités de village choisiront l’emplacement des forages et formeront les gestionnaires qui veilleront sur les installations.', 'Village committees will choose the location of the boreholes and train the managers who will look after the facilities.'),
+                        $T('Les premiers travaux commencent en [mois]. Nous publierons ici l’avancement du chantier, village par village.', 'The first works start in [month]. We will publish progress here, village by village.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('À propos', 'About'), 'url' => $about],

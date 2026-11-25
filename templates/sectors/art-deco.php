@@ -218,8 +218,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('journal', 'journal'),
+            'title' => $T('Journal de l’atelier', 'Studio journal'),
+            'categories' => ['projets' => $T('Projets', 'Projects'), 'conseils' => $T('Conseils déco', 'Decor tips'), 'atelier' => $T('L’atelier', 'The studio')],
+            'posts' => [
+                ['key' => 'maison', 'slug' => $u('une-maison-familiale-reinventee', 'a-family-home-reinvented'), 'category' => 'projets', 'tags' => [$T('Salon', 'Living room')],
+                    'title' => $T('Une maison familiale réinventée', 'A family home reinvented'),
+                    'excerpt' => $T('Bois sculpté, wax et lumière naturelle : retour sur un projet de rénovation complète.', 'Carved wood, wax prints and natural light: a look back at a full renovation project.'),
+                    'photo' => ['art-deco-projet-maison', 'house', $T('Salon lumineux', 'Bright living room')],
+                    'heading' => $T('Nos choix', 'Our choices'),
+                    'body' => [
+                        $T('La famille souhaitait un intérieur chaleureux, pratique pour les enfants et fidèle à leurs racines. Nous avons repensé le salon, la salle à manger et deux chambres.', 'The family wanted a warm interior, practical for the children and true to their roots. We redesigned the living room, the dining room and two bedrooms.'),
+                        $T('Des teintes terre, des coussins en wax réalisés à l’atelier et une table en bois massif sur mesure donnent à la pièce principale son caractère.', 'Earth tones, wax cushions made in the studio and a bespoke solid wood table give the main room its character.'),
+                        $T('Le projet a duré [nombre] semaines, de la première visite à l’installation.', 'The project took [number] weeks, from the first visit to installation.'),
+                    ]],
+                ['key' => 'wax', 'slug' => $u('decorer-avec-le-wax', 'decorating-with-wax'), 'category' => 'conseils', 'tags' => ['Wax'],
+                    'title' => $T('Décorer avec le wax sans surcharger', 'Decorating with wax without overdoing it'),
+                    'excerpt' => $T('Trois règles simples pour faire entrer les motifs colorés dans votre intérieur.', 'Three simple rules to bring bold patterns into your home.'),
+                    'photo' => ['art-deco-collection-wax', 'palette', $T('Tissus wax colorés', 'Colorful wax fabrics')],
+                    'quote' => $T('« Un motif fort a besoin d’espace pour respirer. »', '“A bold pattern needs room to breathe.”'),
+                    'body' => [
+                        $T('Choisissez un motif dominant et accompagnez-le de couleurs unies reprises dans le tissu.', 'Choose one dominant pattern and pair it with plain colors taken from the fabric.'),
+                        $T('Commencez par de petites touches : coussins, abat-jour, chemin de table. Elles se changent facilement au fil des saisons.', 'Start with small touches: cushions, lampshades, table runners. They are easy to change with the seasons.'),
+                        $T('Le bois et le raphia équilibrent naturellement l’énergie des couleurs.', 'Wood and raffia naturally balance the energy of the colors.'),
+                    ]],
+                ['key' => 'atelier', 'slug' => $u('dans-l-atelier', 'inside-the-studio'), 'category' => 'atelier', 'tags' => [$T('Artisanat', 'Craft')],
+                    'title' => $T('Dans l’atelier : de l’esquisse à la pièce finie', 'Inside the studio: from sketch to finished piece'),
+                    'excerpt' => $T('Comment nos artisans façonnent chaque pièce à la main.', 'How our artisans shape every piece by hand.'),
+                    'photo' => ['art-deco-atelier-1', 'hammer', $T('Artisan qui sculpte', 'Artisan carving')],
+                    'heading' => $T('Le temps du travail bien fait', 'Time for work done well'),
+                    'body' => [
+                        $T('Chaque pièce commence par une esquisse validée avec vous, puis le choix du bois et des fibres.', 'Every piece starts with a sketch approved with you, then the choice of wood and fibers.'),
+                        $T('Nos artisans sculptent, tressent et assemblent à la main. Une chaise demande environ [nombre] jours de travail.', 'Our artisans carve, weave and assemble by hand. A chair takes about [number] days of work.'),
+                        $T('Les visites de l’atelier sont possibles sur rendez-vous.', 'Studio visits are possible by appointment.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('Atelier', 'Studio'), 'url' => $studio],
@@ -233,6 +272,7 @@ return [
                 'cta_url' => $contact,
                 'footer_text' => $T('Studio de décoration et atelier d’artisans : des intérieurs et des pièces uniques façonnés à la main, inspirés par l’héritage africain.', 'Decoration studio and artisan workshop: interiors and unique pieces shaped by hand, inspired by African heritage.'),
                 'footer_links' => [
+                    ['label' => $blog['title'], 'url' => '/'.$blog['base']],
                     ['label' => 'Collections', 'url' => $collections],
                     ['label' => $T('Notre démarche', 'Our process'), 'url' => $process],
                     ['label' => $T('Tarifs', 'Pricing'), 'url' => $pricing],

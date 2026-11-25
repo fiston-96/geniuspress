@@ -3,7 +3,6 @@
 namespace App\Builder\Widgets;
 
 use App\Builder\RenderContext;
-use App\Site\PostNavigation;
 
 /** Liens vers l'article précédent et l'article suivant. */
 class PostNavigationWidget extends ThemeWidget
@@ -23,7 +22,7 @@ class PostNavigationWidget extends ThemeWidget
         if (! $post) {
             return '';
         }
-        $nav = PostNavigation::for($post);
+        $nav = $ctx->site->adjacent($post);
         if (! $nav['previous'] && ! $nav['next']) {
             return '';
         }

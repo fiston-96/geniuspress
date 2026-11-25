@@ -97,7 +97,7 @@ class ThemeWidgetsTest extends TestCase
 
         // Accueil : 2 derniers articles.
         $home = $this->get('/')->assertOk()->getContent();
-        $this->assertSame(2, substr_count($home, 'class="gp-posts__item"'));
+        $this->assertSame(2, substr_count($home, 'class="gp-plist__item"'));
         $this->assertMatchesRegularExpression('/\{grid-template-columns:repeat\(2, minmax\(0, 1fr\)\)\}/', $home);
 
         // Archive par gabarit : titre de l'archive et articles de la catégorie seulement.

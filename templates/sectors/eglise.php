@@ -184,11 +184,7 @@ return [
             'description' => $T('Messages récents, séries d’enseignement et groupes d’étude biblique pour nourrir votre foi au quotidien.', 'Recent messages, teaching series and Bible study groups to nourish your faith every day.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Enseignements', 'Teachings'), 'title' => $T('Se nourrir de la Parole', 'Nourished by the Word'), 'intro' => $T('Retrouvez les messages du dimanche et prolongez-les au fil de la semaine.', 'Catch up on Sunday messages and carry them through the week.')]),
-                B::cards($theme, ['eyebrow' => $T('Séries récentes', 'Recent series'), 'title' => $T('Derniers messages', 'Latest messages'), 'more' => $T('Écouter', 'Listen'), 'items' => [
-                    ['eglise-serie-1', 'book-open', $T('Marcher dans l’espérance', 'Walking in hope'), $T('Quatre messages pour garder confiance dans les saisons difficiles.', 'Four messages to keep trust through difficult seasons.'), $contact],
-                    ['eglise-serie-2', 'heart-handshake', $T('La famille selon Dieu', 'Family as God intended'), $T('Couples, parents et enfants : bâtir un foyer d’amour et de paix.', 'Couples, parents and children: building a home of love and peace.'), $contact],
-                    ['eglise-serie-3', 'sprout', $T('Des racines profondes', 'Deep roots'), $T('Prière, lecture de la Bible et vie de communauté pour grandir durablement.', 'Prayer, Bible reading and community life for lasting growth.'), $contact],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::quote($theme, ['text' => $T('« Ta parole est une lampe à mes pieds, et une lumière sur mon sentier. »', '“Your word is a lamp for my feet, a light on my path.”'), 'source' => $T('Psaume 119.105', 'Psalm 119:105'), 'bg' => 'light']),
                 B::features($theme, ['eyebrow' => $T('Groupes d’étude', 'Study groups'), 'title' => $T('Approfondir ensemble', 'Go deeper together'), 'cols' => 3, 'items' => [
                     ['users', $T('Groupes de maison', 'Home groups'), $T('Des petits groupes dans les quartiers, chaque semaine, pour prier et partager.', 'Small neighborhood groups meeting weekly to pray and share.')],
@@ -246,8 +242,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('enseignements', 'teachings'),
+            'title' => $T('Enseignements', 'Teachings'),
+            'categories' => ['messages' => $T('Messages', 'Messages'), 'famille' => $T('Famille', 'Family'), 'vie' => $T('Vie chrétienne', 'Christian life')],
+            'posts' => [
+                ['key' => 'esperance', 'slug' => $u('marcher-dans-l-esperance', 'walking-in-hope'), 'category' => 'messages', 'tags' => [$T('Espérance', 'Hope')],
+                    'title' => $T('Marcher dans l’espérance', 'Walking in hope'),
+                    'excerpt' => $T('Quatre messages pour garder confiance dans les saisons difficiles.', 'Four messages to keep trust through difficult seasons.'),
+                    'photo' => ['eglise-serie-1', 'book-open', $T('Chemin vers la lumière', 'Path toward the light')],
+                    'quote' => $T('« L’espérance ne trompe point. » Romains 5.5', '“Hope does not put us to shame.” Romans 5:5'),
+                    'body' => [
+                        $T('Cette série de quatre messages nous invite à garder confiance quand les circonstances sont difficiles : maladie, chômage, deuil ou incertitude.', 'This four-message series invites us to keep trusting when circumstances are hard: illness, unemployment, grief or uncertainty.'),
+                        $T('Chaque dimanche, un passage de la Bible et un témoignage de la communauté. Les messages sont disponibles à l’accueil après chaque culte.', 'Each Sunday, a Bible passage and a testimony from the community. The messages are available at the welcome desk after each service.'),
+                        $T('Prolongez la réflexion en semaine dans l’un de nos groupes de maison.', 'Carry the reflection through the week in one of our home groups.'),
+                    ]],
+                ['key' => 'famille', 'slug' => $u('la-famille-selon-dieu', 'family-as-god-intended'), 'category' => 'famille', 'tags' => [$T('Couples', 'Couples')],
+                    'title' => $T('La famille selon Dieu', 'Family as God intended'),
+                    'excerpt' => $T('Couples, parents et enfants : bâtir un foyer d’amour et de paix.', 'Couples, parents and children: building a home of love and peace.'),
+                    'photo' => ['eglise-serie-2', 'heart-handshake', $T('Famille réunie', 'Family together')],
+                    'heading' => $T('Pour aller plus loin', 'Going further'),
+                    'body' => [
+                        $T('Comment s’écouter dans le couple ? Comment transmettre la foi aux enfants ? Cette série aborde avec simplicité les questions de la vie de famille.', 'How do we listen to each other as a couple? How do we pass faith on to our children? This series addresses family life questions simply.'),
+                        $T('Le ministère des couples propose un parcours de six rencontres, et le ministère des enfants accueille les plus jeunes pendant les cultes.', 'The couples ministry offers a six-session course, and the children’s ministry welcomes the youngest during services.'),
+                        $T('Pour participer, inscrivez-vous à l’accueil ou contactez-nous.', 'To take part, sign up at the welcome desk or contact us.'),
+                    ]],
+                ['key' => 'racines', 'slug' => $u('des-racines-profondes', 'deep-roots'), 'category' => 'vie', 'tags' => [$T('Prière', 'Prayer')],
+                    'title' => $T('Des racines profondes', 'Deep roots'),
+                    'excerpt' => $T('Prière, lecture de la Bible et vie de communauté pour grandir durablement.', 'Prayer, Bible reading and community life for lasting growth.'),
+                    'photo' => ['eglise-serie-3', 'sprout', $T('Racines d’un arbre', 'Tree roots')],
+                    'heading' => $T('Trois habitudes simples', 'Three simple habits'),
+                    'body' => [
+                        $T('Un arbre résiste à la tempête grâce à ses racines. Notre foi aussi a besoin de racines solides pour traverser les épreuves.', 'A tree withstands the storm thanks to its roots. Our faith also needs strong roots to get through hardship.'),
+                        $T('Un temps de prière chaque jour, une lecture régulière de la Bible et la fidélité à la communauté : trois habitudes à cultiver ensemble.', 'A daily time of prayer, regular Bible reading and faithfulness to the community: three habits to grow together.'),
+                        $T('Un plan de lecture est disponible à l’accueil pour vous accompagner pendant trois mois.', 'A reading plan is available at the welcome desk to guide you for three months.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('Notre église', 'Our church'), 'url' => $about],

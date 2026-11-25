@@ -37,6 +37,14 @@ final class ThemeLayouts
     /** Gabarit imposé pour son type (aperçu dans le builder, même s'il n'est pas actif). */
     private ?Layout $forced = null;
 
+    /** Gabarits fournis en mémoire (démonstration d'un modèle) au lieu de la base. */
+    public function useLayouts(Collection $layouts): void
+    {
+        foreach (Layout::TYPES as $type) {
+            $this->cache[$type] = $layouts->where('type', $type)->where('status', Layout::STATUS_PUBLISHED)->values();
+        }
+    }
+
     public function force(Layout $layout): void
     {
         $this->forced = $layout;

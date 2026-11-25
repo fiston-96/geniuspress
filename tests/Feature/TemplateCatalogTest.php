@@ -105,15 +105,23 @@ class TemplateCatalogTest extends TestCase
         };
 
         foreach (array_keys(require base_path('templates/catalog.php')) as $id) {
-            foreach ($this->zipJson($id, 'pages.json') as $page) {
-                $before = $flat($page['content']['elements']);
-                $after = $flat($sanitizer->sanitize($page['content'])['elements']);
-                $this->assertSame(array_keys($before), array_keys($after), "{$id}/{$page['locale']}/{$page['slug']} : éléments perdus");
+            // Pages, articles du blog et gabarits du thème : chaque réglage doit être accepté.
+            $docs = array_merge(
+                array_map(fn ($p) => ["{$p['locale']}/{$p['slug']}", $p['content']], $this->zipJson($id, 'pages.json')),
+                array_map(fn ($p) => ["article {$p['locale']}/{$p['slug']}", $p['content']], $this->zipJson($id, 'posts.json')),
+                array_map(fn ($l) => ["gabarit {$l['locale']}/{$l['type']}", $l['content']], $this->zipJson($id, 'layouts.json')),
+            );
+            foreach ($docs as [$name, $content]) {
+                $before = $flat($content['elements']);
+                $after = $flat($sanitizer->sanitize($content)['elements']);
+                $this->assertSame(array_keys($before), array_keys($after), "{$id}/{$name} : éléments perdus");
                 foreach ($before as $nodeId => $settings) {
                     $lost = array_diff(array_keys($settings), array_keys($after[$nodeId]));
-                    $this->assertSame([], array_values($lost), "{$id}/{$page['locale']}/{$page['slug']} : réglages refusés sur {$nodeId}");
+                    $this->assertSame([], array_values($lost), "{$id}/{$name} : réglages refusés sur {$nodeId}");
                 }
             }
+            $this->assertNotEmpty($this->zipJson($id, 'posts.json'), "{$id} : articles d’exemple");
+            $this->assertCount(4, $this->zipJson($id, 'layouts.json'), "{$id} : gabarits Article et Archive, en français et en anglais");
         }
     }
 
@@ -139,6 +147,16 @@ class TemplateCatalogTest extends TestCase
         $this->assertStringNotContainsString('/storage/templates/', $html);
         $this->assertStringContainsString(Media::first()->url, $html);
         $this->get('/en/about')->assertOk()->assertSee('Our story and our mission');
+
+        // Blog du modèle : articles, catégories, gabarits et adresse du blog.
+        $this->assertSame([6, 2], [$report['posts'], $report['layouts'] / 2]);
+        $this->assertSame('actualites', Setting::read('blog')['locales']['fr']['base']);
+        $post = \App\Models\Post::where('slug', 'rapport-annuel')->sole();
+        $this->assertNotNull($post->featured_media_id);
+        $this->assertSame('Rapports', $post->categories->first()->name);
+        $this->get('/actualites')->assertOk()->assertSee('Rapport annuel : une année de résultats');
+        $this->get('/actualites/rapport-annuel')->assertOk()->assertSee('<h1>Rapport annuel : une année de résultats</h1>', false)->assertSee('À lire aussi');
+        $this->get('/en/news/annual-report')->assertOk()->assertSee('Keep reading');
     }
 
     public function test_demos_render_templates_without_installing_them(): void
@@ -157,8 +175,23 @@ class TemplateCatalogTest extends TestCase
         $this->get('/catalogue/inconnu')->assertNotFound();
         $this->get('/catalogue/ong-horizon/page-absente')->assertNotFound();
 
+        // Blog de la démonstration : liste, article, catégorie et recherche, lus dans l'archive.
+        $this->get('/catalogue/ong-horizon/actualites')->assertOk()->assertSee('Journée portes ouvertes')
+            ->assertSee('href="'.url('/catalogue/ong-horizon/actualites/journee-portes-ouvertes').'"', false);
+        $this->get('/catalogue/ong-horizon/actualites/rapport-annuel')->assertOk()
+            ->assertSee('<h1>Rapport annuel : une année de résultats</h1>', false)
+            ->assertSee(url('/catalogue/ong-horizon/media/ong-actu-1.svg'))
+            ->assertSee('href="'.url('/catalogue/ong-horizon/actualites/categorie/rapports').'"', false);
+        $this->get('/catalogue/ong-horizon/actualites/categorie/projets')->assertOk()->assertSee('Un nouveau partenariat pour l’eau')->assertDontSee('Journée portes ouvertes');
+        $this->get('/catalogue/ong-horizon?s=village')->assertOk()->assertSee('Un nouveau partenariat pour l’eau');
+        $this->get('/catalogue/ong-horizon/en/news/annual-report')->assertOk()->assertSee('href="'.url('/catalogue/ong-horizon/en/news').'"', false);
+        $this->get('/catalogue/ong-horizon/actualites/absent')->assertNotFound();
+        $this->assertSame(0, \App\Models\Post::count(), 'Rien n’est installé.');
+
         // Les réglages du site ne sont pas modifiés par une démonstration.
         $this->assertNotSame('#0f766e', Setting::read('primary_color'));
+        $this->assertSame(url('/blog/x'), url('/blog/x'));
+        $this->assertStringStartsWith(url('/blog'), \App\Site\Permalinks::blog('fr'), 'Adresses du site rétablies après la démonstration.');
     }
 
     public function test_demos_are_off_in_production_unless_enabled(): void

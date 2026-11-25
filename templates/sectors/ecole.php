@@ -213,11 +213,7 @@ return [
             'description' => $T('Les dernières nouvelles de l’établissement et le calendrier : portes ouvertes, examens, remise des diplômes.', 'The latest school news and calendar: open day, exams, graduation.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('La vie de l’établissement', 'What’s happening at school'), 'intro' => $T('Résultats, événements et informations pour les familles.', 'Results, events and information for families.')]),
-                B::cards($theme, ['more' => $T('Lire la suite', 'Read more'), 'items' => [
-                    ['ecole-actu-1', 'trophy', $T('Excellents résultats aux examens d’État', 'Excellent national exam results'), $T('Nos élèves de dernière année signent une nouvelle année de réussite.', 'Our final-year students achieve another successful year.'), $news],
-                    ['ecole-actu-2', 'flask-conical', $T('Un nouveau laboratoire de sciences', 'A new science laboratory'), $T('Un espace moderne pour les travaux pratiques de physique et de chimie.', 'A modern space for physics and chemistry practicals.'), $news],
-                    ['ecole-actu-3', 'music', $T('Gala de fin d’année', 'End-of-year gala'), $T('Chants, théâtre et danses : les élèves ont enchanté les familles.', 'Songs, drama and dance: students delighted the families.'), $news],
-                ]]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['eyebrow' => $T('Calendrier', 'Calendar'), 'title' => $T('Dates à retenir', 'Key dates'), 'bg' => 'light', 'items' => [
                     [$T('Journée portes ouvertes', 'Open day'), $T('14 mars, 9 h – 15 h', 'March 14, 9 am – 3 pm'), $T('Campus principal', 'Main campus')],
                     [$T('Réunion parents-enseignants', 'Parent-teacher meeting'), $T('9 avril, 16 h', 'April 9, 4 pm'), $T('Salle polyvalente', 'Multipurpose hall')],
@@ -245,8 +241,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('actualites', 'news'),
+            'title' => $T('Actualités', 'News'),
+            'categories' => ['resultats' => $T('Résultats', 'Results'), 'vie' => $T('Vie scolaire', 'School life'), 'campus' => $T('Campus', 'Campus')],
+            'posts' => [
+                ['key' => 'examens', 'slug' => $u('resultats-examens-etat', 'national-exam-results'), 'category' => 'resultats', 'tags' => [$T('Examens', 'Exams')],
+                    'title' => $T('Excellents résultats aux examens d’État', 'Excellent national exam results'),
+                    'excerpt' => $T('Nos élèves de dernière année signent une nouvelle année de réussite.', 'Our final-year students achieve another successful year.'),
+                    'photo' => ['ecole-actu-1', 'trophy', $T('Élève qui révise', 'Student revising')],
+                    'heading' => $T('Merci aux enseignants et aux familles', 'Thank you to teachers and families'),
+                    'body' => [
+                        $T('Cette année encore, [taux] % de nos élèves ont réussi les examens d’État, dont [nombre] avec une mention.', 'Once again this year, [rate]% of our students passed the national exams, [number] of them with honors.'),
+                        $T('Ces résultats sont le fruit d’un travail régulier : séances de révision le samedi, devoirs suivis et accompagnement personnalisé des élèves en difficulté.', 'These results come from steady work: Saturday revision sessions, monitored homework and personal support for students who struggle.'),
+                        $T('La cérémonie de remise des diplômes aura lieu le [date]. Les familles y sont chaleureusement invitées.', 'The graduation ceremony will take place on [date]. Families are warmly invited.'),
+                    ]],
+                ['key' => 'laboratoire', 'slug' => $u('nouveau-laboratoire', 'new-science-lab'), 'category' => 'campus', 'tags' => [$T('Sciences', 'Science')],
+                    'title' => $T('Un nouveau laboratoire de sciences', 'A new science laboratory'),
+                    'excerpt' => $T('Un espace moderne pour les travaux pratiques de physique et de chimie.', 'A modern space for physics and chemistry practicals.'),
+                    'photo' => ['ecole-actu-2', 'flask-conical', $T('Microscope de laboratoire', 'Laboratory microscope')],
+                    'quote' => $T('« Les élèves apprennent mieux quand ils manipulent eux-mêmes. »', '“Students learn better when they handle things themselves.”'),
+                    'body' => [
+                        $T('Le nouveau laboratoire accueille une classe entière avec des paillasses équipées, des microscopes et le matériel de sécurité nécessaire.', 'The new laboratory hosts a full class with equipped benches, microscopes and the necessary safety equipment.'),
+                        $T('Chaque classe du secondaire y aura au moins une séance de travaux pratiques par semaine, encadrée par nos professeurs de sciences.', 'Every secondary class will have at least one practical session there each week, supervised by our science teachers.'),
+                        $T('Les familles pourront visiter le laboratoire lors de la journée portes ouvertes du [date].', 'Families can visit the laboratory during the open day on [date].'),
+                    ]],
+                ['key' => 'gala', 'slug' => $u('gala-fin-annee', 'end-of-year-gala'), 'category' => 'vie', 'tags' => [$T('Culture', 'Culture')],
+                    'title' => $T('Gala de fin d’année', 'End-of-year gala'),
+                    'excerpt' => $T('Chants, théâtre et danses : les élèves ont enchanté les familles.', 'Songs, drama and dance: students delighted the families.'),
+                    'photo' => ['ecole-actu-3', 'music', $T('Danseuse sur scène', 'Dancer on stage')],
+                    'heading' => $T('Rendez-vous l’an prochain', 'See you next year'),
+                    'body' => [
+                        $T('Le gala de fin d’année a réuni élèves, enseignants et familles pour une soirée de spectacles préparés pendant tout le trimestre.', 'The end-of-year gala brought students, teachers and families together for an evening of performances prepared all term.'),
+                        $T('La chorale, la troupe de théâtre et les groupes de danse ont montré tout leur talent, avant la remise des prix d’excellence.', 'The choir, the drama group and the dance groups showed all their talent, before the excellence awards were presented.'),
+                        $T('Merci à toutes les familles venues partager ce moment. Les photos de la soirée sont disponibles auprès du secrétariat.', 'Thank you to all the families who came to share this moment. Photos of the evening are available from the school office.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('À propos', 'About'), 'url' => $about],

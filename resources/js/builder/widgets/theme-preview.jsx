@@ -25,16 +25,16 @@ function textCss(o, h, scope = ' > *', heading = true) {
 
 function PostCard({ p, o }) {
     return (
-        <article className="gp-posts__item">
+        <article className="gp-plist__item">
             {on(o.show_image) && (p.image
-                ? <a className="gp-posts__media"><img src={p.image} alt="" draggable={false} /></a>
-                : <a className="gp-posts__media"><span style={{ display: 'block', aspectRatio: (o.ratio ?? '16:9').replace(':', ' / '), background: 'linear-gradient(135deg, var(--gp-primary), var(--gp-secondary))', opacity: 0.25 }} /></a>)}
-            <div className="gp-posts__body">
-                {on(o.show_category) && p.category && <a className="gp-posts__category">{p.category}</a>}
-                <h3 className="gp-posts__title"><a>{p.title}</a></h3>
-                {on(o.show_date) && <p className="gp-posts__date"><time>{p.date}</time></p>}
-                {on(o.show_excerpt) && <p className="gp-posts__excerpt">{p.excerpt}</p>}
-                {on(o.show_more) && <a className="gp-posts__more">{o.more_text || t('Lire la suite')} <span aria-hidden="true">→</span></a>}
+                ? <a className="gp-plist__media"><img src={p.image} alt="" draggable={false} /></a>
+                : <a className="gp-plist__media"><span style={{ display: 'block', aspectRatio: (o.ratio ?? '16:9').replace(':', ' / '), background: 'linear-gradient(135deg, var(--gp-primary), var(--gp-secondary))', opacity: 0.25 }} /></a>)}
+            <div className="gp-plist__body">
+                {on(o.show_category) && p.category && <a className="gp-plist__category">{p.category}</a>}
+                <h3 className="gp-plist__title"><a>{p.title}</a></h3>
+                {on(o.show_date) && <p className="gp-plist__date"><time>{p.date}</time></p>}
+                {on(o.show_excerpt) && <p className="gp-plist__excerpt">{p.excerpt}</p>}
+                {on(o.show_more) && <a className="gp-plist__more">{o.more_text || t('Lire la suite')} <span aria-hidden="true">→</span></a>}
             </div>
         </article>
     );
@@ -137,10 +137,10 @@ export const THEME_IMPL = {
         preview: (o) => {
             const list = sample().posts;
             const count = (o.source ?? 'current') === 'current' ? list.length : Math.min(o.count ?? 6, list.length);
-            if (!count) return <p className="gp-posts__empty">{t('Aucun article pour le moment.')}</p>;
+            if (!count) return <p className="gp-plist__empty">{t('Aucun article pour le moment.')}</p>;
             const layout = o.layout ?? 'grid';
             return (
-                <div className={`gp-posts gp-posts--${layout} gp-posts--${o.style ?? 'shadow'}`}>
+                <div className={`gp-plist gp-plist--${layout} gp-plist--${o.style ?? 'shadow'}`}>
                     {list.slice(0, count).map((p, i) => <PostCard key={i} p={p} o={o} />)}
                 </div>
             );
@@ -148,17 +148,17 @@ export const THEME_IMPL = {
         css: (o, h) => {
             const layout = o.layout ?? 'grid';
             const columns = o.columns ?? 3;
-            h.rule(`${h.sel} .gp-posts`, {
+            h.rule(`${h.sel} .gp-plist`, {
                 'grid-template-columns': layout === 'grid' ? `repeat(${columns}, minmax(0, 1fr))` : null,
                 gap: o.gap !== undefined && o.gap !== null ? `${o.gap}px` : null,
                 '--gp-posts-accent': o.accent,
             });
             if (layout === 'grid') {
-                h.tablet(`${h.sel} .gp-posts`, { 'grid-template-columns': `repeat(${o.columns_tablet ?? Math.min(2, columns)}, minmax(0, 1fr))` });
-                h.mobile(`${h.sel} .gp-posts`, { 'grid-template-columns': `repeat(${o.columns_mobile ?? 1}, minmax(0, 1fr))` });
+                h.tablet(`${h.sel} .gp-plist`, { 'grid-template-columns': `repeat(${o.columns_tablet ?? Math.min(2, columns)}, minmax(0, 1fr))` });
+                h.mobile(`${h.sel} .gp-plist`, { 'grid-template-columns': `repeat(${o.columns_mobile ?? 1}, minmax(0, 1fr))` });
             }
-            h.rule(`${h.sel} .gp-posts__media img`, { 'aspect-ratio': (o.ratio ?? '16:9').replace(':', ' / ') });
-            h.responsive('title_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-posts__title');
+            h.rule(`${h.sel} .gp-plist__media img`, { 'aspect-ratio': (o.ratio ?? '16:9').replace(':', ' / ') });
+            h.responsive('title_size', (v) => ({ 'font-size': `${v}px` }), ' .gp-plist__title');
         },
     },
     breadcrumbs: {

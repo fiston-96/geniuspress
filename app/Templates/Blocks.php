@@ -339,6 +339,25 @@ final class Blocks
         return K::section($t, [self::title($d, 'center', ($d['bg'] ?? '') === 'dark'), K::grid($items, count($items), ['gap' => 40])], self::bg($d['bg'] ?? 'white'));
     }
 
+    /**
+     * Grille d'articles du blog : « current » sur la page du blog (articles paginés),
+     * « latest » ailleurs (derniers articles). $d : eyebrow, title, intro, source, count, cols, more, bg.
+     */
+    public static function posts(Theme $t, array $d): array
+    {
+        $style = ['shadow' => 'shadow', 'border' => 'border', 'flat' => 'flat', 'tinted' => 'border'][$t->cards] ?? 'shadow';
+
+        return K::section($t, [self::title($d), K::w('posts', array_filter([
+            'source' => $d['source'] ?? 'latest',
+            'count' => $d['count'] ?? 3,
+            'columns' => $d['cols'] ?? 3,
+            'style' => $style,
+            'accent' => 'global:primary',
+            'more_text' => $d['more'] ?? null,
+            'title_size' => 21,
+        ]))], self::bg($d['bg'] ?? 'white'));
+    }
+
     private static function corners(int $r): array
     {
         return ['t' => $r, 'r' => $r, 'b' => $r, 'l' => $r];

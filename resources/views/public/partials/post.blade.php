@@ -23,7 +23,7 @@
             @foreach ($post->tags as $tag)<a href="{{ $tag->url() }}">#{{ $tag->name }}</a>@endforeach
         </p>
     @endif
-    @php($nav = \App\Site\PostNavigation::for($post))
+    @php($nav = $site->adjacent($post))
     @if ($nav['previous'] || $nav['next'])
         <nav class="gp-single__nav" aria-label="{{ __('Articles voisins', [], $locale) }}">
             @if ($nav['previous'])<a href="{{ $nav['previous']->url() }}" rel="prev"><small>{{ __('Article précédent', [], $locale) }}</small>{{ $nav['previous']->title }}</a>@else<span></span>@endif

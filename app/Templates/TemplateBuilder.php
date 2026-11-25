@@ -3,6 +3,7 @@
 namespace App\Templates;
 
 use App\Transfer\SiteExporter;
+use Illuminate\Support\Str;
 use RuntimeException;
 use ZipArchive;
 
@@ -44,6 +45,10 @@ final class TemplateBuilder
         $theme = $def['theme'];
 
         $pages = [];
+        $terms = [];
+        $posts = [];
+        $layouts = [];
+        $blog = ['locales' => [], 'per_page' => 9];
         $navigation = ['header' => ['enabled' => true, 'sticky' => true, 'style' => $def['header_style'] ?? 'light', 'cta_url' => null], 'footer' => ['enabled' => true, 'credit' => true], 'locales' => []];
         $summary = [];
         foreach (self::LOCALES as $lang) {
@@ -64,6 +69,9 @@ final class TemplateBuilder
                 $summary[$page['key']]['title'][$lang] = $page['title'];
             }
             $navigation['locales'][$lang] = $this->localize($site['navigation'], $prefix);
+            if (! empty($site['blog'])) {
+                $this->blog($id, $lang, $prefix, $theme, $site['blog'], $blog, $terms, $posts, $layouts);
+            }
         }
 
         // Photo libre de droits choisie pour l'emplacement, sinon illustration d'attente.
@@ -81,7 +89,7 @@ final class TemplateBuilder
             }
         }
 
-        $settings = $theme->settings() + ['navigation' => $navigation, 'locales' => self::LOCALES];
+        $settings = $theme->settings() + ['navigation' => $navigation, 'locales' => self::LOCALES] + ($blog['locales'] ? ['blog' => $blog] : []);
 
         @mkdir($outputDir, 0775, true);
         $path = $outputDir.'/'.$id.'.zip';
@@ -100,6 +108,9 @@ final class TemplateBuilder
         $zip->addFromString('settings.json', $json($settings));
         $zip->addFromString('pages.json', $json($pages));
         $zip->addFromString('media.json', $json($media));
+        $zip->addFromString('terms.json', $json($terms));
+        $zip->addFromString('posts.json', $json($posts));
+        $zip->addFromString('layouts.json', $json($layouts));
         foreach ($files as $name => $data) {
             $zip->addFromString($name, $data);
         }
@@ -116,6 +127,7 @@ final class TemplateBuilder
             'style' => ['hero' => $theme->hero, 'cards' => $theme->cards, 'buttons' => $theme->buttons],
             'locales' => self::LOCALES,
             'pages' => array_map(fn ($key, $p) => ['key' => $key, 'title' => $p['title']], array_keys($summary), $summary),
+            'posts' => intdiv(count($posts), count(self::LOCALES)),
             'photos' => count($media),
             // Photos libres de droits (licences Pixabay ou Pexels : usage libre, crédit apprécié) ; le reste est illustré.
             'credits' => $credits,
@@ -123,6 +135,52 @@ final class TemplateBuilder
             'size' => filesize($path),
             'sha256' => hash_file('sha256', $path),
         ];
+    }
+
+    /**
+     * Blog d'un modèle dans une langue : réglage (adresse, titre), catégories,
+     * articles d'exemple (photos du pack) et gabarits « Article » et « Archive ».
+     * $data : base, title, categories [clé => nom], posts [[key, slug, title, excerpt, category, photo, body, heading?, quote?, tags?]].
+     */
+    private function blog(string $id, string $lang, string $prefix, Theme $theme, array $data, array &$blog, array &$terms, array &$posts, array &$layouts): void
+    {
+        $T = fn (string $fr, string $en) => $lang === 'fr' ? $fr : $en;
+        $blog['locales'][$lang] = ['base' => $data['base'], 'title' => $data['title']];
+
+        $termIds = [];
+        foreach ($data['categories'] as $key => $name) {
+            $termIds[$key] = count($terms) + 1;
+            $terms[] = ['id' => $termIds[$key], 'taxonomy' => 'category', 'name' => $name, 'slug' => Str::slug($name), 'locale' => $lang, 'translation_group' => 'tpl-'.$id.'-cat-'.$key];
+        }
+        foreach (array_values($data['posts']) as $i => $p) {
+            $tags = [];
+            foreach ($p['tags'] ?? [] as $tag) {
+                $tagId = collect($terms)->first(fn ($t) => $t['taxonomy'] === 'tag' && $t['locale'] === $lang && $t['name'] === $tag)['id'] ?? null;
+                if (! $tagId) {
+                    $tagId = count($terms) + 1;
+                    $terms[] = ['id' => $tagId, 'taxonomy' => 'tag', 'name' => $tag, 'slug' => Str::slug($tag), 'locale' => $lang, 'translation_group' => 'tpl-'.$id.'-tag-'.Str::slug($tag)];
+                }
+                $tags[] = $tagId;
+            }
+            $photo = Kit::photoFields(...$p['photo']);
+            $posts[] = [
+                'id' => count($posts) + 1,
+                'title' => $p['title'],
+                'slug' => $p['slug'],
+                'locale' => $lang,
+                'translation_group' => 'tpl-'.$id.'-post-'.$p['key'],
+                'status' => 'published',
+                'excerpt' => $p['excerpt'],
+                'featured_media_id' => $photo['media_id'],
+                // Articles récents : le premier il y a 3 jours, puis toutes les deux semaines.
+                'published_at' => now()->startOfDay()->subDays(3 + 14 * $i)->setTime(9, 0)->toIso8601String(),
+                'content' => $this->localize(BlogKit::body($p['body'], $p['heading'] ?? null, $p['quote'] ?? null), $prefix),
+                'terms' => [...(isset($termIds[$p['category']]) ? [$termIds[$p['category']]] : []), ...$tags],
+            ];
+        }
+        foreach (BlogKit::layouts($theme, $T) as $layout) {
+            $layouts[] = $layout + ['id' => count($layouts) + 1, 'locale' => $lang, 'status' => 'published', 'priority' => 0, 'conditions' => [['mode' => 'include', 'target' => 'all']]];
+        }
     }
 
     /**

@@ -109,9 +109,7 @@ class Navigation
 
     private static function homeUrl(string $locale): string
     {
-        $default = ((array) Setting::read('locales', ['fr']))[0] ?? 'fr';
-
-        return url($locale === $default ? '/' : $locale);
+        return Permalinks::home($locale);
     }
 
     /** Liens vers le même contenu dans les autres langues (ou leur page d'accueil). */

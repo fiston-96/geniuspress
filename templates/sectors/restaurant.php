@@ -271,8 +271,47 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('journal', 'journal'),
+            'title' => $T('Le journal de la maison', 'House journal'),
+            'categories' => ['cuisine' => $T('Cuisine', 'Kitchen'), 'evenements' => $T('Événements', 'Events'), 'maison' => $T('La maison', 'The house')],
+            'posts' => [
+                ['key' => 'moambe', 'slug' => $u('le-secret-de-notre-moambe', 'the-secret-of-our-moambe'), 'category' => 'cuisine', 'tags' => [$T('Recettes', 'Recipes')],
+                    'title' => $T('Le secret de notre poulet moambe', 'The secret of our chicken moambe'),
+                    'excerpt' => $T('Le chef partage l’histoire d’un plat transmis de génération en génération.', 'The chef shares the story of a dish passed down through generations.'),
+                    'photo' => ['restaurant-moambe', 'chef-hat', $T('Plat mijoté', 'Slow-cooked dish')],
+                    'heading' => $T('Une cuisson lente', 'Slow cooking'),
+                    'body' => [
+                        $T('La moambe est l’un des plats préférés de nos clients. Sa sauce, préparée avec soin, demande patience et des ingrédients frais du marché.', 'Moambe is one of our guests’ favorite dishes. Its sauce, carefully prepared, takes patience and fresh ingredients from the market.'),
+                        $T('Notre chef la prépare chaque matin selon la recette de sa grand-mère, en laissant mijoter plusieurs heures.', 'Our chef prepares it every morning from his grandmother’s recipe, letting it simmer for several hours.'),
+                        $T('Elle est servie avec du riz ou du fufu, au déjeuner comme au dîner.', 'It is served with rice or fufu, at lunch and dinner.'),
+                    ]],
+                ['key' => 'mariages', 'slug' => $u('organiser-son-mariage', 'planning-your-wedding'), 'category' => 'evenements', 'tags' => [$T('Mariages', 'Weddings')],
+                    'title' => $T('Organiser son mariage chez nous', 'Planning your wedding with us'),
+                    'excerpt' => $T('Salle, menu, décoration et hébergement des invités : un seul interlocuteur.', 'Venue, menu, decoration and guest accommodation: one single contact.'),
+                    'photo' => ['restaurant-mariage', 'party-popper', $T('Table de mariage dressée', 'Wedding table setting')],
+                    'quote' => $T('« Notre plus belle récompense : voir les familles repartir heureuses. »', '“Our greatest reward: seeing families leave happy.”'),
+                    'body' => [
+                        $T('Nous accueillons les mariages jusqu’à [nombre] invités, en salle ou dans le jardin.', 'We host weddings for up to [number] guests, indoors or in the garden.'),
+                        $T('Un menu sur mesure est composé avec vous, et nos chambres permettent d’héberger la famille venue de loin.', 'A bespoke menu is designed with you, and our rooms can host family members traveling from afar.'),
+                        $T('Contactez-nous au moins [nombre] mois à l’avance pour réserver votre date.', 'Contact us at least [number] months ahead to book your date.'),
+                    ]],
+                ['key' => 'jardin', 'slug' => $u('le-jardin-en-fleurs', 'the-garden-in-bloom'), 'category' => 'maison', 'tags' => [$T('Jardin', 'Garden')],
+                    'title' => $T('Le jardin en fleurs', 'The garden in bloom'),
+                    'excerpt' => $T('Un coin de calme pour prendre le café ou le petit-déjeuner.', 'A quiet corner for coffee or breakfast.'),
+                    'photo' => ['restaurant-jardin', 'flower-2', $T('Fleurs du jardin', 'Garden flowers')],
+                    'heading' => $T('Ouvert à tous', 'Open to all'),
+                    'body' => [
+                        $T('Notre jardin vient de retrouver ses couleurs : bougainvilliers, hibiscus et oiseaux de paradis accueillent nos hôtes.', 'Our garden has its colors back: bougainvillea, hibiscus and birds of paradise welcome our guests.'),
+                        $T('Le petit-déjeuner y est servi chaque matin, et le café local l’après-midi.', 'Breakfast is served there every morning, and local coffee in the afternoon.'),
+                        $T('Il est ouvert aux clients du restaurant comme aux résidents de l’hôtel.', 'It is open to restaurant guests and hotel residents alike.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('La carte', 'Menu'), 'url' => $menu],
@@ -286,6 +325,7 @@ return [
                 'cta_url' => $booking,
                 'footer_text' => $T('Restaurant, chambres et événements : une cuisine généreuse et un accueil chaleureux, tous les jours.', 'Restaurant, rooms and events: generous cooking and a warm welcome, every day.'),
                 'footer_links' => [
+                    ['label' => $blog['title'], 'url' => '/'.$blog['base']],
                     ['label' => $T('La carte', 'Menu'), 'url' => $menu],
                     ['label' => $T('Nos chambres', 'Our rooms'), 'url' => $rooms],
                     ['label' => $T('Réserver', 'Book now'), 'url' => $booking],

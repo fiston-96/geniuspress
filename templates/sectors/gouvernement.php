@@ -69,7 +69,7 @@ return [
                 ]),
                 B::features($theme, ['eyebrow' => $T('Accès rapide', 'Quick access'), 'title' => $T('Que souhaitez-vous faire ?', 'What would you like to do?'), 'cols' => 4, 'items' => $quickItems]),
                 B::stats($theme, $stats),
-                B::cards($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('À la une', 'Latest news'), 'more' => $T('Lire la suite', 'Read more'), 'items' => array_map(fn ($i) => array_merge($i, [$news]), $newsItems)]),
+                B::posts($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('À la une', 'Latest news'), 'source' => 'latest', 'count' => 3, 'more' => $T('Lire la suite', 'Read more')]),
                 B::split($theme, [
                     'eyebrow' => $T('La commune', 'The municipality'),
                     'title' => $T('Une commune proche de ses habitants', 'A municipality close to its residents'),
@@ -228,11 +228,7 @@ return [
             'description' => $T('Actualités, avis officiels et calendrier des événements de la commune.', 'News, official notices and calendar of municipal events.'),
             'sections' => [
                 B::pageHeader($theme, ['eyebrow' => $T('Actualités', 'News'), 'title' => $T('Informations et avis officiels', 'News and official notices'), 'intro' => $T('Restez informé des décisions et des événements de la commune.', 'Stay informed about municipal decisions and events.')]),
-                B::cards($theme, ['items' => array_merge($newsItems, [
-                    ['gouvernement-actu-4', 'megaphone', $T('Avis : coupure d’eau programmée', 'Notice: scheduled water cut'), $T('Des travaux sur le réseau perturberont la distribution le [date].', 'Network works will disrupt supply on [date].')],
-                    ['gouvernement-actu-5', 'gavel', $T('Compte rendu du dernier conseil', 'Minutes of the last council meeting'), $T('Les décisions de la séance du [date] sont disponibles.', 'The decisions of the [date] session are available.')],
-                    ['gouvernement-actu-6', 'heart-pulse', $T('Campagne de santé de quartier', 'Neighborhood health campaign'), $T('Dépistage et vaccination gratuits dans les centres communaux.', 'Free screening and vaccination at municipal centers.')],
-                ])]),
+                B::posts($theme, ['source' => 'current', 'count' => 9, 'more' => $T('Lire la suite', 'Read more')]),
                 B::events($theme, ['eyebrow' => $T('Calendrier', 'Calendar'), 'title' => $T('Événements à venir', 'Upcoming events'), 'bg' => 'light', 'items' => [
                     [$T('Séance publique du conseil', 'Public council session'), $T('[Date], 10 h', '[Date], 10 am'), $T('Salle du conseil', 'Council chamber')],
                     [$T('Marché de l’artisanat local', 'Local crafts market'), $T('[Date], toute la journée', '[Date], all day'), $T('Place centrale', 'Central square')],
@@ -260,8 +256,56 @@ return [
                 ]),
             ]];
 
+        $blog = [
+            'base' => $u('actualites', 'news'),
+            'title' => $T('Actualités', 'News'),
+            'categories' => ['avis' => $T('Avis officiels', 'Official notices'), 'services' => $T('Services', 'Services'), 'vie' => $T('Vie de la commune', 'Community life')],
+            'posts' => [
+                ['key' => 'guichet', 'slug' => $u('ouverture-guichet-unique', 'one-stop-desk-opens'), 'category' => 'services', 'tags' => [$T('Démarches', 'Procedures')],
+                    'title' => $T('Ouverture du guichet unique', 'One-stop service desk opens'),
+                    'excerpt' => $T('Les principales démarches sont désormais regroupées dans un seul lieu d’accueil.', 'The main procedures are now handled at a single reception point.'),
+                    'photo' => ['gouvernement-actu-1', 'newspaper', $T('Accueil du public', 'Public reception desk')],
+                    'heading' => $T('Comment ça marche', 'How it works'),
+                    'body' => [
+                        $T('Depuis le [date], état civil, urbanisme et taxes se traitent au même guichet, à la maison communale, du lundi au vendredi.', 'Since [date], civil registration, planning and taxes are handled at the same desk, at the town hall, Monday to Friday.'),
+                        $T('Un agent d’accueil vous oriente dès votre arrivée et vous remet un ticket. Les pièces à fournir pour chaque démarche sont affichées et disponibles sur ce site.', 'A reception officer guides you as soon as you arrive and gives you a ticket. The documents required for each procedure are posted and available on this website.'),
+                        $T('Objectif : moins d’attente et des dossiers complets dès le premier passage.', 'The goal: less waiting and complete files from the first visit.'),
+                    ]],
+                ['key' => 'salubrite', 'slug' => $u('campagne-salubrite', 'cleanliness-campaign'), 'category' => 'vie', 'tags' => [$T('Environnement', 'Environment')],
+                    'title' => $T('Campagne de salubrité publique', 'Public cleanliness campaign'),
+                    'excerpt' => $T('Une opération de nettoyage mobilise les quartiers chaque premier samedi du mois.', 'A clean-up operation brings neighborhoods together on the first Saturday of every month.'),
+                    'photo' => ['gouvernement-actu-2', 'recycle', $T('Nettoyage des rues', 'Street cleaning')],
+                    'quote' => $T('« Une commune propre, c’est l’affaire de tous. »', '“A clean town is everyone’s business.”'),
+                    'body' => [
+                        $T('Chaque premier samedi du mois, de 7 h à 10 h, habitants, associations et services communaux nettoient ensemble les rues et les caniveaux.', 'Every first Saturday of the month, from 7 to 10 am, residents, associations and municipal services clean streets and gutters together.'),
+                        $T('La commune fournit le matériel et organise l’enlèvement des déchets collectés. Les chefs de quartier coordonnent les équipes.', 'The municipality provides the equipment and collects the waste gathered. Neighborhood leaders coordinate the teams.'),
+                        $T('Pour inscrire votre association ou votre école, contactez le service de l’environnement.', 'To register your association or school, contact the environment department.'),
+                    ]],
+                ['key' => 'eau', 'slug' => $u('avis-coupure-eau', 'water-cut-notice'), 'category' => 'avis', 'tags' => [$T('Eau', 'Water')],
+                    'title' => $T('Avis : coupure d’eau programmée', 'Notice: scheduled water cut'),
+                    'excerpt' => $T('Des travaux sur le réseau perturberont la distribution le [date].', 'Network works will disrupt supply on [date].'),
+                    'photo' => ['gouvernement-actu-4', 'megaphone', $T('Robinet d’eau', 'Water tap')],
+                    'body' => [
+                        $T('En raison de travaux de rénovation du réseau, la distribution d’eau sera interrompue le [date], de [heure] à [heure], dans les quartiers [noms].', 'Due to network renovation works, the water supply will be interrupted on [date], from [time] to [time], in the [names] neighborhoods.'),
+                        $T('Nous vous conseillons de constituer une réserve d’eau la veille. Les bornes-fontaines de [lieu] resteront en service.', 'We advise you to store water the day before. The public fountains at [place] will remain in service.'),
+                        $T('Merci de votre compréhension. Ces travaux amélioreront durablement la pression et la qualité de l’eau.', 'Thank you for your understanding. These works will lastingly improve water pressure and quality.'),
+                    ]],
+                ['key' => 'conseil', 'slug' => $u('compte-rendu-conseil', 'council-meeting-minutes'), 'category' => 'avis', 'tags' => [$T('Conseil communal', 'Council')],
+                    'title' => $T('Compte rendu du dernier conseil', 'Minutes of the last council meeting'),
+                    'excerpt' => $T('Les décisions de la séance du [date] sont disponibles.', 'The decisions of the [date] session are available.'),
+                    'photo' => ['gouvernement-actu-5', 'gavel', $T('Salle du conseil', 'Council chamber')],
+                    'heading' => $T('Principales décisions', 'Main decisions'),
+                    'body' => [
+                        $T('Le conseil communal s’est réuni le [date] sous la présidence de [nom]. [Nombre] délibérations ont été adoptées.', 'The municipal council met on [date], chaired by [name]. [Number] resolutions were adopted.'),
+                        $T('Parmi elles : le budget des travaux de voirie, le règlement du marché central et le programme de la rentrée scolaire.', 'Among them: the road works budget, the central market regulations and the back-to-school program.'),
+                        $T('Le compte rendu complet peut être consulté à la maison communale et sur demande auprès du secrétariat.', 'The full minutes can be consulted at the town hall and on request from the secretariat.'),
+                    ]],
+            ],
+        ];
+
         return [
             'pages' => $pages,
+            'blog' => $blog,
             'navigation' => [
                 'menu' => [
                     ['label' => $T('La commune', 'Municipality'), 'url' => $about],

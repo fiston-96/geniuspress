@@ -42,6 +42,26 @@ final class SiteContext
 
     private ?LengthAwarePaginator $postsPage = null;
 
+    /**
+     * Tous les articles disponibles, en mémoire (démonstration d'un modèle) : les widgets
+     * s'en servent au lieu d'interroger la base. Null sur un vrai site.
+     *
+     * @var \Illuminate\Support\Collection<int, Post>|null
+     */
+    public ?\Illuminate\Support\Collection $library = null;
+
+    /** Article précédent et suivant (dans la bibliothèque en mémoire, sinon dans la base). */
+    public function adjacent(Post $post): array
+    {
+        if ($this->library === null) {
+            return PostNavigation::for($post);
+        }
+        $list = $this->library->where('locale', $post->locale)->sortBy(fn ($p) => [$p->published_at?->timestamp ?? 0, $p->id])->values();
+        $i = $list->search(fn ($p) => $p->id === $post->id);
+
+        return ['previous' => $i === false ? null : $list->get($i - 1), 'next' => $i === false ? null : $list->get($i + 1)];
+    }
+
     public function postsUsing(\Closure $resolver): self
     {
         $this->postsResolver = $resolver;

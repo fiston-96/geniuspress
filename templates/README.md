@@ -26,6 +26,10 @@ anglais. Chaque modèle s'installe comme une sauvegarde de site et se prévisual
   cartes (`shadow`, `border`, `flat`, `tinted`), forme des boutons, arrondis.
 - Les blocs n'utilisent que les **couleurs globales** du site : après installation, changer une
   couleur dans les réglages met tout le site à jour.
+- **Blog** : chaque pack renvoie aussi `blog` (adresse et titre du blog, catégories, articles
+  d'exemple illustrés par les photos du pack). Le modèle installe ces articles et deux gabarits du
+  thème, « Article » et « Archive » (`App\Templates\BlogKit`), dans le style du thème. La page qui
+  porte l'adresse du blog (Actualités, Enseignements…) affiche les articles avec `Blocks::posts`.
 - Les photos sont des **emplacements** (`{pack}-accueil`, `{pack}-equipe-1`…). Chacun reçoit une
   photo libre de droits de [Pixabay](https://pixabay.com/service/license-summary/) (ou
   [Pexels](https://www.pexels.com/license/)) ; un emplacement sans photo garde
@@ -59,12 +63,14 @@ php artisan geniuspress:templates --only=eglise-lumiere
 ```
 
 Démonstration sans installation : `/catalogue/{modèle}` (par exemple `/catalogue/eglise-lumiere`,
-`/catalogue/eglise-lumiere/en/services`), actif en local ou avec `GP_CATALOG_DEMOS=true`.
+`/catalogue/eglise-lumiere/en/services`), actif en local ou avec `GP_CATALOG_DEMOS=true`. Le blog y
+fonctionne aussi (`/catalogue/ong-horizon/actualites/rapport-annuel`), lu dans l'archive du modèle.
 
 ## Ajouter un secteur ou un modèle
 
 1. Copier un pack existant dans `sectors/{nouveau}.php` et réécrire les pages (8, mêmes clés dans
-   les deux langues, une seule page d'accueil, emplacements de photos préfixés par le nom du pack).
+   les deux langues, une seule page d'accueil, emplacements de photos préfixés par le nom du pack)
+   et le blog (3 articles au moins, chacun dans une catégorie du pack).
 2. `php artisan geniuspress:templates:check {nouveau}` jusqu'à obtenir « ✓ ».
 3. Ajouter les modèles dans `catalog.php`. Les tests vérifient le contraste de chaque palette
    (WCAG AA : texte blanc sur la couleur principale, texte foncé sur l'accent) et que chaque
