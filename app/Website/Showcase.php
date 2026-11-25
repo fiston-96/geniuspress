@@ -3,6 +3,7 @@
 namespace App\Website;
 
 use App\Templates\Kit as K;
+use App\Templates\PhotoLibrary;
 use App\Templates\TemplateBuilder;
 use App\Templates\Theme;
 
@@ -100,6 +101,31 @@ final class Showcase
         };
     }
 
+    /**
+     * Aperçu d'un modèle : la vraie capture d'écran de sa démonstration (dist/website/captures,
+     * produite par Chrome sans fenêtre), sinon la miniature dessinée par miniHero().
+     */
+    public static function shot(string $id, array $def, string $lang): array
+    {
+        if (! PhotoLibrary::file('capture-'.$id)) {
+            return self::miniHero($id, $def, $lang);
+        }
+        $alt = ($lang === 'fr' ? 'Page d’accueil du modèle ' : 'Home page of the ').$def['name'][$lang].($lang === 'fr' ? '' : ' template');
+
+        return K::photo('capture-'.$id, 'layout-template', $alt, ['link' => self::demoUrl($id, $lang), 'border_radius' => 0]);
+    }
+
+    /** Fenêtre de navigateur contenant la capture d'un modèle, ombre douce et coins arrondis. */
+    public static function screen(string $id, string $lang, array $s = []): array
+    {
+        return K::box([self::browserBar($id), self::shot($id, self::catalog()[$id], $lang)], $s + [
+            'gap' => 0, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'overflow' => 'hidden', 'background_color' => '#ffffff',
+            'border_radius' => ['t' => 12, 'r' => 12, 'b' => 12, 'l' => 12],
+            'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e7e0d4',
+            'box_shadow' => ['x' => 0, 'y' => 30, 'blur' => 60, 'spread' => -24, 'color' => 'rgba(28,25,23,0.35)'],
+        ]);
+    }
+
     /** Barre de navigateur au-dessus d'un aperçu : trois points et l'adresse de la démonstration. */
     private static function browserBar(string $id): array
     {
@@ -107,8 +133,9 @@ final class Showcase
 
         return K::box([
             $dot('#f87171'), $dot('#fbbf24'), $dot('#34d399'),
-            K::h(self::$host.'/catalogue/'.$id, 'p', ['font_size' => 11, 'color' => '#64748b', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
-        ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f1f5f9', 'padding' => ['t' => 8, 'r' => 12, 'b' => 8, 'l' => 12]]);
+            // Adresse du site seulement (sans le chemin) : elle tient sur une ligne, même sur les petits aperçus.
+            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'Inter', 'font_weight' => '400', 'color' => '#78716c', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
+        ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f5f0e8', 'padding' => ['t' => 9, 'r' => 12, 'b' => 9, 'l' => 12]]);
     }
 
     /** Fiche complète d'un modèle : aperçu, palette, nom, description, lien vers la démonstration. */
@@ -129,7 +156,7 @@ final class Showcase
 
         return K::box([
             self::browserBar($id),
-            self::miniHero($id, $def, $lang),
+            self::shot($id, $def, $lang),
             K::box([
                 K::box([
                     K::h($def['name'][$lang], 'h3', ['font_size' => 20, 'font_weight' => '700']),
@@ -137,7 +164,7 @@ final class Showcase
                         ['direction' => 'row', 'gap' => 4, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'width' => '92px', 'grow' => false]),
                 ], ['direction' => 'row', 'justify' => 'between', 'align' => 'center', 'gap' => 8, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0]]),
                 K::p($def['description'][$lang], ['font_size' => 15, 'color' => 'global:doux', 'line_height' => '1.55']),
-                K::p(($styles[$th->hero] ?? '').' · '.$fonts.' · '.$t('8 pages, FR + EN', '8 pages, FR + EN'), ['font_size' => 13, 'color' => '#94a3b8']),
+                K::p(($styles[$th->hero] ?? '').' · '.$fonts.' · '.$t('8 pages, FR + EN', '8 pages, FR + EN'), ['font_size' => 13, 'color' => '#a8a29e']),
                 K::box([
                     // Un œil seul : « Voir la démo » reste lu par les lecteurs d'écran et s'affiche au survol.
                     K::w('icon', ['icon' => 'lucide:eye', 'link' => self::demoUrl($id, $lang), 'label' => $t('Voir la démo', 'View the demo'), 'new_tab' => true,
@@ -147,9 +174,9 @@ final class Showcase
         ], [
             'gap' => 0, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'overflow' => 'hidden', 'background_color' => '#ffffff',
             'border_radius' => ['t' => 16, 'r' => 16, 'b' => 16, 'l' => 16],
-            'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e2e8f0',
-            'box_shadow' => ['x' => 0, 'y' => 10, 'blur' => 30, 'spread' => -14, 'color' => 'rgba(15,23,42,0.22)'],
-            'box_shadow_hover' => ['x' => 0, 'y' => 24, 'blur' => 48, 'spread' => -16, 'color' => 'rgba(15,23,42,0.32)'], 'transition' => 250,
+            'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e7e0d4',
+            'box_shadow' => ['x' => 0, 'y' => 12, 'blur' => 32, 'spread' => -18, 'color' => 'rgba(28,25,23,0.18)'],
+            'box_shadow_hover' => ['x' => 0, 'y' => 26, 'blur' => 50, 'spread' => -18, 'color' => 'rgba(28,25,23,0.28)'], 'transition' => 300,
         ]);
     }
 

@@ -63,6 +63,7 @@ final class Kit
         return self::box(array_map([self::class, 'reveal'], array_values(array_filter($children))), $s + [
             'tag' => 'section',
             'padding' => ['t' => $space, 'r' => 20, 'b' => $space, 'l' => 20],
+            'padding_tablet' => ['t' => (int) round($space * 0.75), 'b' => (int) round($space * 0.75)],
             'padding_mobile' => ['t' => (int) round($space * 0.6), 'b' => (int) round($space * 0.6)],
             'gap' => 48,
             'gap_mobile' => 32,
@@ -126,10 +127,12 @@ final class Kit
     public static function grid(array $items, int $cols, array $s = []): array
     {
         $width = rtrim(rtrim(number_format(100 / $cols, 3, '.', ''), '0'), '.').'%';
-        $items = array_map(function ($item, $i) use ($width, $cols) {
+        // Sur tablette : 2 colonnes à partir de 3, sauf pour exactement 3 éléments (pas d'élément seul sur sa ligne).
+        $tablet = count(array_filter($items)) === 3 ? '33.333%' : '50%';
+        $items = array_map(function ($item, $i) use ($width, $cols, $tablet) {
             $item['settings']['width'] = $width;
             if ($cols >= 3) {
-                $item['settings']['width_tablet'] = '50%';
+                $item['settings']['width_tablet'] = $tablet;
             }
             // Les cartes apparaissent en cascade (colonne par colonne) et se soulèvent au survol.
             $item['settings'] += ['entrance' => 'fade-up'] + ($cols > 1 && $i % $cols ? ['entrance_delay' => ($i % $cols) * 120] : []);

@@ -172,7 +172,7 @@ class SiteNavigationTest extends TestCase
         $this->assertSame('accueil', Page::where('locale', 'fr')->where('is_home', true)->sole()->slug);
         $this->assertTrue(Page::where('slug', 'documentation/plugins')->exists());
 
-        $this->get('/')->assertOk()->assertSee('Construisez le site de votre organisation');
+        $this->get('/')->assertOk()->assertSee('Un site élégant pour votre');
         $this->get('/documentation/installation')->assertOk()
             ->assertSee('Installer GeniusPress')
             ->assertSee('<pre>', false)
@@ -185,7 +185,7 @@ class SiteNavigationTest extends TestCase
         $this->assertSame(Page::where('locale', 'fr')->where('slug', 'documentation/sauvegarde')->sole()->translation_group, $backup->translation_group);
         $this->assertSame('home', Page::where('locale', 'en')->where('is_home', true)->sole()->slug);
 
-        $this->get('/en')->assertOk()->assertSee('Build your organization’s website')
+        $this->get('/en')->assertOk()->assertSee('An elegant website for your')
             ->assertSee('<a class="gp-btn gp-btn-sm gp-site-cta" href="/en/download">Download</a>', false);
         // Vitrine au format 2 : page Modèles avec un aperçu et une démonstration par modèle.
         $count = count(require base_path('templates/catalog.php'));

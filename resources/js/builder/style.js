@@ -65,6 +65,30 @@ export function at(s, key, device) {
     return value;
 }
 
+/** Largeur d'écran (px) à laquelle la taille réglée pour l'ordinateur est atteinte (RenderContext::FLUID_WIDE). */
+export const FLUID_WIDE = 1440;
+
+/**
+ * Taille de texte fluide entre deux appareils (RenderContext::fluid) : la taille glisse de celle
+ * de l'appareil plus petit à celle-ci selon la largeur de l'écran, au lieu de sauter au seuil.
+ */
+export function fluid(props, s, key, device, value) {
+    const num = (v) => !empty(v) && !Number.isNaN(Number(v));
+    if (!props || props['font-size'] === undefined || !num(value) || props['font-size'] !== `${value}px`) return props;
+    const devices = Object.keys(DEVICES);
+    for (const smaller of devices.slice(devices.indexOf(device) + 1)) {
+        const small = s[key + DEVICES[smaller]];
+        if (empty(small)) continue;
+        if (num(small) && Number(small) < Number(value)) {
+            const lo = BREAKPOINTS[smaller];
+            const hi = device === 'desktop' ? FLUID_WIDE : BREAKPOINTS.tablet;
+            return { ...props, 'font-size': `clamp(${small}px, calc(${small}px + ${Number(value) - Number(small)} * (100vw - ${lo}px) / ${hi - lo}), ${value}px)` };
+        }
+        break;
+    }
+    return props;
+}
+
 /** Feuille de style collectée pendant le rendu, par appareil. */
 export class Sheet {
     constructor() {
@@ -86,7 +110,7 @@ export class Sheet {
 
     responsive(id, s, key, fn, suffix = '') {
         for (const [device, sfx] of Object.entries(DEVICES)) {
-            if (!empty(s[key + sfx])) this.rule(id, fn(s[key + sfx]), device, suffix);
+            if (!empty(s[key + sfx])) this.rule(id, fluid(fn(s[key + sfx]), s, key, device, s[key + sfx]), device, suffix);
         }
     }
 

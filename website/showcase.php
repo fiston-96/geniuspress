@@ -38,129 +38,196 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
 
     $pages = [];
 
-    // ─── Accueil ─────────────────────────────────────────────────────────
-    $mosaic = K::grid(array_map(fn ($id) => S::miniHero($id, $catalog[$id], $lang, 190) , ['ong-espoir', 'tech-nova', 'restaurant-lac', 'eglise-grace']), 2, ['gap' => 14, 'gap_mobile' => 12]);
-    // Aperçus arrondis, avec une ombre.
-    foreach ($mosaic['children'] as &$tile) {
-        $tile['settings'] += ['border_radius' => ['t' => 14, 'r' => 14, 'b' => 14, 'l' => 14], 'overflow' => 'hidden', 'box_shadow' => ['x' => 0, 'y' => 24, 'blur' => 50, 'spread' => -18, 'color' => 'rgba(0,0,0,0.55)']];
-        $tile['settings']['width_tablet'] = '50%';
-    }
-    unset($tile);
+    // ─── Accueil (refonte éditoriale : crème, Playfair Display, terracotta, nuit indigo) ───
+    $creme = 'global:clair';
+    $sable = '#f3ece1';
+    $encre = '#1c1917';
+    $doux = '#57534e';
+    $bord = '#e7e0d4';
+    $zero = ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0];
+    $corners = fn (int $r) => ['t' => $r, 'r' => $r, 'b' => $r, 'l' => $r];
+    // Titre de section : sur-titre, grand titre en Playfair, introduction.
+    $intro = fn (string $eyebrow, string $title, ?string $text = null, string $align = 'center', bool $dark = false) => K::box(array_filter([
+        K::eyebrow($eyebrow, ['align' => $align, 'color' => $dark ? 'global:accent' : 'global:primary', 'font_size' => 13, 'font_family' => 'Inter']),
+        K::h($title, 'h2', ['align' => $align, 'font_size' => 50, 'font_size_tablet' => 42, 'font_size_mobile' => 32, 'font_weight' => '700', 'line_height' => '1.12', 'letter_spacing' => '-0.015em', 'color' => $dark ? '#ffffff' : $encre]),
+        $text ? K::p('<p>'.$text.'</p>', ['align' => $align, 'font_size' => 19, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $dark ? 'rgba(255,255,255,0.78)' : $doux]) : null,
+    ]), ['gap' => 18, 'content_width' => 'boxed', 'max_width' => $align === 'center' ? 780 : 1140, 'padding' => $zero]);
+    // Carte claire, bordure chaude.
+    $card = fn (array $children, array $s = []) => K::box($children, $s + [
+        'gap' => 12, 'background_color' => '#ffffff', 'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => $bord,
+        'border_radius' => $corners(14), 'padding' => ['t' => 32, 'r' => 30, 'b' => 32, 'l' => 30], 'padding_mobile' => ['t' => 26, 'r' => 22, 'b' => 26, 'l' => 22],
+    ]);
+    $feature = fn (string $icon, string $title, string $text) => $card([
+        K::w('icon', ['icon' => 'lucide:'.$icon, 'shape' => 'rounded', 'size' => 22, 'box' => 13, 'color' => 'global:primary', 'bg_color' => '#f6e9e1', 'align' => 'left']),
+        K::h($title, 'h3', ['font_size' => 24, 'font_weight' => '700', 'line_height' => '1.25', 'color' => $encre, 'margin' => ['t' => 6, 'r' => 0, 'b' => 0, 'l' => 0]]),
+        K::p('<p>'.$text.'</p>', ['font_size' => 16, 'line_height' => '1.65', 'color' => $doux]),
+    ]);
+    // En-tête des pages intérieures : crème, grand titre en Playfair.
+    $pageHead = fn (string $eyebrow, string $title, string $text) => K::section($theme, [K::box([
+        K::eyebrow($eyebrow, ['align' => 'center', 'color' => 'global:primary', 'font_size' => 13, 'font_family' => 'Inter']),
+        K::h($title, 'h1', ['align' => 'center', 'font_size' => 64, 'font_size_tablet' => 52, 'font_size_mobile' => 38, 'font_weight' => '700', 'line_height' => '1.08', 'letter_spacing' => '-0.02em', 'color' => $encre]),
+        K::p('<p>'.$text.'</p>', ['align' => 'center', 'font_size' => 20, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $doux]),
+    ], ['gap' => 18, 'content_width' => 'boxed', 'max_width' => 820, 'padding' => $zero])], ['background_color' => $creme, 'padding' => ['t' => 104, 'r' => 20, 'b' => 72, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 48]]);
+    $sectorWords = $t("ONG\nécole\nradio\néglise\nentreprise\nmairie\ntélévision\nclinique", "NGO\nschool\nradio station\nchurch\nbusiness\ntown hall\nTV channel\nclinic");
 
     $pages['home'] = [
         'title' => $t('Accueil', 'Home'),
-        'meta_title' => $t('GeniusPress · Le CMS open source avec page builder, modèles et assistant IA', 'GeniusPress · The open source CMS with a page builder, templates and an AI assistant'),
+        'meta_title' => $t('GeniusPress · Le CMS libre qui donne à votre organisation un site élégant', 'GeniusPress · The free CMS that gives your organization an elegant website'),
         'meta_description' => $t(
-            'Construisez le site de votre organisation sans coder : page builder visuel, '.$templates.' modèles prêts, assistant IA, multilingue. Libre et installable partout.',
-            'Build your organization’s website without code: visual page builder, '.$templates.' ready-made templates, AI assistant, multilingual. Free and installable anywhere.'
+            'Page builder visuel, '.$templates.' modèles conçus pour les organisations africaines, animations, blog, assistant IA, français et anglais. Libre et installable partout.',
+            'Visual page builder, '.$templates.' templates designed for African organizations, animations, blog, AI assistant, French and English. Free and installable anywhere.'
         ),
         'elements' => [
-            K::section($theme, [K::row([
-                K::col([
-                    K::eyebrow($t('Libre · open source · AGPL-3.0', 'Free · open source · AGPL-3.0'), ['color' => 'global:accent']),
-                    K::h($t('Construisez le site de votre organisation, sans coder.', 'Build your organization’s website, without code.'), 'h1', ['font_size' => 54, 'font_size_tablet' => 44, 'font_size_mobile' => 34, 'font_weight' => '800', 'line_height' => '1.08', 'letter_spacing' => '-0.02em', 'color' => '#ffffff']),
-                    K::p($t(
-                        '<p>Un <strong>page builder visuel</strong>, <strong>'.$templates.' modèles</strong> prêts pour votre secteur et un <strong>assistant IA</strong> qui rédige à votre place. Chez un hébergeur, sur un serveur ou sur un ordinateur sans Internet : vos données restent à vous.</p>',
-                        '<p>A <strong>visual page builder</strong>, <strong>'.$templates.' templates</strong> ready for your sector and an <strong>AI assistant</strong> that writes for you. On shared hosting, on a server or on a computer without Internet: your data stays yours.</p>'
-                    ), ['font_size' => 19, 'font_size_mobile' => 17, 'line_height' => '1.65', 'color' => 'rgba(255,255,255,0.8)']),
-                    K::buttons([
-                        K::btn($theme, $t('Voir les '.$templates.' modèles', 'See the '.$templates.' templates'), $u('templates'), 'accent'),
-                        K::btn($theme, $t('Télécharger', 'Download'), $u('download'), 'outline-light'),
-                    ]),
-                    K::p($t('Version 0.1 · préversion · français et anglais', 'Version 0.1 · preview · French and English'), ['font_size' => 14, 'color' => 'rgba(255,255,255,0.55)']),
-                ], '50%', ['gap' => 22, 'justify' => 'center']),
-                K::col([$mosaic], '50%'),
-            ], ['gap' => 56, 'gap_tablet' => 40, 'align' => 'center'])], [
-                'background_type' => 'gradient', 'gradient_from' => '#0f172a', 'gradient_to' => '#312e81', 'gradient_angle' => 145, 'text_color' => '#ffffff',
-                'padding' => ['t' => 104, 'r' => 20, 'b' => 104, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 64],
-            ]),
-
-            B::stats($theme, ['bg' => 'primary', 'items' => [
-                [$templates, '', $t('modèles de sites', 'website templates')],
-                [$pagesPerLang, '', $t('pages prêtes, par langue', 'ready pages, per language')],
-                [$widgets, '', $t('widgets dans le builder', 'widgets in the builder')],
-                [count($sectors), '', $t('secteurs d’activité', 'business sectors')],
-            ]]),
-
-            B::features($theme, [
-                'eyebrow' => $t('Tout en un', 'All in one'),
-                'title' => $t('Tout ce qu’il faut pour un vrai site', 'Everything a real website needs'),
-                'intro' => $t('Les outils d’un grand page builder, sans abonnement ni dépendance à une plateforme.', 'The tools of a major page builder, with no subscription and no platform lock-in.'),
-                'items' => [
-                    ['layout-grid', $t('Builder visuel', 'Visual builder'), $t('Conteneurs imbriqués, '.$widgets.' widgets, réglages par appareil et au survol, aperçu mobile au rendu réel.', 'Nested containers, '.$widgets.' widgets, per-device and hover settings, mobile preview with the real rendering.'), $u('features'), $t('Découvrir le builder', 'Explore the builder')],
-                    ['sparkles', $t('Assistant IA', 'AI assistant'), $t('Il vous pose quelques questions, propose des modèles adaptés et rédige les textes de vos pages.', 'It asks you a few questions, suggests matching templates and writes the text of your pages.'), $u('features', 'ia'), $t('Voir comment', 'See how')],
-                    ['frame', $t($templates.' modèles prêts', $templates.' ready-made templates'), $t('Églises, écoles, ONG, hôpitaux, commerces… 8 pages chacun, en français et en anglais.', 'Churches, schools, NGOs, hospitals, shops… 8 pages each, in French and English.'), $u('templates'), $t('Parcourir les modèles', 'Browse the templates')],
-                    ['languages', $t('Multilingue', 'Multilingual'), $t('Une version de chaque page par langue, liées entre elles, et une administration traduite.', 'One version of each page per language, linked together, and a translated admin.')],
-                    ['workflow', 'Plugins', $t('Ajoutez des widgets et des fonctionnalités. Un plugin qui plante est désactivé tout seul.', 'Add widgets and features. A plugin that crashes is switched off automatically.')],
-                    ['shield-check', $t('Vos données vous appartiennent', 'Your data belongs to you'), $t('Exportez tout le site dans un seul fichier et importez-le ailleurs. Jamais prisonnier.', 'Export the whole site to a single file and import it elsewhere. Never locked in.')],
-                ],
-            ]),
-
+            // 1. Ouverture : titre animé, promesse, deux boutons, trois vraies captures de modèles.
             K::section($theme, [
                 K::box([
-                    K::eyebrow($t('Modèles de sites', 'Website templates'), ['align' => 'center']),
-                    K::h($t('Partez d’un site déjà conçu pour votre secteur', 'Start from a website already designed for your sector'), 'h2', ['align' => 'center', 'font_size' => 40, 'font_size_mobile' => 28, 'font_weight' => '800', 'line_height' => '1.15']),
+                    K::eyebrow($t('CMS libre · open source · page builder et IA', 'Free CMS · open source · page builder and AI'), ['align' => 'center', 'font_size' => 13, 'color' => 'global:primary', 'font_family' => 'Inter']),
+                    K::w('animated-heading', [
+                        // Mot animé en fin de phrase : aucune place réservée, aucun décalage, quelle que soit la largeur.
+                        'before' => $t('Un site élégant pour votre', 'An elegant website for your'), 'words' => $sectorWords, 'after' => '',
+                        'effect' => 'typing', 'speed' => 6, 'pause' => 2000, 'tag' => 'h1', 'align' => 'center',
+                        'font_size' => 76, 'font_size_tablet' => 58, 'font_size_mobile' => 40, 'font_weight' => '700', 'line_height' => '1.06', 'letter_spacing' => '-0.02em',
+                        'color' => $encre, 'words_color' => 'global:primary',
+                    ]),
                     K::p($t(
-                        'Chaque modèle compte 8 pages en français et en anglais, avec de vraies photos. Ouvrez la démonstration : rien à installer.',
-                        'Each template has 8 pages in French and English, with real photos. Open the demo: nothing to install.'
-                    ), ['align' => 'center', 'font_size' => 18, 'color' => 'global:doux']),
-                ], ['gap' => 14, 'content_width' => 'boxed', 'max_width' => 760, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0]]),
-                K::grid($pick(['ong-horizon', 'ecole-excellence', 'hopital-soin', 'commerce-quartier', 'art-deco-wax', 'cabinet-conseil']), 3),
-                K::buttons([K::btn($theme, $t('Voir les '.$templates.' modèles', 'See all '.$templates.' templates'), $u('templates'))], 'center'),
-            ], ['background_color' => 'global:clair']),
+                        '<p>Un page builder visuel, <strong>'.$templates.' modèles</strong> pensés pour les organisations africaines et un assistant IA qui rédige avec vous. Libre, en français et en anglais, chez l’hébergeur de votre choix, ou sur un ordinateur sans Internet.</p>',
+                        '<p>A visual page builder, <strong>'.$templates.' templates</strong> designed for African organizations and an AI assistant that writes with you. Free, in French and English, with the host of your choice, or on a computer without Internet.</p>'
+                    ), ['align' => 'center', 'font_size' => 20, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $doux]),
+                    K::buttons([
+                        K::btn($theme, $t('Voir les '.$templates.' modèles', 'See the '.$templates.' templates'), $u('templates')),
+                        K::btn($theme, $t('Télécharger GeniusPress', 'Download GeniusPress'), $u('download'), 'outline'),
+                    ], 'center'),
+                    K::p($t('Gratuit · licence AGPL-3.0 · aucune carte bancaire', 'Free · AGPL-3.0 license · no credit card'), ['align' => 'center', 'font_size' => 14, 'color' => '#a8a29e']),
+                ], ['gap' => 22, 'content_width' => 'boxed', 'max_width' => 940, 'padding' => $zero]),
+                K::row([
+                    // Sur tablette et téléphone, seule la capture centrale reste, élargie.
+                    K::col([S::screen('medias-journal-quotidien', $lang)], '27%', ['margin' => ['t' => 90, 'r' => 0, 'b' => 0, 'l' => 0], 'hide_tablet' => true, 'hide_mobile' => true]),
+                    K::col([S::screen('ong-horizon', $lang)], '46%', ['width_tablet' => '86%']),
+                    K::col([S::screen('restaurant-lac', $lang)], '27%', ['margin' => ['t' => 90, 'r' => 0, 'b' => 0, 'l' => 0], 'hide_tablet' => true, 'hide_mobile' => true]),
+                ], ['gap' => 24, 'gap_tablet' => 16, 'align' => 'start', 'justify' => 'center', 'content_width' => 'boxed', 'max_width' => 1240]),
+            ], ['background_color' => $creme, 'padding' => ['t' => 104, 'r' => 20, 'b' => 56, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 40], 'gap' => 64, 'gap_mobile' => 40]),
 
-            B::steps($theme, [
-                'eyebrow' => $t('Assistant IA', 'AI assistant'),
-                'title' => $t('Votre site en quatre étapes, avec l’IA ou à la main', 'Your website in four steps, with AI or by hand'),
-                'intro' => $t('L’assistant écrit à partir de ce que vous lui dites. Il n’invente ni chiffres ni contacts : il laisse des espaces à compléter.', 'The assistant writes from what you tell it. It never makes up figures or contact details: it leaves placeholders for you.'),
-                'items' => [
-                    [$t('Décrivez votre organisation', 'Describe your organization'), $t('Quelques questions : votre activité, votre public, vos langues, votre ton.', 'A few questions: your activity, your audience, your languages, your tone.')],
-                    [$t('Choisissez un modèle', 'Pick a template'), $t('L’IA propose les modèles qui vous correspondent, et explique pourquoi.', 'The AI suggests the templates that fit you, and explains why.')],
-                    [$t('L’IA rédige vos textes', 'The AI writes your text'), $t('Titres, présentations, services : chaque page est adaptée à votre organisation.', 'Headings, introductions, services: every page is tailored to your organization.')],
-                    [$t('Ajustez et publiez', 'Adjust and publish'), $t('Tout reste modifiable dans le builder. Rien n’est en ligne avant votre publication.', 'Everything stays editable in the builder. Nothing goes live until you publish.')],
-                ],
-            ]),
+            // 2. Bandeau des secteurs qui défile.
+            K::box([K::w('ticker', [
+                'items' => array_map(fn ($key, $s) => ['text' => $s['name'][$lang], 'link' => $u('templates', $key)], array_keys($sectors), $sectors),
+                'speed' => 45, 'bg_color' => $sable, 'color' => $encre,
+            ])], ['padding' => $zero, 'content_width' => 'full', 'background_color' => $sable]),
 
+            // 3. Manifeste et chiffres.
             K::section($theme, [K::row([
                 K::col([
-                    K::eyebrow($t('Le builder', 'The builder')),
-                    K::h($t('La liberté d’un page builder professionnel', 'The freedom of a professional page builder'), 'h2', ['font_size' => 38, 'font_size_mobile' => 28, 'font_weight' => '800', 'line_height' => '1.15']),
+                    K::eyebrow($t('Pourquoi GeniusPress', 'Why GeniusPress'), ['font_size' => 13, 'color' => 'global:primary', 'font_family' => 'Inter']),
+                    K::h($t('Un site professionnel ne devrait pas coûter un budget d’agence.', 'A professional website shouldn’t cost an agency budget.'), 'h2', [
+                        'font_size' => 46, 'font_size_tablet' => 40, 'font_size_mobile' => 31, 'font_weight' => '700', 'line_height' => '1.14', 'letter_spacing' => '-0.015em', 'color' => $encre]),
+                ], '52%', ['gap' => 18]),
+                K::col([
                     K::p($t(
-                        'Glissez des conteneurs, imbriquez-les, posez des widgets : vous réglez tout, sans une ligne de code.',
-                        'Drag containers, nest them, drop widgets in: you control everything, without a line of code.'
-                    ), ['font_size' => 17, 'color' => 'global:doux', 'line_height' => '1.7']),
-                    K::w('icon-list', ['items' => array_map(fn ($b) => ['icon' => 'lucide:circle-check', 'text' => $b], [
-                        $t('Conteneurs en ligne ou en colonne, retour à la ligne, alignements', 'Row or column containers, wrapping, alignment'),
-                        $t('Réglages pour ordinateur, tablette et mobile, et au survol', 'Desktop, tablet, mobile and hover settings'),
-                        $t('Couleurs et polices globales : un changement, tout le site suit', 'Global colors and fonts: change once, the whole site follows'),
-                        $t('Dégradés, ombres, bordures, arrondis, superpositions', 'Gradients, shadows, borders, radius, overlays'),
-                        $t('Annuler, rétablir, historique des versions, brouillons', 'Undo, redo, version history, drafts'),
-                    ]), 'icon_color' => 'global:primary', 'gap' => 12]),
-                    K::buttons([K::btn($theme, $t('Toutes les fonctionnalités', 'All features'), $u('features'))]),
-                ], '46%', ['gap' => 18, 'justify' => 'center']),
-                K::col([K::grid($tiles(12), 4, ['gap' => 12, 'gap_mobile' => 10])], '54%', [
-                    'background_color' => 'global:clair', 'padding' => ['t' => 28, 'r' => 28, 'b' => 28, 'l' => 28], 'border_radius' => ['t' => 24, 'r' => 24, 'b' => 24, 'l' => 24],
+                        '<p>Les ONG, les écoles, les églises, les radios et les entreprises ont besoin d’un site soigné, en plusieurs langues, qu’elles peuvent modifier elles-mêmes. GeniusPress réunit tout ce qu’il faut dans un seul logiciel libre : pas d’extension à acheter, pas d’abonnement obligatoire, et vos données restent à vous.</p>',
+                        '<p>NGOs, schools, churches, radio stations and businesses need a polished website, in several languages, that they can edit themselves. GeniusPress brings everything together in a single free software: no add-ons to buy, no mandatory subscription, and your data stays yours.</p>'
+                    ), ['font_size' => 18, 'line_height' => '1.75', 'color' => $doux]),
+                ], '48%', ['justify' => 'center']),
+            ], ['gap' => 64, 'gap_tablet' => 40, 'align' => 'center']),
+                K::grid(array_map(fn ($n) => K::box([K::w('counter', [
+                    'number' => $n[0], 'label' => $n[1], 'separator' => 'space', 'duration' => 1600, 'align' => 'left',
+                    'number_color' => 'global:primary', 'number_size' => 60, 'number_size_mobile' => 40, 'label_color' => $doux,
+                ])], ['padding' => ['t' => 22, 'r' => 0, 'b' => 0, 'l' => 0], 'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 0, 'b' => 0, 'l' => 0], 'border_color' => $bord, 'width_mobile' => '46%']), [
+                    [$templates, $t('modèles de sites, 8 pages chacun', 'website templates, 8 pages each')],
+                    [$templates * 16, $t('pages prêtes, en français et en anglais', 'ready pages, in French and English')],
+                    [$widgets, $t('widgets dans le builder', 'widgets in the builder')],
+                    [count($sectors), $t('secteurs d’activité', 'business sectors')],
+                ]), 4, ['gap' => 32, 'gap_mobile' => 16, 'direction_mobile' => 'row']),
+            ], ['background_color' => $creme, 'gap' => 64]),
+
+            // 4. Tout est inclus.
+            K::section($theme, [
+                $intro($t('Tout est inclus', 'Everything included'), $t('Tout ce qu’un vrai site demande, sans extension payante', 'Everything a real website needs, with no paid add-ons'),
+                    $t('Ce que d’autres vendent en options est livré avec GeniusPress, dès l’installation.', 'What others sell as options ships with GeniusPress, from the first install.')),
+                K::grid([
+                    $feature('layout-grid', $t('Builder visuel', 'Visual builder'), $t('Conteneurs imbriqués, '.$widgets.' widgets, réglages par écran et au survol. Ce que vous voyez est exactement ce qui sera publié.', 'Nested containers, '.$widgets.' widgets, per-screen and hover settings. What you see is exactly what gets published.')),
+                    $feature('sparkles', $t('Animations et effets', 'Animations and effects'), $t('16 apparitions à l’écran, effets au survol, parallaxe, en-tête collant, titres animés et transitions entre les pages.', '16 entrance animations, hover effects, parallax, sticky header, animated headings and page transitions.')),
+                    $feature('palette', $t('Constructeur de thème', 'Theme builder'), $t('Dessinez l’en-tête, le pied de page, la page d’un article et les archives : tout le site suit.', 'Design the header, the footer, the article page and the archives: the whole site follows.')),
+                    $feature('newspaper', $t('Blog et actualités', 'Blog and news'), $t('Articles, catégories, étiquettes, flux RSS, partage sur WhatsApp et barre de lecture.', 'Posts, categories, tags, RSS feed, WhatsApp sharing and a reading bar.')),
+                    $feature('languages', $t('Français et anglais', 'French and English'), $t('Une version de chaque page par langue, reliées entre elles, et une administration traduite.', 'One version of each page per language, linked together, and a translated admin.')),
+                    $feature('package', $t('Vos données vous appartiennent', 'Your data belongs to you'), $t('Exportez tout le site dans un seul fichier et installez-le ailleurs. Jamais prisonnier d’une plateforme.', 'Export the whole site into a single file and install it elsewhere. Never locked into a platform.')),
+                ], 3, ['gap' => 24, 'gap_mobile' => 16]),
+            ], ['background_color' => $creme, 'gap' => 56, 'padding' => ['t' => 40, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 24, 'b' => 72]]),
+
+            // 5. Assistant IA, sur fond nuit.
+            K::section($theme, [K::row([
+                K::col([
+                    $intro($t('Assistant IA', 'AI assistant'), $t('Décrivez votre organisation. L’assistant écrit le reste.', 'Describe your organization. The assistant writes the rest.'),
+                        $t('Il pose quelques questions, propose les modèles qui vous correspondent et rédige chaque page. Il n’invente ni chiffres ni contacts : il laisse des espaces à compléter.', 'It asks a few questions, suggests the templates that fit you and writes every page. It never makes up figures or contact details: it leaves placeholders for you.'),
+                        'left', true),
+                    K::w('icon-list', ['items' => array_map(fn ($b) => ['icon' => 'lucide:check', 'text' => $b], [
+                        $t('Textes adaptés à votre secteur et à votre public', 'Text tailored to your sector and audience'),
+                        $t('Traduction d’une page en gardant sa mise en page', 'Page translation that keeps the layout'),
+                        $t('Tout reste modifiable, rien n’est publié sans vous', 'Everything stays editable, nothing goes live without you'),
+                    ]), 'icon_color' => 'global:accent', 'text_color' => 'rgba(255,255,255,0.85)', 'gap' => 12]),
+                ], '50%', ['gap' => 28]),
+                K::col([
+                    // Conversation d'exemple.
+                    K::box([K::p($t('<p>Nous sommes une ONG d’éducation. Nous voulons présenter nos écoles et recevoir des dons.</p>', '<p>We are an education NGO. We want to present our schools and receive donations.</p>'), ['font_size' => 16, 'line_height' => '1.6', 'color' => $encre])],
+                        ['background_color' => '#ffffff', 'border_radius' => ['t' => 16, 'r' => 16, 'b' => 4, 'l' => 16], 'padding' => ['t' => 16, 'r' => 20, 'b' => 16, 'l' => 20], 'width' => '86%', 'align_self' => 'end']),
+                    K::box([
+                        K::p($t('<p>Je vous propose <strong>Horizon</strong> : grande photo d’accueil, programmes en cartes et dons mis en avant. J’ai rédigé vos 8 pages, en français et en anglais.</p>', '<p>I suggest <strong>Horizon</strong>: large welcome photo, programs as cards and donations front and center. I’ve written your 8 pages, in French and English.</p>'), ['font_size' => 16, 'line_height' => '1.6', 'color' => '#ffffff']),
+                        S::screen('ong-horizon', $lang, ['box_shadow' => null]),
+                    ], ['gap' => 14, 'background_color' => 'rgba(255,255,255,0.08)', 'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => 'rgba(255,255,255,0.14)',
+                        'border_radius' => ['t' => 16, 'r' => 16, 'b' => 16, 'l' => 4], 'padding' => ['t' => 18, 'r' => 18, 'b' => 18, 'l' => 18], 'width' => '92%']),
+                ], '50%', ['gap' => 16]),
+            ], ['gap' => 64, 'gap_tablet' => 40, 'align' => 'center'])], ['background_color' => 'global:secondary', 'padding' => ['t' => 112, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 72, 'b' => 72]]),
+
+            // 6. Modèles : carrousel de vraies captures.
+            K::section($theme, [
+                $intro($t($templates.' modèles', $templates.' templates'), $t('Partez d’un site déjà conçu pour votre secteur', 'Start from a website already designed for your sector'),
+                    $t('Chaque modèle compte 8 pages en français et en anglais, avec de vraies photos, un blog et des animations. Ouvrez la démonstration : rien à installer.', 'Each template has 8 pages in French and English, with real photos, a blog and animations. Open the demo: nothing to install.')),
+                K::w('carousel', [
+                    'items' => array_map(fn ($id) => K::photoFields('capture-'.$id, 'layout-template', $catalog[$id]['name'][$lang]) + [
+                        'title' => $catalog[$id]['name'][$lang], 'text' => $sectors[$catalog[$id]['sector']]['name'][$lang] ?? '', 'link' => S::demoUrl($id, $lang),
+                    ], ['ong-horizon', 'medias-tv-ecran', 'ecole-excellence', 'eglise-grace', 'restaurant-lac', 'medias-radio-onde', 'hopital-soin', 'tech-nova', 'gouvernement-republique', 'commerce-elegance', 'art-deco-wax', 'cabinet-justice']),
+                    'per_view' => 3, 'per_view_tablet' => 2, 'per_view_mobile' => 1, 'gap' => 24, 'ratio' => '16:9', 'card' => true, 'autoplay' => true, 'interval' => 5,
+                    'arrows' => true, 'dots' => true, 'radius' => 10, 'title_color' => $encre,
                 ]),
-            ], ['gap' => 56, 'gap_tablet' => 32, 'align' => 'center'])]),
+                K::buttons([K::btn($theme, $t('Voir les '.$templates.' modèles', 'See all '.$templates.' templates'), $u('templates'))], 'center'),
+            ], ['background_color' => '#ffffff', 'gap' => 48]),
 
-            B::features($theme, [
-                'eyebrow' => $t('Pour qui ?', 'Who is it for?'),
-                'title' => $t('Pensé pour les organisations africaines', 'Designed for African organizations'),
-                'intro' => $t(
-                    'Né en RDC pour une réalité simple : les ONG, les écoles, les églises et les entreprises ont besoin d’un site professionnel, en plusieurs langues, sans budget d’agence.',
-                    'Born in the DRC for a simple need: NGOs, schools, churches and businesses need a professional website, in several languages, without an agency budget.'
-                ),
-                'bg' => 'light', 'cols' => 5,
-                'items' => array_map(fn ($key, $s) => [$s['icon'], $s['name'][$lang], $t(count(S::bySector($key)).' modèles', count(S::bySector($key)).' templates'), $u('templates', $key), $t('Voir', 'View')], array_keys($sectors), $sectors),
-            ]),
+            // 7. Comparaison.
+            K::section($theme, [
+                $intro($t('Comparaison', 'Comparison'), $t('Tout en un, plutôt qu’une pile d’extensions', 'All in one, instead of a pile of add-ons'),
+                    $t('Avec un CMS classique, chaque fonction passe par une extension, souvent payante. Avec GeniusPress, elle est déjà là.', 'With a classic CMS, every feature comes from an add-on, often a paid one. With GeniusPress, it is already there.')),
+                K::box([K::w('data-table', [
+                    'data' => implode("\n", [
+                        $t(' | GeniusPress | CMS classique + extensions', ' | GeniusPress | Classic CMS + add-ons'),
+                        $t('Page builder visuel | Inclus | Extension, souvent payante', 'Visual page builder | Included | Add-on, often paid'),
+                        $t('Animations, carrousels, titres animés | Inclus | Version payante du builder', 'Animations, carousels, animated headings | Included | Paid version of the builder'),
+                        $t('Constructeur de thème | Inclus | Version payante du builder', 'Theme builder | Included | Paid version of the builder'),
+                        $t('Site en plusieurs langues | Inclus | Extension payante', 'Multilingual website | Included | Paid add-on'),
+                        $t('Assistant IA qui rédige vos pages | Inclus | Extension', 'AI assistant that writes your pages | Included | Add-on'),
+                        $t('Modèles pensés pour l’Afrique | '.$templates.', en français et en anglais | Rares', 'Templates designed for Africa | '.$templates.', in French and English | Rare'),
+                        $t('Export complet en un fichier | Inclus | Extension', 'Full export in one file | Included | Add-on'),
+                    ]),
+                    'header' => true, 'striped' => true, 'header_bg' => 'global:secondary', 'header_color' => '#ffffff', 'border_color' => $bord, 'font_size' => 16, 'font_size_mobile' => 14,
+                ])], ['content_width' => 'boxed', 'max_width' => 940, 'padding' => $zero]),
+            ], ['background_color' => $creme, 'gap' => 48]),
 
+            // 8. Fait pour l'Afrique.
+            K::section($theme, [
+                $intro($t('Fait pour l’Afrique', 'Made for Africa'), $t('Pensé pour la réalité du terrain', 'Designed for real conditions on the ground')),
+                K::grid([
+                    $feature('laptop', $t('Même sans Internet', 'Even without Internet'), $t('Installez GeniusPress sur un ordinateur et travaillez hors ligne. Publiez quand la connexion revient.', 'Install GeniusPress on a computer and work offline. Publish when the connection is back.')),
+                    $feature('smartphone', $t('Léger sur mobile', 'Light on mobile'), $t('Des sites rapides, lisibles et faciles à toucher sur téléphone, même avec une petite connexion.', 'Fast, readable, easy-to-tap websites on phones, even on a weak connection.')),
+                    $feature('message-circle', $t('WhatsApp et appel', 'WhatsApp and calls'), $t('Bouton WhatsApp flottant, appel en un geste, partage des articles sur WhatsApp.', 'Floating WhatsApp button, one-tap calling, article sharing on WhatsApp.')),
+                    $feature('wallet', $t('Mobile Money, bientôt', 'Mobile Money, soon'), $t('Le paiement par Mobile Money arrive avec l’offre hébergée : dons, abonnements et achats.', 'Mobile Money payments are coming with the hosted offer: donations, subscriptions and purchases.')),
+                ], 4, ['gap' => 20, 'gap_mobile' => 16]),
+            ], ['background_color' => $sable, 'gap' => 48]),
+
+            // 9. Questions fréquentes.
             B::faq($theme, [
                 'eyebrow' => 'FAQ',
                 'title' => $t('Questions fréquentes', 'Frequently asked questions'),
-                'intro' => $t('Une autre question ? La documentation et le dépôt GitHub sont ouverts à tous.', 'Another question? The documentation and the GitHub repository are open to everyone.'),
+                'intro' => $t('Une autre question ? La documentation et le code sont ouverts à tous.', 'Another question? The documentation and the code are open to everyone.'),
                 'buttons' => [[$t('Lire la documentation', 'Read the documentation'), $u('docs')]],
                 'items' => [
-                    [$t('GeniusPress est-il vraiment gratuit ?', 'Is GeniusPress really free?'), $t('Oui. Il est publié sous licence AGPL-3.0 : vous pouvez l’installer, l’utiliser et le modifier librement. Seul l’assistant IA demande une clé API Claude, payée à l’usage.', 'Yes. It is released under the AGPL-3.0 license: you can install, use and modify it freely. Only the AI assistant needs a Claude API key, paid per use.')],
+                    [$t('GeniusPress est-il vraiment gratuit ?', 'Is GeniusPress really free?'), $t('Oui. Il est publié sous licence AGPL-3.0 : vous pouvez l’installer, l’utiliser et le modifier librement. Seul l’assistant IA a un coût, à l’usage.', 'Yes. It is released under the AGPL-3.0 license: you can install, use and modify it freely. Only the AI assistant has a cost, based on use.')],
                     [$t('Faut-il savoir coder ?', 'Do I need to know how to code?'), $t('Non. Choisissez un modèle, laissez l’assistant rédiger, puis ajustez dans le builder visuel.', 'No. Pick a template, let the assistant write, then adjust in the visual builder.')],
                     [$t('Puis-je utiliser les modèles et leurs photos ?', 'Can I use the templates and their photos?'), $t('Oui. Les photos viennent de Pixabay, sous une licence qui autorise l’usage commercial. Remplacez-les par les vôtres quand vous voulez.', 'Yes. The photos come from Pixabay, under a license that allows commercial use. Replace them with your own whenever you like.')],
                     [$t('Où mon site est-il hébergé ?', 'Where is my website hosted?'), $t('Où vous voulez : hébergement mutualisé, VPS, Docker ou ordinateur local. Vous pouvez tout exporter et déménager à tout moment.', 'Wherever you want: shared hosting, VPS, Docker or a local computer. You can export everything and move at any time.')],
@@ -168,12 +235,16 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 ],
             ]),
 
-            B::cta($theme, [
-                'tone' => 'dark',
-                'title' => $t('Libre, ouvert, construit avec vous', 'Free, open, built with you'),
-                'text' => $t('Le code, la documentation et la feuille de route sont publics. Proposez une amélioration, traduisez l’interface ou créez un plugin.', 'The code, the documentation and the roadmap are public. Suggest an improvement, translate the interface or build a plugin.'),
-                'buttons' => [[$t('Contribuer', 'Contribute'), $u('contribute')], [$t('Voir le code sur GitHub', 'View the code on GitHub'), $repo]],
-            ]),
+            // 10. Dernier appel, en terracotta.
+            K::section($theme, [K::box([
+                K::h($t('Votre organisation mérite mieux qu’un site générique.', 'Your organization deserves better than a generic website.'), 'h2', [
+                    'align' => 'center', 'font_size' => 52, 'font_size_tablet' => 44, 'font_size_mobile' => 32, 'font_weight' => '700', 'line_height' => '1.12', 'color' => '#ffffff']),
+                K::p($t('<p>Choisissez un modèle, laissez l’assistant écrire, publiez. Le reste vous appartient.</p>', '<p>Pick a template, let the assistant write, publish. The rest is yours.</p>'), ['align' => 'center', 'font_size' => 19, 'color' => 'rgba(255,255,255,0.88)']),
+                K::buttons([
+                    K::btn($theme, $t('Choisir un modèle', 'Choose a template'), $u('templates'), 'light'),
+                    K::btn($theme, $t('Télécharger', 'Download'), $u('download'), 'outline-light'),
+                ], 'center'),
+            ], ['gap' => 22, 'content_width' => 'boxed', 'max_width' => 860, 'padding' => $zero])], ['background_color' => 'global:primary', 'padding' => ['t' => 112, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 72, 'b' => 72]]),
         ],
     ];
 
@@ -187,11 +258,8 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
             'Visual page builder, '.$widgets.' widgets, '.$templates.' templates, AI assistant, multilingual, plugins, full export: everything GeniusPress does.'
         ),
         'elements' => [
-            B::pageHeader(new Theme($theme->colors, $theme->font, $theme->headingFont, hero: 'gradient'), [
-                'eyebrow' => $t('Version 0.1', 'Version 0.1'),
-                'title' => $t('Fonctionnalités', 'Features'),
-                'intro' => $t('Ce que GeniusPress sait déjà faire, et ce qui arrive ensuite.', 'What GeniusPress already does, and what comes next.'),
-            ]),
+            $pageHead($t('Version 0.1', 'Version 0.1'), $t('Fonctionnalités', 'Features'),
+                $t('Ce que GeniusPress sait déjà faire, et ce qui arrive ensuite.', 'What GeniusPress already does, and what comes next.')),
 
             K::section($theme, [
                 K::box([
@@ -332,16 +400,10 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
             $templates.' free website templates for churches, schools, NGOs, hospitals, shops, restaurants and more: 8 pages each, in French and English, with a live demo.'
         ),
         'elements' => [
-            K::section($theme, [
-                K::box([
-                    K::eyebrow($t($pagesPerLang.' pages prêtes, par langue', $pagesPerLang.' ready pages, per language'), ['align' => 'center', 'color' => 'global:accent']),
-                    K::h($t($templates.' modèles de sites, prêts à l’emploi', $templates.' website templates, ready to use'), 'h1', ['align' => 'center', 'font_size' => 52, 'font_size_mobile' => 34, 'font_weight' => '800', 'line_height' => '1.1', 'color' => '#ffffff']),
-                    K::p($t(
-                        'Choisissez votre secteur, ouvrez la démonstration, puis installez le modèle en un clic depuis votre administration. L’assistant IA peut ensuite rédiger tous les textes pour votre organisation.',
-                        'Choose your sector, open the demo, then install the template in one click from your admin. The AI assistant can then write all the text for your organization.'
-                    ), ['align' => 'center', 'font_size' => 19, 'color' => 'rgba(255,255,255,0.8)']),
-                ], ['gap' => 16, 'content_width' => 'boxed', 'max_width' => 820, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0]]),
-            ], ['background_type' => 'gradient', 'gradient_from' => '#0f172a', 'gradient_to' => '#312e81', 'gradient_angle' => 145, 'text_color' => '#ffffff', 'padding' => ['t' => 96, 'r' => 20, 'b' => 88, 'l' => 20], 'padding_mobile' => ['t' => 56, 'b' => 52]]),
+            $pageHead($t(($templates * 16).' pages prêtes, en français et en anglais', ($templates * 16).' ready pages, in French and English'),
+                $t($templates.' modèles de sites, prêts à l’emploi', $templates.' website templates, ready to use'),
+                $t('Choisissez votre secteur, ouvrez la démonstration, puis installez le modèle en un clic depuis votre administration. L’assistant IA peut ensuite rédiger tous les textes pour votre organisation.',
+                    'Choose your sector, open the demo, then install the template in one click from your admin. The AI assistant can then write all the text for your organization.')),
 
             K::section($theme, [$sectorNav], ['padding' => ['t' => 32, 'r' => 20, 'b' => 8, 'l' => 20]]),
             ...$sectorSections,

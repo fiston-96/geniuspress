@@ -70,9 +70,40 @@ class RenderContext
         foreach (Schema::DEVICES as $device => $sfx) {
             $v = $settings[$key.$sfx] ?? null;
             if ($v !== null && $v !== '') {
-                $this->rule($id, $props($v), $device, $suffix);
+                $this->rule($id, self::fluid($props($v), $settings, $key, $device, $v), $device, $suffix);
             }
         }
+    }
+
+    /** Largeur d'écran (px) à laquelle la taille réglée pour l'ordinateur est atteinte. */
+    public const FLUID_WIDE = 1440;
+
+    /**
+     * Taille de texte fluide : quand une taille est réglée pour deux appareils (ordinateur et
+     * tablette, ou tablette et mobile), elle glisse de l'une à l'autre selon la largeur réelle
+     * de l'écran au lieu de sauter au seuil (écrans de 14 pouces, tablettes en paysage).
+     * Miroir de fluid() dans resources/js/builder/style.js.
+     */
+    public static function fluid(array $props, array $settings, string $key, string $device, mixed $value): array
+    {
+        if (! isset($props['font-size']) || ! is_numeric($value) || $props['font-size'] !== $value.'px') {
+            return $props;
+        }
+        $devices = array_keys(Schema::DEVICES);
+        foreach (array_slice($devices, array_search($device, $devices, true) + 1) as $smaller) {
+            $small = $settings[$key.Schema::DEVICES[$smaller]] ?? null;
+            if ($small === null || $small === '') {
+                continue;
+            }
+            if (is_numeric($small) && $small < $value) {
+                $lo = Schema::BREAKPOINTS[$smaller];
+                $hi = $device === 'desktop' ? self::FLUID_WIDE : Schema::BREAKPOINTS['tablet'];
+                $props['font-size'] = "clamp({$small}px, calc({$small}px + ".($value - $small)." * (100vw - {$lo}px) / ".($hi - $lo)."), {$value}px)";
+            }
+            break;
+        }
+
+        return $props;
     }
 
     /** Réglages de Schema::TYPOGRAPHY appliqués à #gp-{id}{suffixe}. */

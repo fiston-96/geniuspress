@@ -46,6 +46,12 @@ final class PhotoLibrary
     /** Fichier de la photo d'un emplacement, s'il a été téléchargé. */
     public static function file(string $slot): ?string
     {
+        // Captures d'écran des démonstrations (vitrine) : dist/website/captures/{modèle}.jpg.
+        if (str_starts_with($slot, 'capture-')) {
+            $file = base_path('dist/website/captures/'.substr($slot, 8).'.jpg');
+
+            return preg_match('/^capture-[a-z0-9-]{2,80}$/', $slot) && is_file($file) ? $file : null;
+        }
         $file = self::path('files/'.$slot.'.jpg');
 
         return preg_match('/^[a-z0-9-]{2,80}$/', $slot) && is_file($file) ? $file : null;

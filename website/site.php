@@ -20,12 +20,12 @@ use App\Website\PageKit as K;
 $repo = 'https://github.com/fiston-96/geniuspress';
 $base = dirname(__DIR__);
 
-// Couleurs de la marque (docs/marque.md)
-$indigo = '#4f46e5';
-$ambre = '#f59e0b';
-$nuit = '#0f172a';
-$lavande = '#eef2ff';
-$gris = '#f8fafc';
+// Palette éditoriale de la vitrine : crème, terracotta, or, nuit indigo (famille du logo, docs/marque.md).
+$primaire = '#b4532a';
+$or = '#c9973a';
+$nuit = '#1e1b4b';
+$creme = '#fbf7f0';
+$sable = '#f3ece1';
 
 // Adresse de chaque page dans chaque langue, par clé de groupe.
 $slugs = [
@@ -60,13 +60,13 @@ $docFiles = [
 
 // Thème des pages vitrines (format 2), aux couleurs de la marque : mêmes blocs que les modèles de sites.
 $theme = new Theme(
-    colors: ['primary' => $indigo, 'secondary' => $nuit, 'accent' => $ambre, 'light' => $lavande, 'text' => $nuit, 'muted' => '#475569'],
-    font: 'Inter', headingFont: 'Poppins', hero: 'split', cards: 'shadow', buttons: 'rounded', radius: 16, space: 96,
+    colors: ['primary' => $primaire, 'secondary' => $nuit, 'accent' => $or, 'light' => $creme, 'text' => '#1c1917', 'muted' => '#57534e'],
+    font: 'Inter', headingFont: 'Playfair Display', hero: 'split', cards: 'border', buttons: 'rounded', radius: 12, space: 112,
 );
 // Accueil, fonctionnalités et modèles : website/showcase.php.
 $showcase = require __DIR__.'/showcase.php';
 
-$build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, $ambre, $nuit, $lavande, $gris, $theme, $showcase) {
+$build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire, $or, $nuit, $creme, $sable, $theme, $showcase) {
     $t = fn (string $fr, string $en) => $lang === 'fr' ? $fr : $en;
     // Adresse d'une page du site (par clé de groupe), avec le préfixe /en en anglais.
     $u = function (string $key, string $anchor = '') use ($lang, $slugs) {
@@ -168,7 +168,7 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
         K::h($title, 'h1', ['align' => 'center', 'font_size' => 52, 'font_size_mobile' => 34, 'margin_bottom' => 18]),
         K::p('<p>'.$intro.'</p>', ['align' => 'center', 'font_size' => 19, 'color' => '#475569', 'margin_bottom' => $extra ? 28 : 0]),
         ...$extra,
-    ], ['background_color' => $lavande, 'padding_top' => 88, 'padding_bottom' => 72, 'padding_top_mobile' => 56, 'padding_bottom_mobile' => 48, 'max_width' => 860]);
+    ], ['background_color' => $creme, 'padding_top' => 88, 'padding_bottom' => 72, 'padding_top_mobile' => 56, 'padding_bottom_mobile' => 48, 'max_width' => 860]);
 
     $pages = [];
 
@@ -198,21 +198,21 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
                 $card($t('Hébergement mutualisé', 'Shared hosting'), $t(
                     'Le paquet zip contient déjà tout le nécessaire, sans Composer ni Node.js. Il sera publié avec la version 1.0 ; en attendant, fabriquez-le avec <code>php artisan geniuspress:package</code>.',
                     'The zip package already contains everything, with no Composer or Node.js needed. It will be published with version 1.0; in the meantime, build it with <code>php artisan geniuspress:package</code>.'
-                ), $gris),
+                ), $sable),
                 $card('Docker', $t(
                     'GeniusPress et MariaDB en une commande : <code>docker compose up -d</code>, puis ouvrez <code>http://localhost:8080</code>.',
                     'GeniusPress and MariaDB in one command: <code>docker compose up -d</code>, then open <code>http://localhost:8080</code>.'
-                ), $gris),
+                ), $sable),
             ], ['padding_top' => 64, 'padding_bottom' => 24, 'gap' => 24]),
             K::section([
                 $card($t('Ligne de commande', 'Command line'), $t(
                     'Sur un VPS : <code>php artisan geniuspress:install</code>, avec des questions ou entièrement par options.',
                     'On a VPS: <code>php artisan geniuspress:install</code>, interactively or entirely through options.'
-                ), $gris),
+                ), $sable),
                 $card($t('Depuis le code source', 'From the source code'), $t(
                     'Pour développer : clonez le dépôt, puis <code>composer install</code>, <code>npm install &amp;&amp; npm run build</code> et <code>php artisan serve</code>.',
                     'For development: clone the repository, then run <code>composer install</code>, <code>npm install &amp;&amp; npm run build</code> and <code>php artisan serve</code>.'
-                ), $gris),
+                ), $sable),
             ], ['padding_top' => 0, 'padding_bottom' => 48, 'gap' => 24]),
             K::section([
                 K::h($t('Ce qu’il faut sur le serveur', 'Server requirements'), 'h2', ['margin_bottom' => 12]),
@@ -254,21 +254,21 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
                 K::p($t(
                     '<h2>MVP · terminé</h2><p>Builder visuel, assistant IA, administration, médiathèque, site multilingue.</p>'
                     .'<h2>Phase 1 · fondations open source · presque terminée</h2><ul><li>Système de plugins et registre de widgets.</li><li>Interface traduite (français, anglais).</li><li>Installateur depuis zéro, paquet zip, Docker.</li><li>Export et import de site.</li><li>Tests automatiques sur GitHub (en attente de la facturation GitHub).</li></ul>'
-                    .'<h2>Phase 2 · builder pro et modèles · en cours</h2><ul><li>Conteneurs imbriqués, réglages par appareil et au survol (fait).</li><li>24 widgets, dont le formulaire de contact (fait).</li><li>60 modèles dans 10 secteurs, avec démonstrations (fait).</li><li>Page Modèles et assistant IA (fait).</li><li>Nouvelle vitrine geniuspress.site (en cours).</li></ul>'
-                    .'<h2>Phase 3 · articles et constructeur de thème · prochaine</h2><ul><li>Articles, catégories, étiquettes, flux RSS et recherche.</li><li>Gabarits d’en-tête, de pied de page, d’article, d’archive, de recherche et de page 404.</li><li>Conditions d’affichage et widgets dynamiques.</li><li>En-tête collant et méga-menu.</li></ul>'
+                    .'<h2>Phase 2 · builder pro et modèles · terminée</h2><ul><li>Conteneurs imbriqués, réglages par appareil et au survol.</li><li>'.count(\App\Providers\AppServiceProvider::CORE_WIDGETS).' widgets, dont le formulaire de contact, les graphiques, les carrousels et les titres animés.</li><li>'.count(require __DIR__.'/../templates/catalog.php').' modèles dans 11 secteurs, dont les médias, avec démonstrations.</li><li>Page Modèles, assistant IA et nouvelle vitrine.</li></ul>'
+                    .'<h2>Phase 3 · articles et constructeur de thème · terminée</h2><ul><li>Articles, catégories, étiquettes, flux RSS et recherche.</li><li>Gabarits d’en-tête, de pied de page, d’article et d’archive, avec conditions d’affichage.</li><li>Widgets dynamiques et en-tête collant.</li><li>Méga-menu : à venir.</li></ul>'
                     .'<h2>Phase 4 · boutique (plugin Commerce officiel)</h2><ul><li>Produits à variantes, panier, livraison, plusieurs devises.</li><li>Paiements par Mobile Money, carte, à la livraison et par WhatsApp.</li><li>Commandes, gabarits et widgets de boutique.</li><li>Liste de souhaits, comparaison de produits et dons.</li></ul>'
-                    .'<h2>Phase 5 · builder enrichi</h2><ul><li>Plus de 30 widgets.</li><li>Fenêtres surgissantes, effets et animations, CSS personnalisé.</li><li>Blocs réutilisables.</li></ul>'
-                    .'<h2>Phase 6 · modèles nouvelle génération</h2><ul><li>Designs distincts pour chaque modèle.</li><li>Kits complets : blog, thème et boutique.</li><li>Plus de 120 modèles, dont des boutiques.</li></ul>'
-                    .'<h2>Phase 7 · hébergement et plateforme · mai 2027</h2><ul><li>Déploiement sur VPS avec sauvegardes automatiques.</li><li>Plateforme multi-sites avec domaines personnalisés.</li><li>Mises à jour en un clic.</li></ul>'
+                    .'<h2>Phase 5 · builder enrichi · en grande partie faite</h2><ul><li>Animations d’apparition, effets au survol et au défilement, parallaxe, transitions entre les pages (fait).</li><li>Fenêtres surgissantes, CSS personnalisé et blocs réutilisables : à venir.</li></ul>'
+                    .'<h2>Phase 6 · modèles nouvelle génération · en cours</h2><ul><li>Blog et gabarits du thème dans chaque modèle (fait).</li><li>Plus de 120 modèles, dont des boutiques : en cours.</li></ul>'
+                    .'<h2>Phase 7 · hébergement et plateforme · en cours</h2><ul><li>Site et démonstrations en ligne sur un serveur, en HTTPS (fait).</li><li>Essai hébergé, offres, noms de domaine et crédits IA : en cours.</li><li>Sauvegardes automatiques et mises à jour en un clic.</li></ul>'
                     .'<h2>Phase 8 · lancement de la version 1.0 · juin 2027</h2><p>Documentation complète en français et en anglais, lancement public.</p>',
                     '<h2>MVP · done</h2><p>Visual builder, AI assistant, admin, media library, multilingual site.</p>'
                     .'<h2>Phase 1 · open source foundations · almost done</h2><ul><li>Plugin system and widget registry.</li><li>Translated interface (French, English).</li><li>Installer from scratch, zip package, Docker.</li><li>Site export and import.</li><li>Automated tests on GitHub (waiting on GitHub billing).</li></ul>'
-                    .'<h2>Phase 2 · pro builder and templates · in progress</h2><ul><li>Nested containers, per-device and hover settings (done).</li><li>24 widgets, including the contact form (done).</li><li>60 templates in 10 sectors, with demos (done).</li><li>Templates page and AI assistant (done).</li><li>New geniuspress.site showcase (in progress).</li></ul>'
-                    .'<h2>Phase 3 · posts and theme builder · next</h2><ul><li>Posts, categories, tags, RSS feed and search.</li><li>Header, footer, single post, archive, search and 404 templates.</li><li>Display conditions and dynamic widgets.</li><li>Sticky header and mega menu.</li></ul>'
+                    .'<h2>Phase 2 · pro builder and templates · done</h2><ul><li>Nested containers, per-device and hover settings.</li><li>'.count(\App\Providers\AppServiceProvider::CORE_WIDGETS).' widgets, including the contact form, charts, carousels and animated headings.</li><li>'.count(require __DIR__.'/../templates/catalog.php').' templates in 11 sectors, including media, with demos.</li><li>Templates page, AI assistant and new showcase.</li></ul>'
+                    .'<h2>Phase 3 · posts and theme builder · done</h2><ul><li>Posts, categories, tags, RSS feed and search.</li><li>Header, footer, single post and archive templates, with display conditions.</li><li>Dynamic widgets and sticky header.</li><li>Mega menu: coming.</li></ul>'
                     .'<h2>Phase 4 · online store (official Commerce plugin)</h2><ul><li>Products with variants, cart, shipping, multiple currencies.</li><li>Payments by Mobile Money, card, cash on delivery and WhatsApp.</li><li>Orders, store templates and widgets.</li><li>Wishlist, product comparison and donations.</li></ul>'
-                    .'<h2>Phase 5 · richer builder</h2><ul><li>More than 30 widgets.</li><li>Popups, effects and animations, custom CSS.</li><li>Reusable blocks.</li></ul>'
-                    .'<h2>Phase 6 · next-generation templates</h2><ul><li>A distinct design for each template.</li><li>Complete kits: blog, theme and store.</li><li>More than 120 templates, including stores.</li></ul>'
-                    .'<h2>Phase 7 · hosting and platform · May 2027</h2><ul><li>VPS deployment with automatic backups.</li><li>Multi-site platform with custom domains.</li><li>One-click updates.</li></ul>'
+                    .'<h2>Phase 5 · richer builder · largely done</h2><ul><li>Entrance animations, hover and scroll effects, parallax, page transitions (done).</li><li>Popups, custom CSS and reusable blocks: coming.</li></ul>'
+                    .'<h2>Phase 6 · next-generation templates · in progress</h2><ul><li>Blog and theme templates in every template (done).</li><li>More than 120 templates, including stores: in progress.</li></ul>'
+                    .'<h2>Phase 7 · hosting and platform · in progress</h2><ul><li>Website and demos online on a server, over HTTPS (done).</li><li>Hosted trial, plans, domain names and AI credits: in progress.</li><li>Automatic backups and one-click updates.</li></ul>'
                     .'<h2>Phase 8 · version 1.0 launch · June 2027</h2><p>Full documentation in French and English, public launch.</p>'
                 ), ['font_size' => 17]),
             ], ['padding_top' => 64, 'padding_bottom' => 88, 'max_width' => 860]),
@@ -289,29 +289,29 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $indigo, 
                 $card($t('Traduire', 'Translate'), $t(
                     'L’interface est en français et en anglais. Aidez-nous à la traduire en swahili, en lingala, en kinyarwanda… sans écrire de code : un seul fichier de textes par langue.',
                     'The interface is in French and English. Help us translate it into Swahili, Lingala, Kinyarwanda… without writing code: one text file per language.'
-                ), $gris),
+                ), $sable),
                 $card($t('Créer un plugin', 'Build a plugin'), $t(
                     'Un formulaire, une galerie, une intégration Mobile Money : <a href="'.$u('doc-plugins').'">le guide des plugins</a> explique tout, avec une commande qui crée un plugin d’exemple.',
                     'A form, a gallery, a Mobile Money integration: <a href="'.$u('doc-plugins').'">the plugin guide</a> explains everything, with a command that creates a sample plugin.'
-                ), $gris),
+                ), $sable),
                 $card($t('Améliorer le code', 'Improve the code'), $t(
                     'Corrigez un bogue ou proposez une fonctionnalité sur <a href="'.$repo.'">GitHub</a>. Chaque proposition est vérifiée par les tests automatiques.',
                     'Fix a bug or suggest a feature on <a href="'.$repo.'">GitHub</a>. Every contribution is checked by the automated tests.'
-                ), $gris),
+                ), $sable),
             ], ['padding_top' => 64, 'padding_bottom' => 24, 'gap' => 24]),
             K::section([
                 $card($t('Documenter', 'Document'), $t(
                     'La documentation vit dans le dossier <code>docs/</code> du dépôt. Une explication plus claire aide des centaines d’utilisateurs.',
                     'The documentation lives in the <code>docs/</code> folder of the repository. A clearer explanation helps hundreds of users.'
-                ), $gris),
+                ), $sable),
                 $card($t('Signaler une faille', 'Report a vulnerability'), $t(
                     'Vous avez trouvé une faille de sécurité ? Ne la publiez pas : écrivez-nous en privé pour qu’elle soit corrigée avant d’être rendue publique.',
                     'Found a security vulnerability? Please don’t publish it: contact us privately so it can be fixed before it is made public.'
-                ), $gris),
+                ), $sable),
                 $card($t('En parler', 'Spread the word'), $t(
                     'Présentez GeniusPress à une ONG, une école ou une entreprise qui a besoin d’un site. C’est la meilleure façon de faire grandir le projet.',
                     'Introduce GeniusPress to an NGO, a school or a business that needs a website. It is the best way to help the project grow.'
-                ), $gris),
+                ), $sable),
             ], ['padding_top' => 0, 'padding_bottom' => 88, 'gap' => 24]),
         ]);
 
@@ -353,10 +353,10 @@ return [
     'settings' => [
         'site_name' => 'GeniusPress',
         'site_tagline' => 'Le CMS open source qui construit votre site avec vous',
-        'organization_description' => 'GeniusPress est un CMS open source (AGPL-3.0) avec un page builder visuel et un assistant IA, créé en RDC pour les entreprises et les ONG africaines. Public : responsables de communication, développeurs, contributeurs open source. Ton : clair, chaleureux, précis, sans jargon.',
-        'primary_color' => $indigo,
+        'organization_description' => 'GeniusPress est un CMS open source (AGPL-3.0) avec un page builder visuel et un assistant IA, pour les entreprises et les ONG africaines. Public : responsables de communication, développeurs, contributeurs open source. Ton : clair, chaleureux, précis, sans jargon.',
+        'primary_color' => $primaire,
         'secondary_color' => $nuit,
-        'accent_color' => $ambre,
+        'accent_color' => $or,
         'font_family' => 'Inter',
         'heading_font' => $theme->headingFont,
         'custom_colors' => $theme->settings()['custom_colors'],
