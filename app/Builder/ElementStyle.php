@@ -50,6 +50,7 @@ class ElementStyle
         $id = $node['id'];
         $has = array_flip($keys);
         $isContainer = $node['type'] === 'container';
+        $sticky = isset($has['sticky']) ? ($s['sticky'] ?? null) : null;
 
         // Réglages par appareil
         $previous = null;
@@ -81,6 +82,11 @@ class ElementStyle
             }
             $previous = $sizing;
 
+            // Élément collant seulement sur ordinateur (ou ordinateur et tablette) : il reprend sa place ailleurs.
+            if ($sticky && ($device === 'tablet' && ($s['sticky_devices'] ?? 'all') === 'desktop' || $device === 'mobile' && ($s['sticky_devices'] ?? 'all') === 'desktop-tablet')) {
+                $p += ['position' => 'relative', 'top' => 'auto', 'bottom' => 'auto'];
+            }
+
             $ctx->rule($id, $p, $device);
         }
 
@@ -109,6 +115,16 @@ class ElementStyle
         if (isset($has['overflow'], $s['overflow'])) {
             $p['overflow'] = $s['overflow'];
         }
+        // Collant en haut (en-tête) ou en bas de l'écran pendant le défilement.
+        if ($sticky) {
+            $p['position'] = 'sticky';
+            $p[$sticky] = ($s['sticky_offset'] ?? 0).'px';
+            $p['z-index'] = (string) ($s['z_index'] ?? 50);
+        }
+        // Effet au défilement : intensité (l'effet lui-même est dans site.css, la position est donnée par le script).
+        if (isset($has['scroll_effect'], $s['scroll_effect'], $s['scroll_intensity'])) {
+            $p['--gp-sc-k'] = (string) ($s['scroll_intensity'] / 10);
+        }
 
         // Survol
         $hover = array_filter([
@@ -135,6 +151,13 @@ class ElementStyle
 
         $ctx->rule($id, $p);
         $ctx->rule($id, $hover, false, ':hover');
+        // Apparence une fois collé (classe posée par le script du site).
+        if ($sticky) {
+            $ctx->rule($id, [
+                'background-color' => $s['sticky_bg'] ?? null,
+                'box-shadow' => ! empty($s['sticky_shadow']) ? '0 10px 30px -12px rgba(15,23,42,.35)' : null,
+            ], false, '.is-stuck');
+        }
     }
 
     /** Disposition flexbox d'un conteneur (appliquée à sa boîte intérieure). */
@@ -246,6 +269,13 @@ class ElementStyle
             $p['background-size'] = $s['background_size'] ?? 'cover';
             $p['background-repeat'] = 'no-repeat';
             $p['background-attachment'] = ! empty($s['background_fixed']) ? 'fixed' : null;
+            // Parallaxe : l'image passe dans un calque (::before, site.css) déplacé au défilement.
+            if (isset($has['background_parallax'], $s['background_parallax'])) {
+                $p['--gp-bg-img'] = $p['background-image'];
+                $p['--gp-plx'] = (string) ($s['background_parallax'] / 10);
+                $p['background-image'] = null;
+                $p['background-attachment'] = null;
+            }
         }
 
         return $p;

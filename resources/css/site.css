@@ -771,3 +771,23 @@ body { overflow-x: clip; }
     .gp-anim.is-in, .gp-hv:hover { animation: none; }
     .gp-hv:hover { transform: none; }
 }
+
+/* ─── Défilement : parallaxe, éléments collants, effets liés à la position ───
+   Le script du site donne à chaque élément sa position dans l'écran :
+   --gp-sp de -1 (il entre par le bas) à 1 (il sort par le haut), 0 au centre ;
+   --gp-spe de 0 (zone centrale) à 1 (bords de l'écran). Sans script : 0, aucun effet. */
+.gp-parallax { position: relative; isolation: isolate; overflow: hidden; }
+.gp-parallax::before { content: ''; position: absolute; left: 0; right: 0; top: -20%; bottom: -20%; z-index: -1; pointer-events: none; background-image: var(--gp-bg-img); background-position: inherit; background-size: inherit; background-repeat: no-repeat; translate: 0 calc(var(--gp-sp, 0) * var(--gp-plx, .5) * -14%); }
+
+/* Collant dans un en-tête ou un pied de page du thème : l'enveloppe s'efface pour qu'il colle à toute la page. */
+.gp-theme-header:has(> .gp-sticky), .gp-theme-footer:has(> .gp-sticky) { display: contents; }
+.gp-sticky { transition: background-color .25s, box-shadow .25s; }
+
+.gp-sc--fade { opacity: calc(1 - var(--gp-spe, 0) * var(--gp-sc-k, .5) * 2); }
+.gp-sc--move-up { translate: 0 calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * -240px); }
+.gp-sc--move-down { translate: 0 calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * 240px); }
+.gp-sc--move-left { translate: calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * -240px) 0; }
+.gp-sc--move-right { translate: calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * 240px) 0; }
+.gp-sc--scale { scale: calc(1 - var(--gp-spe, 0) * var(--gp-sc-k, .5) * .5); }
+.gp-sc--blur { filter: blur(calc(var(--gp-spe, 0) * var(--gp-sc-k, .5) * 16px)); }
+.gp-sc--rotate { rotate: calc(var(--gp-sp, 0) * var(--gp-sc-k, .5) * 30deg); }

@@ -130,6 +130,16 @@ class Renderer
         if (isset($o['hover_effect'])) {
             $base .= ' gp-hv gp-hv--'.$o['hover_effect'];
         }
+        // Défilement : élément collant, effet lié à la position, parallaxe de l'image de fond.
+        if (isset($o['sticky'])) {
+            $base .= ' gp-sticky gp-sticky--'.$o['sticky'];
+        }
+        if (isset($o['scroll_effect'])) {
+            $base .= ' gp-sc gp-sc--'.$o['scroll_effect'];
+        }
+        if (isset($o['background_parallax'], $o['background_image']) && ($o['background_type'] ?? 'classic') !== 'gradient') {
+            $base .= ' gp-parallax';
+        }
         if (isset($o['css_classes'])) {
             $base .= ' '.$o['css_classes'];
         }

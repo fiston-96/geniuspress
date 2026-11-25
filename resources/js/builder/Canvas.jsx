@@ -196,6 +196,10 @@ function stateClasses(node, selected, hovered, dragging) {
     // Animations : comme sur le site (Renderer::classes) ; « is-in » joue l'apparition dans le canevas.
     if (node.settings.entrance) cls.push('gp-anim', `gp-anim--${node.settings.entrance}`, 'is-in');
     if (node.settings.hover_effect) cls.push('gp-hv', `gp-hv--${node.settings.hover_effect}`);
+    // Défilement (Renderer::classes) : dans le canevas, les effets restent à leur position neutre.
+    if (node.settings.sticky) cls.push('gp-sticky', `gp-sticky--${node.settings.sticky}`);
+    if (node.settings.scroll_effect) cls.push('gp-sc', `gp-sc--${node.settings.scroll_effect}`);
+    if (node.settings.background_parallax && node.settings.background_image && node.settings.background_type !== 'gradient') cls.push('gp-parallax');
     if (node.settings.css_classes) cls.push(node.settings.css_classes);
     if (selected) cls.push('is-selected');
     if (hovered) cls.push('is-hovered');

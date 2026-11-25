@@ -15,11 +15,12 @@ const FLEX = {
 /** Réglages communs à tous les éléments (Schema::STYLE). r = par appareil, h = au survol. */
 export const STYLE_KEYS = {
     margin: 'r', padding: 'r', width: 'r', min_height: 'r', align_self: 'r', grow: 'r', order: 'r',
-    background_type: '', background_color: 'h', background_image: '', background_position: '', background_size: '', background_fixed: '',
+    background_type: '', background_color: 'h', background_image: '', background_position: '', background_size: '', background_fixed: '', background_parallax: '',
     gradient_type: '', gradient_from: '', gradient_to: '', gradient_angle: '',
     border_style: '', border_width: '', border_color: 'h', border_radius: 'r', box_shadow: 'h',
     text_color: 'h', opacity: 'h', z_index: '', overflow: '', transition: '',
     transition_easing: '', hover_effect: '', entrance: '', entrance_duration: '', entrance_delay: '', entrance_easing: '', entrance_repeat: '',
+    sticky: '', sticky_offset: '', sticky_devices: '', sticky_bg: '', sticky_shadow: '', scroll_effect: '', scroll_intensity: '',
     hide_desktop: '', hide_tablet: '', hide_mobile: '', css_id: '', css_classes: '',
 };
 
@@ -190,6 +191,13 @@ function background(s, has) {
         p['background-size'] = s.background_size ?? 'cover';
         p['background-repeat'] = 'no-repeat';
         p['background-attachment'] = s.background_fixed ? 'fixed' : null;
+        // Parallaxe : l'image passe dans un calque (::before, site.css) déplacé au défilement.
+        if (has.has('background_parallax') && !empty(s.background_parallax)) {
+            p['--gp-bg-img'] = p['background-image'];
+            p['--gp-plx'] = String(s.background_parallax / 10);
+            p['background-image'] = null;
+            p['background-attachment'] = null;
+        }
     }
     return p;
 }
@@ -202,6 +210,7 @@ export function applyStyle(sheet, node, parent, keys) {
     const id = node.id;
     const has = new Set(keys);
     const isContainer = node.type === 'container';
+    const sticky = has.has('sticky') && !empty(s.sticky) ? s.sticky : null;
 
     let previous = null;
     for (const [device, sfx] of Object.entries(DEVICES)) {
@@ -216,6 +225,11 @@ export function applyStyle(sheet, node, parent, keys) {
         const size = sizing(s, parent, device, isContainer, has.has('width'));
         if (!sameSizing(size, previous) && !(device === 'desktop' && size.flex === '0 1 auto' && size.width === 'auto')) Object.assign(p, size);
         previous = size;
+
+        // Élément collant seulement sur ordinateur (ou ordinateur et tablette) : il reprend sa place ailleurs.
+        if (sticky && ((device === 'tablet' && (s.sticky_devices ?? 'all') === 'desktop') || (device === 'mobile' && (s.sticky_devices ?? 'all') === 'desktop-tablet'))) {
+            Object.assign(p, { position: 'relative', top: 'auto', bottom: 'auto' });
+        }
 
         sheet.rule(id, p, device);
     }
@@ -236,6 +250,14 @@ export function applyStyle(sheet, node, parent, keys) {
         p.position = isContainer ? null : 'relative';
     }
     if (has.has('overflow') && s.overflow) p.overflow = s.overflow;
+    // Collant en haut (en-tête) ou en bas de l'écran pendant le défilement.
+    if (sticky) {
+        p.position = 'sticky';
+        p[sticky] = `${s.sticky_offset ?? 0}px`;
+        p['z-index'] = String(s.z_index ?? 50);
+    }
+    // Effet au défilement : intensité (l'effet est dans site.css, la position vient du script du site).
+    if (has.has('scroll_effect') && !empty(s.scroll_effect) && !empty(s.scroll_intensity)) p['--gp-sc-k'] = String(s.scroll_intensity / 10);
 
     const hover = {};
     if (has.has('background_color') && s.background_color_hover) hover['background-color'] = s.background_color_hover;
@@ -259,6 +281,10 @@ export function applyStyle(sheet, node, parent, keys) {
 
     sheet.rule(id, p);
     sheet.rule(id, hover, 'desktop', ':hover');
+    // Apparence une fois collé (classe posée par le script du site).
+    if (sticky) {
+        sheet.rule(id, { 'background-color': s.sticky_bg || null, 'box-shadow': s.sticky_shadow ? '0 10px 30px -12px rgba(15,23,42,.35)' : null }, 'desktop', '.is-stuck');
+    }
 }
 
 /** Disposition flexbox d'un conteneur (ElementStyle::container). */

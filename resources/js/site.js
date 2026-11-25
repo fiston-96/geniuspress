@@ -298,3 +298,51 @@ if (animated.length) {
         animated.forEach((el) => io.observe(el));
     }
 }
+
+// ─── Défilement : parallaxe, effets liés à la position, éléments collants ─
+// Position de chaque élément dans l'écran (variables CSS --gp-sp et --gp-spe, voir site.css)
+// et classe « is-stuck » quand un élément collant est collé. Rien ne bouge si le visiteur
+// demande moins d'animations ; les éléments collants restent collants.
+const moving = reduceMotion ? [] : [...document.querySelectorAll('.gp-sc, .gp-parallax')];
+const stickies = [...document.querySelectorAll('.gp-sticky')];
+if (moving.length || stickies.length) {
+    let ticking = false;
+    const update = () => {
+        ticking = false;
+        const vh = window.innerHeight;
+        for (const el of moving) {
+            const box = el.getBoundingClientRect();
+            // Position sans le décalage déjà appliqué par l'effet (propriété « translate »).
+            const shift = parseFloat((getComputedStyle(el).translate || '').split(' ')[1]) || 0;
+            const r = { top: box.top - shift, bottom: box.bottom - shift, height: box.height };
+            if (r.bottom < -200 || r.top > vh + 200) continue;
+            const position = (top) => (vh / 2 - (top + r.height / 2)) / ((vh + r.height) / 2);
+            // Un élément déjà visible à l'ouverture de la page part de sa position d'alors :
+            // il n'est ni estompé ni décalé avant que le visiteur fasse défiler la page.
+            const p = Math.max(-1, Math.min(1, position(r.top) - Math.max(0, position(r.top + window.scrollY))));
+            el.style.setProperty('--gp-sp', p.toFixed(3));
+            el.style.setProperty('--gp-spe', Math.max(0, (Math.abs(p) - 0.25) / 0.75).toFixed(3));
+        }
+        for (const el of stickies) {
+            const cs = getComputedStyle(el);
+            if (cs.position !== 'sticky') {
+                el.classList.remove('is-stuck');
+                continue;
+            }
+            const r = el.getBoundingClientRect();
+            const stuck = el.classList.contains('gp-sticky--bottom')
+                ? Math.abs(r.bottom - (vh - (parseFloat(cs.bottom) || 0))) < 1.5
+                :window.scrollY > 0 && Math.abs(r.top - (parseFloat(cs.top) || 0)) < 1.5;
+            el.classList.toggle('is-stuck', stuck);
+        }
+    };
+    const schedule = () => {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+        }
+    };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    update();
+}

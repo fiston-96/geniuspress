@@ -210,7 +210,8 @@ export const STYLE_CONTROLS = [
     { key: 'background_size', label: t('Taille de l’image'), type: 'segmented', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image, options: [
         { value: 'cover', label: t('Couvrir') }, { value: 'contain', label: t('Contenir') }, { value: 'auto', label: t('Réelle') },
     ] },
-    { key: 'background_fixed', label: t('Image fixe au défilement'), type: 'toggle', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image },
+    { key: 'background_fixed', label: t('Image fixe au défilement'), type: 'toggle', tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image && !s.background_parallax },
+    { key: 'background_parallax', label: t('Parallaxe de l’image (vitesse, vide = aucune)'), type: 'slider', min: 1, max: 10, tab: 'style', when: (s) => s.background_type !== 'gradient' && !!s.background_image },
     { key: 'gradient_type', label: t('Forme du dégradé'), type: 'segmented', tab: 'style', when: (s) => s.background_type === 'gradient', options: [{ value: 'linear', label: t('Linéaire') }, { value: 'radial', label: t('Circulaire') }] },
     { key: 'gradient_from', label: t('Première couleur'), type: 'color', tab: 'style', when: (s) => s.background_type === 'gradient' },
     { key: 'gradient_to', label: t('Seconde couleur'), type: 'color', tab: 'style', when: (s) => s.background_type === 'gradient' },
@@ -240,6 +241,22 @@ export const STYLE_CONTROLS = [
     { key: 'hover_effect', label: t('Effet au survol'), type: 'select', tab: 'advanced', options: HOVER_EFFECTS },
     { key: 'transition_easing', label: t('Courbe de l’effet au survol'), type: 'select', tab: 'advanced', when: (s) => !!s.hover_effect, options: EASING_OPTIONS },
     { key: 'transition', label: t('Durée de l’effet au survol (ms)'), type: 'slider', min: 0, max: 3000, step: 50, default: 300, tab: 'advanced', when: (s) => !!s.hover_effect },
+
+    heading(t('Défilement'), 'advanced'),
+    { key: 'sticky', label: t('Rester visible pendant le défilement'), type: 'segmented', tab: 'advanced', options: [{ value: '', label: t('Non') }, { value: 'top', label: t('En haut') }, { value: 'bottom', label: t('En bas') }] },
+    { key: 'sticky_offset', label: t('Distance du bord de l’écran (px)'), type: 'slider', min: 0, max: 400, default: 0, tab: 'advanced', when: (s) => !!s.sticky },
+    { key: 'sticky_devices', label: t('Sur quels écrans'), type: 'select', tab: 'advanced', when: (s) => !!s.sticky, options: [
+        { value: '', label: t('Tous') }, { value: 'desktop', label: t('Ordinateur seulement') }, { value: 'desktop-tablet', label: t('Ordinateur et tablette') },
+    ] },
+    { key: 'sticky_bg', label: t('Fond une fois collé'), type: 'color', tab: 'advanced', when: (s) => !!s.sticky },
+    { key: 'sticky_shadow', label: t('Ombre une fois collé'), type: 'toggle', tab: 'advanced', when: (s) => !!s.sticky },
+    { key: 'scroll_effect', label: t('Effet au défilement'), type: 'select', tab: 'advanced', options: [
+        { value: '', label: t('Aucun') }, { value: 'fade', label: t('Fondu à l’entrée et à la sortie') },
+        { value: 'move-up', label: t('Monte plus vite que la page') }, { value: 'move-down', label: t('Descend avec la page') },
+        { value: 'move-left', label: t('Glisse vers la gauche') }, { value: 'move-right', label: t('Glisse vers la droite') },
+        { value: 'scale', label: t('Grandit au centre de l’écran') }, { value: 'blur', label: t('Net au centre, flou aux bords') }, { value: 'rotate', label: t('Tourne') },
+    ] },
+    { key: 'scroll_intensity', label: t('Intensité de l’effet'), type: 'slider', min: 1, max: 10, default: 5, tab: 'advanced', when: (s) => !!s.scroll_effect },
 
     heading(t('Espacements'), 'advanced'),
     { key: 'margin', label: t('Marge extérieure'), type: 'spacing', tab: 'advanced', responsive: true, units: ['px', '%', 'em', 'rem'], allowNegative: true },
