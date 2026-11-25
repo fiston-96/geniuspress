@@ -81,6 +81,12 @@ final class SectorKnowledge
             Tone: authoritative, precise, reassuring; never promise outcomes.
             Never invent: bar or registration numbers, client names, case outcomes, qualifications, fees.
             TXT,
+        'medias' => <<<'TXT'
+            Sector: media and press (online newspaper, magazine, radio station, TV channel, podcast, independent journalist). Audiences: readers, listeners and viewers, advertisers and sponsors, sources and contributors, partner media.
+            Must show: latest stories or episodes up front, sections and shows, programme schedule and live stream for radio and TV (frequencies, channel numbers, stream links), the newsroom or hosts, editorial line and ethics (independence, fact-checking, corrections and right of reply), how to send a tip safely, advertising offers, contacts.
+            Tone: clear, factual, lively; headlines short and concrete; never sensationalist; separate news from opinion and label sponsored content.
+            Never invent: news facts, quotes attributed to real people, audience figures, frequencies, channel numbers, stream or platform links, awards, advertising rates, names of journalists or hosts. Sample articles stay clearly generic and keep placeholders in square brackets.
+            TXT,
         'autre' => <<<'TXT'
             Sector: other organisation or business. Adapt the template's pages to the owner's activity: what they do, for whom, how it works, why trust them, how to contact them.
             TXT,

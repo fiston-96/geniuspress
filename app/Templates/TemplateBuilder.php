@@ -140,7 +140,8 @@ final class TemplateBuilder
     /**
      * Blog d'un modèle dans une langue : réglage (adresse, titre), catégories,
      * articles d'exemple (photos du pack) et gabarits « Article » et « Archive ».
-     * $data : base, title, categories [clé => nom], posts [[key, slug, title, excerpt, category, photo, body, heading?, quote?, tags?]].
+     * $data : base, title, categories [clé => nom], posts [[key, slug, title, excerpt, category, photo, body, heading?, quote?, tags?]],
+     * layout (options des gabarits des médias, voir MediaBlocks::blogLayouts), interval (jours entre deux articles, 14 par défaut).
      */
     private function blog(string $id, string $lang, string $prefix, Theme $theme, array $data, array &$blog, array &$terms, array &$posts, array &$layouts): void
     {
@@ -172,13 +173,14 @@ final class TemplateBuilder
                 'status' => 'published',
                 'excerpt' => $p['excerpt'],
                 'featured_media_id' => $photo['media_id'],
-                // Articles récents : le premier il y a 3 jours, puis toutes les deux semaines.
-                'published_at' => now()->startOfDay()->subDays(3 + 14 * $i)->setTime(9, 0)->toIso8601String(),
+                // Articles récents : le premier il y a 3 jours, puis toutes les deux semaines
+                // (ou selon le rythme du blog : « interval » jours, un média publie chaque jour).
+                'published_at' => now()->startOfDay()->subDays(3 + ($data['interval'] ?? 14) * $i)->setTime(9, 0)->toIso8601String(),
                 'content' => $this->localize(BlogKit::body($p['body'], $p['heading'] ?? null, $p['quote'] ?? null), $prefix),
                 'terms' => [...(isset($termIds[$p['category']]) ? [$termIds[$p['category']]] : []), ...$tags],
             ];
         }
-        foreach (BlogKit::layouts($theme, $T) as $layout) {
+        foreach (MediaBlocks::blogLayouts(BlogKit::layouts($theme, $T), $theme, $T, $data['layout'] ?? []) as $layout) {
             $layouts[] = $layout + ['id' => count($layouts) + 1, 'locale' => $lang, 'status' => 'published', 'priority' => 0, 'conditions' => [['mode' => 'include', 'target' => 'all']]];
         }
     }

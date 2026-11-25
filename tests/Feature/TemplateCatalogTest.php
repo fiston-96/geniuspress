@@ -21,7 +21,7 @@ class TemplateCatalogTest extends TestCase
 
     private string $catalog;
 
-    /** Le catalogue (60 modèles) n'est construit qu'une fois pour toute la classe. */
+    /** Le catalogue (72 modèles) n'est construit qu'une fois pour toute la classe. */
     private static ?string $built = null;
 
     protected function setUp(): void
@@ -213,6 +213,44 @@ class TemplateCatalogTest extends TestCase
         $this->assertNotSame('#0f766e', Setting::read('primary_color'));
         $this->assertSame(url('/blog/x'), url('/blog/x'));
         $this->assertStringStartsWith(url('/blog'), \App\Site\Permalinks::blog('fr'), 'Adresses du site rétablies après la démonstration.');
+    }
+
+    public function test_media_templates_use_their_news_widgets(): void
+    {
+        $types = function (string $id, string $file) {
+            $out = [];
+            $data = $this->zipJson($id, $file);
+            array_walk_recursive($data, function ($v, $k) use (&$out) {
+                if ($k === 'type') {
+                    $out[$v] = true;
+                }
+            });
+
+            return array_keys($out);
+        };
+        $index = json_decode(file_get_contents($this->catalog.'/index.json'), true);
+        $this->assertSame('Médias et presse', $index['sectors']['medias']['name']['fr']);
+        $this->assertGreaterThanOrEqual(6, count(array_filter($index['templates'], fn ($t) => $t['sector'] === 'medias')));
+
+        foreach (['ticker', 'slider', 'posts', 'terms-list', 'chart', 'pricing'] as $type) {
+            $this->assertContains($type, $types('medias-journal-quotidien', 'pages.json'), "journal : {$type}");
+        }
+        foreach (['ticker', 'video-playlist', 'data-table', 'chart', 'social-icons'] as $type) {
+            $this->assertContains($type, $types('medias-radio-onde', 'pages.json'), "radio : {$type}");
+        }
+        foreach (['video', 'video-playlist', 'data-table', 'timeline'] as $type) {
+            $this->assertContains($type, $types('medias-tv-ecran', 'pages.json'), "télévision : {$type}");
+        }
+        // Les articles des médias se partagent, avec une barre de progression de lecture.
+        foreach (['share-buttons', 'reading-progress', 'terms-list'] as $type) {
+            $this->assertContains($type, $types('medias-podcast-echo', 'layouts.json'), "gabarits : {$type}");
+        }
+
+        config(['geniuspress.catalog.path' => $this->catalog, 'geniuspress.catalog.demos' => true]);
+        $this->get('/catalogue/medias-radio-onde')->assertOk()->assertSee('gp-ticker', false)->assertSee('Écouter en direct');
+        $this->get('/catalogue/medias-tv-ecran/en/live')->assertOk()->assertSee('Watch the channel live')->assertSee('youtube-nocookie.com/embed/', false);
+        $this->get('/catalogue/medias-journal-quotidien/actualites/categorie/economie')->assertOk()->assertSee('Le marché central rouvre après six mois de travaux');
+        $this->get('/catalogue/medias-journal-quotidien/actualites/marche-central-rouvre')->assertOk()->assertSee('gp-share', false);
     }
 
     public function test_demos_are_off_in_production_unless_enabled(): void

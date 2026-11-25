@@ -29,6 +29,13 @@ final class PhotoLibrary
         'art-deco' => 'african interior decor',
         'restaurant' => 'african restaurant',
         'cabinet' => 'african business office',
+        // Secteur Médias et presse : un pack par type de média.
+        'medias-journal' => 'african journalist newsroom',
+        'medias-magazine' => 'african magazine',
+        'medias-radio' => 'african radio studio',
+        'medias-tv' => 'african television studio',
+        'medias-journaliste' => 'african journalist reporter',
+        'medias-podcast' => 'african podcast microphone',
     ];
 
     public static function path(string $file = ''): string
