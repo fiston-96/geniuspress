@@ -60,13 +60,51 @@ final class Kit
     {
         $space = $theme->space;
 
-        return self::box($children, $s + [
+        return self::box(array_map([self::class, 'reveal'], array_values(array_filter($children))), $s + [
             'tag' => 'section',
             'padding' => ['t' => $space, 'r' => 20, 'b' => $space, 'l' => 20],
             'padding_mobile' => ['t' => (int) round($space * 0.6), 'b' => (int) round($space * 0.6)],
             'gap' => 48,
             'gap_mobile' => 32,
         ]);
+    }
+
+    /**
+     * Animation d'apparition du contenu d'une section : fondu vers le haut, et les colonnes
+     * d'une ligne l'une après l'autre. Rien n'est ajouté là où un élément est déjà animé
+     * (cartes d'une grille, réglages choisis par un bloc).
+     */
+    public static function reveal(array $node): array
+    {
+        if (self::animated($node)) {
+            return $node;
+        }
+        $columns = $node['children'] ?? [];
+        if (($node['settings']['direction'] ?? null) === 'row' && count($columns) >= 2 && count($columns) <= 4) {
+            foreach ($columns as $i => $column) {
+                $node['children'][$i]['settings'] += ['entrance' => 'fade-up'] + ($i ? ['entrance_delay' => $i * 150] : []);
+            }
+
+            return $node;
+        }
+        $node['settings'] += ['entrance' => 'fade-up'];
+
+        return $node;
+    }
+
+    /** Un élément ou l'un de ses descendants a-t-il déjà une animation d'apparition ? */
+    private static function animated(array $node): bool
+    {
+        if (! empty($node['settings']['entrance'])) {
+            return true;
+        }
+        foreach ($node['children'] ?? [] as $child) {
+            if (self::animated($child)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Ligne (colonnes côte à côte), empilée sur mobile. */
@@ -88,14 +126,19 @@ final class Kit
     public static function grid(array $items, int $cols, array $s = []): array
     {
         $width = rtrim(rtrim(number_format(100 / $cols, 3, '.', ''), '0'), '.').'%';
-        $items = array_map(function ($item) use ($width, $cols) {
+        $items = array_map(function ($item, $i) use ($width, $cols) {
             $item['settings']['width'] = $width;
             if ($cols >= 3) {
                 $item['settings']['width_tablet'] = '50%';
             }
+            // Les cartes apparaissent en cascade (colonne par colonne) et se soulèvent au survol.
+            $item['settings'] += ['entrance' => 'fade-up'] + ($cols > 1 && $i % $cols ? ['entrance_delay' => ($i % $cols) * 120] : []);
+            if ($item['type'] === 'container' && (isset($item['settings']['box_shadow']) || isset($item['settings']['background_color']) || isset($item['settings']['border_style']))) {
+                $item['settings'] += ['hover_effect' => 'lift'];
+            }
 
             return $item;
-        }, array_values(array_filter($items)));
+        }, $items = array_values(array_filter($items)), array_keys($items));
 
         return self::box($items, $s + ['direction' => 'row', 'direction_mobile' => 'column', 'wrap' => 'wrap', 'gap' => 28, 'gap_mobile' => 20, 'align' => 'stretch']);
     }

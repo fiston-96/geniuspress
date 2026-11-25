@@ -320,7 +320,7 @@ form.gp-search-form button { padding: 12px 20px; border: 0; border-radius: 10px;
 .gp-plist__media img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .gp-plist--flat .gp-plist__media img { border-radius: 14px; }
 .gp-plist__body { display: flex; flex-direction: column; gap: 8px; padding: 20px 22px 24px; flex: 1 1 auto; }
-.gp-plist__category { align-self: flex-start; color: var(--gp-posts-accent); font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
+.gp-plist__category { align-self: flex-start; padding: 4px 0; color: var(--gp-posts-accent); font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
 .gp-plist__title { margin: 0; font-size: 1.25rem; line-height: 1.3; }
 .gp-plist__title a { color: inherit; text-decoration: none; }
 .gp-plist__title a:hover { color: var(--gp-posts-accent); }
@@ -412,7 +412,7 @@ form.gp-search-form button { padding: 12px 20px; border: 0; border-radius: 10px;
 .gp-price__body { flex: 1 1 auto; min-width: 0; }
 .gp-price__head { margin: 0; display: flex; align-items: baseline; gap: 10px; }
 .gp-price__title { font-family: var(--gp-heading-font); font-weight: 700; font-size: 1.1rem; }
-.gp-price__badge { padding: 2px 8px; border-radius: 999px; background: var(--gp-accent); color: var(--gp-secondary); font-size: .72rem; font-weight: 700; }
+.gp-price__badge { padding: 2px 8px; border-radius: 999px; background: var(--gp-accent); color: var(--gp-secondary); font-size: .78rem; font-weight: 700; }
 .gp-price__dots { flex: 1 1 auto; }
 .gp-pricelist--leader .gp-price__dots { border-bottom: 2px dotted #cbd5e1; transform: translateY(-4px); }
 .gp-price__price { font-weight: 800; color: var(--gp-primary); white-space: nowrap; }
@@ -820,4 +820,15 @@ body { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
     .gp-ah--typing .gp-ah__words::after { animation: none; }
     .gp-ah--highlight.is-drawn .gp-ah__shape path { transition: none; }
+}
+
+/* ─── Mobile : zones à toucher confortables (au moins 32 px de haut) ───── */
+@media (max-width: 860px) {
+    .gp-site-langs a { padding: 10px 12px; font-size: .85rem; }
+}
+@media (max-width: 767px) {
+    .gp-site-footer__links { gap: 0 24px; }
+    .gp-site-footer__links a { display: inline-block; padding: 8px 0; }
+    /* Téléphone, e-mail, WhatsApp : liens qu'on touche pour appeler ou écrire. */
+    a.gp-ilist__item { padding: 6px 0; }
 }
