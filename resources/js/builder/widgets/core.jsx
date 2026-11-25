@@ -5,6 +5,8 @@ import { registerWidget } from '../registry';
 import { CORE_WIDGETS } from '../widgets';
 import { LIBRARY_WIDGETS } from './library';
 import { LIBRARY_IMPL } from './library-preview';
+import { THEME_GROUP, THEME_WIDGETS } from './theme';
+import { THEME_IMPL } from './theme-preview';
 import { t } from '../i18n';
 
 export function embedUrl(url = '') {
@@ -130,5 +132,9 @@ export function registerCoreWidgets() {
     }
     for (const [type, def] of Object.entries(LIBRARY_WIDGETS)) {
         registerWidget(type, { ...def, ...LIBRARY_IMPL[type] });
+    }
+    // Widgets dynamiques (articles, archives, en-tête) : un groupe à part dans la palette.
+    for (const [type, def] of Object.entries(THEME_WIDGETS)) {
+        registerWidget(type, { ...def, ...THEME_IMPL[type], group: THEME_GROUP });
     }
 }

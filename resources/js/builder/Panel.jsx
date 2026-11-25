@@ -85,20 +85,26 @@ function Elements() {
                     ))}
                 </div>
             </div>
-            <div>
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{t('Widgets')}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                    {allWidgets().map((def) => (
-                        <button key={def.type} draggable
-                            onDragStart={(e) => startDrag(e, { kind: 'new', type: def.type })} onDragEnd={endDrag}
-                            onClick={() => addWidget(def.type)}
-                            className="flex cursor-grab flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-4 text-xs font-medium text-slate-700 transition hover:border-indigo-400 hover:text-indigo-700 hover:shadow-sm active:cursor-grabbing">
-                            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={def.icon} /></svg>
-                            {def.label}
-                        </button>
-                    ))}
+            {Object.entries(allWidgets().reduce((groups, def) => {
+                // Groupes de la palette : widgets de contenu, puis widgets dynamiques du site.
+                (groups[def.group ?? t('Widgets')] ??= []).push(def);
+                return groups;
+            }, {})).map(([group, defs]) => (
+                <div key={group}>
+                    <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{group}</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                        {defs.map((def) => (
+                            <button key={def.type} draggable
+                                onDragStart={(e) => startDrag(e, { kind: 'new', type: def.type })} onDragEnd={endDrag}
+                                onClick={() => addWidget(def.type)}
+                                className="flex cursor-grab flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-4 text-xs font-medium text-slate-700 transition hover:border-indigo-400 hover:text-indigo-700 hover:shadow-sm active:cursor-grabbing">
+                                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={def.icon} /></svg>
+                                {def.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            ))}
         </div>
     );
 }

@@ -6,6 +6,7 @@ import { t } from './i18n';
 import { setState } from './store';
 import { walk } from './tree';
 import { registerCoreWidgets } from './widgets/core';
+import { setThemeData } from './widgets/theme-preview';
 
 registerCoreWidgets();
 
@@ -39,7 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         status: boot.page.status,
         hasDraft: boot.page.has_draft,
         revisions: boot.revisions,
+        // Articles, menu et catégories du site, pour l'aperçu des widgets dynamiques.
+        sample: boot.sample,
     });
+    setThemeData(boot.sample);
 
     createRoot(document.getElementById('builder')).render(<App boot={boot} />);
 });

@@ -44,6 +44,19 @@ class AppServiceProvider extends ServiceProvider
         Widgets\MapWidget::class,
         Widgets\CountdownWidget::class,
         Widgets\ContactFormWidget::class,
+        // Widgets dynamiques du thème (articles, archives, en-tête)
+        Widgets\PostTitleWidget::class,
+        Widgets\PostContentWidget::class,
+        Widgets\PostImageWidget::class,
+        Widgets\PostMetaWidget::class,
+        Widgets\PostExcerptWidget::class,
+        Widgets\PostNavigationWidget::class,
+        Widgets\ArchiveTitleWidget::class,
+        Widgets\PostsWidget::class,
+        Widgets\BreadcrumbsWidget::class,
+        Widgets\SearchFormWidget::class,
+        Widgets\SiteLogoWidget::class,
+        Widgets\NavMenuWidget::class,
     ];
 
     public function register(): void

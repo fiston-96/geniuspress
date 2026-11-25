@@ -92,7 +92,11 @@ final class BuilderBoot
             'post' => $list[0],
             'posts' => $list,
             'menu' => $nav['menu'] ?? [['label' => __('Accueil'), 'url' => '/'], ['label' => __('À propos'), 'url' => '#'], ['label' => 'Blog', 'url' => '#'], ['label' => __('Contact'), 'url' => '#']],
+            'cta_label' => $nav['cta_label'] ?? null,
             'blog_title' => Permalinks::blogTitle($locale),
+            // Choix de la grille d'articles (« Les derniers d'une catégorie »).
+            'categories' => \App\Models\Term::query()->where('taxonomy', \App\Models\Term::CATEGORY)->orderBy('locale')->orderBy('name')->get()
+                ->map(fn ($c) => ['value' => $c->id, 'label' => $c->name.' ('.strtoupper($c->locale).')'])->all(),
             'languages' => array_values((array) $settings['locales']),
         ];
     }

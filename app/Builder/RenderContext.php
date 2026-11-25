@@ -145,7 +145,8 @@ class RenderContext
 
     public function stylesheet(): string
     {
-        $css = implode("\n", $this->css['desktop']);
+        // Le CSS inclus (contenu d'un article) vient d'abord : celui du gabarit peut le compléter.
+        $css = implode("\n", [...$this->embedded, ...$this->css['desktop']]);
         foreach (Schema::BREAKPOINTS as $device => $max) {
             if ($this->css[$device]) {
                 $css .= "\n@media (max-width: {$max}px) {\n".implode("\n", $this->css[$device])."\n}";
