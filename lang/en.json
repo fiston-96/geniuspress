@@ -1461,5 +1461,16 @@
     "Redessiner le trait en boucle": "Redraw the stroke in a loop",
     "Couleur des mots animés": "Animated words color",
     "Couleur du trait": "Stroke color",
-    "Épaisseur du trait": "Stroke width"
+    "Épaisseur du trait": "Stroke width",
+    "Masquer le panneau (plus de place pour la page)": "Hide the panel (more room for the page)",
+    "Afficher le panneau": "Show the panel",
+    "Référencement": "SEO",
+    "Autoriser les moteurs de recherche à indexer le site": "Allow search engines to index the site",
+    "Décochez pendant la préparation du site : Google et les autres moteurs ne l’afficheront pas dans leurs résultats.": "Uncheck while the site is being prepared: Google and other engines will not show it in their results.",
+    "Image de partage par défaut": "Default sharing image",
+    "Affichée quand une page est partagée sur WhatsApp, Facebook ou LinkedIn et qu’elle n’a pas d’image. Format conseillé : 1200 × 630 pixels, en JPEG ou PNG.": "Shown when a page without an image is shared on WhatsApp, Facebook or LinkedIn. Recommended size: 1200 × 630 pixels, JPEG or PNG.",
+    "Code de vérification Google Search Console": "Google Search Console verification code",
+    "Seulement le code (contenu de la balise meta), pas la balise entière.": "Only the code (the content of the meta tag), not the whole tag.",
+    "Code de vérification Bing Webmaster Tools": "Bing Webmaster Tools verification code",
+    "Plan du site à déclarer aux moteurs de recherche :": "Sitemap to submit to search engines:"
 }

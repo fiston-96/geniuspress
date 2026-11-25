@@ -26,6 +26,11 @@ class Setting extends Model
         // Transition entre les pages du site (fondu, glissement, zoom) et sa durée en ms.
         'page_transition' => null,
         'page_transition_duration' => 400,
+        // Référencement : moteurs de recherche autorisés, image de partage par défaut, codes de vérification.
+        'search_engines' => true,
+        'og_image' => null,
+        'google_site_verification' => null,
+        'bing_site_verification' => null,
         'locales' => ['fr'],
         'organization_description' => '',
         // Blog : adresse et titre par langue ({fr: {base: 'actualites', title: 'Actualités'}}), articles par page.

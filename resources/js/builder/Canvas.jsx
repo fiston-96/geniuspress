@@ -190,6 +190,15 @@ function Element({ node, depth }) {
     return isContainer(node) ? <Container node={node} depth={depth} /> : <WidgetEl node={node} />;
 }
 
+/**
+ * Conteneur vide décoratif (pastille de couleur, point, filet) : il a son propre fond, une bordure
+ * ou une hauteur. La zone « Glissez un élément ici » le déformerait : on ne l'affiche pas.
+ */
+function decorative(s) {
+    return !!(s.background_color || s.background_image || s.gradient_from || s.min_height
+        || (s.border_style && s.border_style !== 'none'));
+}
+
 function stateClasses(node, selected, hovered, dragging) {
     const cls = [];
     for (const d of ['desktop', 'tablet', 'mobile']) if (node.settings[`hide_${d}`]) cls.push(`gpe-hide-${d}`);
@@ -245,7 +254,7 @@ function Container({ node, depth }) {
                 onDrop={onDropBox}
             >
                 {children.map((child) => <Element key={child.id} node={child} depth={depth + 1} />)}
-                {children.length === 0 && <div className="gpe-empty">{t('Glissez un élément ici')}</div>}
+                {children.length === 0 && !decorative(node.settings) && <div className="gpe-empty">{t('Glissez un élément ici')}</div>}
             </div>
         </Tag>
     );

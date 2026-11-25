@@ -19,6 +19,8 @@ let state = {
     revisions: [],
     drag: null, // { kind: 'new', type } | { kind: 'structure', widths } | { kind: 'move', id }
     panel: 'elements',
+    // Panneau de gauche affiché ou masqué (choix mémorisé dans ce navigateur) : le canevas gagne toute la largeur.
+    panelOpen: (() => { try { return localStorage.getItem('geniuspress:panel') !== 'closed'; } catch { return true; } })(),
     past: [],
     future: [],
     toast: null,

@@ -41,6 +41,10 @@ class SettingController extends Controller
             'custom_colors' => ['nullable', 'array', 'max:'.\App\Builder\DesignTokens::MAX_CUSTOM_COLORS],
             'page_transition' => ['nullable', 'in:'.implode(',', \App\Builder\DesignTokens::PAGE_TRANSITIONS)],
             'page_transition_duration' => ['nullable', 'integer', 'between:150,1500'],
+            'search_engines' => ['nullable', 'boolean'],
+            'og_image' => ['nullable', 'string', 'max:2000', 'regex:#^(https?://|/(?!/))#'],
+            'google_site_verification' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_\-]+$/'],
+            'bing_site_verification' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_\-]+$/'],
             'locales' => ['required', 'array', 'min:1'],
             'locales.*' => ['in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
             'default_locale' => ['required', 'in:'.implode(',', array_keys(self::AVAILABLE_LOCALES))],
@@ -67,6 +71,11 @@ class SettingController extends Controller
         $data['heading_font'] ??= null;
         $data['page_transition'] ??= null;
         $data['page_transition_duration'] ??= 400;
+        // Champ absent (autre formulaire, script) : on garde le choix actuel plutôt que de couper l'indexation.
+        $data['search_engines'] = $request->has('search_engines') ? $request->boolean('search_engines') : (bool) Setting::read('search_engines', true);
+        foreach (['og_image', 'google_site_verification', 'bing_site_verification'] as $key) {
+            $data[$key] ??= null;
+        }
         $data['custom_colors'] = \App\Builder\DesignTokens::customColors($request->input('custom_colors', []));
 
         Setting::write($data);

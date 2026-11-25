@@ -107,12 +107,6 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 ], ['gap' => 24, 'gap_tablet' => 16, 'align' => 'start', 'justify' => 'center', 'content_width' => 'boxed', 'max_width' => 1240]),
             ], ['background_color' => $creme, 'padding' => ['t' => 104, 'r' => 20, 'b' => 56, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 40], 'gap' => 64, 'gap_mobile' => 40]),
 
-            // 2. Bandeau des secteurs qui défile.
-            K::box([K::w('ticker', [
-                'items' => array_map(fn ($key, $s) => ['text' => $s['name'][$lang], 'link' => $u('templates', $key)], array_keys($sectors), $sectors),
-                'speed' => 45, 'bg_color' => $sable, 'color' => $encre,
-            ])], ['padding' => $zero, 'content_width' => 'full', 'background_color' => $sable]),
-
             // 3. Manifeste et chiffres.
             K::section($theme, [K::row([
                 K::col([

@@ -89,6 +89,22 @@
         </section>
 
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+            <h2 class="font-semibold">{{ __('Référencement') }}</h2>
+            <label class="flex items-start gap-3 text-sm text-slate-700">
+                <input type="hidden" name="search_engines" value="0">
+                <input type="checkbox" name="search_engines" value="1" class="mt-0.5 rounded border-slate-300" @checked(old('search_engines', $settings['search_engines'] ?? true))>
+                <span><span class="font-medium">{{ __('Autoriser les moteurs de recherche à indexer le site') }}</span><br>
+                <span class="text-xs text-slate-500">{{ __('Décochez pendant la préparation du site : Google et les autres moteurs ne l’afficheront pas dans leurs résultats.') }}</span></span>
+            </label>
+            <x-field name="og_image" :label="__('Image de partage par défaut')" :value="$settings['og_image'] ?? ''" :hint="__('Affichée quand une page est partagée sur WhatsApp, Facebook ou LinkedIn et qu’elle n’a pas d’image. Format conseillé : 1200 × 630 pixels, en JPEG ou PNG.')" />
+            <div class="grid gap-4 sm:grid-cols-2">
+                <x-field name="google_site_verification" :label="__('Code de vérification Google Search Console')" :value="$settings['google_site_verification'] ?? ''" :hint="__('Seulement le code (contenu de la balise meta), pas la balise entière.')" />
+                <x-field name="bing_site_verification" :label="__('Code de vérification Bing Webmaster Tools')" :value="$settings['bing_site_verification'] ?? ''" />
+            </div>
+            <p class="text-xs text-slate-500">{{ __('Plan du site à déclarer aux moteurs de recherche :') }} <a href="{{ url('/sitemap.xml') }}" class="text-indigo-600 hover:underline" target="_blank">{{ url('/sitemap.xml') }}</a></p>
+        </section>
+
+        <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
             <h2 class="font-semibold">{{ __('Langues') }}</h2>
             <label class="block text-sm font-medium text-slate-700">{{ __('Langue par défaut') }}
                 <select name="default_locale" class="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">

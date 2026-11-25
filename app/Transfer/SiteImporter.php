@@ -228,6 +228,10 @@ class SiteImporter
             $values['page_transition'] = $settings['page_transition'];
             $values['page_transition_duration'] = max(150, min(1500, (int) ($settings['page_transition_duration'] ?? 400)));
         }
+        // Image de partage par défaut (les codes de vérification restent propres à chaque site).
+        if (is_string($settings['og_image'] ?? null) && preg_match('#^(https?://|/(?!/))#', $settings['og_image'])) {
+            $values['og_image'] = Str::limit($settings['og_image'], 2000, '');
+        }
         if (is_array($settings['custom_colors'] ?? null)) {
             $values['custom_colors'] = \App\Builder\DesignTokens::customColors($settings['custom_colors']);
         }

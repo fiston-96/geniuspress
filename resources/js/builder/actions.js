@@ -9,7 +9,15 @@ import { t } from './i18n';
 const CLIPBOARD = 'geniuspress:clipboard';
 
 export function select(id) {
-    setState({ selected: id, panel: id ? 'settings' : 'elements', menu: null });
+    // Sélectionner un élément rouvre le panneau masqué : c'est là que se trouvent ses réglages.
+    setState({ selected: id, panel: id ? 'settings' : 'elements', menu: null, ...(id ? { panelOpen: true } : {}) });
+}
+
+/** Affiche ou masque le panneau de gauche, et retient ce choix. */
+export function togglePanel() {
+    const open = !getState().panelOpen;
+    setState({ panelOpen: open });
+    try { localStorage.setItem('geniuspress:panel', open ? 'open' : 'closed'); } catch { /* stockage indisponible */ }
 }
 
 export function labelOf(node) {

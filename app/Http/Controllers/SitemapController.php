@@ -14,8 +14,13 @@ class SitemapController extends Controller
     public function __invoke()
     {
         $urls = [];
-        foreach (Page::query()->published()->get() as $page) {
-            $urls[] = ['loc' => $page->url(), 'lastmod' => $page->updated_at];
+        $pages = Page::query()->withoutContent()->published()->get();
+        // Versions d'une même page dans les autres langues (hreflang), reliées par translation_group.
+        $groups = $pages->groupBy('translation_group');
+        foreach ($pages as $page) {
+            $versions = $groups[$page->translation_group] ?? collect();
+            $urls[] = ['loc' => $page->url(), 'lastmod' => $page->updated_at,
+                'alternates' => $versions->count() > 1 ? $versions->mapWithKeys(fn ($p) => [$p->locale => $p->url()])->all() : []];
         }
         foreach ((array) Setting::read('locales', ['fr']) as $locale) {
             $latest = Post::query()->published()->where('locale', $locale)->max('updated_at');

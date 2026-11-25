@@ -4,9 +4,11 @@
     $page ??= $site->page;
     $font = $settings['font_family'] ?? 'Inter';
     $title = $site->metaTitle($settings['site_name']);
-    $description = $site->metaDescription();
+    // Sans description propre, l'accueil reprend le slogan du site.
+    $description = $site->metaDescription() ?: ($site->isHome() && ! empty($settings['site_tagline']) ? $settings['site_tagline'] : null);
     $plugins = app(\App\Plugins\PluginManager::class);
     $nav = \App\Site\Navigation::forContext($site);
+    $seo = \App\Site\Seo::for($site, $settings, $nav['languages'], $title, $description, ! empty($preview));
     // Gabarits du thème (en-tête, pied de page) : leur CSS et leurs polices s'ajoutent à ceux du contenu.
     $themeHeader ??= null;
     $themeFooter ??= null;
@@ -20,12 +22,19 @@
     <title>{{ $title }}</title>
     <link rel="icon" href="{{ $settings['favicon_url'] ?? asset('favicon.svg') }}">
     @if ($description)<meta name="description" content="{{ $description }}">@endif
-    @if (! empty($preview) || $site->kind === \App\Site\SiteContext::SEARCH || $site->kind === \App\Site\SiteContext::NOT_FOUND)<meta name="robots" content="noindex">@endif
+    {{-- Référencement (App\Site\Seo) : indexation, adresse canonique, langues, partage, vérification, données structurées. --}}
+    @if ($seo['noindex'])<meta name="robots" content="noindex">@endif
+    @if ($seo['canonical'])<link rel="canonical" href="{{ $seo['canonical'] }}">@endif
     @foreach ($nav['languages'] as $lang)@if ($lang['translated'])<link rel="alternate" hreflang="{{ $lang['code'] }}" href="{{ $lang['url'] }}">@endif @endforeach
-    <meta property="og:title" content="{{ $title }}">
-    @if ($description)<meta property="og:description" content="{{ $description }}">@endif
-    @if ($site->post?->featuredMedia)<meta property="og:image" content="{{ url($site->post->featuredMedia->url) }}">@endif
-    @if ($site->kind === \App\Site\SiteContext::POST)<meta property="og:type" content="article">@endif
+    @if ($seo['x_default'])<link rel="alternate" hreflang="x-default" href="{{ $seo['x_default'] }}">@endif
+    @foreach ($seo['og'] as $property => $content)<meta property="{{ $property }}" content="{{ $content }}">
+    @endforeach
+    @foreach ($seo['twitter'] as $name => $content)<meta name="{{ $name }}" content="{{ $content }}">
+    @endforeach
+    @foreach ($seo['verify'] as $name => $content)<meta name="{{ $name }}" content="{{ $content }}">
+    @endforeach
+    @foreach ($seo['jsonld'] as $data)<script type="application/ld+json">{!! json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+    @endforeach
     <link rel="alternate" type="application/rss+xml" title="{{ $settings['site_name'] }}" href="{{ \App\Site\Permalinks::feed($site->locale) }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="stylesheet" href="{{ \App\Builder\DesignTokens::fontsUrl($settings, $fonts) }}">

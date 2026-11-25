@@ -4,7 +4,7 @@ import { api } from './api';
 import Canvas from './Canvas';
 import Panel from './Panel';
 import { getState, redo, setState, toast, undo, useStore } from './store';
-import { copyEl, duplicateEl, pasteAfter, pasteStyle, removeEl } from './actions';
+import { copyEl, duplicateEl, pasteAfter, pasteStyle, removeEl, togglePanel } from './actions';
 import { t } from './i18n';
 
 // L'ordinateur commence à 1025 px (tablette : 768 à 1024 px, mobile : 767 px et moins).
@@ -23,6 +23,7 @@ const Svg = ({ d, className = 'h-4 w-4' }) => (
 export default function App({ boot }) {
     const { urls } = boot;
     const device = useStore((s) => s.device);
+    const panelOpen = useStore((s) => s.panelOpen);
     const dirty = useStore((s) => s.dirty);
     const saving = useStore((s) => s.saving);
     const status = useStore((s) => s.status);
@@ -119,6 +120,13 @@ export default function App({ boot }) {
                     </div>
                 </div>
 
+                <div className="flex items-center gap-2">
+                <button onClick={togglePanel} aria-pressed={panelOpen}
+                    title={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
+                    aria-label={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
+                    className={`rounded-md p-2 ${panelOpen ? 'text-slate-600 hover:bg-slate-100' : 'bg-indigo-50 text-indigo-700'}`}>
+                    <Svg d="M4 4h16v16H4zM9 4v16" />
+                </button>
                 <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
                     {DEVICES.map((d) => (
                         <button key={d.id} title={d.label} onClick={() => setState({ device: d.id })}
@@ -126,6 +134,7 @@ export default function App({ boot }) {
                             <Svg d={d.icon} />
                         </button>
                     ))}
+                </div>
                 </div>
 
                 <div className="flex items-center gap-1.5">

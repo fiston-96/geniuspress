@@ -144,6 +144,7 @@ Route::get('/plugin-assets/{slug}/{path}', PluginAssetController::class)
 
 // Plan du site pour les moteurs de recherche
 Route::get('/sitemap.xml', \App\Http\Controllers\SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', \App\Http\Controllers\RobotsController::class)->name('robots');
 
 // Site public. La route de secours passe après toutes les autres, y compris
 // celles déclarées par les plugins.
