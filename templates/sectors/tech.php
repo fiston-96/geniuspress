@@ -228,7 +228,7 @@ return [
                 ]),
             ]];
 
-        $blog = [
+        $blogData = [
             'base' => 'blog',
             'title' => 'Blog',
             'categories' => ['produit' => $T('Produit', 'Product'), 'securite' => $T('Sécurité', 'Security'), 'infra' => $T('Infrastructure', 'Infrastructure')],
@@ -268,7 +268,7 @@ return [
 
         return [
             'pages' => $pages,
-            'blog' => $blog,
+            'blog' => $blogData,
             'navigation' => [
                 'menu' => [
                     ['label' => 'Solutions', 'url' => $solutions],

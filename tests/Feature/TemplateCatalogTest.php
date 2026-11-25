@@ -159,6 +159,22 @@ class TemplateCatalogTest extends TestCase
         $this->get('/en/news/annual-report')->assertOk()->assertSee('Keep reading');
     }
 
+    public function test_every_demo_home_page_renders_and_every_menu_link_is_an_address(): void
+    {
+        config(['geniuspress.catalog.path' => $this->catalog, 'geniuspress.catalog.demos' => true]);
+
+        foreach (array_keys(require base_path('templates/catalog.php')) as $id) {
+            $navigation = $this->zipJson($id, 'settings.json')['navigation'] ?? [];
+            foreach ($navigation['locales'] ?? [] as $locale => $nav) {
+                foreach ([...($nav['menu'] ?? []), ...($nav['footer_links'] ?? [])] as $link) {
+                    $this->assertIsString($link['url'] ?? null, "{$id} ({$locale}) : adresse du lien « ".json_encode($link['label'] ?? null, JSON_UNESCAPED_UNICODE).' »');
+                    $this->assertIsString($link['label'] ?? null, "{$id} ({$locale}) : libellé d’un lien");
+                }
+            }
+            $this->get('/catalogue/'.$id)->assertOk();
+        }
+    }
+
     public function test_demos_render_templates_without_installing_them(): void
     {
         config(['geniuspress.catalog.path' => $this->catalog, 'geniuspress.catalog.demos' => true]);
