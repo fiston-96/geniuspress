@@ -171,6 +171,33 @@ export const CONTAINER_CONTROLS = [
     { key: 'overlay_opacity', label: t('Opacité du voile (%)'), type: 'slider', min: 0, max: 100, default: 50, tab: 'style', when: (s) => !!s.overlay_color },
 ];
 
+/** Courbes d'accélération (ElementStyle::EASING). */
+const EASING_OPTIONS = [
+    { value: '', label: t('Douce (par défaut)') }, { value: 'smooth', label: t('Très douce') }, { value: 'ease-out', label: t('Ralentit à la fin') },
+    { value: 'ease-in', label: t('Accélère') }, { value: 'ease-in-out', label: t('Accélère puis ralentit') }, { value: 'linear', label: t('Constante') },
+    { value: 'back', label: t('Avec rebond') },
+];
+
+/** Animations d'apparition (classes gp-anim--… de site.css). */
+const ENTRANCES = [
+    { value: '', label: t('Aucune') },
+    { value: 'fade', label: t('Fondu') }, { value: 'fade-up', label: t('Fondu vers le haut') }, { value: 'fade-down', label: t('Fondu vers le bas') },
+    { value: 'fade-left', label: t('Fondu depuis la gauche') }, { value: 'fade-right', label: t('Fondu depuis la droite') },
+    { value: 'zoom-in', label: t('Zoom avant') }, { value: 'zoom-out', label: t('Zoom arrière') },
+    { value: 'slide-up', label: t('Glissement vers le haut') }, { value: 'slide-down', label: t('Glissement vers le bas') },
+    { value: 'slide-left', label: t('Glissement depuis la gauche') }, { value: 'slide-right', label: t('Glissement depuis la droite') },
+    { value: 'flip-up', label: t('Retournement vertical') }, { value: 'flip-left', label: t('Retournement horizontal') },
+    { value: 'rotate-in', label: t('Rotation') }, { value: 'bounce-in', label: t('Rebond') }, { value: 'blur-in', label: t('Net depuis un flou') },
+];
+
+/** Effets au survol (classes gp-hv--… de site.css). */
+const HOVER_EFFECTS = [
+    { value: '', label: t('Aucun') },
+    { value: 'grow', label: t('Agrandir') }, { value: 'shrink', label: t('Réduire') }, { value: 'lift', label: t('Soulever') }, { value: 'sink', label: t('Enfoncer') },
+    { value: 'rotate-left', label: t('Incliner à gauche') }, { value: 'rotate-right', label: t('Incliner à droite') },
+    { value: 'float', label: t('Flotter') }, { value: 'pulse', label: t('Pulser') }, { value: 'wobble', label: t('Osciller') }, { value: 'buzz', label: t('Vibrer') },
+];
+
 /** Réglages communs à tous les éléments (Schema::STYLE), ajoutés automatiquement. */
 export const STYLE_CONTROLS = [
     heading(t('Fond')),
@@ -202,6 +229,17 @@ export const STYLE_CONTROLS = [
     { key: 'text_color', label: t('Couleur du texte'), type: 'color', tab: 'style', hover: true },
     { key: 'opacity', label: t('Opacité (%)'), type: 'slider', min: 0, max: 100, default: 100, tab: 'style', hover: true },
     { key: 'transition', label: t('Durée de l’effet au survol (ms)'), type: 'slider', min: 0, max: 3000, step: 50, default: 300, tab: 'style', hover: 'only' },
+    { key: 'transition_easing', label: t('Courbe de l’effet au survol'), type: 'select', tab: 'style', hover: 'only', options: EASING_OPTIONS },
+
+    heading(t('Animations'), 'advanced'),
+    { key: 'entrance', label: t('Animation d’apparition'), type: 'select', tab: 'advanced', options: ENTRANCES },
+    { key: 'entrance_duration', label: t('Durée (ms)'), type: 'slider', min: 100, max: 5000, step: 50, default: 700, tab: 'advanced', when: (s) => !!s.entrance },
+    { key: 'entrance_delay', label: t('Délai avant l’animation (ms)'), type: 'slider', min: 0, max: 10000, step: 50, default: 0, tab: 'advanced', when: (s) => !!s.entrance },
+    { key: 'entrance_easing', label: t('Courbe de l’animation'), type: 'select', tab: 'advanced', when: (s) => !!s.entrance, options: EASING_OPTIONS },
+    { key: 'entrance_repeat', label: t('Rejouer à chaque passage à l’écran'), type: 'toggle', tab: 'advanced', when: (s) => !!s.entrance },
+    { key: 'hover_effect', label: t('Effet au survol'), type: 'select', tab: 'advanced', options: HOVER_EFFECTS },
+    { key: 'transition_easing', label: t('Courbe de l’effet au survol'), type: 'select', tab: 'advanced', when: (s) => !!s.hover_effect, options: EASING_OPTIONS },
+    { key: 'transition', label: t('Durée de l’effet au survol (ms)'), type: 'slider', min: 0, max: 3000, step: 50, default: 300, tab: 'advanced', when: (s) => !!s.hover_effect },
 
     heading(t('Espacements'), 'advanced'),
     { key: 'margin', label: t('Marge extérieure'), type: 'spacing', tab: 'advanced', responsive: true, units: ['px', '%', 'em', 'rem'], allowNegative: true },

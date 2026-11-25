@@ -19,6 +19,7 @@ export const STYLE_KEYS = {
     gradient_type: '', gradient_from: '', gradient_to: '', gradient_angle: '',
     border_style: '', border_width: '', border_color: 'h', border_radius: 'r', box_shadow: 'h',
     text_color: 'h', opacity: 'h', z_index: '', overflow: '', transition: '',
+    transition_easing: '', hover_effect: '', entrance: '', entrance_duration: '', entrance_delay: '', entrance_easing: '', entrance_repeat: '',
     hide_desktop: '', hide_tablet: '', hide_mobile: '', css_id: '', css_classes: '',
 };
 
@@ -46,6 +47,12 @@ export const globalColor = (name) => (['primary', 'secondary', 'accent'].include
 export const cssValue = (v) => String(v).replace(/global:([a-z0-9-]+)/g, (_, n) => globalColor(n));
 
 const empty = (v) => v === null || v === undefined || v === '';
+
+/** Courbes d'accélération (ElementStyle::EASING). */
+export const EASING = {
+    ease: 'ease', 'ease-in': 'ease-in', 'ease-out': 'ease-out', 'ease-in-out': 'ease-in-out', linear: 'linear',
+    smooth: 'cubic-bezier(.22,1,.36,1)', back: 'cubic-bezier(.34,1.56,.64,1)',
+};
 
 /** Valeur d'un réglage pour un appareil, en héritant des écrans plus grands. */
 export function at(s, key, device) {
@@ -236,9 +243,18 @@ export function applyStyle(sheet, node, parent, keys) {
     if (has.has('box_shadow') && s.box_shadow_hover?.color) hover['box-shadow'] = shadowCss(s.box_shadow_hover);
     if (has.has('text_color') && s.text_color_hover) hover.color = s.text_color_hover;
     if (has.has('opacity') && !empty(s.opacity_hover)) hover.opacity = String(s.opacity_hover / 100);
-    if (Object.keys(hover).length || (has.has('transition') && !empty(s.transition))) {
+    // Effet au survol (agrandir, soulever…) : la transformation suit la même transition.
+    const effect = has.has('hover_effect') && !empty(s.hover_effect) ? s.hover_effect : null;
+    if (Object.keys(hover).length || (has.has('transition') && !empty(s.transition)) || effect) {
         const ms = parseInt(s.transition ?? 300, 10);
-        p.transition = ['background-color', 'color', 'border-color', 'box-shadow', 'opacity'].map((prop) => `${prop} ${ms}ms`).join(', ');
+        const ease = has.has('transition_easing') && !empty(s.transition_easing) ? ` ${EASING[s.transition_easing]}` : '';
+        p.transition = ['background-color', 'color', 'border-color', 'box-shadow', 'opacity', ...(effect ? ['transform'] : [])].map((prop) => `${prop} ${ms}ms${ease}`).join(', ');
+    }
+    // Apparition à l'écran : durée, délai et courbe (l'animation elle-même est dans site.css).
+    if (has.has('entrance') && !empty(s.entrance)) {
+        p['--gp-anim-dur'] = !empty(s.entrance_duration) ? `${s.entrance_duration}ms` : null;
+        p['--gp-anim-delay'] = !empty(s.entrance_delay) ? `${s.entrance_delay}ms` : null;
+        p['--gp-anim-ease'] = !empty(s.entrance_easing) ? EASING[s.entrance_easing] : null;
     }
 
     sheet.rule(id, p);

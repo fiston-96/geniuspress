@@ -14,6 +14,12 @@ class ElementStyle
         'between' => 'space-between', 'around' => 'space-around', 'evenly' => 'space-evenly',
     ];
 
+    /** Courbes d'accélération des transitions et animations. */
+    public const EASING = [
+        'ease' => 'ease', 'ease-in' => 'ease-in', 'ease-out' => 'ease-out', 'ease-in-out' => 'ease-in-out', 'linear' => 'linear',
+        'smooth' => 'cubic-bezier(.22,1,.36,1)', 'back' => 'cubic-bezier(.34,1.56,.64,1)',
+    ];
+
     /** Dimensions par défaut d'un enfant de conteneur en colonne : rien à écrire. */
     private const COLUMN_DEFAULT = ['flex' => '0 1 auto', 'width' => 'auto'];
 
@@ -112,9 +118,19 @@ class ElementStyle
             'color' => isset($has['text_color']) ? ($s['text_color_hover'] ?? null) : null,
             'opacity' => isset($has['opacity'], $s['opacity_hover']) ? (string) ($s['opacity_hover'] / 100) : null,
         ], fn ($v) => $v !== null);
-        if ($hover || isset($has['transition'], $s['transition'])) {
+        // Effet au survol (agrandir, soulever…) : la transformation suit la même transition.
+        $effect = isset($has['hover_effect']) ? ($s['hover_effect'] ?? null) : null;
+        if ($hover || isset($has['transition'], $s['transition']) || $effect) {
             $ms = (int) ($s['transition'] ?? 300);
-            $p['transition'] = implode(', ', array_map(fn ($prop) => "{$prop} {$ms}ms", ['background-color', 'color', 'border-color', 'box-shadow', 'opacity']));
+            $ease = isset($has['transition_easing'], $s['transition_easing']) ? ' '.self::EASING[$s['transition_easing']] : '';
+            $props = ['background-color', 'color', 'border-color', 'box-shadow', 'opacity', ...($effect ? ['transform'] : [])];
+            $p['transition'] = implode(', ', array_map(fn ($prop) => "{$prop} {$ms}ms{$ease}", $props));
+        }
+        // Apparition à l'écran : durée, délai et courbe (l'animation elle-même est dans site.css).
+        if (isset($has['entrance'], $s['entrance'])) {
+            $p['--gp-anim-dur'] = isset($s['entrance_duration']) ? $s['entrance_duration'].'ms' : null;
+            $p['--gp-anim-delay'] = isset($s['entrance_delay']) ? $s['entrance_delay'].'ms' : null;
+            $p['--gp-anim-ease'] = isset($s['entrance_easing']) ? self::EASING[$s['entrance_easing']] : null;
         }
 
         $ctx->rule($id, $p);

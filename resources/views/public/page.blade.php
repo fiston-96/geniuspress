@@ -29,6 +29,9 @@
     <link rel="alternate" type="application/rss+xml" title="{{ $settings['site_name'] }}" href="{{ \App\Site\Permalinks::feed($site->locale) }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="stylesheet" href="{{ \App\Builder\DesignTokens::fontsUrl($settings, $fonts) }}">
+    {{-- Animations d'apparition : éléments cachés jusqu'à leur arrivée à l'écran, seulement si le
+         script du site tourne (sinon, au bout de 3 s, tout redevient visible). --}}
+    <script>document.documentElement.classList.add('gp-js');setTimeout(function(){if(!window.gpAnimReady)document.documentElement.classList.remove('gp-js')},3000);</script>
     @vite(['resources/css/site.css', 'resources/js/site.js'])
     <style>
         {!! \App\Builder\DesignTokens::css($settings) !!}

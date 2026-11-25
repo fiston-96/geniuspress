@@ -193,6 +193,9 @@ function Element({ node, depth }) {
 function stateClasses(node, selected, hovered, dragging) {
     const cls = [];
     for (const d of ['desktop', 'tablet', 'mobile']) if (node.settings[`hide_${d}`]) cls.push(`gpe-hide-${d}`);
+    // Animations : comme sur le site (Renderer::classes) ; « is-in » joue l'apparition dans le canevas.
+    if (node.settings.entrance) cls.push('gp-anim', `gp-anim--${node.settings.entrance}`, 'is-in');
+    if (node.settings.hover_effect) cls.push('gp-hv', `gp-hv--${node.settings.hover_effect}`);
     if (node.settings.css_classes) cls.push(node.settings.css_classes);
     if (selected) cls.push('is-selected');
     if (hovered) cls.push('is-hovered');

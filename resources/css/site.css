@@ -705,3 +705,69 @@ a.gp-card:hover .gp-card__title { color: var(--gp-primary); }
 .gp-chart__legend li { display: inline-flex; align-items: center; gap: 8px; }
 .gp-chart__swatch { width: 12px; height: 12px; border-radius: 3px; background: currentColor; flex: none; }
 .gp-chart__legend-value { opacity: .7; }
+
+/* ─── Animations d'apparition (réglage « entrance » de chaque élément) ─────
+   Cachés seulement quand le script du site tourne (classe gp-js posée dans <head>) :
+   sans JavaScript, tout reste visible. Le script ajoute « is-in » à l'arrivée à l'écran.
+   Remplissage « backwards » : à la fin, l'élément retrouve son style normal (les effets
+   au survol, qui utilisent transform, fonctionnent donc après l'apparition). */
+.gp-js .gp-anim:not(.is-in) { opacity: 0; }
+.gp-anim.is-in { animation-duration: var(--gp-anim-dur, 700ms); animation-timing-function: var(--gp-anim-ease, cubic-bezier(.22,1,.36,1)); animation-delay: var(--gp-anim-delay, 0ms); animation-fill-mode: backwards; }
+.gp-anim--fade.is-in { animation-name: gp-in-fade; }
+.gp-anim--fade-up.is-in { animation-name: gp-in-fade-up; }
+.gp-anim--fade-down.is-in { animation-name: gp-in-fade-down; }
+.gp-anim--fade-left.is-in { animation-name: gp-in-fade-left; }
+.gp-anim--fade-right.is-in { animation-name: gp-in-fade-right; }
+.gp-anim--zoom-in.is-in { animation-name: gp-in-zoom-in; }
+.gp-anim--zoom-out.is-in { animation-name: gp-in-zoom-out; }
+.gp-anim--slide-up.is-in { animation-name: gp-in-slide-up; }
+.gp-anim--slide-down.is-in { animation-name: gp-in-slide-down; }
+.gp-anim--slide-left.is-in { animation-name: gp-in-slide-left; }
+.gp-anim--slide-right.is-in { animation-name: gp-in-slide-right; }
+.gp-anim--flip-up.is-in { animation-name: gp-in-flip-up; }
+.gp-anim--flip-left.is-in { animation-name: gp-in-flip-left; }
+.gp-anim--rotate-in.is-in { animation-name: gp-in-rotate; }
+.gp-anim--bounce-in.is-in { animation-name: gp-in-bounce; }
+.gp-anim--blur-in.is-in { animation-name: gp-in-blur; }
+@keyframes gp-in-fade { from { opacity: 0; } }
+@keyframes gp-in-fade-up { from { opacity: 0; transform: translateY(40px); } }
+@keyframes gp-in-fade-down { from { opacity: 0; transform: translateY(-40px); } }
+@keyframes gp-in-fade-left { from { opacity: 0; transform: translateX(-40px); } }
+@keyframes gp-in-fade-right { from { opacity: 0; transform: translateX(40px); } }
+@keyframes gp-in-zoom-in { from { opacity: 0; transform: scale(.85); } }
+@keyframes gp-in-zoom-out { from { opacity: 0; transform: scale(1.15); } }
+@keyframes gp-in-slide-up { from { transform: translateY(120px); } }
+@keyframes gp-in-slide-down { from { transform: translateY(-120px); } }
+@keyframes gp-in-slide-left { from { transform: translateX(-120px); } }
+@keyframes gp-in-slide-right { from { transform: translateX(120px); } }
+@keyframes gp-in-flip-up { from { opacity: 0; transform: perspective(800px) rotateX(70deg); } }
+@keyframes gp-in-flip-left { from { opacity: 0; transform: perspective(800px) rotateY(-70deg); } }
+@keyframes gp-in-rotate { from { opacity: 0; transform: rotate(-12deg) scale(.9); } }
+@keyframes gp-in-bounce { 0% { opacity: 0; transform: scale(.3); } 50% { opacity: 1; transform: scale(1.06); } 72% { transform: scale(.96); } 100% { transform: scale(1); } }
+@keyframes gp-in-blur { from { opacity: 0; filter: blur(14px); } }
+/* Les glissements latéraux ne doivent pas créer de barre de défilement horizontale. */
+body { overflow-x: clip; }
+
+/* ─── Effets au survol (réglage « hover_effect ») ─────────────────────────
+   La transition de « transform » est écrite avec les autres (ElementStyle). */
+.gp-hv--grow:hover { transform: scale(1.05); }
+.gp-hv--shrink:hover { transform: scale(.95); }
+.gp-hv--lift:hover { transform: translateY(-8px); }
+.gp-hv--sink:hover { transform: translateY(6px); }
+.gp-hv--rotate-left:hover { transform: rotate(-3deg); }
+.gp-hv--rotate-right:hover { transform: rotate(3deg); }
+.gp-hv--float:hover { animation: gp-hv-float 1.6s ease-in-out infinite; }
+.gp-hv--pulse:hover { animation: gp-hv-pulse 1s ease-in-out infinite; }
+.gp-hv--wobble:hover { animation: gp-hv-wobble .8s ease-in-out; }
+.gp-hv--buzz:hover { animation: gp-hv-buzz .12s linear 5; }
+@keyframes gp-hv-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes gp-hv-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes gp-hv-wobble { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-5deg); } 40% { transform: rotate(4deg); } 60% { transform: rotate(-3deg); } 80% { transform: rotate(2deg); } }
+@keyframes gp-hv-buzz { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px) rotate(-1deg); } 75% { transform: translateX(2px) rotate(1deg); } }
+
+/* Visiteurs qui demandent moins d'animations (réglage du système) : rien ne bouge. */
+@media (prefers-reduced-motion: reduce) {
+    .gp-js .gp-anim:not(.is-in) { opacity: 1; }
+    .gp-anim.is-in, .gp-hv:hover { animation: none; }
+    .gp-hv:hover { transform: none; }
+}

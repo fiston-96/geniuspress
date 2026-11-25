@@ -123,6 +123,13 @@ class Renderer
                 $base .= ' gp-hide-'.$device;
             }
         }
+        // Animations (site.css) : apparition à l'écran, déclenchée par le script du site, et effet au survol.
+        if (isset($o['entrance'])) {
+            $base .= ' gp-anim gp-anim--'.$o['entrance'].(! empty($o['entrance_repeat']) ? ' gp-anim--repeat' : '');
+        }
+        if (isset($o['hover_effect'])) {
+            $base .= ' gp-hv gp-hv--'.$o['hover_effect'];
+        }
         if (isset($o['css_classes'])) {
             $base .= ' '.$o['css_classes'];
         }

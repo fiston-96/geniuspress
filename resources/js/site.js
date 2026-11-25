@@ -273,3 +273,28 @@ for (const nav of document.querySelectorAll('[data-gp-pagenav]')) {
     }, { rootMargin: '-45% 0px -50% 0px' });
     targets.forEach((t) => io.observe(t));
 }
+
+// ─── Animations d'apparition ─────────────────────────────────────────────
+// Les éléments « gp-anim » sont cachés tant que <html> porte gp-js (posée dans <head>) ;
+// ils apparaissent en arrivant à l'écran. « gp-anim--repeat » : rejouée à chaque passage.
+window.gpAnimReady = true;
+const animated = [...document.querySelectorAll('.gp-anim')];
+if (animated.length) {
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+        animated.forEach((el) => el.classList.add('is-in'));
+    } else {
+        const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                const el = entry.target;
+                const repeat = el.classList.contains('gp-anim--repeat');
+                if (entry.isIntersecting) {
+                    el.classList.add('is-in');
+                    if (!repeat) io.unobserve(el);
+                } else if (repeat) {
+                    el.classList.remove('is-in');
+                }
+            }
+        }, { rootMargin: '0px 0px -8% 0px' });
+        animated.forEach((el) => io.observe(el));
+    }
+}
