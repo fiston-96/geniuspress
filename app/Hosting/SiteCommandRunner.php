@@ -28,7 +28,13 @@ class SiteCommandRunner
     /** @param list<string> $arguments */
     public function run(string $slug, array $arguments, int $timeout = 600): string
     {
-        $env = array_fill_keys(self::MASKED, false);
+        // Tout l'environnement du serveur, explicitement : sous un serveur web, Symfony Process
+        // n'en transmettrait qu'une partie (sans SYSTEMROOT, Windows ne peut plus ouvrir de
+        // connexion réseau ; sans PATH, PHP-FPM ne trouve plus ses outils).
+        $env = array_filter((array) getenv(), 'is_string');
+        foreach (self::MASKED as $key) {
+            $env[$key] = false;
+        }
         foreach ($this->envKeys($slug) as $key) {
             $env[$key] = false;
         }

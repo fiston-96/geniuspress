@@ -74,6 +74,8 @@ class HostedTrialTest extends TestCase
         $this->assertSame('cooperative', trim(file_get_contents(config('hosting.path').'/hosts/cooperative.localhost')));
         $this->assertSame('cooperative', HostedBootstrap::resolve(config('hosting.path'), false, 'Cooperative.localhost:8000'));
         $this->assertSame(40, $site->manifest()->limit('pages'));
+        $this->assertSame(Manifest::STATUS_ACTIVE, $site->manifest()->status());
+        $this->assertSame(14, $site->manifest()->daysLeft());
 
         // La base du site contient le propriétaire (même mot de passe) et sa page d'accueil.
         $pdo = new PDO('sqlite:'.$dir.'/database.sqlite');
@@ -95,7 +97,7 @@ class HostedTrialTest extends TestCase
         $this->getJson(route('hosting.trial.status'))->assertJson(['status' => 'active']);
 
         // Un clic : lien signé vers l'administration du site.
-        $location = $this->post(route('hosting.trial.open'))->assertRedirect()->headers->get('Location');
+        $location = $this->get(route('hosting.trial.open'))->assertRedirect()->headers->get('Location');
         $this->assertStringStartsWith('http://cooperative.localhost:8000'.LoginLink::PATH.'?', $location);
         parse_str(parse_url($location, PHP_URL_QUERY), $q);
         $this->assertTrue(LoginLink::verify($site->manifest(), $q['expires'], $q['nonce'], $q['signature']));

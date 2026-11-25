@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 // Sites hébergés par la plateforme (essais et offres payantes). Table de la
-// plateforme seulement : chargée par HostingServiceProvider hors des sites hébergés.
+// plateforme seulement : chargée par HostingServiceProvider (app/Hosting/migrations) hors des sites hébergés.
 return new class extends Migration
 {
     public function up(): void

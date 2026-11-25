@@ -185,7 +185,12 @@ class LocalSiteProvisioner implements SiteProvisioner
             'name' => $site->name,
             'kind' => $site->kind,
             'plan' => $site->plan,
-            'status' => in_array($site->status, Site::LIVE, true) ? $site->status : Manifest::STATUS_SUSPENDED,
+            // En préparation : le site n'est joignable qu'une fois prêt (index des adresses écrit en dernier).
+            'status' => match (true) {
+                in_array($site->status, Site::LIVE, true) => $site->status,
+                $site->status === Site::STATUS_PROVISIONING => Manifest::STATUS_ACTIVE,
+                default => Manifest::STATUS_SUSPENDED,
+            },
             'expires_at' => $site->expires_at?->toIso8601String(),
             'limits' => $site->limits ?? [],
             'owner' => ['account_id' => $site->account_id, 'email' => $site->owner_email],

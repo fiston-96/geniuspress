@@ -28,6 +28,10 @@
             @if ($plan->limits['ai_requests'] ?? null)<li class="rounded-lg bg-slate-50 px-3 py-2">{{ __(':n demandes à l’assistant IA', ['n' => $plan->limits['ai_requests']]) }}</li>@endif
         </ul>
 
+        @if ($failed)
+            <div class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ __('La création de votre site a échoué. Réessayez dans quelques minutes ; si le problème persiste, contactez-nous.') }}</div>
+        @endif
+
         @if ($refusal)
             <div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ $refusal }}</div>
         @else
@@ -80,10 +84,7 @@
 
         <div class="mt-6 flex flex-wrap gap-3">
             @if (in_array($status, ['active', 'expired'], true))
-                <form method="POST" action="{{ route('hosting.trial.open') }}" target="_blank">
-                    @csrf
-                    <button class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">{{ __('Ouvrir mon site ↗') }}</button>
-                </form>
+                <a href="{{ route('hosting.trial.open') }}" target="_blank" rel="noopener" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">{{ __('Ouvrir mon site ↗') }}</a>
             @endif
             @if ($status === 'active')
                 <a href="{{ $site->url() }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">{{ __('Voir le site public') }}</a>

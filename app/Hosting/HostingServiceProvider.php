@@ -64,14 +64,15 @@ class HostingServiceProvider extends ServiceProvider
         Route::middleware('web')->get(LoginLink::PATH, [HostedSiteController::class, 'login'])->name('hosting.login');
 
         if (! $hosted) {
-            $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+            $this->loadMigrationsFrom(__DIR__.'/migrations');
 
             // Parcours « Essayer GeniusPress » : introuvable tant que l'hébergement n'est pas activé.
             Route::middleware([HostingEnabled::class, ...(array) config('hosting.middleware')])->prefix('essayer')->name('hosting.')->group(function () {
                 Route::get('/', [TrialController::class, 'show'])->name('trial');
                 Route::post('/', [TrialController::class, 'store'])->middleware('throttle:5,1')->name('trial.store');
                 Route::get('/etat', [TrialController::class, 'status'])->name('trial.status');
-                Route::post('/ouvrir', [TrialController::class, 'open'])->middleware('throttle:20,1')->name('trial.open');
+                // GET : un simple lien (nouvel onglet) ; ne fait que rediriger vers son propre site.
+                Route::get('/ouvrir', [TrialController::class, 'open'])->middleware('throttle:20,1')->name('trial.open');
             });
 
             $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {

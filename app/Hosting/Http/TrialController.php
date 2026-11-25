@@ -25,6 +25,9 @@ class TrialController extends Controller
             'site' => $site,
             'status' => $site?->effectiveStatus(),
             'refusal' => $site ? null : $this->trials->refusal($user),
+            // Dernière tentative échouée (dans l'heure) : on le dit au lieu de réafficher le formulaire sans explication.
+            'failed' => ! $site && Site::query()->where('account_id', $this->accounts->accountId($user))
+                ->where('status', Site::STATUS_FAILED)->where('updated_at', '>=', now()->subHour())->exists(),
             'suggested' => $this->trials->suggestSlug((string) $user->name),
             'domain' => config('hosting.domain'),
             'plan' => $this->accounts->trialPlan($user),

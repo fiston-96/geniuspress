@@ -1484,5 +1484,6 @@
     "Ouvrir mon site ↗": "Open my site ↗",
     "Voir le site public": "View the public site",
     "Site introuvable": "Site not found",
-    "Aucun site GeniusPress n’existe à cette adresse.": "No GeniusPress site exists at this address."
+    "Aucun site GeniusPress n’existe à cette adresse.": "No GeniusPress site exists at this address.",
+    "La création de votre site a échoué. Réessayez dans quelques minutes ; si le problème persiste, contactez-nous.": "Creating your site failed. Try again in a few minutes; if the problem persists, contact us."
 }
