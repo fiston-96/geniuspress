@@ -7,6 +7,8 @@ import { LIBRARY_WIDGETS } from './library';
 import { LIBRARY_IMPL } from './library-preview';
 import { THEME_GROUP, THEME_WIDGETS } from './theme';
 import { THEME_IMPL } from './theme-preview';
+import { PRO_GROUP, PRO_WIDGETS } from './pro';
+import { PRO_IMPL } from './pro-preview';
 import { t } from '../i18n';
 
 export function embedUrl(url = '') {
@@ -132,6 +134,10 @@ export function registerCoreWidgets() {
     }
     for (const [type, def] of Object.entries(LIBRARY_WIDGETS)) {
         registerWidget(type, { ...def, ...LIBRARY_IMPL[type] });
+    }
+    // Widgets avancés : un groupe à part dans la palette.
+    for (const [type, def] of Object.entries(PRO_WIDGETS)) {
+        registerWidget(type, { ...def, ...PRO_IMPL[type], group: PRO_GROUP });
     }
     // Widgets dynamiques (articles, archives, en-tête) : un groupe à part dans la palette.
     for (const [type, def] of Object.entries(THEME_WIDGETS)) {
