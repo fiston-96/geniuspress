@@ -1,0 +1,203 @@
+// Widgets avancés (lot 2) : réglages, miroir des rules() de app/Builder/Widgets/*Widget.php.
+import { t } from '../i18n';
+
+const ALIGN = [
+    { value: 'left', label: t('Gauche') },
+    { value: 'center', label: t('Centre') },
+    { value: 'right', label: t('Droite') },
+];
+const SIDE = [{ value: 'right', label: t('À droite') }, { value: 'left', label: t('À gauche') }];
+const motion = [
+    { key: 'autoplay', label: t('Défilement automatique'), type: 'toggle' },
+    { key: 'interval', label: t('Durée de chaque diapositive (secondes)'), type: 'slider', min: 2, max: 20, default: 6, when: (o) => !!o.autoplay },
+    { key: 'arrows', label: t('Flèches'), type: 'toggle' },
+    { key: 'dots', label: t('Points'), type: 'toggle' },
+];
+
+export const PRO2_WIDGETS = {
+    slider: {
+        label: t('Diaporama'),
+        icon: 'M3 5h18v14H3zM8 12l-2 2 2 2M16 12l2 2-2 2',
+        defaults: { arrows: true, dots: true, autoplay: true, interval: 6, align: 'left', slides: [
+            { eyebrow: t('Bienvenue'), title: t('Un titre fort pour votre première diapositive'), text: t('Une phrase qui présente votre message principal.'), button_text: t('Découvrir'), button_url: '#' },
+            { eyebrow: t('Nos actions'), title: t('Un deuxième message important'), text: t('Présentez un projet, un événement ou une offre.'), button_text: t('En savoir plus'), button_url: '#' },
+        ] },
+        controls: [
+            { key: 'slides', label: t('Diapositives'), type: 'repeater', max: 12, itemLabel: t('Diapositive'), newItem: { title: t('Nouvelle diapositive') }, addLabel: t('+ Ajouter une diapositive'), fields: [
+                { key: 'url', label: t('Image de fond'), type: 'image' },
+                { key: 'eyebrow', label: t('Sur-titre'), type: 'text' },
+                { key: 'title', label: t('Titre'), type: 'text' },
+                { key: 'text', label: t('Texte'), type: 'textarea' },
+                { key: 'button_text', label: t('Texte du bouton'), type: 'text' },
+                { key: 'button_url', label: t('Lien du bouton'), type: 'url' },
+            ] },
+            ...motion,
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style' },
+            { key: 'height', label: t('Hauteur (px)'), type: 'slider', min: 200, max: 1000, default: 520, tab: 'style', responsive: true },
+            { key: 'title_size', label: t('Taille des titres (px)'), type: 'slider', min: 16, max: 100, tab: 'style', responsive: true },
+            { key: 'overlay', label: t('Couleur du voile'), type: 'color', tab: 'style' },
+            { key: 'overlay_opacity', label: t('Opacité du voile (%)'), type: 'slider', min: 0, max: 100, default: 55, tab: 'style' },
+            { key: 'color', label: t('Couleur du texte'), type: 'color', tab: 'style' },
+            { key: 'radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 60, tab: 'style' },
+        ],
+    },
+    carousel: {
+        label: t('Carrousel'),
+        icon: 'M2 7h4v10H2zM8 5h8v14H8zM18 7h4v10h-4z',
+        defaults: { per_view: 3, card: true, arrows: true, dots: true, items: [
+            { title: t('Projet 1'), text: t('Une courte description.') }, { title: t('Projet 2'), text: t('Une courte description.') },
+            { title: t('Projet 3'), text: t('Une courte description.') }, { title: t('Projet 4'), text: t('Une courte description.') },
+        ] },
+        controls: [
+            { key: 'items', label: t('Éléments'), type: 'repeater', max: 30, itemLabel: t('Élément'), newItem: { title: t('Nouvel élément') }, addLabel: t('+ Ajouter un élément'), fields: [
+                { key: 'url', label: t('Image'), type: 'image' },
+                { key: 'title', label: t('Titre'), type: 'text' },
+                { key: 'text', label: t('Texte'), type: 'textarea' },
+                { key: 'link', label: t('Lien (facultatif)'), type: 'url' },
+            ] },
+            ...motion,
+            { key: 'card', label: t('Éléments dans des cartes'), type: 'toggle' },
+            { key: 'per_view', label: t('Éléments visibles'), type: 'slider', min: 1, max: 6, default: 3, tab: 'style', responsive: true },
+            { key: 'gap', label: t('Espace (px)'), type: 'slider', min: 0, max: 60, default: 20, tab: 'style' },
+            { key: 'ratio', label: t('Format des images'), type: 'select', tab: 'style', options: ['4:3', '1:1', '3:2', '16:9', '3:4'].map((v) => ({ value: v, label: v })) },
+            { key: 'radius', label: t('Arrondi des images (px)'), type: 'slider', min: 0, max: 40, default: 14, tab: 'style' },
+            { key: 'title_color', label: t('Couleur des titres'), type: 'color', tab: 'style' },
+        ],
+    },
+    'testimonial-carousel': {
+        label: t('Carrousel de témoignages'),
+        icon: 'M4 5h16v11H8l-4 4zM8 9h8M8 12h5',
+        defaults: { per_view: 2, arrows: true, dots: true, items: [
+            { text: t('Grâce à leur accompagnement, notre projet a changé de dimension.'), name: t('[Prénom Nom]'), role: t('[Fonction, organisation]'), rating: 5 },
+            { text: t('Une équipe à l’écoute, des résultats concrets.'), name: t('[Prénom Nom]'), role: t('[Fonction, organisation]'), rating: 5 },
+            { text: t('Je recommande sans hésiter.'), name: t('[Prénom Nom]'), role: t('[Fonction, organisation]'), rating: 5 },
+        ] },
+        controls: [
+            { key: 'items', label: t('Témoignages'), type: 'repeater', max: 20, itemLabel: t('Témoignage'), newItem: { text: t('Nouveau témoignage'), name: t('[Prénom Nom]') }, addLabel: t('+ Ajouter un témoignage'), fields: [
+                { key: 'text', label: t('Témoignage'), type: 'textarea' },
+                { key: 'name', label: t('Nom'), type: 'text' },
+                { key: 'role', label: t('Fonction'), type: 'text' },
+                { key: 'url', label: t('Photo'), type: 'image' },
+                { key: 'rating', label: t('Note (0 à 5)'), type: 'number' },
+            ] },
+            ...motion,
+            { key: 'per_view', label: t('Témoignages visibles'), type: 'slider', min: 1, max: 4, default: 2, tab: 'style', responsive: true },
+            { key: 'gap', label: t('Espace (px)'), type: 'slider', min: 0, max: 60, default: 20, tab: 'style' },
+            { key: 'accent', label: t('Couleur d’accent'), type: 'color', tab: 'style' },
+            { key: 'card_bg', label: t('Fond des cartes'), type: 'color', tab: 'style' },
+        ],
+    },
+    'before-after': {
+        label: t('Avant / après'),
+        icon: 'M3 4h18v16H3zM12 4v16M9 12l-2-2M15 12l2 2',
+        defaults: { start: 50 },
+        controls: [
+            { key: 'before_url', label: t('Image « avant »'), type: 'image', mediaKey: 'before_media_id' },
+            { key: 'after_url', label: t('Image « après »'), type: 'image', mediaKey: 'after_media_id' },
+            { key: 'before_label', label: t('Étiquette « avant »'), type: 'text', placeholder: t('Avant') },
+            { key: 'after_label', label: t('Étiquette « après »'), type: 'text', placeholder: t('Après') },
+            { key: 'alt', label: t('Texte alternatif (accessibilité)'), type: 'text' },
+            { key: 'start', label: t('Position de départ (%)'), type: 'slider', min: 0, max: 100, default: 50 },
+            { key: 'radius', label: t('Arrondi (px)'), type: 'slider', min: 0, max: 60, default: 16, tab: 'style' },
+            { key: 'handle_color', label: t('Couleur de la poignée'), type: 'color', tab: 'style' },
+        ],
+    },
+    'content-toggle': {
+        label: t('Bascule de contenu'),
+        icon: 'M7 8h10a4 4 0 010 8H7a4 4 0 010-8zM16 12h.01',
+        defaults: { label_a: t('Particuliers'), label_b: t('Entreprises'), html_a: `<p>${t('Le contenu pour les particuliers.')}</p>`, html_b: `<p>${t('Le contenu pour les entreprises.')}</p>`, align: 'center' },
+        controls: [
+            { key: 'label_a', label: t('Premier choix'), type: 'text' },
+            { key: 'html_a', label: t('Premier contenu'), type: 'richtext' },
+            { key: 'label_b', label: t('Deuxième choix'), type: 'text' },
+            { key: 'html_b', label: t('Deuxième contenu'), type: 'richtext' },
+            { key: 'align', label: t('Alignement du sélecteur'), type: 'segmented', options: ALIGN, tab: 'style' },
+            { key: 'accent', label: t('Couleur'), type: 'color', tab: 'style' },
+        ],
+    },
+    'share-buttons': {
+        label: t('Boutons de partage'),
+        icon: 'M18 8a3 3 0 10-2.8-4M6 15a3 3 0 100-6 3 3 0 000 6zM18 22a3 3 0 100-6 3 3 0 000 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4',
+        defaults: { whatsapp: true, facebook: true, x: true, telegram: true, email: true, copy: true, label: t('Partager :'), style: 'brand', shape: 'circle' },
+        controls: [
+            { key: 'label', label: t('Texte devant les boutons'), type: 'text' },
+            { key: 'whatsapp', label: 'WhatsApp', type: 'toggle' },
+            { key: 'facebook', label: 'Facebook', type: 'toggle' },
+            { key: 'x', label: 'X', type: 'toggle' },
+            { key: 'telegram', label: 'Telegram', type: 'toggle' },
+            { key: 'email', label: t('E-mail'), type: 'toggle' },
+            { key: 'copy', label: t('Copier le lien'), type: 'toggle' },
+            { key: 'style', label: t('Style'), type: 'segmented', tab: 'style', options: [{ value: 'brand', label: t('Couleurs') }, { value: 'outline', label: t('Contour') }, { value: 'plain', label: t('Simple') }] },
+            { key: 'shape', label: t('Forme'), type: 'segmented', tab: 'style', options: [{ value: 'circle', label: t('Rond') }, { value: 'rounded', label: t('Arrondi') }, { value: 'square', label: t('Carré') }] },
+            { key: 'size', label: t('Taille (px)'), type: 'slider', min: 24, max: 72, default: 40, tab: 'style' },
+            { key: 'align', label: t('Alignement'), type: 'segmented', options: ALIGN, tab: 'style', responsive: true },
+        ],
+    },
+    'floating-button': {
+        label: t('Bouton flottant'),
+        icon: 'M12 3a9 9 0 00-7.8 13.5L3 21l4.6-1.2A9 9 0 1012 3z',
+        defaults: { kind: 'whatsapp', number: '+243 000 000 000', message: t('Bonjour, je vous contacte depuis votre site.'), position: 'right' },
+        controls: [
+            { key: 'note', type: 'heading', label: t('Le bouton reste en bas de l’écran sur tout le site si vous le placez dans un gabarit d’en-tête ou de pied de page.'), tab: 'content' },
+            { key: 'kind', label: t('Type'), type: 'segmented', options: [{ value: 'whatsapp', label: 'WhatsApp' }, { value: 'phone', label: t('Appel') }, { value: 'link', label: t('Lien') }] },
+            { key: 'number', label: t('Numéro (avec l’indicatif du pays)'), type: 'text', when: (o) => (o.kind ?? 'whatsapp') !== 'link' },
+            { key: 'message', label: t('Message prérempli'), type: 'textarea', when: (o) => (o.kind ?? 'whatsapp') === 'whatsapp' },
+            { key: 'link', label: t('Lien'), type: 'url', when: (o) => o.kind === 'link' },
+            { key: 'label', label: t('Texte (facultatif)'), type: 'text' },
+            { key: 'position', label: t('Position'), type: 'segmented', options: SIDE },
+            { key: 'bg_color', label: t('Fond'), type: 'color', tab: 'style' },
+            { key: 'color', label: t('Texte et icône'), type: 'color', tab: 'style' },
+        ],
+    },
+    'back-to-top': {
+        label: t('Retour en haut'),
+        icon: 'M12 19V5M5 12l7-7 7 7',
+        defaults: { position: 'right', shape: 'circle' },
+        controls: [
+            { key: 'position', label: t('Position'), type: 'segmented', options: SIDE },
+            { key: 'shape', label: t('Forme'), type: 'segmented', options: [{ value: 'circle', label: t('Rond') }, { value: 'rounded', label: t('Arrondi') }] },
+            { key: 'bg_color', label: t('Fond'), type: 'color', tab: 'style' },
+            { key: 'color', label: t('Icône'), type: 'color', tab: 'style' },
+        ],
+    },
+    'reading-progress': {
+        label: t('Progression de lecture'),
+        icon: 'M3 12h11M3 12h18M14 9v6',
+        defaults: { position: 'top' },
+        controls: [
+            { key: 'position', label: t('Position'), type: 'segmented', options: [{ value: 'top', label: t('En haut') }, { value: 'bottom', label: t('En bas') }] },
+            { key: 'color', label: t('Couleur'), type: 'color', tab: 'style' },
+            { key: 'height', label: t('Épaisseur (px)'), type: 'slider', min: 2, max: 12, default: 4, tab: 'style' },
+        ],
+    },
+    'video-playlist': {
+        label: t('Playlist vidéo'),
+        icon: 'M3 5h12v10H3zM8 8l3 2-3 2zM17 6h4M17 10h4M17 14h4',
+        defaults: { layout: 'side', items: [{ title: t('Première vidéo'), url: '', duration: '' }] },
+        controls: [
+            { key: 'items', label: t('Vidéos'), type: 'repeater', max: 30, itemLabel: t('Vidéo'), newItem: { title: t('Nouvelle vidéo') }, addLabel: t('+ Ajouter une vidéo'), fields: [
+                { key: 'title', label: t('Titre'), type: 'text' },
+                { key: 'url', label: t('Lien YouTube ou Vimeo'), type: 'url' },
+                { key: 'duration', label: t('Durée (facultatif)'), type: 'text' },
+            ] },
+            { key: 'layout', label: t('Disposition'), type: 'segmented', options: [{ value: 'side', label: t('Liste à côté') }, { value: 'below', label: t('Liste dessous') }] },
+            { key: 'accent', label: t('Couleur d’accent'), type: 'color', tab: 'style' },
+            { key: 'list_bg', label: t('Fond'), type: 'color', tab: 'style' },
+        ],
+    },
+    'page-nav': {
+        label: t('Navigation de page'),
+        icon: 'M20 6h.01M20 12h.01M20 18h.01M4 6h10M4 12h10M4 18h10',
+        defaults: { position: 'right', items: [{ label: t('Présentation'), anchor: 'presentation' }, { label: t('Services'), anchor: 'services' }, { label: t('Contact'), anchor: 'contact' }] },
+        controls: [
+            { key: 'note', type: 'heading', label: t('Chaque lien vise l’ancre d’une section (réglage « Ancre » de la section).'), tab: 'content' },
+            { key: 'items', label: t('Liens'), type: 'repeater', max: 12, itemLabel: t('Lien'), newItem: { label: t('Section'), anchor: 'section' }, addLabel: t('+ Ajouter un lien'), fields: [
+                { key: 'label', label: t('Libellé'), type: 'text' },
+                { key: 'anchor', label: t('Ancre (sans #)'), type: 'text' },
+            ] },
+            { key: 'position', label: t('Position'), type: 'segmented', options: SIDE },
+            { key: 'color', label: t('Couleur des points'), type: 'color', tab: 'style' },
+            { key: 'active_color', label: t('Couleur de la section affichée'), type: 'color', tab: 'style' },
+        ],
+    },
+};

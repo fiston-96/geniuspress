@@ -155,3 +155,121 @@ document.querySelectorAll('[data-gp-lightbox]').forEach((gallery) => {
         close.focus();
     }));
 });
+
+// ─── Diaporamas et carrousels : flèches, points, défilement automatique ──
+// Sans JavaScript, les diapositives défilent à la main (défilement aimanté).
+for (const slider of document.querySelectorAll('[data-gp-slider]')) {
+    const track = slider.querySelector('.gp-slides');
+    const items = [...track.children];
+    if (items.length < 2) continue;
+    const prev = slider.querySelector('[data-gp-prev]');
+    const next = slider.querySelector('[data-gp-next]');
+    const dotsBox = slider.querySelector('[data-gp-dots]');
+    const perView = () => Math.max(1, Math.round(track.clientWidth / (items[0].getBoundingClientRect().width || track.clientWidth)));
+    const pages = () => Math.max(1, items.length - perView() + 1);
+    const current = () => Math.round(track.scrollLeft / ((items[1]?.offsetLeft ?? 0) - items[0].offsetLeft || track.clientWidth));
+    const go = (i) => {
+        const n = pages();
+        const target = items[((i % n) + n) % n];
+        track.scrollTo({ left: target.offsetLeft - items[0].offsetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+    let dots = [];
+    const render = () => {
+        const n = pages();
+        if (dotsBox && dots.length !== n) {
+            dotsBox.replaceChildren(...Array.from({ length: n }, (_, i) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.setAttribute('aria-label', String(i + 1));
+                b.addEventListener('click', () => go(i));
+                return b;
+            }));
+            dots = [...dotsBox.children];
+        }
+        const c = Math.min(current(), n - 1);
+        dots.forEach((d, i) => d.setAttribute('aria-current', i === c ? 'true' : 'false'));
+        const hide = n < 2;
+        [prev, next, dotsBox].forEach((el) => el && (el.hidden = hide));
+    };
+    prev?.addEventListener('click', () => go(current() - 1));
+    next?.addEventListener('click', () => go(current() + 1));
+    track.addEventListener('scroll', () => requestAnimationFrame(render), { passive: true });
+    window.addEventListener('resize', render);
+    render();
+
+    const delay = Number(slider.dataset.autoplay || 0) * 1000;
+    if (delay && !reduceMotion) {
+        let timer = null;
+        const start = () => { stop(); timer = setInterval(() => go(current() + 1), delay); };
+        const stop = () => timer && clearInterval(timer);
+        slider.addEventListener('mouseenter', stop);
+        slider.addEventListener('mouseleave', start);
+        slider.addEventListener('focusin', stop);
+        slider.addEventListener('focusout', start);
+        start();
+    }
+}
+
+// ─── Avant / après ───────────────────────────────────────────────────────
+for (const box of document.querySelectorAll('[data-gp-ba]')) {
+    const range = box.querySelector('.gp-ba__range');
+    range?.addEventListener('input', () => box.style.setProperty('--gp-ba', `${range.value}%`));
+}
+
+// ─── Partage : copier le lien de la page ─────────────────────────────────
+for (const btn of document.querySelectorAll('[data-gp-copy]')) {
+    if (!navigator.clipboard) continue;
+    btn.hidden = false;
+    btn.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(btn.dataset.gpCopy);
+            btn.classList.add('is-done');
+            btn.setAttribute('title', btn.dataset.done || '');
+            setTimeout(() => btn.classList.remove('is-done'), 2000);
+        } catch { /* copie refusée : rien à faire */ }
+    });
+}
+
+// ─── Retour en haut et progression de la lecture ─────────────────────────
+const toTop = [...document.querySelectorAll('[data-gp-totop]')];
+const bars = [...document.querySelectorAll('[data-gp-reading]')];
+bars.forEach((b) => { b.hidden = false; });
+toTop.forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }); }));
+if (toTop.length || bars.length) {
+    const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const y = window.scrollY;
+        toTop.forEach((a) => a.classList.toggle('is-hidden', y < 400));
+        bars.forEach((b) => { b.style.width = `${max > 0 ? Math.min(100, (y / max) * 100) : 0}%`; });
+    };
+    window.addEventListener('scroll', () => requestAnimationFrame(onScroll), { passive: true });
+    onScroll();
+}
+
+// ─── Playlist vidéo ──────────────────────────────────────────────────────
+for (const box of document.querySelectorAll('[data-gp-playlist]')) {
+    const frame = box.querySelector('iframe');
+    for (const link of box.querySelectorAll('[data-embed]')) {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            frame.src = link.dataset.embed;
+            frame.title = link.querySelector('.gp-vplay__title')?.textContent ?? '';
+            box.querySelectorAll('[aria-current]').forEach((a) => a.removeAttribute('aria-current'));
+            link.setAttribute('aria-current', 'true');
+        });
+    }
+}
+
+// ─── Navigation de page : section affichée mise en évidence ──────────────
+for (const nav of document.querySelectorAll('[data-gp-pagenav]')) {
+    const links = [...nav.querySelectorAll('a[href^="#"]')];
+    const targets = links.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1)))).filter(Boolean);
+    if (!targets.length || !('IntersectionObserver' in window)) continue;
+    const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            links.forEach((a) => a.toggleAttribute('aria-current', a.hash === `#${entry.target.id}`));
+        }
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    targets.forEach((t) => io.observe(t));
+}

@@ -444,20 +444,21 @@ function LinksControl({ label, value, onChange }) {
 
 function ImageControl({ control, value, onChange, urls }) {
     const [open, setOpen] = useState(false);
+    // Numéro du média : « media_id » pour l'image principale, ou une clé propre (« before_media_id »…).
+    const mediaKey = control.mediaKey ?? (control.key === 'url' ? 'media_id' : null);
+    const setMedia = (id) => { if (mediaKey) onChange(mediaKey, id); };
     return (
         <div>
-            <Label hasValue={!!value} onReset={() => { onChange(control.key, null); onChange('media_id', null); }}>{control.label}</Label>
+            <Label hasValue={!!value} onReset={() => { onChange(control.key, null); setMedia(null); }}>{control.label}</Label>
             <button onClick={() => setOpen(true)} className="grid aspect-video w-full place-items-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500 hover:border-indigo-400">
                 {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : t('Choisir une image')}
             </button>
-            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); onChange('media_id', null); }} />
+            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); setMedia(null); }} />
             {open && (
                 <MediaPicker urls={urls} onClose={() => setOpen(false)} onPick={(m) => {
                     onChange(control.key, m.url);
-                    if (control.key === 'url') {
-                        onChange('media_id', m.id);
-                        if (m.alt) onChange('alt', m.alt);
-                    }
+                    setMedia(m.id);
+                    if (control.key === 'url' && m.alt) onChange('alt', m.alt);
                     setOpen(false);
                 }} />
             )}
