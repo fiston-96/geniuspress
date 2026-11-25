@@ -10,7 +10,9 @@ Vos données vous appartiennent. GeniusPress peut à tout moment rassembler tout
 | Les brouillons non publiés | La clé API de l'assistant IA |
 | Les réglages de référencement (titre et description) | L'historique des versions |
 | Les médias (images, PDF) et leurs textes alternatifs | Les plugins (à réinstaller sur le nouveau site) |
-| Les réglages du site : nom, slogan, couleurs, police, langues, présentation de l'organisation | |
+| Les articles, avec leurs catégories, étiquettes et images à la une | |
+| Les gabarits du thème (en-tête, pied de page, article, archive…) et leurs conditions d'affichage | |
+| Les réglages du site : nom, slogan, couleurs, police, langues, menus, blog, présentation de l'organisation | |
 
 ## Depuis l'administration
 
@@ -18,7 +20,7 @@ Vos données vous appartiennent. GeniusPress peut à tout moment rassembler tout
 
 - **Exporter le site** : un fichier `nom-du-site-date.zip` est téléchargé.
 - **Importer un site**, avec deux modes :
-  - *Ajouter au site actuel* : les pages importées s'ajoutent. Une adresse déjà utilisée reçoit un suffixe (`accueil-2`), et votre page d'accueil reste la même.
+  - *Ajouter au site actuel* : les pages et les articles importés s'ajoutent. Une adresse déjà utilisée reçoit un suffixe (`accueil-2`), et votre page d'accueil reste la même. Les catégories de même adresse sont réutilisées.
   - *Remplacer les pages de même adresse* : pour **restaurer une sauvegarde**. Les pages existantes sont écrasées et la page d'accueil importée est reprise.
   - Case *Importer aussi les réglages* : nom, couleurs, police et langues du site exporté.
 

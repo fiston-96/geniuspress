@@ -39,7 +39,7 @@ class ImportSiteCommand extends Command
         foreach ($report['warnings'] as $warning) {
             $this->warn($warning);
         }
-        $this->info(__('Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]));
+        $this->info(__('Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]).($report['posts'] + $report['layouts'] ? ' '.__('Aussi : :posts articles, :terms catégories et étiquettes, :layouts gabarits du thème.', ['posts' => $report['posts'], 'terms' => $report['terms'], 'layouts' => $report['layouts']]) : ''));
 
         return self::SUCCESS;
     }

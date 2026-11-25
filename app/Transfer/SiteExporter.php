@@ -2,9 +2,12 @@
 
 namespace App\Transfer;
 
+use App\Models\Layout;
 use App\Models\Media;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Setting;
+use App\Models\Term;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -12,12 +15,16 @@ use ZipArchive;
 
 /**
  * Exporte le site dans un fichier zip : pages (avec traductions et brouillons),
- * médias et réglages. Ni comptes utilisateurs, ni clé API, ni mots de passe.
+ * articles, catégories et étiquettes, gabarits du thème, médias et réglages.
+ * Ni comptes utilisateurs, ni clé API, ni mots de passe.
  *
  * Contenu de l'archive :
  *   manifest.json   format, version, date, adresse d'origine
  *   settings.json   réglages publics
  *   pages.json      pages (contenu du builder compris)
+ *   terms.json      catégories et étiquettes
+ *   posts.json      articles (avec leurs catégories et étiquettes)
+ *   layouts.json    gabarits du thème et leurs conditions d'affichage
  *   media.json      liste des médias
  *   media/…         fichiers
  */
@@ -64,6 +71,22 @@ class SiteExporter
             'meta_description' => $p->meta_description,
             'published_at' => $p->published_at?->toIso8601String(),
         ])->all()));
+
+        $zip->addFromString('terms.json', $json(Term::query()->orderBy('id')->get()->map(fn (Term $t) => $t->only([
+            'id', 'taxonomy', 'name', 'slug', 'locale', 'translation_group', 'description', 'parent_id',
+        ]))->all()));
+
+        $zip->addFromString('posts.json', $json(Post::query()->with('terms')->orderBy('id')->get()->map(fn (Post $p) => $p->only([
+            'id', 'title', 'slug', 'locale', 'translation_group', 'status', 'content', 'draft_content', 'excerpt',
+            'featured_media_id', 'meta_title', 'meta_description',
+        ]) + [
+            'published_at' => $p->published_at?->toIso8601String(),
+            'terms' => $p->terms->pluck('id')->all(),
+        ])->all()));
+
+        $zip->addFromString('layouts.json', $json(Layout::query()->orderBy('id')->get()->map(fn (Layout $l) => $l->only([
+            'id', 'name', 'type', 'locale', 'status', 'conditions', 'priority', 'content', 'draft_content',
+        ]))->all()));
 
         $media = [];
         foreach (Media::query()->orderBy('id')->get() as $m) {

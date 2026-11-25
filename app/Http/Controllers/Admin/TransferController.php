@@ -47,7 +47,7 @@ class TransferController extends Controller
             return back()->withErrors(['archive' => __('Import impossible : :error', ['error' => $e->getMessage()])]);
         }
 
-        return back()->with('status', __('Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]))
+        return back()->with('status', __('Import terminé : :pages pages et :media médias.', ['pages' => $report['pages'], 'media' => $report['media']]).($report['posts'] + $report['layouts'] ? ' '.__('Aussi : :posts articles, :terms catégories et étiquettes, :layouts gabarits du thème.', ['posts' => $report['posts'], 'terms' => $report['terms'], 'layouts' => $report['layouts']]) : ''))
             ->with('warnings', $report['warnings']);
     }
 
