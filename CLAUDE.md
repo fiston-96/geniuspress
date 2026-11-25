@@ -2,6 +2,8 @@
 
 CMS open source (AGPL-3.0) : Laravel 13 comme fondation, builder React 19 (Vite), MySQL. Interface et commentaires en français.
 
+**Langue de la discussion : obligatoirement le français.** Chaque phrase adressée à l'utilisateur est en français, y compris les courtes notes d'avancement entre deux commandes, les récapitulatifs, les questions et les consignes envoyées aux autres sessions. Le code, les commandes et les noms techniques restent tels quels.
+
 ## Commandes
 - `php artisan serve` puis http://localhost:8000 (WAMP : MySQL sur 3306, root sans mot de passe)
 - `npm run build` après toute modification de `resources/js` ou `resources/css`
