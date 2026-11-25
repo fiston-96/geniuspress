@@ -25,6 +25,7 @@ export const LIBRARY_WIDGETS = {
             { key: 'icon', label: t('Icône'), type: 'icon' },
             { key: 'link', label: t('Lien'), type: 'url' },
             { key: 'label', label: t('Description du lien (accessibilité)'), type: 'text', when: (s) => !!s.link },
+            { key: 'new_tab', label: t('Ouvrir dans un nouvel onglet'), type: 'toggle', when: (s) => !!s.link },
             heading(t('Icône')),
             { key: 'size', label: t('Taille (px)'), type: 'slider', min: 8, max: 300, default: 48, tab: 'style', responsive: true },
             { key: 'shape', label: t('Forme'), type: 'segmented', options: SHAPES, tab: 'style' },

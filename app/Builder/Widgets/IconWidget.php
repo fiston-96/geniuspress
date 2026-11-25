@@ -17,6 +17,7 @@ class IconWidget extends Widget
             'icon' => 'icon',
             'link' => 'url',
             'label' => 'string:120',
+            'new_tab' => 'bool',
             'size' => 'int:8:300@r',
             'color' => 'color@h',
             'bg_color' => 'color@h',
@@ -44,7 +45,11 @@ class IconWidget extends Widget
 
         $icon = '<span class="gp-icon-wrap gp-icon--'.e($s['shape'] ?? 'none').'">'.Icons::svg($s['icon']).'</span>';
         if (isset($s['link'])) {
-            return '<a href="'.e($s['link']).'" aria-label="'.e($s['label'] ?? '').'">'.$icon.'</a>';
+            // Icône seule : la description sert aussi d'infobulle.
+            $label = e($s['label'] ?? '');
+            $target = ! empty($s['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+            return '<a href="'.e($s['link']).'" aria-label="'.$label.'"'.($label !== '' ? ' title="'.$label.'"' : '').$target.'>'.$icon.'</a>';
         }
 
         return $icon;

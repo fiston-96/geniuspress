@@ -63,8 +63,10 @@ class WidgetLibraryTest extends TestCase
         $this->assertArrayNotHasKey('icon', $clean['elements'][0]['settings']);
 
         $out = $this->render([['id' => 'icon000001', 'type' => 'icon', 'settings' => ['icon' => 'lucide:heart', 'link' => '/dons', 'label' => 'Faire un don', 'shape' => 'circle']]]);
-        $this->assertStringContainsString('<a href="/dons" aria-label="Faire un don"><span class="gp-icon-wrap gp-icon--circle"><svg class="gp-ico" viewBox="0 0 24 24"', $out['html']);
+        $this->assertStringContainsString('<a href="/dons" aria-label="Faire un don" title="Faire un don"><span class="gp-icon-wrap gp-icon--circle"><svg class="gp-ico" viewBox="0 0 24 24"', $out['html']);
         $this->assertStringContainsString('aria-hidden="true"', $out['html']);
+        $tab = $this->render([['id' => 'icon000002', 'type' => 'icon', 'settings' => ['icon' => 'lucide:eye', 'link' => '/demo', 'label' => 'Voir la démo', 'new_tab' => true]]]);
+        $this->assertStringContainsString('<a href="/demo" aria-label="Voir la démo" title="Voir la démo" target="_blank" rel="noopener noreferrer">', $tab['html']);
         $this->assertStringContainsString('#gp-icon000001 .gp-icon-wrap{color:#ffffff;background:var(--gp-primary);padding:16px}', $out['css']);
     }
 

@@ -136,7 +136,9 @@ final class Showcase
                 K::p($def['description'][$lang], ['font_size' => 15, 'color' => 'global:doux', 'line_height' => '1.55']),
                 K::p(($styles[$th->hero] ?? '').' · '.$fonts.' · '.$t('8 pages, FR + EN', '8 pages, FR + EN'), ['font_size' => 13, 'color' => '#94a3b8']),
                 K::box([
-                    K::w('button', ['text' => $t('Voir la démo', 'View the demo'), 'url' => self::demoUrl($id, $lang), 'size' => 'sm', 'new_tab' => true, 'bg_color' => 'global:primary', 'text_color' => '#ffffff', 'border_radius' => 8]),
+                    // Un œil seul : « Voir la démo » reste lu par les lecteurs d'écran et s'affiche au survol.
+                    K::w('icon', ['icon' => 'lucide:eye', 'link' => self::demoUrl($id, $lang), 'label' => $t('Voir la démo', 'View the demo'), 'new_tab' => true,
+                        'shape' => 'rounded', 'size' => 20, 'box' => 11, 'color' => '#ffffff', 'bg_color' => 'global:primary', 'bg_color_hover' => 'global:secondary', 'align' => 'left']),
                 ], ['direction' => 'row', 'padding' => ['t' => 6, 'r' => 0, 'b' => 0, 'l' => 0], 'grow' => true, 'justify' => 'start', 'align' => 'end']),
             ], ['gap' => 10, 'grow' => true, 'padding' => ['t' => 18, 'r' => 20, 'b' => 20, 'l' => 20]]),
         ], [
