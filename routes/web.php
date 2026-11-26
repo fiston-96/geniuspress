@@ -166,6 +166,11 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     });
 });
 
+// Catalogue public des modèles (index.json et zips), consulté par les sites installés ailleurs.
+// Avant les démonstrations : « v1 » n'est pas un modèle.
+Route::get('/catalogue/v1/{file}', \App\Http\Controllers\CatalogFileController::class)
+    ->where('file', 'index\.json|[a-z0-9-]{2,60}\.zip')->middleware('throttle:120,1')->name('catalog.file');
+
 // Démonstrations des modèles du catalogue (en local, et sur geniuspress.site)
 Route::get('/catalogue/{template}/media/{file}', [CatalogDemoController::class, 'media'])->name('catalog.media');
 Route::get('/catalogue/{template}/{path?}', [CatalogDemoController::class, 'show'])->where('path', '.*')->name('catalog.demo');

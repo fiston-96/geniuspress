@@ -243,5 +243,4 @@ retrait envoyé (`Notice::sms()`, canal `SmsChannel`, ajouté en dernier : une e
 - `npm run build` au déploiement : les vues de la plateforme utilisent quelques classes Tailwind nouvelles.
 
 - Prestataire des paiements par carte et registraire, après choix de l'exploitant ; validation des paiements Monerails par code SMS.
-- Retirer des fichiers publics du catalogue les zips des modèles payants (servis seulement par `/templates/{id}/download`).
 - Factures PDF, e-mails de confirmation et rappels d'échéance, vérification de l'adresse e-mail des clients.
