@@ -35,6 +35,14 @@ final class HostedBootstrap
             return null;
         }
 
+        // Garde-fou : des DB_* dans l'environnement du serveur (PHP-FPM, crontab) l'emporteraient sur
+        // le .env du site, qui lirait alors la base de la plateforme. Mieux vaut refuser de servir.
+        foreach (['DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_HOST'] as $key) {
+            if (getenv($key) !== false) {
+                throw new \RuntimeException("Site hébergé refusé : {$key} est défini dans l'environnement du serveur (PHP-FPM ou crontab). Retirez-le : chaque site lit sa base dans son propre .env.");
+            }
+        }
+
         $dir = self::siteDir($root, $slug);
         $app->useEnvironmentPath($dir);
         $app->useStoragePath($dir.DIRECTORY_SEPARATOR.'storage');

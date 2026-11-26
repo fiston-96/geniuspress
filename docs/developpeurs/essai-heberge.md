@@ -187,3 +187,5 @@ GRANT EXECUTE ON PROCEDURE gp_hosting.grant_site TO 'geniuspress_hosting'@'local
 ```
 
 **Certificats par site et Nginx** : avec `ssl_certificate /…/$gp_cert/…`, Nginx lit le certificat à chaque connexion avec ses processus non privilégiés, qui ne peuvent pas lire `/etc/letsencrypt` (root seulement). Le script recopie donc chaque certificat dans `GP_CERT_DIR` (ex. `/etc/nginx/geniuspress-certs/{site}/`, groupe `GP_NGINX_GROUP`, clé privée en 0640) et Nginx lit ce dossier. Renouvellements : crochet `/etc/letsencrypt/renewal-hooks/deploy/geniuspress-sites.sh` qui appelle `certificats-essais.sh --deploy-hook` avec les mêmes variables.
+
+**Garde-fou** : `HostedBootstrap::apply()` refuse de servir un site hébergé si `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` ou `DB_HOST` sont définis dans l'environnement du serveur (`env[…]` d'un pool PHP-FPM, crontab) : sinon le site lirait la base de la plateforme (incident corrigé sur geniuspress.site le 26 novembre 2026, variables retirées du pool `geniuspress`).
