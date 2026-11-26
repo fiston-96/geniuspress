@@ -148,6 +148,18 @@
                     <label class="mt-2 flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" name="remove_api_key" value="1" class="rounded border-slate-300"> {{ __('Supprimer la clé enregistrée') }}</label>
                 @endif
             </div>
+            <div class="border-t border-slate-100 pt-4">
+                <label for="gp_license_key" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Ou : clé de licence GeniusPress') }}</label>
+                <input id="gp_license_key" name="gp_license_key" type="password" autocomplete="off"
+                    placeholder="{{ ! empty($settings['gp_license_key_hint']) && ! empty($settings['gp_license_key']) ? __('Clé enregistrée :hint — laissez vide pour la garder', ['hint' => $settings['gp_license_key_hint']]) : 'gpl_…' }}"
+                    class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                <p class="mt-1 text-xs text-slate-500">{{ __('Sans clé Anthropic : l’IA passe par la plateforme GeniusPress et utilise les crédits IA de votre compte client, qui donne aussi accès aux modèles payants. Créez la clé dans votre espace client. Si elle est enregistrée, elle remplace la clé Anthropic.') }}
+                    <a href="{{ rtrim(config('geniuspress.license.platform_url'), '/') }}/compte" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">{{ __('Espace client ↗') }}</a></p>
+                @error('gp_license_key')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @if (! empty($settings['gp_license_key']))
+                    <label class="mt-2 flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" name="remove_license_key" value="1" class="rounded border-slate-300"> {{ __('Supprimer la clé de licence') }}</label>
+                @endif
+            </div>
             <p class="text-xs text-slate-500">{{ __('Ce mois-ci : :requests demandes · :tokens jetons utilisés.', ['requests' => number_format($aiUsage->requests ?? 0, 0, ',', ' '), 'tokens' => number_format(($aiUsage->input_tokens ?? 0) + ($aiUsage->output_tokens ?? 0), 0, ',', ' ')]) }}</p>
         </section>
 

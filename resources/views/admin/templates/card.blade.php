@@ -18,6 +18,9 @@
     </a>
     <div class="flex flex-1 flex-col gap-2 p-4">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $sectors[$t['sector']]['name'][$lang] ?? $t['sector'] }}</p>
+        @if (! empty($t['price']))
+            <p class="text-xs font-medium text-amber-700">{{ __('Modèle payant : :price, à acheter dans votre espace client GeniusPress.', ['price' => \App\Platform\Money::format($t['price']['price'], $t['price']['currency'])]) }}</p>
+        @endif
         @if ($reason)
             <p class="rounded-md bg-brand-50 px-3 py-2 text-sm text-brand-900">✨ {{ $reason }}</p>
         @endif

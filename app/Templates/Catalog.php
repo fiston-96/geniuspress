@@ -76,6 +76,38 @@ class Catalog
         return collect($this->index()['templates'])->firstWhere('id', $id);
     }
 
+    /**
+     * Prix d'un modèle payant (['price' => int, 'currency' => 'USD']), null s'il est gratuit.
+     * Sur la plateforme : sa table des prix ; ailleurs : la liste publique de la plateforme
+     * (gardée une heure ; injoignable = tous gratuits, le téléchargement restant contrôlé par la plateforme).
+     */
+    public function price(string $id): ?array
+    {
+        return $this->prices()[$id] ?? null;
+    }
+
+    public function prices(): array
+    {
+        if (config('geniuspress.platform.enabled')) {
+            return \App\Platform\Models\TemplatePrice::query()->where('active', true)->get()
+                ->mapWithKeys(fn ($p) => [$p->template_id => ['price' => $p->price, 'currency' => $p->currency]])->all();
+        }
+        if ($this->isLocal()) {
+            return [];
+        }
+
+        return Cache::remember('catalog-prices', 3600, function () {
+            try {
+                $response = Http::timeout(10)->acceptJson()->get(app(\App\Platform\Client\PlatformClient::class)->url('api/platform/v1/catalog/prices'));
+                $prices = $response->successful() ? $response->json('templates') : null;
+            } catch (Throwable) {
+                $prices = null;
+            }
+
+            return is_array($prices) ? array_filter($prices, fn ($p) => is_array($p) && is_int($p['price'] ?? null) && is_string($p['currency'] ?? null)) : [];
+        });
+    }
+
     public function demoUrl(string $id): string
     {
         return $this->isLocal() ? url('/catalogue/'.$id) : rtrim((string) config('geniuspress.catalog.demo_url'), '/').'/'.$id;
@@ -92,7 +124,15 @@ class Catalog
         $tmp = tempnam(sys_get_temp_dir(), 'gp-tpl-');
         $max = (int) config('geniuspress.catalog.max_bytes');
 
-        if ($this->isLocal()) {
+        if ($this->price($id) !== null && ! config('geniuspress.platform.enabled')) {
+            // Modèle payant : fourni par la plateforme GeniusPress à qui l'a acheté (clé de licence).
+            try {
+                app(\App\Platform\Client\PlatformClient::class)->downloadTemplate($id, $tmp, $max);
+            } catch (RuntimeException $e) {
+                @unlink($tmp);
+                throw $e;
+            }
+        } elseif ($this->isLocal()) {
             $source = $this->path().'/'.$entry['file'];
             if (! is_file($source) || filesize($source) > $max) {
                 throw new RuntimeException(__('Le fichier du modèle est introuvable.'));

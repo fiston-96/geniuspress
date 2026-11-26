@@ -91,7 +91,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->app->bind(LlmGateway::class, AnthropicGateway::class);
+        // IA : Anthropic avec la clé du site, ou le relais de la plateforme GeniusPress
+        // quand une clé de licence est configurée (jamais sur la plateforme elle-même).
+        $this->app->bind(LlmGateway::class, fn ($app) => ! config('geniuspress.platform.enabled') && \App\Platform\Client\PlatformClient::licenseKey() !== null
+            ? $app->make(\App\Platform\Client\PlatformAiGateway::class)
+            : $app->make(AnthropicGateway::class));
 
         $this->app->singleton(WidgetRegistry::class, function () {
             $registry = new WidgetRegistry;

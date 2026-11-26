@@ -13,8 +13,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [\App\Http\Middleware\SetLocale::class, \App\Http\Middleware\EnsureInstalled::class]);
-        $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
+        // L'espace client de la plateforme commerciale (/compte) a sa propre connexion.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('compte', 'compte/*') ? route('platform.login') : route('login'));
+        $middleware->redirectUsersTo(fn (Request $request) => $request->is('compte', 'compte/*') ? route('platform.customer.dashboard') : route('admin.dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

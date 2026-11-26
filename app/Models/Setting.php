@@ -49,7 +49,11 @@ class Setting extends Model
     }
 
     /** Réglages qui ne doivent jamais être envoyés au navigateur. */
-    public const PRIVATE_KEYS = ['anthropic_api_key', 'anthropic_api_key_hint', 'forms_email', 'site_profile'];
+    public const PRIVATE_KEYS = [
+        'anthropic_api_key', 'anthropic_api_key_hint', 'forms_email', 'site_profile',
+        // Clé de licence GeniusPress du site, et réglages de la plateforme commerciale.
+        'gp_license_key', 'gp_license_key_hint', 'platform_ai_multiplier', 'platform_trial_plan', 'platform_trial_credits',
+    ];
 
     public static function publicValues(): array
     {

@@ -56,7 +56,12 @@ class SettingController extends Controller
             'forms_email' => ['nullable', 'email', 'max:190'],
             'anthropic_api_key' => ['nullable', 'string', 'max:300', 'regex:/^sk-ant-[A-Za-z0-9_\-]+$/'],
             'remove_api_key' => ['nullable', 'boolean'],
-        ], ['anthropic_api_key.regex' => __('La clé API doit commencer par « sk-ant- ».')]);
+            'gp_license_key' => ['nullable', 'string', 'max:100', 'regex:'.\App\Platform\LicenseKeys::PATTERN],
+            'remove_license_key' => ['nullable', 'boolean'],
+        ], [
+            'anthropic_api_key.regex' => __('La clé API doit commencer par « sk-ant- ».'),
+            'gp_license_key.regex' => __('La clé de licence doit commencer par « gpl_ » : copiez-la telle qu’elle est affichée dans votre espace client.'),
+        ]);
 
         // La clé API est chiffrée en base et n'est jamais renvoyée au navigateur.
         $key = $data['anthropic_api_key'] ?? null;
@@ -66,6 +71,17 @@ class SettingController extends Controller
         } elseif ($key) {
             $data['anthropic_api_key'] = Crypt::encryptString($key);
             $data['anthropic_api_key_hint'] = '…'.substr($key, -4);
+        }
+
+        // Clé de licence GeniusPress : chiffrée elle aussi, jamais renvoyée au navigateur.
+        $license = $data['gp_license_key'] ?? null;
+        unset($data['gp_license_key'], $data['remove_license_key']);
+        if ($request->boolean('remove_license_key')) {
+            $data['gp_license_key'] = null;
+            $data['gp_license_key_hint'] = null;
+        } elseif ($license) {
+            $data['gp_license_key'] = Crypt::encryptString($license);
+            $data['gp_license_key_hint'] = '…'.substr($license, -4);
         }
 
         // La langue par défaut est toujours la première de la liste.

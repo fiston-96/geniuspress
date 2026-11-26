@@ -33,7 +33,8 @@ class TemplateController extends Controller
             $index = ['sectors' => [], 'templates' => []];
             $error = $e->getMessage();
         }
-        $templates = array_map(fn ($t) => $t + ['demo' => $this->catalog->demoUrl($t['id'])], $index['templates']);
+        $prices = $index['templates'] ? $this->catalog->prices() : [];
+        $templates = array_map(fn ($t) => $t + ['demo' => $this->catalog->demoUrl($t['id']), 'price' => $prices[$t['id']] ?? null], $index['templates']);
 
         return view('admin.templates.index', [
             'sectors' => $index['sectors'],
