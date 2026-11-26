@@ -36,15 +36,15 @@ class Customer extends Authenticatable implements HasLocalePreference
         ];
     }
 
-    // ─── Parrainage (App\Platform\Referrals) ────────────────────────────
+    // ─── Affiliation (App\Platform\Referrals) ────────────────────────────
 
-    /** Parrain de ce client (celui qui l'a fait venir), s'il y en a un. */
+    /** Affilié de ce client (celui qui l'a fait venir), s'il y en a un. */
     public function sponsor(): BelongsTo
     {
         return $this->belongsTo(self::class, 'referred_by');
     }
 
-    /** Filleuls de ce client. */
+    /** Clients apportés de ce client. */
     public function referrals(): HasMany
     {
         return $this->hasMany(self::class, 'referred_by');

@@ -8,7 +8,7 @@ use App\Platform\Referrals\Referrals;
 use App\Platform\Referrals\Wallet;
 use Illuminate\Http\Request;
 
-/** Parrainage dans l'espace client : lien, filleuls, commissions, solde, retraits. */
+/** Affiliation dans l'espace client : lien, clients apportés, commissions, solde, retraits. */
 class ReferralController extends CustomerController
 {
     public function index(Request $request, Referrals $referrals, Wallet $wallet)

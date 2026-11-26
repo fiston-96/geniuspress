@@ -18,7 +18,7 @@ class ReferralCommissionEarned extends Notice
 
     public function body(): ?array
     {
-        return ['Commission de parrainage sur sa première commande. Elle sera disponible le :date.', ['date' => $this->commission->available_at->isoFormat('LL')]];
+        return ['Commission d’affiliation sur sa première commande. Elle sera disponible le :date.', ['date' => $this->commission->available_at->isoFormat('LL')]];
     }
 
     public function url(): ?string
@@ -28,7 +28,7 @@ class ReferralCommissionEarned extends Notice
 
     public function actionText(): string
     {
-        return 'Voir mon parrainage';
+        return 'Voir mon affiliation';
     }
 
     public function icon(): string

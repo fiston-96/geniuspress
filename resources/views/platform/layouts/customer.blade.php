@@ -16,7 +16,7 @@
         ['platform.customer.templates', __('Modèles payants')],
         ['platform.customer.domains', __('Domaines')],
         ['platform.customer.credits', __('Crédits IA')],
-        ['platform.customer.referrals', __('Parrainage')],
+        ['platform.customer.referrals', __('Affiliation')],
     ];
 @endphp
 <header class="border-b border-slate-200 bg-white">

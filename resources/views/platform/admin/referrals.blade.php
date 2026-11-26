@@ -1,13 +1,13 @@
 @extends('platform.layouts.console')
-@section('title', __('Parrainage'))
+@section('title', __('Affiliation'))
 @section('content')
 @php
     use App\Platform\Money;
     $statusLabels = ['pending' => __('En attente'), 'available' => __('Disponible'), 'canceled' => __('Annulée')];
     $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20';
 @endphp
-    <h1 class="text-2xl font-semibold tracking-tight">{{ __('Parrainage') }}</h1>
-    <p class="mt-1 max-w-2xl text-sm text-slate-500">{{ __('Le parrain gagne :rate % de la première commande payée de son filleul, hors noms de domaine, disponible :days jours après le paiement sur son solde de parrainage.', ['rate' => $rate, 'days' => $holdDays]) }}</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{{ __('Affiliation') }}</h1>
+    <p class="mt-1 max-w-2xl text-sm text-slate-500">{{ __('L’affilié gagne :rate % de la première commande payée de chaque client qu’il apporte, hors noms de domaine, disponible :days jours après le paiement sur son solde d’affiliation.', ['rate' => $rate, 'days' => $holdDays]) }}</p>
 
     {{-- Retraits à traiter --}}
     <h2 id="retraits" class="mt-8 text-lg font-semibold">{{ __('Retraits à traiter') }}</h2>
@@ -43,10 +43,10 @@
     {{-- Chiffres et réglages --}}
     <div class="mt-10 grid gap-4 lg:grid-cols-3">
         <div class="rounded-xl border border-slate-200 bg-white p-5">
-            <p class="text-sm text-slate-500">{{ __('Clients venus par parrainage') }}</p>
+            <p class="text-sm text-slate-500">{{ __('Clients venus par affiliation') }}</p>
             <p class="mt-1 text-2xl font-semibold">{{ $referredCount }}</p>
             @if ($topSponsors->isNotEmpty())
-                <ul class="mt-3 space-y-1 text-sm">@foreach ($topSponsors as $s)<li class="flex justify-between gap-2"><a class="truncate text-brand-700 hover:underline" href="{{ route('console.customers.show', $s) }}">{{ $s->name }}</a><span class="text-slate-500">{{ trans_choice('{1} 1 filleul|[2,*] :count filleuls', $s->referrals_count) }}</span></li>@endforeach</ul>
+                <ul class="mt-3 space-y-1 text-sm">@foreach ($topSponsors as $s)<li class="flex justify-between gap-2"><a class="truncate text-brand-700 hover:underline" href="{{ route('console.customers.show', $s) }}">{{ $s->name }}</a><span class="text-slate-500">{{ trans_choice('{1} 1 client apporté|[2,*] :count clients apportés', $s->referrals_count) }}</span></li>@endforeach</ul>
             @endif
         </div>
         <div class="rounded-xl border border-slate-200 bg-white p-5">
@@ -85,7 +85,7 @@
     @else
         <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-white">
             <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th class="px-4 py-3">{{ __('Parrain') }}</th><th class="px-4 py-3">{{ __('Filleul') }}</th><th class="px-4 py-3">{{ __('Commande') }}</th><th class="px-4 py-3">{{ __('Commission') }}</th><th class="px-4 py-3">{{ __('État') }}</th><th class="px-4 py-3"><span class="sr-only">{{ __('Actions') }}</span></th></tr></thead>
+                <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th class="px-4 py-3">{{ __('Affilié') }}</th><th class="px-4 py-3">{{ __('Client apporté') }}</th><th class="px-4 py-3">{{ __('Commande') }}</th><th class="px-4 py-3">{{ __('Commission') }}</th><th class="px-4 py-3">{{ __('État') }}</th><th class="px-4 py-3"><span class="sr-only">{{ __('Actions') }}</span></th></tr></thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($commissions as $c)
                         <tr>
@@ -96,7 +96,7 @@
                             <td class="px-4 py-3">{{ $statusLabels[$c->status] ?? $c->status }}@if ($c->status === 'pending')<br><span class="text-xs text-slate-500">{{ __('le :date', ['date' => $c->available_at->isoFormat('LL')]) }}</span>@elseif ($c->cancel_reason)<br><span class="text-xs text-slate-500">{{ $c->cancel_reason }}</span>@endif</td>
                             <td class="px-4 py-3 text-right">
                                 @if ($c->status !== 'canceled')
-                                    <form method="POST" action="{{ route('console.referrals.cancel', $c) }}" class="flex justify-end gap-2" onsubmit="return confirm(@js(__('Annuler cette commission ? Si elle est déjà disponible, elle sera reprise sur le solde du parrain.')))">@csrf
+                                    <form method="POST" action="{{ route('console.referrals.cancel', $c) }}" class="flex justify-end gap-2" onsubmit="return confirm(@js(__('Annuler cette commission ? Si elle est déjà disponible, elle sera reprise sur le solde de l’affilié.')))">@csrf
                                         <label class="sr-only" for="reason-{{ $c->id }}">{{ __('Motif') }}</label>
                                         <input id="reason-{{ $c->id }}" name="reason" required maxlength="255" placeholder="{{ __('Motif') }}" class="{{ $input }} w-32 py-1">
                                         <button class="text-sm text-red-600 hover:underline">{{ __('Annuler') }}</button>

@@ -3,7 +3,7 @@
 @section('content')
     <p class="text-xs font-semibold uppercase tracking-[0.14em] text-brand-600">{{ __('Exploitation') }}</p>
     <h1 class="mt-1 text-xl font-semibold">{{ __('Console GeniusPress') }}</h1>
-    <p class="mt-1 text-sm text-slate-500">{{ __('Réservée à l’équipe qui exploite la plateforme : clients, offres, paiements, parrainage.') }}</p>
+    <p class="mt-1 text-sm text-slate-500">{{ __('Réservée à l’équipe qui exploite la plateforme : clients, offres, paiements, affiliation.') }}</p>
     @if (session('status'))
         <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
     @endif

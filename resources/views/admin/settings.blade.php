@@ -139,9 +139,9 @@
             </div>
             <div>
                 <label for="anthropic_api_key" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Clé API Anthropic (Claude)') }}</label>
-                <input id="anthropic_api_key" name="anthropic_api_key" type="password" autocomplete="off"
+                <div class="relative"><input id="anthropic_api_key" name="anthropic_api_key" type="password" autocomplete="off"
                     placeholder="{{ ! empty($settings['anthropic_api_key_hint']) && ! empty($settings['anthropic_api_key']) ? __('Clé enregistrée :hint — laissez vide pour la garder', ['hint' => $settings['anthropic_api_key_hint']]) : 'sk-ant-…' }}"
-                    class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    class="block w-full rounded-lg border border-slate-300 px-3 py-2 pr-11 text-sm"><x-password-toggle /></div>
                 <p class="mt-1 text-xs text-slate-500">{{ __('Créez une clé sur console.anthropic.com. Elle est chiffrée et n’est jamais affichée.') }}</p>
                 @error('anthropic_api_key')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 @if (! empty($settings['anthropic_api_key']))
@@ -150,9 +150,9 @@
             </div>
             <div class="border-t border-slate-100 pt-4">
                 <label for="gp_license_key" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Ou : clé de licence GeniusPress') }}</label>
-                <input id="gp_license_key" name="gp_license_key" type="password" autocomplete="off"
+                <div class="relative"><input id="gp_license_key" name="gp_license_key" type="password" autocomplete="off"
                     placeholder="{{ ! empty($settings['gp_license_key_hint']) && ! empty($settings['gp_license_key']) ? __('Clé enregistrée :hint — laissez vide pour la garder', ['hint' => $settings['gp_license_key_hint']]) : 'gpl_…' }}"
-                    class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    class="block w-full rounded-lg border border-slate-300 px-3 py-2 pr-11 text-sm"><x-password-toggle /></div>
                 <p class="mt-1 text-xs text-slate-500">{{ __('Sans clé Anthropic : l’IA passe par la plateforme GeniusPress et utilise les crédits IA de votre compte client, qui donne aussi accès aux modèles payants. Créez la clé dans votre espace client. Si elle est enregistrée, elle remplace la clé Anthropic.') }}
                     <a href="{{ rtrim(config('geniuspress.license.platform_url'), '/') }}/compte" target="_blank" rel="noopener" class="text-brand-600 hover:underline">{{ __('Espace client ↗') }}</a></p>
                 @error('gp_license_key')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror

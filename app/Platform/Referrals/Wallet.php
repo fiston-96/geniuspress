@@ -8,7 +8,7 @@ use App\Platform\PlatformException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Solde de parrainage d'un client : un grand livre par devise (les commandes peuvent être en CDF,
+ * Solde d’affiliation d'un client : un grand livre par devise (les commandes peuvent être en CDF,
  * en USD…). Chaque mouvement est écrit avec le solde qui en résulte, sous verrou : deux
  * opérations simultanées ne peuvent pas dépenser deux fois le même argent.
  */
@@ -48,7 +48,7 @@ class Wallet
             Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
             $balance = $this->balance($customer, $currency) + $signed;
             if ($signed < 0 && $balance < 0 && ! $allowNegative) {
-                throw new PlatformException(__('Votre solde de parrainage ne suffit pas.'));
+                throw new PlatformException(__('Votre solde d’affiliation ne suffit pas.'));
             }
 
             return WalletTransaction::create([

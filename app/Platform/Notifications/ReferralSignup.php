@@ -5,14 +5,14 @@ namespace App\Platform\Notifications;
 use App\Notifications\Notice;
 use App\Platform\Models\Customer;
 
-/** Un filleul vient de s'inscrire avec le lien du parrain. */
+/** Un client apporté vient de s'inscrire avec le lien de l’affilié. */
 class ReferralSignup extends Notice
 {
     public function __construct(private Customer $referred) {}
 
     public function title(): array
     {
-        return ['Nouveau filleul : :name', ['name' => $this->referred->name]];
+        return ['Nouveau client apporté : :name', ['name' => $this->referred->name]];
     }
 
     public function body(): ?array

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Commission de parrainage sur la première commande payée d'un filleul (App\Platform\Referrals\Referrals). */
+/** Commission d’affiliation sur la première commande payée d'un client apporté (App\Platform\Referrals\Referrals). */
 #[Fillable(['sponsor_id', 'referred_id', 'order_id', 'base_amount', 'amount', 'currency', 'rate_bps', 'status', 'available_at', 'released_at', 'canceled_at', 'cancel_reason'])]
 class ReferralCommission extends Model
 {

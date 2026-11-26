@@ -40,8 +40,8 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::name('customer.')->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
-                Route::get('/parrainage', [Customer\ReferralController::class, 'index'])->name('referrals');
-                Route::post('/parrainage/retrait', [Customer\ReferralController::class, 'payout'])->middleware('throttle:5,1')->name('referrals.payout');
+                Route::get('/affiliation', [Customer\ReferralController::class, 'index'])->name('referrals');
+                Route::post('/affiliation/retrait', [Customer\ReferralController::class, 'payout'])->middleware('throttle:5,1')->name('referrals.payout');
                 Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'customer')->name('notifications.index');
                 Route::post('/notifications/tout-lire', [NotificationController::class, 'readAll'])->defaults('audience', 'customer')->name('notifications.read');
                 Route::get('/notifications/{id}', [NotificationController::class, 'open'])->defaults('audience', 'customer')->whereUuid('id')->name('notifications.open');
@@ -88,12 +88,12 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
 
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
 
-        // Parrainage : réglages, commissions, retraits Mobile Money.
-        Route::get('/parrainage', [Console\ReferralController::class, 'index'])->name('referrals.index');
-        Route::put('/parrainage/reglages', [Console\ReferralController::class, 'settings'])->name('referrals.settings');
-        Route::post('/parrainage/commissions/{commission}/annuler', [Console\ReferralController::class, 'cancel'])->name('referrals.cancel');
-        Route::post('/parrainage/retraits/{payout}/envoye', [Console\ReferralController::class, 'paid'])->name('referrals.payouts.paid');
-        Route::post('/parrainage/retraits/{payout}/refuser', [Console\ReferralController::class, 'reject'])->name('referrals.payouts.reject');
+        // Affiliation : réglages, commissions, retraits Mobile Money.
+        Route::get('/affiliation', [Console\ReferralController::class, 'index'])->name('referrals.index');
+        Route::put('/affiliation/reglages', [Console\ReferralController::class, 'settings'])->name('referrals.settings');
+        Route::post('/affiliation/commissions/{commission}/annuler', [Console\ReferralController::class, 'cancel'])->name('referrals.cancel');
+        Route::post('/affiliation/retraits/{payout}/envoye', [Console\ReferralController::class, 'paid'])->name('referrals.payouts.paid');
+        Route::post('/affiliation/retraits/{payout}/refuser', [Console\ReferralController::class, 'reject'])->name('referrals.payouts.reject');
 
         Route::get('/customers', [Admin\CustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [Admin\CustomerController::class, 'show'])->name('customers.show');

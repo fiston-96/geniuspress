@@ -32,7 +32,7 @@ class OrderController extends CustomerController
     {
         $this->own($request, $order);
 
-        // Solde de parrainage : pas de prestataire, la commande est payée tout de suite.
+        // Solde d’affiliation : pas de prestataire, la commande est payée tout de suite.
         if ($request->input('method') === 'wallet') {
             try {
                 $checkout->payWithWallet($order);
@@ -40,7 +40,7 @@ class OrderController extends CustomerController
                 return back()->withErrors(['payment' => $e->getMessage()]);
             }
 
-            return redirect()->route('platform.customer.orders.show', $order)->with('status', __('Commande payée avec votre solde de parrainage.'));
+            return redirect()->route('platform.customer.orders.show', $order)->with('status', __('Commande payée avec votre solde d’affiliation.'));
         }
 
         $data = $request->validate([

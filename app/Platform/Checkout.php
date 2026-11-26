@@ -110,7 +110,7 @@ class Checkout
     }
 
     /**
-     * Paiement avec le solde de parrainage (même devise, solde suffisant) : débit et paiement
+     * Paiement avec le solde d’affiliation (même devise, solde suffisant) : débit et paiement
      * enregistrés ensemble, puis livraison comme pour un paiement Mobile Money.
      */
     public function payWithWallet(Order $order): Payment

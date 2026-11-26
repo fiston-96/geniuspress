@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Demande de retrait du solde de parrainage par Mobile Money, traitée dans la console. */
+/** Demande de retrait du solde d’affiliation par Mobile Money, traitée dans la console. */
 #[Fillable(['customer_id', 'amount', 'currency', 'method', 'mobile_operator', 'phone', 'status', 'transfer_reference', 'note', 'operator_id', 'processed_at'])]
 class Payout extends Model
 {

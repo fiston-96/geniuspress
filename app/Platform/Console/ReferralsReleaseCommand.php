@@ -5,12 +5,12 @@ namespace App\Platform\Console;
 use App\Platform\Referrals\Referrals;
 use Illuminate\Console\Command;
 
-/** Verse sur le solde de parrainage les commissions arrivées à échéance (planifié chaque heure). */
+/** Verse sur le solde d’affiliation les commissions arrivées à échéance (planifié chaque heure). */
 class ReferralsReleaseCommand extends Command
 {
     protected $signature = 'geniuspress:referrals-release';
 
-    protected $description = 'Rend disponibles les commissions de parrainage arrivées à échéance';
+    protected $description = 'Rend disponibles les commissions d’affiliation arrivées à échéance';
 
     public function handle(Referrals $referrals): int
     {

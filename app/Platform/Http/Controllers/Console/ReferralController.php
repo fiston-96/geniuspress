@@ -10,7 +10,7 @@ use App\Platform\Models\ReferralCommission;
 use App\Platform\Referrals\Referrals;
 use Illuminate\Http\Request;
 
-/** Parrainage dans la console : réglages, retraits à traiter, commissions, meilleurs parrains. */
+/** Affiliation dans la console : réglages, retraits à traiter, commissions, meilleurs affiliés. */
 class ReferralController extends Controller
 {
     public function index(Request $request)
@@ -40,7 +40,7 @@ class ReferralController extends Controller
         ], [], ['platform_referral_rate' => __('taux'), 'platform_referral_hold_days' => __('délai')]);
         Setting::write($data);
 
-        return back()->with('status', __('Réglages du parrainage enregistrés. Ils s’appliquent aux prochaines commissions.'));
+        return back()->with('status', __('Réglages de l’affiliation enregistrés. Ils s’appliquent aux prochaines commissions.'));
     }
 
     public function cancel(Request $request, ReferralCommission $commission, Referrals $referrals)

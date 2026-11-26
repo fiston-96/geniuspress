@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Lien de parrainage (…?ref=CODE, sur n'importe quelle page du site de la plateforme) : le code
+ * Lien d’affiliation (…?ref=CODE, sur n'importe quelle page du site de la plateforme) : le code
  * est retenu 30 jours dans un cookie, pour l'inscription qui suivra. Le premier lien suivi l'emporte.
  */
 class CaptureReferral

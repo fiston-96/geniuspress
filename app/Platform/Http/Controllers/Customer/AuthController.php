@@ -36,7 +36,7 @@ class AuthController extends Controller
         Auth::guard('customer')->login($customer);
         $request->session()->regenerate();
 
-        // Parrainage : code du lien suivi (cookie) ou du formulaire.
+        // Affiliation : code du lien suivi (cookie) ou du formulaire.
         app(\App\Platform\Referrals\Referrals::class)->attach($customer, $request->cookie(\App\Platform\Referrals\Referrals::COOKIE) ?? $request->input('ref'));
 
         // Newsletter de la plateforme, seulement si la case est cochée (double confirmation par e-mail).

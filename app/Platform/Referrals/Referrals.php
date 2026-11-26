@@ -19,14 +19,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Parrainage de la plateforme.
+ * Affiliation de la plateforme.
  *
  * - Chaque client a un code ; son lien (…?ref=CODE) est retenu 30 jours par un cookie, puis
- *   l'inscription (mot de passe ou Google) rattache le nouveau client à son parrain.
- * - À la première commande payée du filleul, le parrain gagne le taux du réglage
+ *   l'inscription (mot de passe ou Google) rattache le nouveau client à son affilié.
+ * - À la première commande payée du client apporté, l’affilié gagne le taux du réglage
  *   platform_referral_rate (25 % par défaut) sur la commande hors noms de domaine.
  * - La commission attend platform_referral_hold_days jours (30 par défaut, le temps d'un
- *   remboursement), puis rejoint le solde de parrainage (Wallet) : le parrain s'en sert pour
+ *   remboursement), puis rejoint le solde d’affiliation (Wallet) : l’affilié s'en sert pour
  *   payer ses commandes ou en demande le retrait par Mobile Money (traité dans la console).
  */
 class Referrals
@@ -58,7 +58,7 @@ class Referrals
         return is_string($code) && preg_match('/^[A-Za-z0-9]{6,16}$/', $code) ? strtoupper($code) : null;
     }
 
-    /** Code de parrainage du client (créé au premier besoin ; sans 0/O ni 1/I pour être dicté sans erreur). */
+    /** Code d’affiliation du client (créé au premier besoin ; sans 0/O ni 1/I pour être dicté sans erreur). */
     public function codeFor(Customer $customer): string
     {
         if ($customer->referral_code) {
@@ -77,7 +77,7 @@ class Referrals
         return route('platform.register', ['ref' => $this->codeFor($customer)]);
     }
 
-    /** Rattache un nouveau client à son parrain (jamais à lui-même, jamais deux fois). */
+    /** Rattache un nouveau client à son affilié (jamais à lui-même, jamais deux fois). */
     public function attach(Customer $customer, mixed $code): ?Customer
     {
         $code = self::validCode($code);
@@ -94,7 +94,7 @@ class Referrals
         return $sponsor;
     }
 
-    /** Commande payée : commission si c'est la première commande payée d'un filleul. */
+    /** Commande payée : commission si c'est la première commande payée d'un client apporté. */
     public function onOrderPaid(Order $order): ?ReferralCommission
     {
         $customer = $order->customer;
@@ -127,7 +127,7 @@ class Referrals
         return $commission;
     }
 
-    /** Commissions arrivées à échéance → solde de parrainage. Renvoie le nombre libéré. */
+    /** Commissions arrivées à échéance → solde d’affiliation. Renvoie le nombre libéré. */
     public function releaseDue(): int
     {
         $count = 0;
@@ -147,7 +147,7 @@ class Referrals
                 return false;
             }
             $this->wallet->credit($locked->sponsor, $locked->amount, $locked->currency, 'referral',
-                __('Commission de parrainage : :name', ['name' => $locked->referred?->name ?? '—']), 'com-'.$locked->id);
+                __('Commission d’affiliation : :name', ['name' => $locked->referred?->name ?? '—']), 'com-'.$locked->id);
             $locked->update(['status' => 'available', 'released_at' => now()]);
             $commission->setRawAttributes($locked->getAttributes(), true);
 

@@ -19,7 +19,7 @@
     $nav = [
         ['console.dashboard', __('Vue d’ensemble'), 'M3 12l9-9 9 9M5 10v10h14V10'],
         ['console.customers.index', __('Clients'), 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0'],
-        ['console.referrals.index', __('Parrainage'), 'M8 7a3 3 0 106 0 3 3 0 00-6 0zM3 20a6 6 0 0111 0M17 11l2 2 4-4'],
+        ['console.referrals.index', __('Affiliation'), 'M8 7a3 3 0 106 0 3 3 0 00-6 0zM3 20a6 6 0 0111 0M17 11l2 2 4-4'],
         ['console.orders.index', __('Commandes'), 'M3 7h18v10H3zM3 11h18M7 15h3'],
         ['console.plans.index', __('Offres'), 'M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z'],
         ['console.pricing.index', __('Tarifs'), 'M12 3v18M17 7H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'],

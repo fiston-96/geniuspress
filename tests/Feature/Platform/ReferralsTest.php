@@ -15,7 +15,7 @@ use App\Platform\Referrals\Referrals;
 use App\Platform\Referrals\Wallet;
 use Illuminate\Support\Facades\Mail;
 
-/** Parrainage : lien, filleul, commission sur la première commande, solde, paiement et retrait. */
+/** Affiliation : lien, client apporté, commission sur la première commande, solde, paiement et retrait. */
 class ReferralsTest extends PlatformTestCase
 {
     private Operator $operator;
@@ -27,7 +27,7 @@ class ReferralsTest extends PlatformTestCase
         $this->operator = Operator::create(['name' => 'Exploitant', 'email' => 'ops@test.local', 'password' => 'secret-password-1']);
     }
 
-    /** Commande payée par le filleul (prestataire de test), avec une ligne de domaine en plus si demandé. */
+    /** Commande payée par le client apporté (prestataire de test), avec une ligne de domaine en plus si demandé. */
     private function paidOrder(Customer $customer, bool $withDomain = false): Order
     {
         $plan = \App\Platform\Models\Plan::query()->first() ?? $this->plan();
@@ -44,15 +44,15 @@ class ReferralsTest extends PlatformTestCase
 
     private function sponsorAndReferred(): array
     {
-        $sponsor = $this->customer(['name' => 'Parrain']);
+        $sponsor = $this->customer(['name' => 'Affilié']);
         $code = app(Referrals::class)->codeFor($sponsor);
         $this->get('/?ref='.strtolower($code))->assertCookie(Referrals::COOKIE);
 
-        $this->withCookie(Referrals::COOKIE, $code)->post('/compte/inscription', ['name' => 'Filleule', 'email' => 'filleule@test.local',
+        $this->withCookie(Referrals::COOKIE, $code)->post('/compte/inscription', ['name' => 'Cliente apportée', 'email' => 'cliente@test.local',
             'password' => 'mot-de-passe-2026', 'password_confirmation' => 'mot-de-passe-2026'])->assertRedirect(route('platform.customer.dashboard'));
         $this->post('/compte/deconnexion');
 
-        return [$sponsor->fresh(), Customer::query()->where('email', 'filleule@test.local')->sole()];
+        return [$sponsor->fresh(), Customer::query()->where('email', 'cliente@test.local')->sole()];
     }
 
     public function test_referral_link_attaches_the_new_customer(): void
@@ -65,7 +65,7 @@ class ReferralsTest extends PlatformTestCase
         $this->assertStringContainsString('ref='.$sponsor->referral_code, app(Referrals::class)->link($sponsor));
         $this->get(route('platform.register', ['ref' => $sponsor->referral_code]))->assertSee('Vous avez été invité sur GeniusPress');
 
-        // Jamais soi-même, jamais deux parrains.
+        // Jamais soi-même, jamais deux affiliés.
         $this->assertNull(app(Referrals::class)->attach($sponsor, $sponsor->referral_code));
         $other = $this->customer();
         $this->assertNull(app(Referrals::class)->attach($referred, app(Referrals::class)->codeFor($other)));
@@ -88,7 +88,7 @@ class ReferralsTest extends PlatformTestCase
         $this->paidOrder($referred);
         $this->assertSame(1, ReferralCommission::count());
 
-        // Avant l'échéance, rien ; après, le solde du parrain est crédité.
+        // Avant l'échéance, rien ; après, le solde de l’affilié est crédité.
         $this->artisan('geniuspress:referrals-release')->assertSuccessful();
         $this->assertSame(0, app(Wallet::class)->balance($sponsor, 'USD'));
         $this->travel(31)->days();
@@ -125,7 +125,7 @@ class ReferralsTest extends PlatformTestCase
         $sponsor = $this->customer();
         app(Wallet::class)->credit($sponsor, 5000, 'USD', 'referral', 'Commission');
 
-        $this->actingAs($sponsor, 'customer')->get(route('platform.customer.referrals'))->assertOk()->assertSee('Votre lien de parrainage')->assertSee('50,00');
+        $this->actingAs($sponsor, 'customer')->get(route('platform.customer.referrals'))->assertOk()->assertSee('Votre lien d’affiliation')->assertSee('50,00');
         $this->post(route('platform.customer.referrals.payout'), ['currency' => 'USD', 'amount' => '60', 'mobile_operator' => 'airtel', 'phone' => '+243 99 000 0000'])
             ->assertSessionHasErrors('amount');
         $this->post(route('platform.customer.referrals.payout'), ['currency' => 'USD', 'amount' => '30', 'mobile_operator' => 'airtel', 'phone' => '+243 99 000 0000'])
