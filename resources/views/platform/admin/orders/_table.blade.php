@@ -7,8 +7,8 @@
         <tbody class="divide-y divide-slate-100">
         @forelse ($orders as $order)
             <tr>
-                <td class="px-5 py-2"><a href="{{ route('admin.platform.orders.show', $order) }}" class="font-medium hover:text-indigo-600">{{ $order->number }}</a></td>
-                <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $order->customer) }}" class="hover:text-indigo-600">{{ $order->customer->name }}</a></td>
+                <td class="px-5 py-2"><a href="{{ route('admin.platform.orders.show', $order) }}" class="font-medium hover:text-brand-600">{{ $order->number }}</a></td>
+                <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $order->customer) }}" class="hover:text-brand-600">{{ $order->customer->name }}</a></td>
                 <td class="px-5 py-2 whitespace-nowrap">{{ Money::format($order->total, $order->currency) }}</td>
                 <td class="px-5 py-2">{{ Labels::status($order->status) }}</td>
                 <td class="px-5 py-2 text-slate-500">{{ $order->created_at->isoFormat('lll') }}</td>

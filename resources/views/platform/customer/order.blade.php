@@ -2,7 +2,7 @@
 @section('title', __('Commande :number', ['number' => $order->number]))
 @section('content')
 @php use App\Platform\Labels; use App\Platform\Money; @endphp
-    <a href="{{ route('platform.customer.dashboard') }}" class="text-sm text-slate-500 hover:text-indigo-600">← {{ __('Mon espace') }}</a>
+    <a href="{{ route('platform.customer.dashboard') }}" class="text-sm text-slate-500 hover:text-brand-600">← {{ __('Mon espace') }}</a>
     <h1 class="mt-2 text-2xl font-semibold tracking-tight">{{ __('Commande :number', ['number' => $order->number]) }}</h1>
 
     <div class="mt-6 max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
@@ -52,7 +52,7 @@
                     @if (in_array('card', $gateway->methods(), true))
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="method" value="card" @checked(! in_array('mobile_money', $gateway->methods(), true))> {{ __('Carte bancaire') }}</label>
                     @endif
-                    <button class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Payer :amount', ['amount' => Money::format($order->total, $order->currency)]) }}</button>
+                    <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Payer :amount', ['amount' => Money::format($order->total, $order->currency)]) }}</button>
                     @if ($gateway->name() === 'sandbox')<p class="text-xs text-amber-700">{{ __('Mode test : aucun argent n’est prélevé.') }}</p>@endif
                 </form>
             @else

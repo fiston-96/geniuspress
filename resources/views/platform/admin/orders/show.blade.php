@@ -5,7 +5,7 @@
     @include('platform.admin._nav')
     <h1 class="text-2xl font-semibold tracking-tight">{{ __('Commande :number', ['number' => $order->number]) }}</h1>
     <p class="mt-1 text-sm text-slate-500">
-        <a href="{{ route('admin.platform.customers.show', $order->customer) }}" class="hover:text-indigo-600">{{ $order->customer->name }} · {{ $order->customer->email }}</a>
+        <a href="{{ route('admin.platform.customers.show', $order->customer) }}" class="hover:text-brand-600">{{ $order->customer->name }} · {{ $order->customer->email }}</a>
         · {{ Labels::status($order->status) }} @if ($order->paid_at)· {{ __('payée le :date', ['date' => $order->paid_at->isoFormat('lll')]) }}@endif
     </p>
 
@@ -32,7 +32,7 @@
     </div>
     @if ($order->isPaid() && $order->items->whereNull('fulfilled_at')->isNotEmpty())
         <form method="POST" action="{{ route('admin.platform.orders.deliver', $order) }}" class="mt-4">@csrf
-            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Relancer la livraison') }}</button>
+            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Relancer la livraison') }}</button>
         </form>
     @endif
 

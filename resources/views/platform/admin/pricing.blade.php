@@ -41,7 +41,7 @@
             <input name="label" required placeholder="{{ __('Libellé') }}" aria-label="{{ __('Libellé') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
             <input name="input_price" required placeholder="{{ __('Entrée $/M') }}" aria-label="{{ __('Entrée $/M') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
             <input name="output_price" required placeholder="{{ __('Sortie $/M') }}" aria-label="{{ __('Sortie $/M') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
-            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Ajouter le modèle') }}</button>
+            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Ajouter le modèle') }}</button>
         </form>
     </section>
 
@@ -57,7 +57,7 @@
                 </select>
             </div>
             <x-field name="trial_credits" :label="__('Crédits IA offerts à l’essai, en $')" :value="$trialCredits ? Money::input($trialCredits, 6) : ''" />
-            <div class="md:col-span-3"><button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Enregistrer les réglages') }}</button></div>
+            <div class="md:col-span-3"><button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer les réglages') }}</button></div>
         </form>
     </section>
 
@@ -87,7 +87,7 @@
                 <select name="currency" aria-label="{{ __('Devise') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                     @foreach (Money::CURRENCIES as $currency)<option value="{{ $currency }}" @selected($currency === config('geniuspress.platform.currency'))>{{ $currency }}</option>@endforeach
                 </select>
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 md:col-span-4">{{ __('Mettre en vente') }}</button>
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 md:col-span-4">{{ __('Mettre en vente') }}</button>
             </form>
         </section>
 
@@ -111,7 +111,7 @@
                 <select name="currency" aria-label="{{ __('Devise') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                     @foreach (Money::CURRENCIES as $currency)<option value="{{ $currency }}" @selected($currency === config('geniuspress.platform.currency'))>{{ $currency }}</option>@endforeach
                 </select>
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 md:col-span-4">{{ __('Enregistrer l’extension') }}</button>
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 md:col-span-4">{{ __('Enregistrer l’extension') }}</button>
             </form>
         </section>
     </div>

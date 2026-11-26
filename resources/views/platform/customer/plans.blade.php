@@ -19,7 +19,7 @@
                         @foreach ((array) $plan->features as $feature)<li>✓ {{ $feature }}</li>@endforeach
                     </ul>
                     <form method="POST" action="{{ route('platform.customer.plans.buy', $plan) }}" class="mt-4">@csrf
-                        <button class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ $kind === 'ai_credits' ? __('Acheter') : __('Souscrire') }}</button>
+                        <button class="w-full rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ $kind === 'ai_credits' ? __('Acheter') : __('Souscrire') }}</button>
                     </form>
                 </div>
             @endforeach

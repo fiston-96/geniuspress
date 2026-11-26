@@ -41,6 +41,6 @@
             <textarea id="features" name="features" rows="4" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">{{ old('features', implode("\n", (array) $plan->features)) }}</textarea>
         </div>
         <label class="flex items-center gap-2 text-sm"><input type="hidden" name="active" value="0"><input type="checkbox" name="active" value="1" @checked(old('active', $plan->active))> {{ __('En vente') }}</label>
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Enregistrer') }}</button>
+        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
     </form>
 @endsection

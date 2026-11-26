@@ -9,7 +9,7 @@
             <h1 class="text-xl font-semibold">{{ __('Ce site d’essai est terminé') }}</h1>
             <p class="mt-2 text-sm text-slate-600">{{ __('Ce site a été créé avec GeniusPress pendant un essai gratuit, qui est arrivé à son terme.') }}</p>
             <p class="mt-4 text-sm">
-                <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('Vous êtes le propriétaire ? Connectez-vous pour exporter votre site ou choisir une offre.') }}</a>
+                <a href="{{ route('login') }}" class="font-medium text-brand-600 hover:text-brand-500">{{ __('Vous êtes le propriétaire ? Connectez-vous pour exporter votre site ou choisir une offre.') }}</a>
             </p>
         @endif
     </div>

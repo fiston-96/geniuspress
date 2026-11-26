@@ -9,7 +9,7 @@
         $expired = $hostedManifest->status() === \App\Hosting\Manifest::STATUS_EXPIRED;
         $labels = ['pages' => __('Pages'), 'posts' => __('Articles'), 'media_mb' => __('Médias (Mo)'), 'ai_requests' => __('Demandes IA')];
     @endphp
-    <div @class(['mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm', 'border-amber-200 bg-amber-50 text-amber-900' => $expired, 'border-indigo-200 bg-indigo-50 text-indigo-900' => ! $expired])>
+    <div @class(['mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm', 'border-amber-200 bg-amber-50 text-amber-900' => $expired, 'border-brand-200 bg-brand-50 text-brand-900' => ! $expired])>
         <p class="font-medium">
             @if ($expired)
                 {{ __('Essai terminé : administration en lecture seule. Exportez votre site ou choisissez une offre.') }}
@@ -23,7 +23,7 @@
             @endforeach
         </p>
         @if ($hostedManifest->upgradeUrl())
-            <a href="{{ $hostedManifest->upgradeUrl() }}" target="_blank" rel="noopener" class="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500">{{ __('Choisir une offre') }}</a>
+            <a href="{{ $hostedManifest->upgradeUrl() }}" target="_blank" rel="noopener" class="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-500">{{ __('Choisir une offre') }}</a>
         @endif
     </div>
 @endif

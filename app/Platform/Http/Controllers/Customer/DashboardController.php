@@ -2,6 +2,7 @@
 
 namespace App\Platform\Http\Controllers\Customer;
 
+use App\Hosting\Trials;
 use App\Platform\PlatformAccounts;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,9 @@ class DashboardController extends CustomerController
             'customer' => $customer,
             'subscriptions' => $customer->subscriptions()->with('plan')->latest('id')->get()->filter->isActive(),
             'canTrial' => $accounts->canStartTrial($customer),
+            // Site GeniusPress hébergé du client (essai ou offre payante), au cœur de son espace.
+            'hosting' => (bool) config('hosting.enabled'),
+            'site' => config('hosting.enabled') ? app(Trials::class)->siteFor($customer) : null,
             'licenses' => $customer->licenses()->latest('id')->get(),
             'orders' => $customer->orders()->with('items')->latest('id')->limit(10)->get(),
             'domains' => $customer->domains()->orderBy('name')->get(),

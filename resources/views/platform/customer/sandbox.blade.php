@@ -13,6 +13,6 @@
             <button name="result" value="failure" class="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold hover:bg-slate-50">{{ __('Simuler un échec') }}</button>
         </form>
     @else
-        <p class="mt-6 text-sm">{{ Labels::status($payment->status) }} — <a href="{{ route('platform.customer.orders.show', $payment->order) }}" class="text-indigo-600 hover:underline">{{ __('Retour à la commande') }}</a></p>
+        <p class="mt-6 text-sm">{{ Labels::status($payment->status) }} — <a href="{{ route('platform.customer.orders.show', $payment->order) }}" class="text-brand-600 hover:underline">{{ __('Retour à la commande') }}</a></p>
     @endif
 @endsection

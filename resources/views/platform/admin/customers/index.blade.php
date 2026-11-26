@@ -15,7 +15,7 @@
             <tbody class="divide-y divide-slate-100">
             @forelse ($customers as $customer)
                 <tr>
-                    <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $customer) }}" class="font-medium hover:text-indigo-600">{{ $customer->name }}</a><p class="text-xs text-slate-500">{{ $customer->email }}</p></td>
+                    <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $customer) }}" class="font-medium hover:text-brand-600">{{ $customer->name }}</a><p class="text-xs text-slate-500">{{ $customer->email }}</p></td>
                     <td class="px-5 py-2">{{ $customer->country ?? '—' }}</td>
                     <td class="px-5 py-2 whitespace-nowrap">{{ Money::micros($customer->ai_balance) }}</td>
                     <td class="px-5 py-2">{{ $customer->orders_count }}</td>

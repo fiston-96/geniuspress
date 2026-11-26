@@ -23,8 +23,8 @@ return [
     // n'est proposé qu'une fois son certificat prêt). sslip.io : per-site.
     'certificates' => env('GP_HOSTING_CERTIFICATES', 'wildcard'),
 
-    // Middleware des pages de la plateforme (garde des comptes plateforme).
-    'middleware' => ['web', 'auth'],
+    // Sur la plateforme, les clients (garde « customer ») ; ailleurs, les utilisateurs du site.
+    'middleware' => ['web', 'auth:customer,web'],
 
     // Base de chaque site : mysql (une base et un utilisateur MySQL par site) ou sqlite.
     // Le compte indiqué doit pouvoir créer des bases et des utilisateurs.

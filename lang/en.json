@@ -1832,5 +1832,14 @@
     "Site introuvable": "Site not found",
     "Aucun site GeniusPress n’existe à cette adresse.": "No GeniusPress site exists at this address.",
     "La création de votre site a échoué. Réessayez dans quelques minutes ; si le problème persiste, contactez-nous.": "Creating your site failed. Try again in a few minutes; if the problem persists, contact us.",
-    "Votre site est prêt ; sécurisation de son adresse (certificat HTTPS), environ une minute…": "Your site is ready; securing its address (HTTPS certificate), about one minute…"
+    "Votre site est prêt ; sécurisation de son adresse (certificat HTTPS), environ une minute…": "Your site is ready; securing its address (HTTPS certificate), about one minute…",
+    "Créez un compte GeniusPress ou connectez-vous pour lancer votre essai.": "Create a GeniusPress account or sign in to start your trial.",
+    "Mon site GeniusPress": "My GeniusPress website",
+    "Ouvrir mon site et le builder": "Open my website and the builder",
+    "Voir l’état de mon site": "See my website’s status",
+    "Passer à une offre": "Choose a plan",
+    "Créez votre site GeniusPress": "Create your GeniusPress website",
+    "Un site complet hébergé chez nous, avec le builder, les modèles et l’assistant IA. Rien à installer.": "A complete website hosted by us, with the builder, the templates and the AI assistant. Nothing to install.",
+    "Créer mon site gratuitement": "Create my website for free",
+    "{0} Essai terminé|{1} Essai : 1 jour restant|[2,*] Essai : :count jours restants": "{0} Trial ended|{1} Trial: 1 day left|[2,*] Trial: :count days left"
 }

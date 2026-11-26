@@ -37,7 +37,7 @@
             @forelse ($usages as $usage)
                 <tr>
                     <td class="px-5 py-2 whitespace-nowrap text-slate-500">{{ $usage->created_at->isoFormat('lll') }}</td>
-                    <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $usage->customer) }}" class="hover:text-indigo-600">{{ $usage->customer->name }}</a></td>
+                    <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $usage->customer) }}" class="hover:text-brand-600">{{ $usage->customer->name }}</a></td>
                     <td class="px-5 py-2">{{ $usage->license?->name ?? '—' }}</td>
                     <td class="px-5 py-2">{{ $usage->model }}<p class="text-xs text-slate-500">{{ $usage->action }}</p></td>
                     <td class="px-5 py-2">{{ Labels::status($usage->status) }} @if ($usage->error)<p class="text-xs text-slate-500">{{ $usage->error }}</p>@endif</td>

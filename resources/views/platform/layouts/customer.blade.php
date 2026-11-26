@@ -23,7 +23,7 @@
         <a href="{{ route('platform.customer.dashboard') }}" class="flex items-center gap-2"><x-logo :size="28" /></a>
         <nav class="flex flex-wrap items-center gap-1 text-sm">
             @foreach ($links as [$route, $label])
-                <a href="{{ route($route) }}" @class(['rounded-lg px-3 py-2 font-medium transition', 'bg-indigo-50 text-indigo-700' => request()->routeIs($route), 'text-slate-600 hover:bg-slate-100' => ! request()->routeIs($route)])>{{ $label }}</a>
+                <a href="{{ route($route) }}" @class(['rounded-lg px-3 py-2 font-medium transition', 'bg-brand-50 text-brand-700' => request()->routeIs($route), 'text-slate-600 hover:bg-slate-100' => ! request()->routeIs($route)])>{{ $label }}</a>
             @endforeach
             <form method="POST" action="{{ route('platform.logout') }}">@csrf
                 <button class="rounded-lg px-3 py-2 text-slate-500 hover:bg-slate-100">{{ __('Se déconnecter') }}</button>

@@ -17,10 +17,10 @@
                         <span class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">{{ __('Acheté') }}</span>
                     @else
                         <form method="POST" action="{{ route('platform.customer.templates.buy', $price->template_id) }}">@csrf
-                            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Acheter') }}</button>
+                            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Acheter') }}</button>
                         </form>
                     @endif
-                    @if ($entry)<a href="{{ $entry['demo'] }}" target="_blank" rel="noopener" class="text-sm text-indigo-600 hover:underline">{{ __('Voir la démo ↗') }}</a>@endif
+                    @if ($entry)<a href="{{ $entry['demo'] }}" target="_blank" rel="noopener" class="text-sm text-brand-600 hover:underline">{{ __('Voir la démo ↗') }}</a>@endif
                 </div>
             </div>
         @empty
