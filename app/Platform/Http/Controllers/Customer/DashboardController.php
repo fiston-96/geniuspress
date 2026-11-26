@@ -45,9 +45,22 @@ class DashboardController extends CustomerController
     {
         $data = $request->validate([
             'country' => ['required', 'string', 'size:2', fn ($attribute, $value, $fail) => \App\Platform\Countries::valid($value) ? null : $fail(__('Choisissez votre pays dans la liste.'))],
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^\+?[0-9 .()-]{6,25}$/'],
         ]);
-        $this->customer($request)->update(['country' => strtoupper($data['country'])]);
+        $values = ['country' => strtoupper($data['country'])];
+        if ($request->has('phone')) {
+            $values['phone'] = ($data['phone'] ?? '') !== '' ? trim($data['phone']) : null;
+        }
+        $this->customer($request)->update($values);
 
         return back()->with('status', __('Pays enregistré : :country.', ['country' => \App\Platform\Countries::name($data['country'])]));
+    }
+
+    /** Recevoir (ou non) les SMS importants de la plateforme. */
+    public function sms(\Illuminate\Http\Request $request)
+    {
+        $this->customer($request)->update(['sms_opt_in' => $request->boolean('sms_opt_in')]);
+
+        return back()->with('status', $request->boolean('sms_opt_in') ? __('Vous recevrez les messages importants par SMS.') : __('Vous ne recevrez plus de SMS.'));
     }
 }

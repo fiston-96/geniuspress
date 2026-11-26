@@ -39,4 +39,10 @@ class OrderPaid extends Notice
     {
         return ! $this->forAdmin;
     }
+
+    /** SMS (message important), en plus de la cloche et de l'e-mail. */
+    public function sms(object $notifiable): ?string
+    {
+        return $this->forAdmin ? null : $this->smsFromTitle();
+    }
 }

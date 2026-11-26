@@ -61,9 +61,33 @@ abstract class Notice extends Notification
         return 'Voir le détail';
     }
 
+    /**
+     * Texte du SMS (clients de la plateforme, messages importants seulement), ou null.
+     * Écrit dans la langue du client : Laravel envoie la notification dans sa langue préférée.
+     */
+    public function sms(object $notifiable): ?string
+    {
+        return null;
+    }
+
+    /** SMS court : « GeniusPress : » suivi du titre, dans la langue du client. */
+    protected function smsFromTitle(): string
+    {
+        [$title, $params] = $this->title();
+
+        return __('GeniusPress : :message', ['message' => __($title, $params)]);
+    }
+
     public function via(object $notifiable): array
     {
-        return $this->mail($notifiable) && filled($notifiable->email ?? null) ? ['database', 'mail'] : ['database'];
+        $channels = $this->mail($notifiable) && filled($notifiable->email ?? null) ? ['database', 'mail'] : ['database'];
+        // SMS en dernier : une erreur du prestataire ne bloque ni la cloche ni l'e-mail.
+        if (config('geniuspress.platform.enabled') && $notifiable instanceof \App\Platform\Models\Customer
+            && \App\Platform\Messaging\Sms::enabled() && $this->sms($notifiable) !== null) {
+            $channels[] = \App\Platform\Messaging\SmsChannel::class;
+        }
+
+        return $channels;
     }
 
     public function toArray(object $notifiable): array

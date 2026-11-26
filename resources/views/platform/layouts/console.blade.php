@@ -24,6 +24,7 @@
         ['console.plans.index', __('Offres'), 'M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z'],
         ['console.pricing.index', __('Tarifs'), 'M12 3v18M17 7H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'],
         ['console.payments.index', __('Paiements'), 'M3 6h15a3 3 0 013 3v9H3zM3 6l13-3v3M16 13h2'],
+        ['console.messaging.index', __('Messagerie'), 'M4 5h16v11H8l-4 4zM8 9h8M8 12h5'],
         ['console.suppliers.index', __('Fournisseurs'), 'M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4'],
         ['console.domains.index', __('Domaines'), 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18'],
         ['console.usage.index', __('Journal IA'), 'M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z'],

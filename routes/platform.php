@@ -41,6 +41,7 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
                 Route::put('/pays', [Customer\DashboardController::class, 'country'])->name('country');
+                Route::put('/sms', [Customer\DashboardController::class, 'sms'])->name('sms');
                 Route::get('/affiliation', [Customer\ReferralController::class, 'index'])->name('referrals');
                 Route::post('/affiliation/retrait', [Customer\ReferralController::class, 'payout'])->middleware('throttle:5,1')->name('referrals.payout');
                 Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'customer')->name('notifications.index');
@@ -133,6 +134,11 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
         Route::get('/paiements', [Console\PaymentController::class, 'index'])->name('payments.index');
         Route::put('/paiements/reglages', [Console\PaymentController::class, 'settings'])->name('payments.settings');
         Route::post('/paiements/test', [Console\PaymentController::class, 'test'])->middleware('throttle:10,1')->name('payments.test');
+
+        // Messagerie : SMS de la plateforme (Africa's Talking).
+        Route::get('/messagerie', [Console\MessagingController::class, 'index'])->name('messaging.index');
+        Route::put('/messagerie/reglages', [Console\MessagingController::class, 'settings'])->name('messaging.settings');
+        Route::post('/messagerie/test', [Console\MessagingController::class, 'test'])->middleware('throttle:5,1')->name('messaging.test');
 
         // Fournisseurs (LWS) : connexion, coûts et marges, file de livraison des services.
         Route::get('/fournisseurs', [Console\SupplierController::class, 'index'])->name('suppliers.index');

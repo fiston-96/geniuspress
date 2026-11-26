@@ -39,4 +39,10 @@ class SiteReady extends Notice
     {
         return true;
     }
+
+    /** SMS (message important), en plus de la cloche et de l'e-mail. */
+    public function sms(object $notifiable): ?string
+    {
+        return __('GeniusPress : votre site « :name » est prêt : :url', ['name' => $this->site->name, 'url' => $this->site->url()]);
+    }
 }

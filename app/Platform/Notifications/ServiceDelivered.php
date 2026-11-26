@@ -36,4 +36,10 @@ class ServiceDelivered extends Notice
     {
         return true;
     }
+
+    /** SMS (message important), en plus de la cloche et de l'e-mail. */
+    public function sms(object $notifiable): ?string
+    {
+        return $this->smsFromTitle();
+    }
 }

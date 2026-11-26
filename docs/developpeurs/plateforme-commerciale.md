@@ -203,7 +203,24 @@ UGX, TZS, RWF). Monerails n'encaisse ni les cartes ni l'USD.
   comparés au paiement demandé).
 - Tests : `tests/Feature/Platform/MonerailsGatewayTest.php` (Http::fake, aucune clé réelle).
 
-## 11. Reste à faire
+## 11. Messagerie : SMS de la plateforme (Africa's Talking)
+
+`App\Platform\Messaging` : les notifications importantes partent aussi par SMS (en plus de la cloche
+et de l'e-mail) quand la console l'active : paiement reçu, service prêt, site créé, fin d'essai,
+retrait envoyé (`Notice::sms()`, canal `SmsChannel`, ajouté en dernier : une erreur SMS ne bloque rien).
+
+- **Africa's Talking** (`AfricasTalkingGateway`) : production `POST /version1/messaging/bulk` (JSON),
+  bac à sable avec le nom d'utilisateur « sandbox » (aucun vrai SMS). Clé chiffrée, nom d'utilisateur,
+  identifiant d'expéditeur (sender ID) dans la console → Messagerie, avec un SMS d'essai et le journal.
+- **Pays couverts** : une vingtaine (`COUNTRY_CODES`), pas la RD Congo ni l'Afrique centrale. Hors
+  couverture, l'envoi est journalisé « non envoyé » ; un second prestataire s'ajoutera dans `Sms::GATEWAYS`
+  (le premier configuré qui couvre le numéro l'envoie).
+- **Client** : numéro au format international (« +221… »), réglable avec son pays dans l'espace client ;
+  il peut refuser les SMS (`sms_opt_in`). Le journal (`platform_sms_messages`) garde l'état et le coût,
+  jamais le texte.
+- Tests : `tests/Feature/Platform/MessagingTest.php` (Http::fake, aucun vrai SMS).
+
+## 12. Reste à faire
 
 - `npm run build` au déploiement : les vues de la plateforme utilisent quelques classes Tailwind nouvelles.
 

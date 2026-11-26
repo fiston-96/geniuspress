@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /** Client de la plateforme commerciale (distinct des utilisateurs d'un site GeniusPress). */
-#[Fillable(['name', 'email', 'password', 'phone', 'country', 'company', 'address', 'postal_code', 'city', 'locale', 'status'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'country', 'company', 'address', 'postal_code', 'city', 'locale', 'status', 'sms_opt_in'])]
 #[Hidden(['password', 'remember_token'])]
 class Customer extends Authenticatable implements HasLocalePreference
 {
@@ -20,7 +20,7 @@ class Customer extends Authenticatable implements HasLocalePreference
 
     protected $table = 'platform_customers';
 
-    protected $attributes = ['status' => 'active', 'locale' => 'fr', 'ai_balance' => 0];
+    protected $attributes = ['status' => 'active', 'locale' => 'fr', 'ai_balance' => 0, 'sms_opt_in' => true];
 
     public const ACTIVE = 'active';
     public const SUSPENDED = 'suspended';
@@ -34,6 +34,7 @@ class Customer extends Authenticatable implements HasLocalePreference
             'referred_at' => 'datetime',
             'ai_balance' => 'integer',
             'provider_ids' => 'array',
+            'sms_opt_in' => 'boolean',
         ];
     }
 
