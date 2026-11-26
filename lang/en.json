@@ -2109,5 +2109,6 @@
     "Voir l’état": "See the status",
     "Tous mes sites →": "All my websites →",
     "Mes sites": "My websites",
-    "{1} Votre compte peut avoir 1 site.|[2,*] Votre compte peut avoir :count sites.": "{1} Your account can have 1 website.|[2,*] Your account can have :count websites."
+    "{1} Votre compte peut avoir 1 site.|[2,*] Votre compte peut avoir :count sites.": "{1} Your account can have 1 website.|[2,*] Your account can have :count websites.",
+    "Site créé : :url": "Website created: :url"
 }

@@ -76,7 +76,9 @@ class TrialCommand extends Command
 
     private function createTrial(SiteProvisioner $provisioner, Trials $trials, HostingAccounts $accounts): int
     {
-        $user = User::query()->where('email', (string) $this->option('email'))->first();
+        // Sur la plateforme, les sites appartiennent aux clients (garde « customer »), pas aux utilisateurs du site.
+        $user = (config('geniuspress.platform.enabled') ? \App\Platform\Models\Customer::query() : User::query())
+            ->where('email', strtolower((string) $this->option('email')))->first();
         if (! $user) {
             $this->error(__('Aucun compte avec cette adresse e-mail.'));
 
@@ -94,7 +96,7 @@ class TrialCommand extends Command
         $owner = $accounts->owner($accounts->accountId($user)) ?? throw new HostingException(__('Compte introuvable.'));
         $site = $provisioner->create($owner, $name, $slug, $accounts->trialPlan($user));
         $provisioner->build($site);
-        $this->info(__('Site d’essai créé : :url', ['url' => $site->url()]));
+        $this->info(__('Site créé : :url', ['url' => $site->url()]));
 
         return self::SUCCESS;
     }
