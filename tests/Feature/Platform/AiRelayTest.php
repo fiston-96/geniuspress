@@ -203,6 +203,7 @@ class AiRelayTest extends PlatformTestCase
         $this->assertSame(hash('sha256', $key), $license->key_hash);
         $this->assertStringNotContainsString(substr($key, 17), json_encode($license->fresh()->toArray()));
         $this->assertTrue(app(LicenseKeys::class)->find($key)->is($license));
-        $this->assertNull(app(LicenseKeys::class)->find(substr($key, 0, -1).'x'));
+        // Dernier caractère changé (jamais remplacé par lui-même : la clé aléatoire peut déjà finir par « x »).
+        $this->assertNull(app(LicenseKeys::class)->find(substr($key, 0, -1).(str_ends_with($key, 'x') ? 'y' : 'x')));
     }
 }

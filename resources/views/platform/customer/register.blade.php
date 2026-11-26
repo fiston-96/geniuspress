@@ -6,6 +6,11 @@
     <form method="POST" action="{{ route('platform.register') }}" class="mt-6 space-y-4">
         <x-google-button :href="route('platform.google.redirect')" />
         @csrf
+        {{-- Code de parrainage du lien suivi (aussi retenu par un cookie, voir CaptureReferral). --}}
+        @if ($ref = \App\Platform\Referrals\Referrals::validCode(old('ref', request('ref'))))
+            <input type="hidden" name="ref" value="{{ $ref }}">
+            <p class="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">{{ __('Vous avez été invité sur GeniusPress (code :code).', ['code' => $ref]) }}</p>
+        @endif
         <x-field name="name" :label="__('Nom ou organisation')" required autofocus autocomplete="name" />
         <x-field name="email" type="email" :label="__('Adresse e-mail')" required autocomplete="email" />
         <x-field name="phone" type="tel" :label="__('Téléphone (facultatif)')" :hint="__('Pour le paiement Mobile Money, avec l’indicatif du pays.')" autocomplete="tel" />

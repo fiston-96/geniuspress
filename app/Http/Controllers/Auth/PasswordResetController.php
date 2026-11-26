@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\PasswordChanged;
 use App\Platform\Models\Customer;
+use App\Platform\Models\Operator;
 use App\Platform\PlatformNotifier;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -35,6 +36,12 @@ class PasswordResetController extends Controller
             'login' => 'platform.login',
             'email' => 'platform.password.email',
             'update' => 'platform.password.update',
+        ],
+        'operator' => [
+            'broker' => 'operators',
+            'login' => 'console.login',
+            'email' => 'console.password.email',
+            'update' => 'console.password.update',
         ],
     ];
 
@@ -76,7 +83,11 @@ class PasswordResetController extends Controller
                 // Le modèle hache le mot de passe (cast « hashed ») ; les sessions « rester connecté » sont coupées.
                 $account->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
                 event(new PasswordReset($account));
-                PlatformNotifier::send($account, new PasswordChanged(route($account instanceof Customer ? 'platform.password.request' : 'password.request')));
+                PlatformNotifier::send($account, new PasswordChanged(route(match (true) {
+                    $account instanceof Customer => 'platform.password.request',
+                    $account instanceof Operator => 'console.password.request',
+                    default => 'password.request',
+                })));
             }
         );
 

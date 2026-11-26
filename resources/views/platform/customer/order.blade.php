@@ -36,6 +36,18 @@
             @elseif ($payment && $payment->status === 'failed')
                 <p class="mb-4 text-sm text-red-600">{{ __('Le dernier paiement a échoué. Vous pouvez réessayer.') }}</p>
             @endif
+            @error('payment')<p class="mb-4 text-sm text-red-600">{{ $message }}</p>@enderror
+
+            {{-- Solde de parrainage suffisant dans la devise de la commande : paiement immédiat. --}}
+            @if ($walletBalance >= $order->total)
+                <div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
+                    <p class="text-sm text-brand-800">{{ __('Votre solde de parrainage : :amount', ['amount' => Money::format($walletBalance, $order->currency)]) }}</p>
+                    <form method="POST" action="{{ route('platform.customer.orders.pay', $order) }}">@csrf
+                        <input type="hidden" name="method" value="wallet">
+                        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Payer avec mon solde') }}</button>
+                    </form>
+                </div>
+            @endif
 
             @if ($gateway)
                 <h2 class="font-semibold">{{ __('Payer') }}</h2>

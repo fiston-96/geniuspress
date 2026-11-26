@@ -1,8 +1,7 @@
-@extends('layouts.admin')
+@extends('platform.layouts.console')
 @section('title', __('Plateforme commerciale'))
 @section('content')
 @php use App\Platform\Labels; use App\Platform\Money; @endphp
-    @include('platform.admin._nav')
 
     <div class="grid gap-4 md:grid-cols-4">
         <div class="rounded-xl border border-slate-200 bg-white p-5">
@@ -35,7 +34,7 @@
             <h2 class="font-semibold text-amber-900">{{ __('Achats payés non livrés') }}</h2>
             <ul class="mt-3 space-y-2 text-sm">
                 @foreach ($failedItems as $item)
-                    <li><a href="{{ route('admin.platform.orders.show', $item->order) }}" class="font-medium text-amber-900 hover:underline">{{ $item->order->number }}</a> — {{ $item->description }} ({{ $item->order->customer->email }}) : {{ $item->error }}</li>
+                    <li><a href="{{ route('console.orders.show', $item->order) }}" class="font-medium text-amber-900 hover:underline">{{ $item->order->number }}</a> — {{ $item->description }} ({{ $item->order->customer->email }}) : {{ $item->error }}</li>
                 @endforeach
             </ul>
         </section>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NotificationController;
 use App\Platform\Http\Controllers\Admin;
+use App\Platform\Http\Controllers\Console;
 use App\Platform\Http\Controllers\Customer;
 use App\Platform\Http\Middleware\EnsurePlatformEnabled;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,8 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::name('customer.')->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
+                Route::get('/parrainage', [Customer\ReferralController::class, 'index'])->name('referrals');
+                Route::post('/parrainage/retrait', [Customer\ReferralController::class, 'payout'])->middleware('throttle:5,1')->name('referrals.payout');
                 Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'customer')->name('notifications.index');
                 Route::post('/notifications/tout-lire', [NotificationController::class, 'readAll'])->defaults('audience', 'customer')->name('notifications.read');
                 Route::get('/notifications/{id}', [NotificationController::class, 'open'])->defaults('audience', 'customer')->whereUuid('id')->name('notifications.open');
@@ -67,8 +70,30 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
     });
 
     // ─── Administration de l'exploitant ──────────────────────────────────
-    Route::prefix('admin/platform')->name('admin.platform.')->middleware(['auth', 'can:admin'])->group(function () {
+    // ─── Console d'exploitation (module séparé du CMS, comptes « operator ») ───
+    Route::prefix('console')->name('console.')->middleware('guest:operator')->group(function () {
+        Route::get('/connexion', [Console\AuthController::class, 'show'])->name('login');
+        Route::post('/connexion', [Console\AuthController::class, 'login'])->middleware('throttle:platform-auth');
+        Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'request'])->defaults('audience', 'operator')->name('password.request');
+        Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'email'])->defaults('audience', 'operator')->middleware('throttle:6,1')->name('password.email');
+        Route::get('/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->defaults('audience', 'operator')->name('password.reset');
+        Route::post('/nouveau-mot-de-passe', [PasswordResetController::class, 'update'])->defaults('audience', 'operator')->middleware('throttle:6,1')->name('password.update');
+    });
+
+    Route::prefix('console')->name('console.')->middleware('auth:operator')->group(function () {
+        Route::post('/deconnexion', [Console\AuthController::class, 'logout'])->name('logout');
+        Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'operator')->name('notifications.index');
+        Route::post('/notifications/tout-lire', [NotificationController::class, 'readAll'])->defaults('audience', 'operator')->name('notifications.read');
+        Route::get('/notifications/{id}', [NotificationController::class, 'open'])->defaults('audience', 'operator')->whereUuid('id')->name('notifications.open');
+
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
+
+        // Parrainage : réglages, commissions, retraits Mobile Money.
+        Route::get('/parrainage', [Console\ReferralController::class, 'index'])->name('referrals.index');
+        Route::put('/parrainage/reglages', [Console\ReferralController::class, 'settings'])->name('referrals.settings');
+        Route::post('/parrainage/commissions/{commission}/annuler', [Console\ReferralController::class, 'cancel'])->name('referrals.cancel');
+        Route::post('/parrainage/retraits/{payout}/envoye', [Console\ReferralController::class, 'paid'])->name('referrals.payouts.paid');
+        Route::post('/parrainage/retraits/{payout}/refuser', [Console\ReferralController::class, 'reject'])->name('referrals.payouts.reject');
 
         Route::get('/customers', [Admin\CustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [Admin\CustomerController::class, 'show'])->name('customers.show');

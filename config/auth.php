@@ -47,6 +47,11 @@ return [
             'driver' => 'session',
             'provider' => 'platform_customers',
         ],
+        // Exploitants de GeniusPress : console /console, séparée du CMS et de l'espace client.
+        'operator' => [
+            'driver' => 'session',
+            'provider' => 'platform_operators',
+        ],
     ],
 
     /*
@@ -74,6 +79,10 @@ return [
         'platform_customers' => [
             'driver' => 'eloquent',
             'model' => App\Platform\Models\Customer::class,
+        ],
+        'platform_operators' => [
+            'driver' => 'eloquent',
+            'model' => App\Platform\Models\Operator::class,
         ],
 
         // 'users' => [
@@ -114,6 +123,12 @@ return [
             'provider' => 'platform_customers',
             'table' => 'platform_password_reset_tokens',
             'expire' => 60,
+            'throttle' => 60,
+        ],
+        'operators' => [
+            'provider' => 'platform_operators',
+            'table' => 'platform_operator_password_reset_tokens',
+            'expire' => 30,
             'throttle' => 60,
         ],
     ],

@@ -13,6 +13,7 @@ class NotificationController extends Controller
     private const AUDIENCES = [
         'admin' => ['layout' => 'layouts.admin', 'prefix' => 'admin.notifications'],
         'customer' => ['layout' => 'platform.layouts.customer', 'prefix' => 'platform.customer.notifications'],
+        'operator' => ['layout' => 'platform.layouts.console', 'prefix' => 'console.notifications'],
     ];
 
     public function index(Request $request)

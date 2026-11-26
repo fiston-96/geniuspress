@@ -1,15 +1,14 @@
-@extends('layouts.admin')
+@extends('platform.layouts.console')
 @section('title', $customer->name)
 @section('content')
 @php use App\Platform\Labels; use App\Platform\Money; @endphp
-    @include('platform.admin._nav')
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">{{ $customer->name }}</h1>
             <p class="mt-1 text-sm text-slate-500">{{ $customer->email }} @if ($customer->phone)· {{ $customer->phone }}@endif @if ($customer->country)· {{ $customer->country }}@endif · {{ __('inscrit le :date', ['date' => $customer->created_at->isoFormat('LL')]) }}</p>
             <p class="mt-1 text-sm">{{ Labels::status($customer->status) }} @if ($customer->trial_used_at)· {{ __('essai utilisé le :date', ['date' => $customer->trial_used_at->isoFormat('LL')]) }}@endif</p>
         </div>
-        <form method="POST" action="{{ route('admin.platform.customers.status', $customer) }}">@csrf @method('PUT')
+        <form method="POST" action="{{ route('console.customers.status', $customer) }}">@csrf @method('PUT')
             @if ($customer->isActive())
                 <input type="hidden" name="status" value="suspended">
                 <button class="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50" onclick="return confirm(@js(__('Suspendre ce compte ? Ses sites perdront l’accès à l’IA.')))">{{ __('Suspendre le compte') }}</button>
@@ -23,7 +22,7 @@
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <section class="rounded-xl border border-slate-200 bg-white p-6">
             <h2 class="font-semibold">{{ __('Crédits IA') }} : {{ Money::micros($customer->ai_balance) }}</h2>
-            <form method="POST" action="{{ route('admin.platform.customers.credits', $customer) }}" class="mt-4 grid gap-2 md:grid-cols-3">@csrf
+            <form method="POST" action="{{ route('console.customers.credits', $customer) }}" class="mt-4 grid gap-2 md:grid-cols-3">@csrf
                 <input name="amount" required placeholder="{{ __('Montant en $ (ex. 5 ou -2,5)') }}" aria-label="{{ __('Montant en $') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 <input name="reason" required maxlength="200" placeholder="{{ __('Motif') }}" aria-label="{{ __('Motif') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Ajuster') }}</button>
@@ -36,7 +35,7 @@
                     </div>
                 @endforeach
             </div>
-            <a href="{{ route('admin.platform.usage.index', ['customer' => $customer->id]) }}" class="mt-3 inline-block text-sm text-brand-600 hover:underline">{{ __('Journal IA de ce client') }}</a>
+            <a href="{{ route('console.usage.index', ['customer' => $customer->id]) }}" class="mt-3 inline-block text-sm text-brand-600 hover:underline">{{ __('Journal IA de ce client') }}</a>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6">
@@ -71,11 +70,11 @@
                     </div>
                     @if ($license->isActive())
                         <div class="flex items-center gap-2">
-                            <form method="POST" action="{{ route('admin.platform.licenses.cap', $license) }}" class="flex items-center gap-1">@csrf @method('PUT')
+                            <form method="POST" action="{{ route('console.licenses.cap', $license) }}" class="flex items-center gap-1">@csrf @method('PUT')
                                 <input name="monthly_cap" value="{{ $license->monthly_cap !== null ? Money::input($license->monthly_cap, 6) : '' }}" placeholder="{{ __('Plafond $/mois') }}" aria-label="{{ __('Plafond mensuel en $') }}" class="w-32 rounded-lg border border-slate-300 px-2 py-1 text-xs">
                                 <button class="rounded-lg border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50">{{ __('OK') }}</button>
                             </form>
-                            <form method="POST" action="{{ route('admin.platform.licenses.revoke', $license) }}" onsubmit="return confirm(@js(__('Révoquer cette clé ?')))">@csrf @method('DELETE')
+                            <form method="POST" action="{{ route('console.licenses.revoke', $license) }}" onsubmit="return confirm(@js(__('Révoquer cette clé ?')))">@csrf @method('DELETE')
                                 <button class="text-xs text-red-600 hover:underline">{{ __('Révoquer') }}</button>
                             </form>
                         </div>

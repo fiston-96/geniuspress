@@ -43,6 +43,12 @@ class OrderFulfiller
             $this->deliver($order);
             PlatformNotifier::send($order->customer, new Notifications\OrderPaid($order));
             PlatformNotifier::admins(new Notifications\OrderPaid($order, forAdmin: true));
+            // Parrainage : commission si c'est la première commande payée d'un filleul.
+            try {
+                app(Referrals\Referrals::class)->onOrderPaid($order);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
     }
 

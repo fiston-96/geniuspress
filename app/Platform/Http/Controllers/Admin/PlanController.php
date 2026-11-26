@@ -28,7 +28,7 @@ class PlanController extends Controller
     {
         $plan = Plan::create($this->validated($request));
 
-        return redirect()->route('admin.platform.plans.index')->with('status', __('Offre « :name » créée.', ['name' => $plan->label()]));
+        return redirect()->route('console.plans.index')->with('status', __('Offre « :name » créée.', ['name' => $plan->label()]));
     }
 
     public function edit(Plan $plan)
@@ -40,7 +40,7 @@ class PlanController extends Controller
     {
         $plan->update($this->validated($request, $plan));
 
-        return redirect()->route('admin.platform.plans.index')->with('status', __('Offre « :name » enregistrée.', ['name' => $plan->label()]));
+        return redirect()->route('console.plans.index')->with('status', __('Offre « :name » enregistrée.', ['name' => $plan->label()]));
     }
 
     private function validated(Request $request, ?Plan $plan = null): array

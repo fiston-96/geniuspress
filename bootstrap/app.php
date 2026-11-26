@@ -12,10 +12,20 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [\App\Http\Middleware\SetLocale::class, \App\Http\Middleware\EnsureInstalled::class]);
+        $middleware->web(append: [\App\Http\Middleware\SetLocale::class, \App\Http\Middleware\EnsureInstalled::class, \App\Platform\Http\Middleware\CaptureReferral::class]);
         // L'espace client de la plateforme commerciale (/compte) a sa propre connexion.
-        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('compte', 'compte/*', 'essayer', 'essayer/*') && config('geniuspress.platform.enabled') ? route('platform.login') : route('login'));
-        $middleware->redirectUsersTo(fn (Request $request) => $request->is('compte', 'compte/*') ? route('platform.customer.dashboard') : route('admin.dashboard'));
+        // Trois espaces, trois connexions : CMS (/admin), espace client (/compte), console d'exploitation (/console).
+        $middleware->redirectGuestsTo(fn (Request $request) => match (true) {
+            ! config('geniuspress.platform.enabled') => route('login'),
+            $request->is('console', 'console/*') => route('console.login'),
+            $request->is('compte', 'compte/*', 'essayer', 'essayer/*') => route('platform.login'),
+            default => route('login'),
+        });
+        $middleware->redirectUsersTo(fn (Request $request) => match (true) {
+            $request->is('console', 'console/*') => route('console.dashboard'),
+            $request->is('compte', 'compte/*') => route('platform.customer.dashboard'),
+            default => route('admin.dashboard'),
+        });
         // Désinscription en un clic depuis la messagerie (POST sans jeton CSRF ; le jeton secret de l'abonné suffit).
         $middleware->validateCsrfTokens(except: ['newsletter/desinscription/*']);
     })

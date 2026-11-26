@@ -27,7 +27,7 @@ class OrderPaid extends Notice
 
     public function url(): ?string
     {
-        return $this->forAdmin ? route('admin.platform.orders.show', $this->order) : route('platform.customer.orders.show', $this->order);
+        return $this->forAdmin ? route('console.orders.show', $this->order) : route('platform.customer.orders.show', $this->order);
     }
 
     public function icon(): string

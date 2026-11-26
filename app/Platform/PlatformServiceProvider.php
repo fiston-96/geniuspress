@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Plateforme commerciale : services, routes (/compte, /admin/platform, /api/platform/v1)
+ * Plateforme commerciale : services, routes (/compte, /console, /api/platform/v1)
  * et limites. Les routes répondent 404 tant que GP_PLATFORM n'est pas activé.
  */
 class PlatformServiceProvider extends ServiceProvider
@@ -69,9 +69,12 @@ class PlatformServiceProvider extends ServiceProvider
 
         // Rappels de fin d'essai, chaque jour à 9 h.
         if ($this->app->runningInConsole()) {
-            $this->commands([Console\TrialRemindersCommand::class]);
+            $this->commands([Console\TrialRemindersCommand::class, Console\OperatorCommand::class, Console\ReferralsReleaseCommand::class]);
         }
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+            if (config('geniuspress.platform.enabled')) {
+                $schedule->command('geniuspress:referrals-release')->hourly()->withoutOverlapping();
+            }
             if (config('geniuspress.platform.enabled') && config('hosting.enabled')) {
                 $schedule->command('geniuspress:trial-reminders')->dailyAt('09:00')->withoutOverlapping();
             }

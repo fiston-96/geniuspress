@@ -8,6 +8,7 @@ use App\Models\Page;
 use App\Models\User;
 use App\Notifications\ContactMessageReceived;
 use App\Platform\Ai\CreditAccount;
+use App\Platform\Models\Operator;
 use App\Platform\Models\Order;
 use App\Platform\Models\Payment;
 use App\Platform\Notifications\AiCreditsLow;
@@ -26,11 +27,14 @@ class NotificationsTest extends PlatformTestCase
 {
     private User $admin;
 
+    private Operator $operator;
+
     protected function setUp(): void
     {
         parent::setUp();
         Mail::fake();
-        $this->admin = User::create(['name' => 'Exploitant', 'email' => 'admin@test.local', 'password' => 'secret-password-1', 'role' => 'admin', 'locale' => 'fr']);
+        $this->admin = User::create(['name' => 'Admin du site', 'email' => 'admin@test.local', 'password' => 'secret-password-1', 'role' => 'admin', 'locale' => 'fr']);
+        $this->operator = Operator::create(['name' => 'Exploitant', 'email' => 'ops@test.local', 'password' => 'secret-password-1']);
     }
 
     public function test_contact_message_rings_the_admin_bell(): void
@@ -58,7 +62,8 @@ class NotificationsTest extends PlatformTestCase
         $customer = app(PlatformAccounts::class)->register('Amani', 'amani@test.local', 'mot-de-passe-2026');
 
         $this->assertSame([CustomerWelcome::class], $customer->notifications()->pluck('type')->all());
-        $this->assertSame([NewCustomer::class], $this->admin->notifications()->pluck('type')->all());
+        $this->assertSame([NewCustomer::class], $this->operator->notifications()->pluck('type')->all());
+        $this->assertSame(0, $this->admin->notifications()->count(), 'Jamais dans le CMS.');
 
         // Paiement confirmé : e-mail + cloche pour le client, cloche pour l'exploitant.
         $plan = $this->plan();
@@ -69,7 +74,7 @@ class NotificationsTest extends PlatformTestCase
 
         $paid = $customer->notifications()->where('type', OrderPaid::class)->sole();
         $this->assertSame('Paiement reçu : commande :number', $paid->data['title']);
-        $this->assertSame(2, $this->admin->notifications()->count());
+        $this->assertSame(2, $this->operator->notifications()->count());
 
         $this->get(route('platform.customer.notifications.index'))->assertOk()
             ->assertSee('Paiement reçu : commande '.$order->number)->assertSee('Bienvenue sur GeniusPress');
@@ -77,7 +82,7 @@ class NotificationsTest extends PlatformTestCase
         $this->assertSame(0, $customer->unreadNotifications()->count());
 
         // Un client ne lit pas les notifications d'un autre compte.
-        $other = $this->admin->notifications()->first();
+        $other = $this->operator->notifications()->first();
         $this->get(route('platform.customer.notifications.open', $other->id))->assertNotFound();
     }
 
@@ -89,7 +94,7 @@ class NotificationsTest extends PlatformTestCase
 
         Notification::assertSentTo(\App\Platform\Models\Customer::where('email', 'neema@test.local')->sole(), CustomerWelcome::class,
             fn ($n, array $channels) => $channels === ['database', 'mail']);
-        Notification::assertSentTo($this->admin, NewCustomer::class, fn ($n, array $channels) => $channels === ['database']);
+        Notification::assertSentTo($this->operator, NewCustomer::class, fn ($n, array $channels) => $channels === ['database']);
     }
 
     public function test_low_ai_credits_alert_is_sent_once_when_crossing_the_threshold(): void

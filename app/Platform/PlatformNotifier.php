@@ -2,8 +2,8 @@
 
 namespace App\Platform;
 
-use App\Models\User;
 use App\Notifications\Notice;
+use App\Platform\Models\Operator;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
 
@@ -26,14 +26,14 @@ class PlatformNotifier
         }
     }
 
-    /** Administrateurs de la plateforme (utilisateurs « admin » du site de l'exploitant). */
+    /** Exploitants de la plateforme (cloche de la console /console). */
     public static function admins(Notice $notice): void
     {
         if (! config('geniuspress.platform.enabled')) {
             return;
         }
         try {
-            Notification::send(User::query()->where('role', User::ROLE_ADMIN)->get(), $notice);
+            Notification::send(Operator::query()->where('status', 'active')->get(), $notice);
         } catch (Throwable $e) {
             report($e);
         }

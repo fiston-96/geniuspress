@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\DB;
  */
 class CreditAccount
 {
-    public function credit(Customer $customer, int $amount, string $kind, string $description, ?string $reference = null, ?int $userId = null): CreditTransaction
+    public function credit(Customer $customer, int $amount, string $kind, string $description, ?string $reference = null, ?int $operatorId = null): CreditTransaction
     {
-        return $this->apply($customer, abs($amount), $kind, $description, $reference, $userId);
+        return $this->apply($customer, abs($amount), $kind, $description, $reference, $operatorId);
     }
 
     /** Débit (le solde peut devenir légèrement négatif : le coût n'est connu qu'après l'appel). */
@@ -28,9 +28,9 @@ class CreditAccount
     }
 
     /** Ajustement manuel de l'exploitant, positif ou négatif, avec motif. */
-    public function adjust(Customer $customer, int $amount, string $reason, int $userId): CreditTransaction
+    public function adjust(Customer $customer, int $amount, string $reason, int $operatorId): CreditTransaction
     {
-        return $this->apply($customer, $amount, 'adjustment', $reason, null, $userId);
+        return $this->apply($customer, $amount, 'adjustment', $reason, null, $operatorId);
     }
 
     public function balance(Customer $customer): int
@@ -44,10 +44,10 @@ class CreditAccount
         return (int) Setting::read('platform_low_credit_threshold', 500_000);
     }
 
-    private function apply(Customer $customer, int $signed, string $kind, string $description, ?string $reference, ?int $userId): CreditTransaction
+    private function apply(Customer $customer, int $signed, string $kind, string $description, ?string $reference, ?int $operatorId): CreditTransaction
     {
         $before = null;
-        $transaction = DB::transaction(function () use ($customer, $signed, $kind, $description, $reference, $userId, &$before) {
+        $transaction = DB::transaction(function () use ($customer, $signed, $kind, $description, $reference, $operatorId, &$before) {
             $locked = Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
             $before = $locked->ai_balance;
             $balance = $locked->ai_balance + $signed;
@@ -61,7 +61,7 @@ class CreditAccount
                 'kind' => $kind,
                 'reference' => $reference,
                 'description' => mb_substr($description, 0, 255),
-                'user_id' => $userId,
+                'operator_id' => $operatorId,
             ]);
         });
 

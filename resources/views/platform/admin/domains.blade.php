@@ -1,8 +1,7 @@
-@extends('layouts.admin')
+@extends('platform.layouts.console')
 @section('title', __('Domaines'))
 @section('content')
 @php use App\Platform\Labels; @endphp
-    @include('platform.admin._nav')
     <p class="text-sm text-slate-500">{{ __('Registraire configuré : :name', ['name' => config('geniuspress.platform.domain_registrar')]) }}</p>
     <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table class="w-full text-left text-sm">
@@ -13,7 +12,7 @@
             @forelse ($domains as $domain)
                 <tr>
                     <td class="px-5 py-2 font-medium">{{ $domain->name }}</td>
-                    <td class="px-5 py-2"><a href="{{ route('admin.platform.customers.show', $domain->customer) }}" class="hover:text-brand-600">{{ $domain->customer->name }}</a></td>
+                    <td class="px-5 py-2"><a href="{{ route('console.customers.show', $domain->customer) }}" class="hover:text-brand-600">{{ $domain->customer->name }}</a></td>
                     <td class="px-5 py-2">{{ Labels::status($domain->status) }}</td>
                     <td class="px-5 py-2">{{ $domain->registrar }} <span class="font-mono text-xs text-slate-500">{{ $domain->registrar_reference }}</span></td>
                     <td @class(['px-5 py-2', 'text-red-600' => $domain->expires_at?->lt(now()->addDays(30))])>{{ $domain->expires_at?->isoFormat('LL') ?? '—' }}</td>

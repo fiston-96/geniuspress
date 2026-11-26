@@ -109,6 +109,32 @@ class Checkout
         return ['payment' => $payment, 'start' => $start];
     }
 
+    /**
+     * Paiement avec le solde de parrainage (même devise, solde suffisant) : débit et paiement
+     * enregistrés ensemble, puis livraison comme pour un paiement Mobile Money.
+     */
+    public function payWithWallet(Order $order): Payment
+    {
+        $payment = DB::transaction(function () use ($order) {
+            $locked = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'pending') {
+                throw new PlatformException(__('Cette commande n’est plus en attente de paiement.'));
+            }
+            $payment = Payment::create([
+                'order_id' => $locked->id, 'gateway' => 'wallet', 'method' => 'wallet',
+                'reference' => 'GPW-'.Str::upper(Str::random(16)), 'status' => 'succeeded',
+                'amount' => $locked->total, 'currency' => $locked->currency,
+            ]);
+            app(Referrals\Wallet::class)->debit($locked->customer, $locked->total, $locked->currency, 'payment',
+                __('Paiement de la commande :number', ['number' => $locked->number]), $locked->number);
+
+            return $payment;
+        });
+        $this->fulfiller->paid($payment);
+
+        return $payment->refresh();
+    }
+
     /** Redemande l'état au prestataire et livre la commande si le paiement est confirmé. */
     public function confirm(Payment $payment): Payment
     {

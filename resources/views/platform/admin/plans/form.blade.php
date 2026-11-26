@@ -1,10 +1,9 @@
-@extends('layouts.admin')
+@extends('platform.layouts.console')
 @section('title', $plan->exists ? __('Modifier l’offre') : __('Nouvelle offre'))
 @section('content')
 @php use App\Platform\Labels; use App\Platform\Money; @endphp
-    @include('platform.admin._nav')
     <h1 class="text-2xl font-semibold tracking-tight">{{ $plan->exists ? __('Modifier l’offre') : __('Nouvelle offre') }}</h1>
-    <form method="POST" action="{{ $plan->exists ? route('admin.platform.plans.update', $plan) : route('admin.platform.plans.store') }}" class="mt-6 max-w-3xl space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+    <form method="POST" action="{{ $plan->exists ? route('console.plans.update', $plan) : route('console.plans.store') }}" class="mt-6 max-w-3xl space-y-4 rounded-xl border border-slate-200 bg-white p-6">
         @csrf @if ($plan->exists) @method('PUT') @endif
         <div class="grid gap-4 md:grid-cols-2">
             <x-field name="slug" :label="__('Identifiant')" :value="$plan->slug" :hint="__('Minuscules, chiffres et tirets : « essentiel », « credits-10 ».')" required />

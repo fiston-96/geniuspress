@@ -22,7 +22,7 @@ class NewCustomer extends Notice
 
     public function url(): ?string
     {
-        return route('admin.platform.customers.show', $this->customer);
+        return route('console.customers.show', $this->customer);
     }
 
     public function icon(): string

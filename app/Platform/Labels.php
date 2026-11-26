@@ -59,6 +59,7 @@ final class Labels
         return match ($method) {
             'mobile_money' => __('Mobile Money'),
             'card' => __('Carte bancaire'),
+            'wallet' => __('Solde de parrainage'),
             default => (string) $method,
         };
     }

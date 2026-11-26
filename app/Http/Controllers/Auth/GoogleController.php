@@ -75,6 +75,7 @@ class GoogleController extends Controller
                 in_array($profile['locale'], array_keys((array) config('geniuspress.ui_locales')), true) ? $profile['locale'] : app()->getLocale(),
             );
             $created = true;
+            app(\App\Platform\Referrals\Referrals::class)->attach($customer, $request->cookie(\App\Platform\Referrals\Referrals::COOKIE));
         }
         if (! $customer->isActive()) {
             throw new PlatformException(__('Ce compte est suspendu. Contactez-nous.'));

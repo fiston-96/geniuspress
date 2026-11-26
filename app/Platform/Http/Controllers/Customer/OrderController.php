@@ -24,12 +24,25 @@ class OrderController extends CustomerController
             'order' => $order->load('items'),
             'payment' => $order->payments()->latest('id')->first(),
             'gateway' => $gateway,
+            'walletBalance' => app(\App\Platform\Referrals\Wallet::class)->balance($order->customer, $order->currency),
         ]);
     }
 
     public function pay(Request $request, Order $order, Checkout $checkout)
     {
         $this->own($request, $order);
+
+        // Solde de parrainage : pas de prestataire, la commande est payée tout de suite.
+        if ($request->input('method') === 'wallet') {
+            try {
+                $checkout->payWithWallet($order);
+            } catch (PlatformException $e) {
+                return back()->withErrors(['payment' => $e->getMessage()]);
+            }
+
+            return redirect()->route('platform.customer.orders.show', $order)->with('status', __('Commande payée avec votre solde de parrainage.'));
+        }
+
         $data = $request->validate([
             'method' => ['required', 'in:mobile_money,card'],
             'operator' => ['required_if:method,mobile_money', 'nullable', 'string', 'max:30'],

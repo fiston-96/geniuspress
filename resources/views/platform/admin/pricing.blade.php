@@ -1,8 +1,7 @@
-@extends('layouts.admin')
+@extends('platform.layouts.console')
 @section('title', __('Tarifs'))
 @section('content')
 @php use App\Platform\Money; @endphp
-    @include('platform.admin._nav')
 
     <section class="rounded-xl border border-slate-200 bg-white p-6">
         <h2 class="font-semibold">{{ __('Tarifs de l’IA par modèle') }}</h2>
@@ -16,7 +15,7 @@
                 @foreach ($rates as $rate)
                     <tr>
                         <td colspan="4" class="py-2 pr-3">
-                            <form id="rate-{{ $rate->id }}" method="POST" action="{{ route('admin.platform.pricing.rates.update', $rate) }}" class="grid grid-cols-4 gap-2">@csrf @method('PUT')
+                            <form id="rate-{{ $rate->id }}" method="POST" action="{{ route('console.pricing.rates.update', $rate) }}" class="grid grid-cols-4 gap-2">@csrf @method('PUT')
                                 <input name="model" value="{{ $rate->model }}" required aria-label="{{ __('Identifiant du modèle') }}" class="rounded-lg border border-slate-300 px-2 py-1 font-mono text-xs">
                                 <input name="label" value="{{ $rate->label }}" required aria-label="{{ __('Libellé') }}" class="rounded-lg border border-slate-300 px-2 py-1 text-sm">
                                 <input name="input_price" value="{{ Money::input(Money::scale((string) $rate->input_price, 6), 6) }}" required aria-label="{{ __('Entrée $/M') }}" class="rounded-lg border border-slate-300 px-2 py-1 text-sm">
@@ -27,7 +26,7 @@
                         <td class="py-2 pr-3"><input type="hidden" name="active" value="0" form="rate-{{ $rate->id }}"><input type="checkbox" name="active" value="1" form="rate-{{ $rate->id }}" @checked($rate->active) aria-label="{{ __('Actif') }}"></td>
                         <td class="py-2 whitespace-nowrap text-right">
                             <button form="rate-{{ $rate->id }}" class="rounded-lg border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50">{{ __('Enregistrer') }}</button>
-                            <form method="POST" action="{{ route('admin.platform.pricing.rates.destroy', $rate) }}" class="inline" onsubmit="return confirm(@js(__('Supprimer ce tarif ? Le modèle ne sera plus proposé.')))">@csrf @method('DELETE')
+                            <form method="POST" action="{{ route('console.pricing.rates.destroy', $rate) }}" class="inline" onsubmit="return confirm(@js(__('Supprimer ce tarif ? Le modèle ne sera plus proposé.')))">@csrf @method('DELETE')
                                 <button class="ml-1 text-xs text-red-600 hover:underline">{{ __('Supprimer') }}</button>
                             </form>
                         </td>
@@ -36,7 +35,7 @@
                 </tbody>
             </table>
         </div>
-        <form method="POST" action="{{ route('admin.platform.pricing.rates.store') }}" class="mt-4 grid gap-2 md:grid-cols-5">@csrf
+        <form method="POST" action="{{ route('console.pricing.rates.store') }}" class="mt-4 grid gap-2 md:grid-cols-5">@csrf
             <input name="model" required placeholder="claude-…" aria-label="{{ __('Identifiant du modèle') }}" class="rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm">
             <input name="label" required placeholder="{{ __('Libellé') }}" aria-label="{{ __('Libellé') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
             <input name="input_price" required placeholder="{{ __('Entrée $/M') }}" aria-label="{{ __('Entrée $/M') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
@@ -47,7 +46,7 @@
 
     <section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
         <h2 class="font-semibold">{{ __('Réglages') }}</h2>
-        <form method="POST" action="{{ route('admin.platform.pricing.settings') }}" class="mt-4 grid gap-4 md:grid-cols-3">@csrf @method('PUT')
+        <form method="POST" action="{{ route('console.pricing.settings') }}" class="mt-4 grid gap-4 md:grid-cols-3">@csrf @method('PUT')
             <x-field name="multiplier" :label="__('Multiplicateur du coût de l’IA')" :value="$multiplier" :hint="__('2 = le client paie deux fois le coût réel.')" required />
             <div>
                 <label for="trial_plan" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Offre proposée à l’essai') }}</label>
@@ -70,12 +69,12 @@
                     <div class="flex items-center justify-between gap-3 py-1.5">
                         <span><span class="font-medium">{{ $templates[$price->template_id] ?? $price->template_id }}</span> <span class="text-xs text-slate-500">{{ $price->template_id }}</span></span>
                         <span class="flex items-center gap-3">{{ Money::format($price->price, $price->currency) }}
-                            <form method="POST" action="{{ route('admin.platform.pricing.templates.destroy', $price) }}">@csrf @method('DELETE')<button class="text-xs text-red-600 hover:underline">{{ __('Rendre gratuit') }}</button></form>
+                            <form method="POST" action="{{ route('console.pricing.templates.destroy', $price) }}">@csrf @method('DELETE')<button class="text-xs text-red-600 hover:underline">{{ __('Rendre gratuit') }}</button></form>
                         </span>
                     </div>
                 @endforeach
             </div>
-            <form method="POST" action="{{ route('admin.platform.pricing.templates.store') }}" class="mt-4 grid gap-2 md:grid-cols-4">@csrf
+            <form method="POST" action="{{ route('console.pricing.templates.store') }}" class="mt-4 grid gap-2 md:grid-cols-4">@csrf
                 @if ($templates)
                     <select name="template_id" required aria-label="{{ __('Modèle') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2">
                         @foreach ($templates as $id => $name)<option value="{{ $id }}">{{ $name }} ({{ $id }})</option>@endforeach
@@ -99,12 +98,12 @@
                     <div class="flex items-center justify-between gap-3 py-1.5">
                         <span class="font-medium">.{{ $tld->tld }}</span>
                         <span class="flex items-center gap-3">{{ Money::format($tld->register_price, $tld->currency) }} · {{ __('renouvellement :price', ['price' => Money::format($tld->renew_price, $tld->currency)]) }}
-                            <form method="POST" action="{{ route('admin.platform.pricing.tlds.destroy', $tld) }}">@csrf @method('DELETE')<button class="text-xs text-red-600 hover:underline">{{ __('Retirer') }}</button></form>
+                            <form method="POST" action="{{ route('console.pricing.tlds.destroy', $tld) }}">@csrf @method('DELETE')<button class="text-xs text-red-600 hover:underline">{{ __('Retirer') }}</button></form>
                         </span>
                     </div>
                 @endforeach
             </div>
-            <form method="POST" action="{{ route('admin.platform.pricing.tlds.store') }}" class="mt-4 grid gap-2 md:grid-cols-4">@csrf
+            <form method="POST" action="{{ route('console.pricing.tlds.store') }}" class="mt-4 grid gap-2 md:grid-cols-4">@csrf
                 <input name="tld" required placeholder="cd" aria-label="{{ __('Extension') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 <input name="register_price" required placeholder="{{ __('Achat') }}" aria-label="{{ __('Prix d’achat 1 an') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 <input name="renew_price" required placeholder="{{ __('Renouvellement') }}" aria-label="{{ __('Prix de renouvellement') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">

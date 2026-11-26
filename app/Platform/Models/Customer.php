@@ -6,6 +6,7 @@ use App\Notifications\ResetPasswordLink;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,8 +31,38 @@ class Customer extends Authenticatable implements HasLocalePreference
             'password' => 'hashed',
             'email_verified_at' => 'datetime',
             'trial_used_at' => 'datetime',
+            'referred_at' => 'datetime',
             'ai_balance' => 'integer',
         ];
+    }
+
+    // ─── Parrainage (App\Platform\Referrals) ────────────────────────────
+
+    /** Parrain de ce client (celui qui l'a fait venir), s'il y en a un. */
+    public function sponsor(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'referred_by');
+    }
+
+    /** Filleuls de ce client. */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(self::class, 'referred_by');
+    }
+
+    public function referralCommissions(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class, 'sponsor_id');
+    }
+
+    public function walletTransactions(): HasMany
+    {
+        return $this->hasMany(WalletTransaction::class);
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(Payout::class);
     }
 
     public function preferredLocale(): ?string
