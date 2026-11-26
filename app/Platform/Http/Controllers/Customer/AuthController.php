@@ -24,7 +24,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'email', 'max:190', 'unique:platform_customers,email'],
             'phone' => ['nullable', 'string', 'max:30', 'regex:/^\+?[0-9 .-]{6,20}$/'],
-            'country' => ['nullable', 'string', 'size:2', 'alpha'],
+            'country' => ['nullable', 'string', 'size:2', fn ($attribute, $value, $fail) => \App\Platform\Countries::valid($value) ? null : $fail(__('Choisissez votre pays dans la liste.'))],
             'password' => ['required', 'confirmed', Password::min(10)->letters()->numbers()],
         ]);
 

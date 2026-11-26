@@ -28,6 +28,15 @@
                 <x-field name="monerails_webhook_secret" type="password" :label="__('Secret de notification (webhook)')" autocomplete="new-password"
                     :hint="$secretHint ? __('Secret enregistré : :hint. Laissez vide pour le garder.', ['hint' => $secretHint]) : __('Affiché une seule fois par Monerails à la création du point de notification (whsec_…).')" />
                 @if ($secretHint)<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="monerails_webhook_secret_remove" value="1"> {{ __('Supprimer le secret enregistré') }}</label>@endif
+                <fieldset>
+                    <legend class="mb-1 text-sm font-medium text-slate-700">{{ __('Paiement en dollars (USD), en plus de la devise du pays') }}</legend>
+                    <p class="mb-2 text-xs text-slate-500">{{ __('Cochez un pays seulement quand Monerails y annonce l’ouverture de l’USD (en cours en RD Congo) : en attendant, il refuse l’USD et les clients paient dans la devise du pays.') }}</p>
+                    <div class="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                        @foreach ($countryNames as $code => $label)
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="usd[]" value="{{ $code }}" @checked(in_array($code, $usdCountries, true))> {{ $label }}</label>
+                        @endforeach
+                    </div>
+                </fieldset>
                 <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
             </form>
             @if ($mode)

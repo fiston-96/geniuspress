@@ -39,4 +39,15 @@ class DashboardController extends CustomerController
             'usages' => $customer->aiUsages()->with('license')->latest('id')->limit(30)->get(),
         ]);
     }
+
+    /** Pays du client : adapte les prix affichés et le paiement. */
+    public function country(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'country' => ['required', 'string', 'size:2', fn ($attribute, $value, $fail) => \App\Platform\Countries::valid($value) ? null : $fail(__('Choisissez votre pays dans la liste.'))],
+        ]);
+        $this->customer($request)->update(['country' => strtoupper($data['country'])]);
+
+        return back()->with('status', __('Pays enregistré : :country.', ['country' => \App\Platform\Countries::name($data['country'])]));
+    }
 }

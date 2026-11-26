@@ -17,7 +17,7 @@
         @endforeach
         <div class="mt-4 flex justify-between border-t border-slate-100 pt-4">
             <span class="font-semibold">{{ __('Total') }}</span>
-            <span class="font-semibold">{{ Money::format($order->total, $order->currency) }}</span>
+            <span class="text-right font-semibold">{{ Money::format($order->total, $order->currency) }} <x-platform.local-price :amount="$order->total" :currency="$order->currency" class="block" /></span>
         </div>
         <p class="mt-2 text-sm">
             {{ __('État :') }}
@@ -67,36 +67,44 @@
                         {{-- Mobile Money par pays : montant dans la devise du pays, opérateurs ouverts dans ce pays. --}}
                         @php($customerCountry = auth('customer')->user()->country)
                         @php($selected = old('country', isset($countries[$customerCountry]) ? $customerCountry : array_key_first($countries)))
+                        @php($selected = isset($countries[$selected]) ? $selected : array_key_first($countries))
+                        @php($selectedCountry = $countries[$selected]['country'])
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="method" value="mobile_money" checked> {{ __('Mobile Money') }}</label>
                         <div class="grid gap-3 pl-6 md:grid-cols-3" data-gp-momo>
                             <select name="country" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Pays du compte Mobile Money') }}">
-                                @foreach ($countries as $code => $c)<option value="{{ $code }}" data-amount="{{ $c['amount'] }}" data-converted="{{ $c['currency'] !== $order->currency ? 1 : 0 }}" @selected($selected === $code)>{{ $c['name'] }} ({{ $c['currency'] }})</option>@endforeach
+                                @foreach ($countries as $key => $c)<option value="{{ $key }}" data-country="{{ $c['country'] }}" data-amount="{{ $c['amount'] }}" data-converted="{{ $c['currency'] !== $order->currency ? 1 : 0 }}" data-note="{{ $c['note'] }}" @selected($selected === $key)>{{ $c['name'] }} ({{ $c['currency'] }})</option>@endforeach
                             </select>
                             <select name="operator" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Opérateur') }}">
-                                @foreach ($countries as $code => $c)
-                                    @foreach ($c['operators'] as $op => $o)<option value="{{ $op }}" data-country="{{ $code }}" @selected(old('operator') === $op && $selected === $code) @disabled($selected !== $code) @if ($selected !== $code) hidden @endif>{{ $o['name'] }}</option>@endforeach
+                                @foreach (collect($countries)->unique('country') as $c)
+                                    @foreach ($c['operators'] as $op => $o)<option value="{{ $op }}" data-country="{{ $c['country'] }}" @selected(old('operator') === $op && $selectedCountry === $c['country']) @disabled($selectedCountry !== $c['country']) @if ($selectedCountry !== $c['country']) hidden @endif>{{ $o['name'] }}</option>@endforeach
                                 @endforeach
                             </select>
                             <input name="phone" type="tel" value="{{ old('phone', auth('customer')->user()->phone) }}" placeholder="{{ __('+ indicatif du pays') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Numéro Mobile Money') }}">
                         </div>
                         <p class="pl-6 text-sm text-slate-600">{{ __('Montant prélevé :') }} <strong data-gp-momo-amount>{{ $countries[$selected]['amount'] }}</strong>
                             <span class="text-xs text-slate-500" data-gp-momo-rate @if ($countries[$selected]['currency'] === $order->currency) hidden @endif>{{ __('(converti depuis :amount au taux du jour)', ['amount' => Money::format($order->total, $order->currency)]) }}</span></p>
+                        <p class="ml-6 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" data-gp-momo-note @unless ($countries[$selected]['note']) hidden @endunless>{{ $countries[$selected]['note'] }}</p>
                         <script>
                             (() => {
                                 const box = document.querySelector('[data-gp-momo]');
                                 const country = box.querySelector('select[name=country]');
                                 const operator = box.querySelector('select[name=operator]');
                                 const amount = document.querySelector('[data-gp-momo-amount]');
+                                const note = document.querySelector('[data-gp-momo-note]');
                                 country.addEventListener('change', () => {
+                                    const chosen = country.selectedOptions[0];
                                     let first = null;
                                     operator.querySelectorAll('option').forEach((o) => {
-                                        const show = o.dataset.country === country.value;
+                                        const show = o.dataset.country === chosen.dataset.country;
                                         o.hidden = !show; o.disabled = !show;
                                         if (show && !first) first = o;
                                     });
-                                    if (first) operator.value = first.value;
+                                    // Même pays (francs ↔ dollars) : l'opérateur choisi est gardé.
+                                    if (first && operator.selectedOptions[0]?.dataset.country !== chosen.dataset.country) operator.value = first.value;
                                     amount.textContent = country.selectedOptions[0].dataset.amount;
-                                    document.querySelector('[data-gp-momo-rate]').hidden = country.selectedOptions[0].dataset.converted !== '1';
+                                    document.querySelector('[data-gp-momo-rate]').hidden = chosen.dataset.converted !== '1';
+                                    note.textContent = chosen.dataset.note || '';
+                                    note.hidden = !chosen.dataset.note;
                                 });
                             })();
                         </script>

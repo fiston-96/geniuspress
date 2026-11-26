@@ -11,7 +11,7 @@
             <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
                 <h2 class="font-semibold">{{ $entry['name'][$lang] ?? $price->template_id }}</h2>
                 <p class="mt-1 flex-1 text-sm text-slate-600">{{ $entry['description'][$lang] ?? '' }}</p>
-                <p class="mt-3 text-xl font-semibold">{{ Money::format($price->price, $price->currency) }}</p>
+                <p class="mt-3 text-xl font-semibold">{{ Money::format($price->price, $price->currency) }} <x-platform.local-price :amount="$price->price" :currency="$price->currency" /></p>
                 <div class="mt-4 flex items-center gap-3">
                     @if (in_array($price->template_id, $owned, true))
                         <span class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">{{ __('Acheté') }}</span>

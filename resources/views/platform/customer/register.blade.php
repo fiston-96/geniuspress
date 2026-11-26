@@ -14,7 +14,8 @@
         <x-field name="name" :label="__('Nom ou organisation')" required autofocus autocomplete="name" />
         <x-field name="email" type="email" :label="__('Adresse e-mail')" required autocomplete="email" />
         <x-field name="phone" type="tel" :label="__('Téléphone (facultatif)')" :hint="__('Avec l’indicatif du pays (+33, +1, +225…).')" autocomplete="tel" />
-        <x-field name="country" :label="__('Pays (code à 2 lettres, facultatif)')" maxlength="2" placeholder="CD" />
+        {{-- Pays : adapte les prix affichés et le paiement ; suggéré d'après la langue du navigateur. --}}
+        <x-platform.country-select :label="__('Pays')" :value="\App\Platform\Countries::fromBrowser(request()->header('Accept-Language'))" />
         <x-field name="password" type="password" :label="__('Mot de passe')" :hint="__('10 caractères minimum, avec des lettres et des chiffres.')" required autocomplete="new-password" />
         <x-field name="password_confirmation" type="password" :label="__('Confirmez le mot de passe')" required autocomplete="new-password" />
         <label class="flex items-start gap-2 text-sm text-slate-600">

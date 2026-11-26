@@ -40,6 +40,7 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::name('customer.')->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
+                Route::put('/pays', [Customer\DashboardController::class, 'country'])->name('country');
                 Route::get('/affiliation', [Customer\ReferralController::class, 'index'])->name('referrals');
                 Route::post('/affiliation/retrait', [Customer\ReferralController::class, 'payout'])->middleware('throttle:5,1')->name('referrals.payout');
                 Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'customer')->name('notifications.index');

@@ -120,7 +120,9 @@ class Checkout
         $original = [];
         if ($method === 'mobile_money' && $gateway instanceof MonerailsGateway) {
             $country = strtoupper((string) (($details['country'] ?? null) ?: $order->customer->country));
-            $local = MonerailsGateway::COUNTRIES[$country] ?? throw new PlatformException(__('Le paiement Mobile Money n’est pas disponible dans ce pays.'));
+            $currencies = MonerailsGateway::currenciesFor($country) ?: throw new PlatformException(__('Le paiement Mobile Money n’est pas disponible dans ce pays.'));
+            // Devise choisie par le client (francs ou dollars en RD Congo), sinon celle du pays.
+            $local = in_array($details['currency'] ?? null, $currencies, true) ? $details['currency'] : $currencies[0];
             $quote = self::localAmount($order, $local) ?? throw new PlatformException(__('Le paiement en :currency n’est pas encore disponible. Contactez-nous.', ['currency' => $local]));
             if ($local !== $order->currency) {
                 $original = ['original_amount' => $order->total, 'original_currency' => $order->currency];
@@ -171,7 +173,8 @@ class Checkout
         if ($amount === null || $amount <= 0) {
             return null;
         }
-        $unit = 10 ** Money::decimals($currency);
+        // Unités entières exigées par Monerails pour certaines devises (CDF…) ; ailleurs, les centimes passent.
+        $unit = in_array($currency, MonerailsGateway::WHOLE_UNITS, true) || Money::decimals($currency) === 0 ? 10 ** Money::decimals($currency) : 1;
 
         return (int) (ceil($amount / $unit) * $unit);
     }

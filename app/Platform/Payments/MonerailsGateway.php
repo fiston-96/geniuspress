@@ -37,6 +37,32 @@ class MonerailsGateway implements PaymentGateway
         'UG' => 'UGX', 'TZ' => 'TZS', 'RW' => 'RWF',
     ];
 
+    /** Devises payables en unités entières seulement (montant multiple de 100 centimes). */
+    public const WHOLE_UNITS = ['CDF', 'GMD', 'NGN', 'KES', 'GHS', 'TZS'];
+
+    /**
+     * Devises d'encaissement d'un pays : celle du pays, plus l'USD dans les pays où l'exploitant
+     * l'a activé dans la console (Monerails l'annonce « en ouverture » en RD Congo ; refusé jusque-là).
+     *
+     * @return list<string>
+     */
+    public static function currenciesFor(string $country): array
+    {
+        $country = strtoupper($country);
+        $local = self::COUNTRIES[$country] ?? null;
+        if ($local === null) {
+            return [];
+        }
+
+        return in_array($country, self::usdCountries(), true) ? [$local, 'USD'] : [$local];
+    }
+
+    /** @return list<string> pays où le paiement en USD est activé (console → Paiements) */
+    public static function usdCountries(): array
+    {
+        return array_values(array_intersect(array_map('strval', (array) Setting::read('platform_monerails_usd', [])), array_keys(self::COUNTRIES)));
+    }
+
     /** Opérateurs par pays si la liste en direct est injoignable (codes de la page Couverture). */
     private const FALLBACK_OPERATORS = [
         'CD' => ['AIRTEL' => 'Airtel Money', 'MPESA' => 'M-Pesa', 'ORANGE' => 'Orange Money', 'AFRIMONEY' => 'Afrimoney', 'VODACOM' => 'Vodacom'],
@@ -184,11 +210,12 @@ class MonerailsGateway implements PaymentGateway
 
     public function start(Payment $payment, array $details): PaymentStart
     {
-        if (! in_array($payment->currency, self::CURRENCIES, true)) {
+        $allowed = $payment->country ? self::currenciesFor($payment->country) : self::CURRENCIES;
+        if (! in_array($payment->currency, $allowed, true)) {
             throw new PlatformException(__('Le paiement Mobile Money n’est pas disponible dans la devise :currency.', ['currency' => $payment->currency]));
         }
-        // CDF, GMD, TZS : centimes, par multiples de 100 (des unités entières).
-        if (\App\Platform\Money::decimals($payment->currency) === 2 && $payment->amount % 100 !== 0) {
+        // CDF, GMD, TZS… : centimes, par multiples de 100 (des unités entières).
+        if (in_array($payment->currency, self::WHOLE_UNITS, true) && $payment->amount % 100 !== 0) {
             throw new PlatformException(__('Le montant doit être un nombre entier dans la devise :currency.', ['currency' => $payment->currency]));
         }
 

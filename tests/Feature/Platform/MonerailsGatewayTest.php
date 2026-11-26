@@ -167,7 +167,8 @@ class MonerailsGatewayTest extends PlatformTestCase
 
         // Page de paiement : pays du client présélectionné, montant converti, pays sans taux absents.
         $this->actingAs($customer, 'customer')->get(route('platform.customer.orders.show', $order))->assertOk()
-            ->assertSee("6\u{202F}074")->assertSee('converti depuis', false)->assertDontSee('(GNF)');
+            ->assertSee("6\u{202F}074")->assertSee('converti depuis', false)->assertDontSee('(GNF)')
+            ->assertSee('Le paiement est prélevé sur votre solde en XOF', false)->assertDontSee('(USD)');
 
         // Opérateur d'un autre pays : refusé.
         $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'country' => 'SN', 'operator' => 'ORANGE', 'phone' => '+221770000000'])
@@ -189,6 +190,39 @@ class MonerailsGatewayTest extends PlatformTestCase
         // RDC : 10 $ → 28 703,70 FC, arrondis à 28 704 FC (en centimes, multiple de 100).
         $this->assertSame(2_870_400, \App\Platform\Checkout::localAmount($order, 'CDF'));
         $this->assertNull(\App\Platform\Checkout::localAmount($order, 'GNF'), 'Sans taux : pas de paiement dans cette devise.');
+    }
+
+    public function test_dollars_can_be_enabled_country_by_country(): void
+    {
+        \App\Models\Setting::write(['platform_supplier_rates' => ['USD' => '1.08', 'CDF' => '3100', 'XOF' => '655.957']]);
+        $customer = $this->customer(['name' => 'Amani Kahindo', 'country' => 'CD']);
+        $plan = $this->plan(['slug' => 'pro-usd', 'kind' => 'ai_credits', 'period' => 'once', 'trial_days' => 0, 'price' => 1000, 'currency' => 'USD', 'ai_credits' => 1_000_000]);
+        $order = app(\App\Platform\Checkout::class)->forPlan($customer, $plan);
+
+        // Dollars non activés : la devise du pays, même si le client demande l'USD.
+        $this->assertSame(['CDF'], \App\Platform\Payments\MonerailsGateway::currenciesFor('CD'));
+        Http::fake(['monerails.test/v1/collections' => Http::response(['id' => 'col_usd', 'status' => 'processing'], 202)]);
+        $this->actingAs($customer, 'customer')->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'country' => 'CD|USD', 'operator' => 'MPESA', 'phone' => '+243810000000']);
+        $this->assertSame('CDF', Payment::query()->latest('id')->first()->currency);
+
+        // Activés pour la RD Congo et le Sénégal dans la console.
+        $operator = \App\Platform\Models\Operator::create(['name' => 'Exploitant', 'email' => 'ops@test.local', 'password' => 'secret-password-1']);
+        $this->actingAs($operator, 'operator')->put(route('console.payments.settings'), ['gateway' => 'monerails', 'usd' => ['CD', 'SN']])->assertSessionHas('status');
+        $this->assertSame(['CDF', 'USD'], \App\Platform\Payments\MonerailsGateway::currenciesFor('CD'));
+        $this->assertSame(['XOF', 'USD'], \App\Platform\Payments\MonerailsGateway::currenciesFor('SN'));
+        $this->assertSame(['XAF'], \App\Platform\Payments\MonerailsGateway::currenciesFor('CM'));
+
+        $order = app(\App\Platform\Checkout::class)->forPlan($customer, $plan);
+        $this->actingAs($customer, 'customer')->get(route('platform.customer.orders.show', $order))->assertOk()
+            ->assertSee('value="CD|USD"', false)->assertSee('value="SN|USD"', false)->assertDontSee('value="CM|USD"', false)
+            ->assertSee('Si votre argent est en dollars, choisissez', false);
+
+        // Payé directement en dollars : aucun taux appliqué.
+        $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'country' => 'CD|USD', 'operator' => 'MPESA', 'phone' => '+243810000000'])
+            ->assertSessionHasNoErrors();
+        $payment = Payment::query()->latest('id')->first();
+        $this->assertSame([1000, 'USD', null, 'CD'], [$payment->amount, $payment->currency, $payment->original_amount, $payment->country]);
+        Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), '/collections') && $r['currency'] === 'USD' && $r['amount'] === 1000);
     }
 
     public function test_console_stores_monerails_keys_encrypted_and_tests_the_connection(): void

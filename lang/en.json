@@ -1739,7 +1739,6 @@
     "Votre espace client GeniusPress : hébergement, modèles, domaines et crédits IA.": "Your GeniusPress customer area: hosting, templates, domains and AI credits.",
     "Nom ou organisation": "Name or organization",
     "Téléphone (facultatif)": "Phone (optional)",
-    "Pays (code à 2 lettres, facultatif)": "Country (2-letter code, optional)",
     "Confirmez le mot de passe": "Confirm the password",
     "Créer mon compte": "Create my account",
     "Déjà un compte ?": "Already have an account?",
@@ -2281,5 +2280,18 @@
     "Montant prélevé :": "Amount charged:",
     "(converti depuis :amount au taux du jour)": "(converted from :amount at today’s rate)",
     "Le paiement en ligne de cette commande n’est pas encore disponible. Contactez-nous pour la régler.": "Online payment for this order is not available yet. Contact us to settle it.",
-    "Taux de change : valeur de 1 € dans chaque devise (prix conseillés, et paiement Mobile Money d’une offre dans la devise du client)": "Exchange rates: value of €1 in each currency (suggested prices, and Mobile Money payment of an offer in the customer’s currency)"
+    "Taux de change : valeur de 1 € dans chaque devise (prix conseillés, et paiement Mobile Money d’une offre dans la devise du client)": "Exchange rates: value of €1 in each currency (suggested prices, and Mobile Money payment of an offer in the customer’s currency)",
+    "Le paiement est prélevé sur votre solde en dollars (USD).": "The payment is taken from your balance in dollars (USD).",
+    "Le paiement est prélevé sur votre solde en :currency. Si votre argent est en dollars, choisissez « :country (USD) ».": "The payment is taken from your balance in :currency. If your money is in dollars, choose “:country (USD)”.",
+    "Le paiement est prélevé sur votre solde en :currency. Si votre argent est dans une autre devise, convertissez d’abord le montant en :currency dans l’application ou le menu de votre opérateur Mobile Money.": "The payment is taken from your balance in :currency. If your money is in another currency, first convert the amount to :currency in your Mobile Money operator’s app or menu.",
+    "Paiement en dollars (USD), en plus de la devise du pays": "Payment in dollars (USD), in addition to the country’s currency",
+    "Cochez un pays seulement quand Monerails y annonce l’ouverture de l’USD (en cours en RD Congo) : en attendant, il refuse l’USD et les clients paient dans la devise du pays.": "Tick a country only when Monerails announces USD there (in progress in the DR Congo): until then it refuses USD and customers pay in the country’s currency.",
+    "Choisissez votre pays dans la liste.": "Choose your country from the list.",
+    "Pays enregistré : :country.": "Country saved: :country.",
+    "Choisissez votre pays": "Choose your country",
+    "Montant indicatif dans votre devise, au taux du jour": "Indicative amount in your currency, at today’s rate",
+    "Votre pays : :country": "Your country: :country",
+    "Indiquez votre pays": "Tell us your country",
+    "Les prix sont aussi affichés en :currency, et le paiement s’adapte à votre pays.": "Prices are also shown in :currency, and payment adapts to your country.",
+    "GeniusPress affiche alors les prix dans votre devise et vous propose les moyens de paiement de votre pays.": "GeniusPress then shows prices in your currency and offers the payment methods of your country."
 }

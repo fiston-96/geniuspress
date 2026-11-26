@@ -32,7 +32,7 @@
                     @if ($result['available'])
                         <form method="POST" action="{{ route('platform.customer.domains.buy') }}" class="flex items-center gap-2" data-gp-contact>@csrf
                             <input type="hidden" name="domain" value="{{ $result['domain'] }}">
-                            <span class="text-slate-600">{{ __(':price par an', ['price' => Money::format($result['price'], $result['currency'])]) }}</span>
+                            <span class="text-slate-600">{{ __(':price par an', ['price' => Money::format($result['price'], $result['currency'])]) }} <x-platform.local-price :amount="$result['price']" :currency="$result['currency']" /></span>
                             <select name="years" class="rounded-lg border border-slate-300 px-2 py-1 text-sm" aria-label="{{ __('Durée') }}">
                                 @foreach ([1, 2, 3, 5] as $y)<option value="{{ $y }}">{{ trans_choice(':count an|:count ans', $y) }}</option>@endforeach
                             </select>

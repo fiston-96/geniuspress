@@ -12,6 +12,17 @@
         </div>
     @endif
 
+    {{-- Pays du client : prix affichés dans sa devise, pays et devise présélectionnés au paiement. --}}
+    @php($countryName = \App\Platform\Countries::name($customer->country))
+    <form method="POST" action="{{ route('platform.customer.country') }}" @class(['mt-6 flex flex-wrap items-end gap-3 rounded-xl border p-4 text-sm', 'border-amber-200 bg-amber-50' => ! $countryName, 'border-slate-200 bg-white' => $countryName])>@csrf @method('PUT')
+        <div class="min-w-56 flex-1">
+            <p class="font-medium">{{ $countryName ? __('Votre pays : :country', ['country' => $countryName]) : __('Indiquez votre pays') }}</p>
+            <p class="text-slate-600">{{ $countryName && ($currency = \App\Platform\Countries::currency($customer->country)) ? __('Les prix sont aussi affichés en :currency, et le paiement s’adapte à votre pays.', ['currency' => $currency]) : __('GeniusPress affiche alors les prix dans votre devise et vous propose les moyens de paiement de votre pays.') }}</p>
+        </div>
+        <x-platform.country-select :value="$customer->country" class="w-auto" aria-label="{{ __('Pays') }}" />
+        <button class="rounded-lg bg-brand-600 px-4 py-2 font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
+    </form>
+
     {{-- Le site GeniusPress du client : le cœur de son espace de travail. --}}
     @if ($hosting && $sites !== null)
         {{-- Sites gratuits sans limite : tous les sites du client. --}}

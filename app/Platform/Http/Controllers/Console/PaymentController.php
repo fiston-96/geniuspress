@@ -31,6 +31,8 @@ class PaymentController extends Controller
             'keyHint' => Setting::read('platform_monerails_key_hint'),
             'secretHint' => Setting::read('platform_monerails_webhook_secret_hint'),
             'webhookUrl' => route('platform.api.webhook', 'monerails'),
+            'usdCountries' => MonerailsGateway::usdCountries(),
+            'countryNames' => collect(MonerailsGateway::COUNTRIES)->map(fn ($currency, $code) => (class_exists(\Locale::class) ? \Locale::getDisplayRegion('-'.$code, app()->getLocale()) : $code).' ('.$currency.')')->sort()->all(),
             // Devises de vente sans taux vers les devises Mobile Money : ces commandes ne pourraient pas être payées.
             'missingRates' => array_values(array_filter($currencies, fn ($c) => ! in_array($c, MonerailsGateway::CURRENCIES, true) && $pricing->rate($c) === null)),
             'missingLocal' => array_values(array_filter(MonerailsGateway::CURRENCIES, fn ($c) => $pricing->rate($c) === null)),
@@ -44,11 +46,13 @@ class PaymentController extends Controller
             'gateway' => ['required', Rule::in(array_keys(PaymentManager::GATEWAYS))],
             'monerails_key' => ['nullable', 'string', 'max:200', 'regex:/^mr_(test|live)_[A-Za-z0-9_-]{8,190}$/'],
             'monerails_webhook_secret' => ['nullable', 'string', 'max:200', 'regex:/^whsec_[A-Za-z0-9_-]{8,190}$/'],
+            'usd' => ['array'],
+            'usd.*' => [Rule::in(array_keys(MonerailsGateway::COUNTRIES))],
         ], [
             'monerails_key.regex' => __('La clé Monerails commence par « mr_live_ » (production) ou « mr_test_ » (test).'),
             'monerails_webhook_secret.regex' => __('Le secret de notification commence par « whsec_ ».'),
         ]);
-        $values = ['platform_payment_gateway' => $data['gateway']];
+        $values = ['platform_payment_gateway' => $data['gateway'], 'platform_monerails_usd' => array_values($data['usd'] ?? [])];
         foreach (['monerails_key' => 'platform_monerails_key', 'monerails_webhook_secret' => 'platform_monerails_webhook_secret'] as $field => $setting) {
             $secret = trim((string) ($data[$field] ?? ''));
             if ($secret !== '') {

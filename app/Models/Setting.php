@@ -58,7 +58,7 @@ class Setting extends Model
         'platform_supplier_markup', 'platform_supplier_rates',
         // Paiements : prestataire actif, clés Monerails chiffrées et leurs indices.
         'platform_payment_gateway', 'platform_monerails_key', 'platform_monerails_key_hint',
-        'platform_monerails_webhook_secret', 'platform_monerails_webhook_secret_hint',
+        'platform_monerails_webhook_secret', 'platform_monerails_webhook_secret_hint', 'platform_monerails_usd',
     ];
 
     public static function publicValues(): array

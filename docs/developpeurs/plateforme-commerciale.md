@@ -193,6 +193,12 @@ UGX, TZS, RWF). Monerails n'encaisse ni les cartes ni l'USD.
 - **Opérateurs** : liste en direct (`GET /v1/operators` par devise, gardée 10 minutes), liste de repli
   si l'API ne répond pas. Opérateurs à code (OTP, ou code obtenu par USSD) : le paiement attend le code
   (`awaiting = otp`), saisi sur la page de la commande et transmis par `authorize`.
+- **Dollars** : la console active l'USD pays par pays (`platform_monerails_usd`), seulement quand Monerails
+  l'ouvre (en cours en RD Congo). Le client choisit alors « pays (devise locale) » ou « pays (USD) ». Un
+  message rappelle que l'opérateur prélève le solde de la devise choisie, jamais un solde dans une autre devise.
+- **Pays du client** (`App\Platform\Countries`) : choisi à l'inscription (suggéré d'après la langue du
+  navigateur) ou dans l'espace client ; les prix y sont aussi affichés dans sa devise, à titre indicatif
+  (« ≈ 28 704 CDF », composant `x-platform.local-price`), et son pays est présélectionné au paiement.
 - Le contenu d'une notification ne suffit jamais : l'état est redemandé à Monerails (montant et devise
   comparés au paiement demandé).
 - Tests : `tests/Feature/Platform/MonerailsGatewayTest.php` (Http::fake, aucune clé réelle).

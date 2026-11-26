@@ -36,6 +36,7 @@
                 <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
                     <h3 class="font-semibold">{{ $plan->label() }}</h3>
                     <p class="mt-2 text-2xl font-semibold">{{ Money::format($plan->price, $plan->currency) }} <span class="text-sm font-normal text-slate-500">{{ Labels::period($plan->period) }}</span></p>
+                    <x-platform.local-price :amount="$plan->price" :currency="$plan->currency" class="block" />
                     @if ($plan->summary())<p class="mt-2 text-sm text-slate-600">{{ $plan->summary() }}</p>@endif
                     <ul class="mt-3 flex-1 space-y-1 text-sm text-slate-600">
                         @if ($plan->ai_credits > 0)<li>✓ {{ __(':amount de crédits IA', ['amount' => Money::micros($plan->ai_credits)]) }}</li>@endif
