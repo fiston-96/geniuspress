@@ -322,7 +322,8 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
             ['label' => $t('Fonctionnalités', 'Features'), 'url' => $u('features')],
             ['label' => 'Documentation', 'url' => $u('docs')],
             ['label' => $t('Feuille de route', 'Roadmap'), 'url' => $u('roadmap')],
-            ['label' => $t('Contribuer', 'Contribute'), 'url' => $u('contribute')],
+            // Espace client de la plateforme (comptes, site hébergé, offres) ; « Contribuer » est dans le pied de page.
+            ['label' => $t('Espace client', 'My account'), 'url' => '/compte'],
         ],
         'cta_label' => $t('Télécharger', 'Download'),
         'cta_url' => $u('download'),
@@ -334,6 +335,8 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
             ['label' => $t('Modèles', 'Templates'), 'url' => $u('templates')],
             ['label' => $t('Télécharger', 'Download'), 'url' => $u('download')],
             ['label' => 'Documentation', 'url' => $u('docs')],
+            ['label' => $t('Espace client', 'My account'), 'url' => '/compte'],
+            ['label' => $t('Contribuer', 'Contribute'), 'url' => $u('contribute')],
             ['label' => $t('Créer un plugin', 'Creating a plugin'), 'url' => $u('doc-plugins')],
             ['label' => $t('Marque et logo', 'Brand and logo'), 'url' => $u('doc-brand')],
             ['label' => $t('Code source', 'Source code'), 'url' => $repo],

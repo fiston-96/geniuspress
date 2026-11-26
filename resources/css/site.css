@@ -64,7 +64,18 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
 .gp-nav-burger span::before { top: -6px; } .gp-nav-burger span::after { top: 6px; }
 .gp-nav-toggle:focus-visible + .gp-nav-burger { outline: 2px solid var(--gp-primary); outline-offset: 2px; }
 
-@media (max-width: 860px) {
+/* Un libellé ne se coupe jamais en deux lignes ; sur les écrans moyens, le menu se resserre, puis
+   passe à la ligne entrée par entrée plutôt que mot par mot. */
+.gp-site-menu { flex-wrap: wrap; justify-content: flex-end; }
+.gp-site-menu a { white-space: nowrap; }
+@media (min-width: 961px) and (max-width: 1180px) {
+    .gp-site-header__inner { gap: 16px; }
+    .gp-site-nav { gap: 12px; }
+    .gp-site-menu { gap: 0; }
+    .gp-site-menu a { padding: 8px 9px; font-size: .9rem; }
+}
+
+@media (max-width: 960px) {
     .gp-nav-burger { display: inline-flex; }
     .gp-site-nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--gp-header-bg); border-bottom: 1px solid var(--gp-header-line);
         flex-direction: column; align-items: stretch; gap: 12px; padding: 12px 20px 20px; }
@@ -833,7 +844,7 @@ body { overflow-x: clip; }
 }
 
 /* ─── Mobile : zones à toucher confortables (au moins 32 px de haut) ───── */
-@media (max-width: 860px) {
+@media (max-width: 960px) {
     .gp-site-langs a { padding: 10px 12px; font-size: .85rem; }
 }
 @media (max-width: 767px) {
