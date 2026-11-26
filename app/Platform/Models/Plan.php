@@ -47,6 +47,39 @@ class Plan extends Model
         return (string) ($this->description[$locale] ?? $this->description['fr'] ?? '');
     }
 
+    /**
+     * Points forts affichés, dans la langue demandée : « features » est soit une liste (ancien
+     * format, même texte partout), soit {fr: [...], en: [...]}. Les clés de limites d'hébergement
+     * (pages, posts…) éventuellement présentes ne sont jamais des points forts.
+     *
+     * @return list<string>
+     */
+    public function featureList(?string $locale = null): array
+    {
+        $locale ??= app()->getLocale();
+        $features = (array) $this->features;
+        if (isset($features['fr']) || isset($features['en'])) {
+            $list = (array) ($features[$locale] ?? $features['fr'] ?? $features['en'] ?? []);
+        } else {
+            $list = array_filter($features, fn ($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH);
+        }
+
+        return array_values(array_filter(array_map(fn ($v) => is_string($v) ? trim($v) : '', $list), fn ($v) => $v !== ''));
+    }
+
+    /** Prix à l'unité (mail pro : par boîte) : le client choisit la quantité. */
+    public function perUnit(): bool
+    {
+        return $this->kind === 'mail';
+    }
+
+    /** « par an », « par mois », « par boîte, par mois »… */
+    public function periodLabel(): string
+    {
+        return $this->perUnit() && $this->period === 'month' ? __('par boîte, par mois')
+            : ($this->perUnit() && $this->period === 'year' ? __('par boîte, par an') : \App\Platform\Labels::period($this->period));
+    }
+
     /** Fin de la période commencée à $from. null pour un achat unique. */
     public function periodEnd(\DateTimeInterface $from): ?\Illuminate\Support\Carbon
     {

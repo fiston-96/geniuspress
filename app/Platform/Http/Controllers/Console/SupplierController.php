@@ -101,6 +101,14 @@ class SupplierController extends Controller
         return back()->with('status', __('Coûts LWS mis à jour : :tlds extension(s), :plans offre(s).', $done));
     }
 
+    /** Offres partenaires conseillées (hébergement web, mail pro, stockage), d'après le catalogue LWS. */
+    public function importOffers(Request $request, SupplierPricing $pricing)
+    {
+        $done = \App\Platform\Suppliers\Lws\LwsOffers::import($pricing, $request->boolean('reprice'));
+
+        return back()->with('status', __('Offres partenaires : :created créée(s), :updated mise(s) à jour. Vérifiez les prix dans Offres.', $done));
+    }
+
     /** Disponibilité d'un domaine chez LWS (lecture seule, fonctionne aussi en mode test). */
     public function checkDomain(Request $request, \App\Platform\Suppliers\Lws\LwsRegistrar $lws)
     {

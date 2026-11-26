@@ -179,6 +179,14 @@ GeniusPress revend des services LWS avec sa marge, sans que LWS apparaisse dans 
   échéance réelle lue chez LWS (`GET /hosting/{domaine}`), renouvellement automatique LWS coupé à la première
   synchronisation (le client renouvelle et paie dans GeniusPress), alerte aux exploitants si un achat payé
   n'apparaît pas sur le compte LWS après 48 heures (une fois par semaine au plus).
+- **Offres conseillées** (`LwsOffers`, console → Fournisseurs → « Importer les offres conseillées ») :
+  3 hébergements web (Web Essentiel, Pro, Business), 3 mail pro (10, 20, 50 Go, prix par boîte : le client
+  choisit le nombre de boîtes) et 4 stockages (250 Go à 2 To), sous le nom GeniusPress, décrites en français
+  et en anglais d'après le catalogue public LWS (tarifs normaux hors promotion). Prix conseillé : coût + marge,
+  dans la devise des offres si son taux est réglé, sinon en euros ; une réimportation garde les prix réglés
+  à la main, sauf « Recalculer ». Points forts par langue (`Plan::featureList()`).
+- **Vitrine** : le widget `platform-offers` regroupe les offres par catégorie (site GeniusPress gratuit,
+  noms de domaine, hébergement web, mail pro, stockage), avec un titre et une introduction chacune.
 - **Rappels d'échéance** (`geniuspress:renewal-reminders`, chaque matin) : domaines à 30, 7 et 1 jour(s),
   services à 15 et 3 jours, par la cloche, l'e-mail et le SMS ; un rappel par palier, remis à zéro au
   renouvellement. Ce qui dépasse son échéance passe à l'état « expiré ».

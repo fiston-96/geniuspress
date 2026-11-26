@@ -50,6 +50,10 @@ class OffersWidget extends Widget
         // Textes, prix et noms des offres dans la langue de la page (pas celle de l'interface).
         $previous = app()->getLocale();
         app()->setLocale($ctx->site?->locale ?? $previous);
+        // Mise en page des catégories, déclarée par le widget (pas de feuille de style à recompiler).
+        $ctx->rule($id, ['display' => 'flex', 'flex-direction' => 'column', 'gap' => '56px'], false, ' .gp-offers-groups');
+        $ctx->rule($id, ['margin' => '0', 'font-size' => '1.6rem'], false, ' .gp-offers-group__title');
+        $ctx->rule($id, ['margin' => '6px 0 22px', 'max-width' => '720px', 'color' => 'var(--gp-color-doux, #57534e)'], false, ' .gp-offers-group__intro');
         try {
             return $this->offers($s);
         } finally {
@@ -62,21 +66,74 @@ class OffersWidget extends Widget
         $kinds = array_values(array_intersect(array_map('trim', explode(',', (string) ($s['kinds'] ?? 'web_hosting,mail,storage'))), Plan::KINDS));
         $plans = $kinds ? Plan::query()->active()->whereIn('kind', $kinds)->orderByRaw($this->kindOrder($kinds))->orderBy('sort')->orderBy('price')->get() : collect();
         $button = (string) ($s['button_text'] ?? __('Commander'));
-        $cards = $plans->map(fn (Plan $plan) => $this->planCard($plan, $button))->all();
 
-        if (! empty($s['show_domains']) && ($domains = $this->domainsCard($button)) !== null) {
-            array_unshift($cards, $domains);
+        // Une catégorie par type d'offre, dans l'ordre demandé ; les domaines après le site GeniusPress.
+        $groups = [];
+        foreach ($kinds as $kind) {
+            $cards = $plans->where('kind', $kind)->map(fn (Plan $plan) => $this->planCard($plan, $button))->values()->all();
+            // Site GeniusPress gratuit (sites sans limite) : en tête de sa catégorie.
+            if ($kind === 'hosting' && config('hosting.enabled') && config('hosting.unlimited')) {
+                array_unshift($cards, $this->freeCard());
+            }
+            if ($cards) {
+                $groups[$kind] = $cards;
+            }
+            if ($kind === 'hosting' && ! empty($s['show_domains']) && ($domains = $this->domainsCard($button)) !== null) {
+                $groups['domains'] = [$domains];
+            }
         }
-        if (! $cards) {
+        if (! isset($groups['domains']) && ! empty($s['show_domains']) && ($domains = $this->domainsCard($button)) !== null) {
+            $groups = ['domains' => [$domains]] + $groups;
+        }
+        if (! $groups) {
             return '<p class="gp-offers__empty">'.e((string) ($s['empty_text'] ?? __('Les offres arrivent très bientôt.'))).'</p>';
         }
+        if (count($groups) === 1) {
+            return '<div class="gp-offers">'.implode('', reset($groups)).'</div>';
+        }
 
-        return '<div class="gp-offers">'.implode('', $cards).'</div>';
+        $html = '<div class="gp-offers-groups">';
+        foreach ($groups as $kind => $cards) {
+            [$title, $intro] = $this->groupText($kind);
+            $html .= '<section class="gp-offers-group" id="offres-'.e($kind).'"><h3 class="gp-offers-group__title">'.e($title).'</h3>'
+                .'<p class="gp-offers-group__intro">'.e($intro).'</p><div class="gp-offers">'.implode('', $cards).'</div></section>';
+        }
+
+        return $html.'</div>';
+    }
+
+    /** @return array{0: string, 1: string} titre et introduction d'une catégorie */
+    private function groupText(string $kind): array
+    {
+        return match ($kind) {
+            'hosting' => [__('Votre site GeniusPress'), __('Créez votre site avec l’éditeur visuel, les modèles et l’assistant IA, publié sur votre adresse .geniuspress.site.')],
+            'domains' => [__('Noms de domaine'), __('Votre propre adresse sur internet, enregistrée à votre nom et branchée sur votre site en un clic.')],
+            'web_hosting' => [__('Hébergement web'), __('Un hébergement complet sur votre nom de domaine, avec vos adresses e-mail, pour WordPress ou tout autre logiciel.')],
+            'mail' => [__('Mail pro'), __('Des adresses professionnelles à votre nom de domaine, sur ordinateur et téléphone. Prix par boîte.')],
+            'storage' => [__('Stockage en ligne'), __('Un espace partagé et sécurisé pour les documents, photos et sauvegardes de votre équipe.')],
+            default => [Labels::kind($kind), ''],
+        };
+    }
+
+    /** Site GeniusPress gratuit sur un sous-domaine de la plateforme. */
+    private function freeCard(): string
+    {
+        $domain = (string) config('hosting.domain');
+
+        return $this->card(__('Gratuit'), __('Site GeniusPress'), __('Gratuit'), __('sans carte bancaire'),
+            __('Tout pour créer et publier votre site, sans rien installer.'), [
+                __('Adresse votre-site.:domain', ['domain' => $domain]),
+                __('Éditeur visuel par glisser-déposer'),
+                __('Modèles prêts par secteur d’activité'),
+                __('Assistant IA pour rédiger vos pages'),
+                __('Site en plusieurs langues'),
+                __('Certificat HTTPS inclus'),
+            ], __('Créer mon site'), '/compte/inscription');
     }
 
     private function planCard(Plan $plan, string $button): string
     {
-        $features = (array) $plan->features;
+        $features = $plan->featureList();
         if ($plan->trial_days > 0) {
             array_unshift($features, __(':days jours d’essai gratuit', ['days' => $plan->trial_days]));
         }
@@ -84,7 +141,7 @@ class OffersWidget extends Widget
             array_unshift($features, __(':amount de crédits IA', ['amount' => Money::micros($plan->ai_credits)]));
         }
 
-        return $this->card(Labels::kind($plan->kind), $plan->label(), Money::format($plan->price, $plan->currency), Labels::period($plan->period),
+        return $this->card(Labels::kind($plan->kind), $plan->label(), Money::format($plan->price, $plan->currency), $plan->periodLabel(),
             $plan->summary(), $features, $button, '/compte/offres#'.$plan->kind);
     }
 

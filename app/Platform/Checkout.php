@@ -25,7 +25,7 @@ class Checkout
     public function __construct(private PaymentManager $payments, private DomainService $domains, private OrderFulfiller $fulfiller) {}
 
     /**
-     * @param  array{domain?: ?string, request?: ?string}  $options  offres partenaires : domaine concerné, précisions du client
+     * @param  array{domain?: ?string, request?: ?string, quantity?: ?int}  $options  offres partenaires : domaine, précisions, nombre de boîtes
      */
     public function forPlan(Customer $customer, Plan $plan, array $options = []): Order
     {
@@ -51,8 +51,14 @@ class Checkout
                 $meta['request'] = mb_substr($request, 0, 1000);
             }
         }
+        // Prix à l'unité (mail pro : par boîte) : quantité choisie par le client.
+        $quantity = $plan->perUnit() ? max(1, min(100, (int) ($options['quantity'] ?? 1))) : 1;
+        if ($quantity > 1) {
+            $meta['quantity'] = $quantity;
+            $description .= ' × '.$quantity;
+        }
 
-        return $this->create($customer, 'plan', $plan->slug, mb_substr($description, 0, 255), $plan->price, $plan->currency, $meta);
+        return $this->create($customer, 'plan', $plan->slug, mb_substr($description, 0, 255), $plan->price * $quantity, $plan->currency, $meta, $quantity);
     }
 
     public function forTemplate(Customer $customer, string $templateId, string $name): Order

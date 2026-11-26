@@ -271,6 +271,62 @@ class SuppliersTest extends PlatformTestCase
         $this->assertTrue($domain->fresh()->expires_at->gt(now()->addMonths(11)));
     }
 
+    public function test_recommended_offers_are_imported_described_and_sold_per_mailbox(): void
+    {
+        Setting::write(['platform_supplier_markup' => '30', 'platform_supplier_rates' => ['USD' => '1.10']]);
+        $operator = $this->operator();
+        $this->actingAs($operator, 'operator')->post(route('console.suppliers.offers.import'))->assertSessionHas('status');
+        $this->assertSame(10, Plan::query()->count());
+
+        // Web Essentiel : 3,99 € × 12 = 47,88 € → 52,67 $ + 30 % = 68,47 $, arrondi à 69 $ ; nom GeniusPress, jamais LWS.
+        $web = Plan::query()->where('slug', 'web-essentiel')->sole();
+        $this->assertSame([4788, 'EUR', 6900, 'USD', 'year', 'lws', 'LWS Perso'], [$web->cost, $web->cost_currency, $web->price, $web->currency, $web->period, $web->provider, $web->provider_ref]);
+        $this->assertSame('Web Essentiel', $web->label('fr'));
+        $this->assertContains('100 GB SSD disk space', $web->featureList('en'));
+        $this->assertContains('100 Go d’espace disque SSD', $web->featureList('fr'));
+
+        // Prix réglé à la main : gardé à la réimportation, sauf demande de recalcul.
+        $web->update(['price' => 7500]);
+        $this->post(route('console.suppliers.offers.import'));
+        $this->assertSame(7500, $web->fresh()->price);
+        $this->post(route('console.suppliers.offers.import'), ['reprice' => '1']);
+        $this->assertSame(6900, $web->fresh()->price);
+
+        // Formulaire de l'offre : points forts en français et en anglais.
+        $this->put(route('console.plans.update', $web), ['slug' => 'web-essentiel', 'kind' => 'web_hosting', 'name_fr' => 'Web Essentiel', 'price' => '69', 'currency' => 'USD', 'period' => 'year',
+            'provider' => 'lws', 'provider_ref' => 'LWS Perso', 'active' => '1', 'features' => "3 sites
+100 Go", 'features_en' => "3 websites
+100 GB"])->assertRedirect();
+        $this->assertSame(['3 sites', '100 Go'], $web->fresh()->featureList('fr'));
+        $this->assertSame(['3 websites', '100 GB'], $web->fresh()->featureList('en'));
+
+        // Mail pro : prix par boîte, quantité choisie par le client.
+        $mail = Plan::query()->where('slug', 'mail-10')->sole();
+        $this->assertSame('par boîte, par mois', $mail->periodLabel());
+        $customer = $this->customer();
+        $this->actingAs($customer, 'customer')->get(route('platform.customer.plans'))->assertOk()->assertSee('Nombre de boîtes')->assertDontSee('LWS');
+        $this->post(route('platform.customer.plans.buy', $mail), ['domain' => 'monasso.org', 'quantity' => 3, 'request' => 'contact@, direction@, compta@'])->assertRedirect();
+        $order = Order::latest('id')->first();
+        $this->assertSame($mail->price * 3, $order->total);
+        $this->assertSame(3, $order->items()->sole()->quantity);
+    }
+
+    public function test_showcase_groups_offers_by_category_with_the_free_site_first(): void
+    {
+        config(['hosting.enabled' => true, 'hosting.unlimited' => true, 'hosting.domain' => 'geniuspress.site']);
+        \App\Platform\Suppliers\Lws\LwsOffers::import(app(\App\Platform\Suppliers\SupplierPricing::class));
+        TldPrice::create(['tld' => 'org', 'register_price' => 1500, 'renew_price' => 1500, 'currency' => 'USD', 'active' => true]);
+
+        $ctx = new RenderContext;
+        $html = app(WidgetRegistry::class)->get(OffersWidget::TYPE)->render(['kinds' => 'hosting,web_hosting,mail,storage', 'show_domains' => true], 'w1', $ctx);
+        $this->assertSame(['offres-hosting', 'offres-domains', 'offres-web_hosting', 'offres-mail', 'offres-storage'], array_map(fn ($m) => $m, preg_match_all('/id="(offres-[a-z_]+)"/', $html, $m) ? $m[1] : []));
+        $this->assertStringContainsString('votre-site.geniuspress.site', $html);
+        $this->assertStringContainsString('par boîte, par mois', $html);
+        $this->assertStringContainsString('Cloud 2 To', $html);
+        $this->assertStringNotContainsString('LWS', $html);
+        $this->assertStringContainsString('.gp-offers-groups', $ctx->stylesheet());
+    }
+
     public function test_dns_zone_points_domain_and_www_to_the_server(): void
     {
         $this->fakeLws([

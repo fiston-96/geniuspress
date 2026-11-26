@@ -31,6 +31,7 @@ class ShopController extends CustomerController
         $options = $request->validate([
             'domain' => ['nullable', 'string', 'max:190'],
             'request' => ['nullable', 'string', 'max:1000'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
         try {
             $order = $checkout->forPlan($this->customer($request), $plan, $options);

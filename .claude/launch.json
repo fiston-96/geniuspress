@@ -30,10 +30,11 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": [
         "/c",
-        "set GP_PLATFORM=true&& php artisan serve --host=127.0.0.1 --port=8001"
+        "set GP_PLATFORM=true&& set GP_HOSTING_ENABLED=true&& set GP_HOSTING_UNLIMITED=true&& php artisan serve --host=127.0.0.1 --port=8013"
       ],
-      "port": 8001,
-      "url": "http://localhost:8001"
+      "port": 8013,
+      "url": "http://localhost:8013",
+      "autoPort": false
     }
   ]
 }

@@ -35,19 +35,24 @@
             @foreach ($group as $plan)
                 <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
                     <h3 class="font-semibold">{{ $plan->label() }}</h3>
-                    <p class="mt-2 text-2xl font-semibold">{{ Money::format($plan->price, $plan->currency) }} <span class="text-sm font-normal text-slate-500">{{ Labels::period($plan->period) }}</span></p>
+                    <p class="mt-2 text-2xl font-semibold">{{ Money::format($plan->price, $plan->currency) }} <span class="text-sm font-normal text-slate-500">{{ $plan->periodLabel() }}</span></p>
                     <x-platform.local-price :amount="$plan->price" :currency="$plan->currency" class="block" />
                     @if ($plan->summary())<p class="mt-2 text-sm text-slate-600">{{ $plan->summary() }}</p>@endif
                     <ul class="mt-3 flex-1 space-y-1 text-sm text-slate-600">
                         @if ($plan->ai_credits > 0)<li>✓ {{ __(':amount de crédits IA', ['amount' => Money::micros($plan->ai_credits)]) }}</li>@endif
                         @if ($plan->trial_days > 0)<li>✓ {{ __(':days jours d’essai gratuit', ['days' => $plan->trial_days]) }}</li>@endif
-                        @foreach ((array) $plan->features as $feature)<li>✓ {{ $feature }}</li>@endforeach
+                        @foreach ($plan->featureList() as $feature)<li>✓ {{ $feature }}</li>@endforeach
                     </ul>
                     <form method="POST" action="{{ route('platform.customer.plans.buy', $plan) }}" class="mt-4 space-y-2">@csrf
                         @if ($plan->isSupplied())
                             @if ($plan->needs_domain)
                                 <label class="block text-xs font-medium text-slate-600">{{ __('Nom de domaine') }}
                                     <input name="domain" required list="gp-domains" placeholder="monassociation.org" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-normal">
+                                </label>
+                            @endif
+                            @if ($plan->perUnit())
+                                <label class="block text-xs font-medium text-slate-600">{{ __('Nombre de boîtes') }}
+                                    <input name="quantity" type="number" min="1" max="100" value="1" class="mt-1 block w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm font-normal">
                                 </label>
                             @endif
                             @if (in_array($plan->kind, ['mail', 'storage'], true))

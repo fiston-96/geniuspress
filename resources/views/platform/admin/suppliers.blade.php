@@ -114,6 +114,11 @@
                     <p class="py-2 text-slate-500">{{ __('Aucune offre partenaire.') }}</p>
                 @endforelse
             </div>
+            <form method="POST" action="{{ route('console.suppliers.offers.import') }}" class="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm">@csrf
+                <p class="text-slate-600">{{ __('Créer ou mettre à jour les offres conseillées (3 hébergements web, 3 mail pro, 4 stockages), décrites en français et en anglais, sous le nom GeniusPress. Prix conseillé : coût + marge, dans la devise des offres si son taux est réglé, sinon en euros.') }}</p>
+                <label class="flex items-center gap-2"><input type="checkbox" name="reprice" value="1"> {{ __('Recalculer aussi les prix de vente des offres existantes') }}</label>
+                <button class="rounded-lg border border-slate-300 px-3 py-2 font-medium hover:bg-slate-50">{{ __('Importer les offres conseillées') }}</button>
+            </form>
             <a href="{{ route('console.plans.create') }}" class="mt-3 inline-block text-sm font-medium text-brand-600 hover:underline">{{ __('Nouvelle offre') }} →</a>
         </section>
     </div>

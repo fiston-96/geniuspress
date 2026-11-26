@@ -48,7 +48,8 @@ class ServiceDesk
         $service = new Service([
             'customer_id' => $customer->id, 'plan_id' => $plan->id, 'order_id' => $order->id,
             'kind' => $plan->kind, 'provider' => $plan->provider, 'provider_ref' => $plan->provider_ref,
-            'domain' => $domain, 'request' => $item->meta['request'] ?? null,
+            'domain' => $domain,
+            'request' => trim((($item->meta['quantity'] ?? 1) > 1 ? __('Nombre de boîtes : :count', ['count' => $item->meta['quantity']])."\n" : '').($item->meta['request'] ?? '')) ?: null,
             'expires_at' => $plan->periodEnd(now()),
         ]);
         $service->setRelation('customer', $customer);

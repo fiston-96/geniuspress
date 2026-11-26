@@ -102,7 +102,7 @@ class PlatformAdminTest extends PlatformTestCase
         ])->assertRedirect(route('console.plans.index'));
         $plan = Plan::where('slug', 'pro')->sole();
         $this->assertSame([15000, 'XOF', 'year', 30, 2_500_000, ['Nom de domaine offert', 'Sauvegardes'], true],
-            [$plan->price, $plan->currency, $plan->period, $plan->trial_days, $plan->ai_credits, $plan->features, $plan->active]);
+            [$plan->price, $plan->currency, $plan->period, $plan->trial_days, $plan->ai_credits, $plan->featureList('fr'), $plan->active]);
 
         // Un pack de crédits est toujours un paiement unique, sans essai.
         $this->put(route('console.plans.update', $plan), ['slug' => 'pro', 'kind' => 'ai_credits', 'name_fr' => 'Pack', 'price' => '9.99', 'currency' => 'USD', 'period' => 'month', 'trial_days' => 10, 'ai_credits' => '10', 'active' => '0'])

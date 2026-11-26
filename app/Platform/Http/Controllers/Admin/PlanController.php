@@ -58,6 +58,7 @@ class PlanController extends Controller
             'trial_days' => ['nullable', 'integer', 'min:0', 'max:90'],
             'ai_credits' => ['nullable', 'string', 'regex:/^\d{1,6}([.,]\d{1,6})?$/'],
             'features' => ['nullable', 'string', 'max:2000'],
+            'features_en' => ['nullable', 'string', 'max:2000'],
             'sort' => ['nullable', 'integer', 'min:0', 'max:999'],
             'active' => ['sometimes', 'boolean'],
             // Offres partenaires (hébergement web, mail pro, stockage).
@@ -92,7 +93,11 @@ class PlanController extends Controller
             'period' => $data['period'],
             'trial_days' => $data['kind'] === 'hosting' ? (int) ($data['trial_days'] ?? 0) : 0,
             'ai_credits' => ($data['ai_credits'] ?? '') === '' ? 0 : Money::usdToMicros($data['ai_credits']),
-            'features' => array_values(array_filter(array_map('trim', preg_split('/\R/', (string) ($data['features'] ?? ''))))),
+            // Points forts par langue ; les limites d'hébergement éventuelles (pages, posts…) sont gardées.
+            'features' => array_filter([
+                'fr' => $this->lines($data['features'] ?? ''),
+                'en' => $this->lines($data['features_en'] ?? ''),
+            ]) + array_filter((array) $plan?->features, fn ($v, $k) => is_string($k) && ! in_array($k, ['fr', 'en'], true), ARRAY_FILTER_USE_BOTH),
             'sort' => (int) ($data['sort'] ?? 0),
             'active' => $request->boolean('active'),
             'provider' => $supplied ? $data['provider'] : null,
@@ -102,5 +107,11 @@ class PlanController extends Controller
             // Hébergement web : toujours pour un domaine.
             'needs_domain' => $supplied && ($data['kind'] === 'web_hosting' || $request->boolean('needs_domain')),
         ];
+    }
+
+    /** @return list<string> une ligne par point fort */
+    private function lines(string $text): array
+    {
+        return array_values(array_filter(array_map('trim', preg_split('/\R/', $text))));
     }
 }

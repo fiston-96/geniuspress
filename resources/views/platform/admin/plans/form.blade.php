@@ -59,9 +59,15 @@
             </div>
             <label class="mt-3 flex items-center gap-2 text-sm"><input type="hidden" name="needs_domain" value="0"><input type="checkbox" name="needs_domain" value="1" @checked(old('needs_domain', $plan->needs_domain))> {{ __('Le client indique un nom de domaine (toujours pour l’hébergement web)') }}</label>
         </fieldset>
-        <div>
-            <label for="features" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Points forts (un par ligne)') }}</label>
-            <textarea id="features" name="features" rows="4" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">{{ old('features', implode("\n", (array) $plan->features)) }}</textarea>
+        <div class="grid gap-4 md:grid-cols-2">
+            <div>
+                <label for="features" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Points forts (un par ligne, français)') }}</label>
+                <textarea id="features" name="features" rows="6" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">{{ old('features', implode("\n", $plan->featureList('fr'))) }}</textarea>
+            </div>
+            <div>
+                <label for="features_en" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Points forts (un par ligne, anglais)') }}</label>
+                <textarea id="features_en" name="features_en" rows="6" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">{{ old('features_en', isset(((array) $plan->features)['en']) ? implode("\n", $plan->featureList('en')) : '') }}</textarea>
+            </div>
         </div>
         <label class="flex items-center gap-2 text-sm"><input type="hidden" name="active" value="0"><input type="checkbox" name="active" value="1" @checked(old('active', $plan->active))> {{ __('En vente') }}</label>
         <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
