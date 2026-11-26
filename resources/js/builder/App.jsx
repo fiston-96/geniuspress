@@ -102,9 +102,9 @@ export default function App({ boot }) {
                 <div className="flex min-w-0 items-center gap-3">
                     <a href={urls.back} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg hover:bg-slate-100" title={t('Retour à l’administration')} aria-label={t('Retour à l’administration')}>
                         <svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true">
-                            <rect x="5" y="25" width="25" height="33" rx="5" fill="#a5b4fc" />
-                            <rect x="17" y="16" width="25" height="34" rx="5" fill="#4f46e5" />
-                            <rect x="30" y="6" width="28" height="37" rx="5" fill="#f59e0b" />
+                            <rect x="5" y="25" width="25" height="33" rx="5" fill="#e3c48f" />
+                            <rect x="17" y="16" width="25" height="34" rx="5" fill="#1e1b4b" />
+                            <rect x="30" y="6" width="28" height="37" rx="5" fill="#aa4d26" />
                             <rect x="35" y="11" width="18" height="6" rx="2" fill="#ffffff" />
                             <rect x="35" y="20" width="8" height="10" rx="2" fill="#ffffff" />
                             <rect x="45" y="20" width="8" height="10" rx="2" fill="#ffffff" fillOpacity="0.6" />

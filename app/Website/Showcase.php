@@ -107,12 +107,27 @@ final class Showcase
      */
     public static function shot(string $id, array $def, string $lang): array
     {
-        if (! PhotoLibrary::file('capture-'.$id)) {
+        if (! ($slot = self::captureSlot($id, $lang))) {
             return self::miniHero($id, $def, $lang);
         }
         $alt = ($lang === 'fr' ? 'Page d’accueil du modèle ' : 'Home page of the ').$def['name'][$lang].($lang === 'fr' ? '' : ' template');
 
-        return K::photo('capture-'.$id, 'layout-template', $alt, ['link' => self::demoUrl($id, $lang), 'border_radius' => 0]);
+        return K::photo($slot, 'layout-template', $alt, ['link' => self::demoUrl($id, $lang), 'border_radius' => 0]);
+    }
+
+    /**
+     * Emplacement de la capture d'un modèle dans la langue de la page : {modèle}-en.jpg pour
+     * l'anglais quand elle existe, sinon la capture française ; null s'il n'y en a aucune.
+     */
+    public static function captureSlot(string $id, string $lang): ?string
+    {
+        foreach (array_unique(['capture-'.$id.($lang === 'fr' ? '' : '-'.$lang), 'capture-'.$id]) as $slot) {
+            if (PhotoLibrary::file($slot)) {
+                return $slot;
+            }
+        }
+
+        return null;
     }
 
     /** Fenêtre de navigateur contenant la capture d'un modèle, ombre douce et coins arrondis. */

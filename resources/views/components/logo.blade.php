@@ -7,9 +7,10 @@
 @php $small = $size <= 24; @endphp
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2']) }}>
     <svg viewBox="0 0 64 64" width="{{ $size }}" height="{{ $size }}" class="shrink-0" @if ($wordmark) aria-hidden="true" @else role="img" aria-label="GeniusPress" @endif>
-        <rect x="5" y="25" width="25" height="33" rx="5" fill="#a5b4fc"/>
-        <rect x="17" y="16" width="25" height="34" rx="5" fill="#4f46e5"/>
-        <rect x="30" y="6" width="28" height="37" rx="5" fill="#f59e0b"/>
+        {{-- Or clair, nuit indigo (crème sur fond sombre, pour rester visible), terracotta. --}}
+        <rect x="5" y="25" width="25" height="33" rx="5" fill="#e3c48f"/>
+        <rect x="17" y="16" width="25" height="34" rx="5" fill="{{ $dark ? '#fbf7f0' : '#1e1b4b' }}"/>
+        <rect x="30" y="6" width="28" height="37" rx="5" fill="#aa4d26"/>
         @if ($small)
             <rect x="35" y="12" width="18" height="8" rx="3" fill="#ffffff"/>
         @else
@@ -19,6 +20,6 @@
         @endif
     </svg>
     @if ($wordmark)
-        <span class="font-bold whitespace-nowrap" style="font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: {{ round($size * 0.58) }}px; letter-spacing: -0.02em; line-height: 1"><span @class(['text-white' => $dark, 'text-slate-900' => ! $dark])>Genius</span><span @class(['text-indigo-300' => $dark, 'text-indigo-600' => ! $dark])>Press</span></span>
+        <span class="font-bold whitespace-nowrap" style="font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: {{ round($size * 0.58) }}px; letter-spacing: -0.02em; line-height: 1"><span style="color: {{ $dark ? '#ffffff' : '#1e1b4b' }}">Genius</span><span style="color: {{ $dark ? '#e3c48f' : '#aa4d26' }}">Press</span></span>
     @endif
 </span>

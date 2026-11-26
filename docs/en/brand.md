@@ -19,7 +19,7 @@ All files are in `public/brand/`.
 |---|---|
 | `geniuspress-mark.svg` | Color symbol, from 25 px |
 | `geniuspress-mark-small.svg` | Simplified symbol for 24 px and below (favicon, small icons) |
-| `geniuspress-mark-white.svg` | White symbol, on an indigo background or a dark photo |
+| `geniuspress-mark-white.svg` | White symbol, on a terracotta background or a dark photo |
 | `geniuspress-mark-black.svg` | Single-color symbol, for black and white printing or engraving |
 | `geniuspress-logo-light.svg` | Horizontal logo on a light background |
 | `geniuspress-logo-dark.svg` | Horizontal logo on a dark background |
@@ -41,21 +41,22 @@ In GeniusPress views, use the `x-logo` Blade component (parameters `size`, `word
 
 | Name | Hex | Role |
 |---|---|---|
-| Indigo | `#4f46e5` | Main color, middle page, "Press" |
-| Amber | `#f59e0b` | Front page: what is being built |
-| Lavender | `#a5b4fc` | Back page; "Press" on a dark background |
-| Night | `#0f172a` | "Genius" text, dark backgrounds |
+| Terracotta | `#aa4d26` | Main color, front page (what is being built), "Press" |
+| Night indigo | `#1e1b4b` | Middle page, "Genius" text, dark backgrounds |
+| Light gold | `#e3c48f` | Back page; "Press" on a dark background |
+| Gold | `#c9973a` | Website accent (figures, details) |
+| Cream | `#fbf7f0` | Light website background; middle page on a dark background |
 | White | `#ffffff` | Front page content, light backgrounds |
 
 ## Typography
 
-**Inter**, bold (700), with slight tightening (−2%). "Genius" is in Night and "Press" in Indigo. On a dark background: White and Lavender.
+**Inter**, bold (700), with slight tightening (−2%). "Genius" is in Night indigo and "Press" in Terracotta. On a dark background: White and Light gold.
 
 ## Usage rules
 
 - **Clear space**: leave an empty margin around the logo at least equal to the width of the front page (about 40% of the symbol's height).
 - **Minimum sizes**: color symbol 25 px (below that, use the simplified version), horizontal logo 120 px wide.
-- **Backgrounds**: the color symbol goes on white, light gray or Night. On indigo or on a photo, use the white version.
+- **Backgrounds**: the color symbol goes on white, cream or Night indigo (dark version, middle page in cream). On terracotta or on a photo, use the white version.
 
 Do not:
 - change the colors of the pages or their order;

@@ -19,7 +19,7 @@ Tous les fichiers sont dans `public/brand/`.
 |---|---|
 | `geniuspress-mark.svg` | Symbole en couleur, à partir de 25 px |
 | `geniuspress-mark-small.svg` | Symbole simplifié pour 24 px et moins (favicon, petites icônes) |
-| `geniuspress-mark-white.svg` | Symbole blanc, sur fond indigo ou sur photo sombre |
+| `geniuspress-mark-white.svg` | Symbole blanc, sur fond terracotta ou sur photo sombre |
 | `geniuspress-mark-black.svg` | Symbole une couleur, pour l'impression noir et blanc ou la gravure |
 | `geniuspress-logo-light.svg` | Logo horizontal sur fond clair |
 | `geniuspress-logo-dark.svg` | Logo horizontal sur fond sombre |
@@ -41,21 +41,22 @@ Dans les vues de GeniusPress, utilisez le composant Blade `x-logo` (paramètres 
 
 | Nom | Hex | Rôle |
 |---|---|---|
-| Indigo | `#4f46e5` | Couleur principale, page du milieu, « Press » |
-| Ambre | `#f59e0b` | Page de devant : ce qu'on est en train de construire |
-| Lavande | `#a5b4fc` | Page du fond ; « Press » sur fond sombre |
-| Nuit | `#0f172a` | Texte « Genius », fonds sombres |
+| Terracotta | `#aa4d26` | Couleur principale, page de devant (ce qu'on est en train de construire), « Press » |
+| Nuit indigo | `#1e1b4b` | Page du milieu, texte « Genius », fonds sombres |
+| Or clair | `#e3c48f` | Page du fond ; « Press » sur fond sombre |
+| Or | `#c9973a` | Accent du site (chiffres, détails) |
+| Crème | `#fbf7f0` | Fond clair du site ; page du milieu sur fond sombre |
 | Blanc | `#ffffff` | Contenu de la page de devant, fonds clairs |
 
 ## Typographie
 
-**Inter**, en gras (700), avec un léger resserrement (−2 %). « Genius » est en Nuit et « Press » en Indigo. Sur fond sombre : Blanc et Lavande.
+**Inter**, en gras (700), avec un léger resserrement (−2 %). « Genius » est en Nuit indigo et « Press » en Terracotta. Sur fond sombre : Blanc et Or clair.
 
 ## Règles d'usage
 
 - **Marge de protection** : laissez autour du logo un espace vide au moins égal à la largeur de la page de devant (environ 40 % de la hauteur du symbole).
 - **Tailles minimales** : symbole couleur 25 px (en dessous, prenez la version simplifiée), logo horizontal 120 px de large.
-- **Fonds** : le symbole couleur va sur blanc, sur gris clair ou sur Nuit. Sur l'indigo ou sur une photo, utilisez la version blanche.
+- **Fonds** : le symbole couleur va sur blanc, sur crème ou sur Nuit indigo (version sombre, page du milieu en crème). Sur le terracotta ou sur une photo, utilisez la version blanche.
 
 À ne pas faire :
 - changer les couleurs des pages ou leur ordre ;

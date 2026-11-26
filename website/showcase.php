@@ -192,7 +192,7 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 $intro($t($templates.' modèles', $templates.' templates'), $t('Partez d’un site déjà conçu pour votre secteur', 'Start from a website already designed for your sector'),
                     $t('Chaque modèle compte 8 pages en français et en anglais, avec de vraies photos, un blog et des animations. Ouvrez la démonstration : rien à installer.', 'Each template has 8 pages in French and English, with real photos, a blog and animations. Open the demo: nothing to install.')),
                 K::w('carousel', [
-                    'items' => array_map(fn ($id) => K::photoFields('capture-'.$id, 'layout-template', $catalog[$id]['name'][$lang]) + [
+                    'items' => array_map(fn ($id) => K::photoFields(S::captureSlot($id, $lang) ?? 'capture-'.$id, 'layout-template', $catalog[$id]['name'][$lang]) + [
                         'title' => $catalog[$id]['name'][$lang], 'text' => $sectors[$catalog[$id]['sector']]['name'][$lang] ?? '', 'link' => S::demoUrl($id, $lang),
                     ], ['ong-horizon', 'medias-tv-ecran', 'ecole-excellence', 'eglise-grace', 'restaurant-lac', 'medias-radio-onde', 'hopital-soin', 'tech-nova', 'gouvernement-republique', 'commerce-elegance', 'art-deco-wax', 'cabinet-justice']),
                     'per_view' => 3, 'per_view_tablet' => 2, 'per_view_mobile' => 1, 'gap' => 24, 'ratio' => '16:9', 'card' => true, 'autoplay' => true, 'interval' => 5,
