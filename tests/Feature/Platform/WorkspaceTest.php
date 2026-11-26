@@ -59,6 +59,45 @@ class WorkspaceTest extends PlatformTestCase
         $this->assertSame('Vous avez déjà utilisé votre essai gratuit.', app(\App\Hosting\HostingAccounts::class)->trialRefusal($customer->fresh()));
     }
 
+    public function test_free_unlimited_mode_several_sites_per_customer(): void
+    {
+        // Aucune offre d'essai sur la plateforme : en mode gratuit, rien n'est demandé.
+        config(['hosting.unlimited' => true]);
+        $customer = $this->customer(['name' => 'Radio Amani']);
+
+        $this->actingAs($customer, 'customer')->get(route('platform.customer.dashboard'))->assertOk()
+            ->assertSee('Mes sites GeniusPress')->assertSee('Créer mon site');
+        $this->get(route('hosting.trial'))->assertOk()->assertSee('Créer mon premier site')->assertSee('.localhost');
+
+        $this->post(route('hosting.trial.store'), ['name' => 'Radio Amani', 'slug' => 'radio-amani'])->assertRedirect(route('hosting.trial'));
+        $this->post(route('hosting.trial.store'), ['name' => 'Festival', 'slug' => 'festival-amani'])->assertRedirect(route('hosting.trial'));
+
+        $sites = Site::query()->orderBy('id')->get();
+        $this->assertSame(['radio-amani', 'festival-amani'], $sites->pluck('slug')->all());
+        foreach ($sites as $site) {
+            $this->assertSame([Site::STATUS_ACTIVE, 'free', null], [$site->status, $site->kind, $site->expires_at], (string) $site->error);
+            $this->assertNull($site->manifest()->limit('pages'), 'Pages sans limite.');
+            $this->assertNull($site->manifest()->limit('media_mb'));
+            $this->assertNotNull($site->manifest()->limit('ai_requests'), 'L’IA garde ses quotas (coût réel).');
+        }
+        $this->assertSame(0, Subscription::query()->count(), 'Pas d’abonnement d’essai pour un site gratuit.');
+        $this->assertNull($customer->fresh()->trial_used_at);
+
+        $this->get(route('hosting.trial'))->assertOk()->assertSee('radio-amani.localhost')->assertSee('festival-amani.localhost')->assertSee('Créer un nouveau site');
+        $this->get(route('platform.customer.dashboard'))->assertSee('2 sites')->assertSee('festival-amani.localhost');
+
+        // Chaque site s'ouvre par son adresse ; jamais celui d'un autre client.
+        $this->get(route('hosting.trial.open', ['site' => 'festival-amani']))->assertRedirect();
+        $other = $this->customer(['name' => 'Autre']);
+        $this->actingAs($other, 'customer')->get(route('hosting.trial.open', ['site' => 'festival-amani']))->assertRedirect(route('hosting.trial'));
+        $this->get(route('hosting.trial.status', ['site' => 'radio-amani']))->assertJson(['status' => null]);
+
+        // Limite par compte réglable (0 = aucune).
+        config(['hosting.sites_per_account' => 2]);
+        $this->actingAs($customer, 'customer')->post(route('hosting.trial.store'), ['name' => 'Trois', 'slug' => 'troisieme'])
+            ->assertSessionHas('warnings', ['Votre compte peut avoir 2 sites.']);
+    }
+
     public function test_platform_admins_cannot_start_a_trial_as_customers(): void
     {
         $this->plan();

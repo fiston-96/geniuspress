@@ -19,6 +19,8 @@ class DashboardController extends CustomerController
             // Site GeniusPress hébergé du client (essai ou offre payante), au cœur de son espace.
             'hosting' => (bool) config('hosting.enabled'),
             'site' => config('hosting.enabled') ? app(Trials::class)->siteFor($customer) : null,
+            // Sites gratuits sans limite : tous les sites du client.
+            'sites' => config('hosting.enabled') && config('hosting.unlimited') ? app(Trials::class)->sitesFor($customer) : null,
             'licenses' => $customer->licenses()->latest('id')->get(),
             'orders' => $customer->orders()->with('items')->latest('id')->limit(10)->get(),
             'domains' => $customer->domains()->orderBy('name')->get(),

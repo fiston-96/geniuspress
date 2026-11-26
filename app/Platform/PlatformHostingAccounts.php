@@ -33,6 +33,10 @@ class PlatformHostingAccounts implements HostingAccounts
         if (! $user->isActive()) {
             return __('Ce compte est suspendu. Contactez-nous.');
         }
+        // Sites gratuits sans limite : ni offre d'essai, ni « essai déjà utilisé ».
+        if (config('hosting.unlimited')) {
+            return null;
+        }
         if ($user->trial_used_at !== null) {
             return __('Vous avez déjà utilisé votre essai gratuit.');
         }
@@ -46,6 +50,9 @@ class PlatformHostingAccounts implements HostingAccounts
     /** Durée de l'offre d'essai de la plateforme ; quotas de config/hosting.php, sauf ceux précisés dans l'offre. */
     public function trialPlan(Authenticatable $user): HostingPlan
     {
+        if (config('hosting.unlimited')) {
+            return HostingPlan::free();
+        }
         $plan = $this->accounts->trialPlan();
         $overrides = array_intersect_key((array) ($plan?->features ?? []), array_flip(HostingPlan::LIMITS));
         if ($plan?->trial_days) {

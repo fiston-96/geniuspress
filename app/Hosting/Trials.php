@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 class Trials
 {
     /** Premiers mots d'adresse réservés (services de la plateforme, confusion possible). */
-    public const RESERVED = ['www', 'admin', 'api', 'app', 'mail', 'smtp', 'imap', 'ftp', 'ns1', 'ns2', 'cdn', 'static', 'assets', 'essai', 'demo', 'test', 'staging', 'dev', 'support', 'aide', 'help', 'blog', 'docs', 'status', 'compte', 'account', 'login', 'billing', 'paiement', 'geniuspress', 'genius', 'catalogue'];
+    public const RESERVED = ['www', 'admin', 'api', 'app', 'mail', 'smtp', 'imap', 'ftp', 'ns1', 'ns2', 'cdn', 'static', 'assets', 'essai', 'demo', 'test', 'staging', 'dev', 'support', 'aide', 'help', 'blog', 'docs', 'status', 'compte', 'account', 'login', 'billing', 'paiement', 'geniuspress', 'genius', 'catalogue', 'console', 'plateforme', 'platform', 'affiliation', 'essayer', 'newsletter', 'webmail', 'autodiscover', 'cpanel'];
 
     public function __construct(private SiteProvisioner $provisioner, private HostingAccounts $accounts) {}
 
@@ -26,11 +26,37 @@ class Trials
             ->latest('id')->first();
     }
 
-    /** Raison pour laquelle ce compte ne peut pas commencer d'essai maintenant, ou null. */
+    /** Tous les sites de ce compte, le plus récent d'abord (hors créations échouées). */
+    public function sitesFor(Authenticatable $user): \Illuminate\Support\Collection
+    {
+        return Site::query()
+            ->where('account_id', $this->accounts->accountId($user))
+            ->where('status', '!=', Site::STATUS_FAILED)
+            ->latest('id')->get();
+    }
+
+    /** Un site de ce compte, d'après son identifiant (adresse) ; jamais celui d'un autre compte. */
+    public function siteOf(Authenticatable $user, ?string $slug): ?Site
+    {
+        $sites = $this->sitesFor($user);
+
+        return $slug ? $sites->firstWhere('slug', $slug) : $sites->first();
+    }
+
+    /** Raison pour laquelle ce compte ne peut pas créer de site maintenant, ou null. */
     public function refusal(Authenticatable $user): ?string
     {
         if ($reason = $this->accounts->trialRefusal($user)) {
             return $reason;
+        }
+        // Sites gratuits sans limite : seule la limite par compte (0 = aucune) et la capacité du serveur.
+        if (config('hosting.unlimited')) {
+            $max = (int) config('hosting.sites_per_account', 0);
+            if ($max > 0 && $this->sitesFor($user)->whereNotIn('status', [Site::STATUS_DELETED])->count() >= $max) {
+                return trans_choice('{1} Votre compte peut avoir 1 site.|[2,*] Votre compte peut avoir :count sites.', $max);
+            }
+
+            return $this->capacityRefusal();
         }
         $used = Site::query()
             ->where('account_id', $this->accounts->accountId($user))

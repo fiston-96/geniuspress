@@ -2093,5 +2093,21 @@
     "Transfert Mobile Money vers :phone, référence :reference.": "Mobile Money transfer to :phone, reference :reference.",
     "Le montant est revenu sur votre solde. Motif : :note": "The amount is back on your balance. Reason: :note",
     "Afficher le mot de passe": "Show password",
-    "Masquer le mot de passe": "Hide password"
+    "Masquer le mot de passe": "Hide password",
+    "Mes sites GeniusPress": "My GeniusPress websites",
+    "Construisez vos sites avec le builder, les modèles et l’assistant IA, prévisualisez-les et publiez-les sur leur adresse :domain. Gratuit, sans limite de durée.": "Build your websites with the builder, the templates and the AI assistant, preview them and publish them on their :domain address. Free, with no time limit.",
+    "Ouvrir le builder ↗": "Open the builder ↗",
+    "Sécurisation de l’adresse (HTTPS)…": "Securing the address (HTTPS)…",
+    "Indisponible": "Unavailable",
+    "Créer mon premier site": "Create my first website",
+    "Créer un nouveau site": "Create a new website",
+    "Créer le site": "Create the website",
+    "Créez votre premier site : builder, modèles et assistant IA, publié sur votre adresse .geniuspress.site.": "Create your first website: builder, templates and AI assistant, published on your .geniuspress.site address.",
+    "{1} 1 site|[2,*] :count sites": "{1} 1 website|[2,*] :count websites",
+    "+ Nouveau site": "+ New website",
+    "Voir ↗": "View ↗",
+    "Voir l’état": "See the status",
+    "Tous mes sites →": "All my websites →",
+    "Mes sites": "My websites",
+    "{1} Votre compte peut avoir 1 site.|[2,*] Votre compte peut avoir :count sites.": "{1} Your account can have 1 website.|[2,*] Your account can have :count websites."
 }

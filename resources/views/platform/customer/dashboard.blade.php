@@ -13,7 +13,39 @@
     @endif
 
     {{-- Le site GeniusPress du client : le cœur de son espace de travail. --}}
-    @if ($hosting)
+    @if ($hosting && $sites !== null)
+        {{-- Sites gratuits sans limite : tous les sites du client. --}}
+        <div class="mt-6 rounded-xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-lg font-semibold">{{ __('Mes sites GeniusPress') }}</p>
+                    <p class="text-sm text-slate-600">{{ $sites->isEmpty() ? __('Créez votre premier site : builder, modèles et assistant IA, publié sur votre adresse .geniuspress.site.') : trans_choice('{1} 1 site|[2,*] :count sites', $sites->count()) }}</p>
+                </div>
+                <a href="{{ route('hosting.trial') }}" class="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500">{{ $sites->isEmpty() ? __('Créer mon site') : __('+ Nouveau site') }}</a>
+            </div>
+            @if ($sites->isNotEmpty())
+                <ul class="mt-4 divide-y divide-brand-100 rounded-lg border border-brand-100 bg-white">
+                    @foreach ($sites->take(8) as $s)
+                        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                            <div class="min-w-0">
+                                <p class="truncate font-medium">{{ $s->name }}</p>
+                                <a href="{{ $s->url() }}" target="_blank" rel="noopener" class="truncate font-mono text-xs text-brand-700 hover:underline">{{ $s->host }}</a>
+                            </div>
+                            @if ($s->effectiveStatus() === 'active' && ! $s->awaitingCertificate())
+                                <div class="flex gap-2">
+                                    <a href="{{ route('hosting.trial.open', ['site' => $s->slug]) }}" target="_blank" rel="noopener" class="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Ouvrir le builder ↗') }}</a>
+                                    <a href="{{ $s->url() }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ __('Voir ↗') }}</a>
+                                </div>
+                            @else
+                                <a href="{{ route('hosting.trial') }}" class="text-sm text-brand-700 hover:underline">{{ __('Voir l’état') }}</a>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+                @if ($sites->count() > 8)<a href="{{ route('hosting.trial') }}" class="mt-2 inline-block text-sm text-brand-700 hover:underline">{{ __('Tous mes sites →') }}</a>@endif
+            @endif
+        </div>
+    @elseif ($hosting)
         <div class="mt-6 rounded-xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">
             @if ($site)
                 <div class="flex flex-wrap items-center justify-between gap-4">

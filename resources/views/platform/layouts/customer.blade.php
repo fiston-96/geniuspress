@@ -7,11 +7,13 @@
     <title>@yield('title') · {{ __('Espace client GeniusPress') }}</title>
     @include('partials.brand-head')
     @vite(['resources/css/app.css'])
+    @stack('head')
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
 @php
     $links = [
         ['platform.customer.dashboard', __('Mon espace')],
+        ...(config('hosting.enabled') ? [['hosting.trial', __('Mes sites')]] : []),
         ['platform.customer.plans', __('Offres')],
         ['platform.customer.templates', __('Modèles payants')],
         ['platform.customer.domains', __('Domaines')],
@@ -36,6 +38,11 @@
     </div>
 </header>
 <main class="mx-auto w-full max-w-6xl px-4 py-8 md:px-8">
+    @if (session('warnings'))
+        <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <ul class="list-disc pl-5">@foreach (session('warnings') as $warning)<li>{{ $warning }}</li>@endforeach</ul>
+        </div>
+    @endif
     @if (session('status'))
         <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
     @endif

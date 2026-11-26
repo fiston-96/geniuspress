@@ -24,7 +24,7 @@ class LocalHostingAccounts implements HostingAccounts
 
     public function trialPlan(Authenticatable $user): Plan
     {
-        return Plan::trial();
+        return Plan::forNewSite();
     }
 
     public function owner(string $accountId): ?SiteOwner

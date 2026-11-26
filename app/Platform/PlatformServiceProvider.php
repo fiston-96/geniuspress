@@ -52,10 +52,14 @@ class PlatformServiceProvider extends ServiceProvider
         Event::listen(SiteProvisioned::class, function (SiteProvisioned $event) {
             $site = $event->site;
             $customer = PlatformHostingAccounts::customer($site->account_id);
-            if (! config('geniuspress.platform.enabled') || $site->kind !== 'trial' || ! $customer) {
+            if (! config('geniuspress.platform.enabled') || ! $customer) {
                 return;
             }
             PlatformNotifier::send($customer, new Notifications\SiteReady($site));
+            // Abonnement d'essai seulement pour un essai (pas pour un site gratuit sans limite).
+            if ($site->kind !== 'trial') {
+                return;
+            }
             $accounts = $this->app->make(PlatformAccounts::class);
             if ($accounts->activeSubscription($customer)) {
                 return;

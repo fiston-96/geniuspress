@@ -56,6 +56,12 @@ return [
 
     // Essais gratuits par compte.
     'trials_per_account' => 1,
+    // Sites gratuits sans limite (lancement de la plateforme, avant les offres payantes) :
+    // pas de date de fin, ni pages, ni articles, ni médias limités ; seuls les quotas IA
+    // ci-dessous restent (chaque demande coûte réellement). Voir Plan::free().
+    'unlimited' => (bool) env('GP_HOSTING_UNLIMITED', false),
+    // Sites par compte en mode gratuit (0 = sans limite).
+    'sites_per_account' => (int) env('GP_HOSTING_SITES_PER_ACCOUNT', 0),
 
     // Page « choisir une offre » (en attendant la plateforme commerciale).
     'upgrade_url' => env('GP_HOSTING_UPGRADE_URL'),

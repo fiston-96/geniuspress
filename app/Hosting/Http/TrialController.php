@@ -21,6 +21,18 @@ class TrialController extends Controller
         $user = $request->user();
         $site = $this->trials->siteFor($user);
 
+        // Sites gratuits sans limite : plusieurs sites par compte, page « Mes sites ».
+        if (config('hosting.unlimited')) {
+            return view('hosting.sites', [
+                'sites' => $this->trials->sitesFor($user)->map(fn (Site $s) => ['site' => $s, 'status' => $this->statusOf($s)]),
+                'refusal' => $this->trials->refusal($user),
+                'failed' => Site::query()->where('account_id', $this->accounts->accountId($user))
+                    ->where('status', Site::STATUS_FAILED)->where('updated_at', '>=', now()->subHour())->exists(),
+                'suggested' => $this->trials->suggestSlug((string) $user->name),
+                'domain' => config('hosting.domain'),
+            ]);
+        }
+
         return view('hosting.trial', [
             'site' => $site,
             'status' => $this->statusOf($site),
@@ -58,7 +70,7 @@ class TrialController extends Controller
     /** État du site, interrogé par la page pendant la préparation. */
     public function status(Request $request)
     {
-        $site = $this->trials->siteFor($request->user());
+        $site = $this->trials->siteOf($request->user(), $request->query('site'));
 
         return response()->json(['status' => $this->statusOf($site)]);
     }
@@ -66,7 +78,7 @@ class TrialController extends Controller
     /** Connexion en un clic à l'administration du site. */
     public function open(Request $request)
     {
-        $site = $this->trials->siteFor($request->user());
+        $site = $this->trials->siteOf($request->user(), $request->query('site'));
         if (! $site || ! in_array($this->statusOf($site), [Site::STATUS_ACTIVE, Site::STATUS_EXPIRED], true)) {
             return redirect()->route('hosting.trial')->with('warnings', [__('Ce site n’est pas disponible.')]);
         }
