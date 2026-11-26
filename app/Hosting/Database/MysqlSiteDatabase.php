@@ -30,7 +30,17 @@ class MysqlSiteDatabase implements SiteDatabase
         // Dès maintenant : en cas d'échec, drop() sait quoi retirer.
         $site->database = $name;
         $pdo->exec("CREATE USER '{$name}'@'{$host}' IDENTIFIED BY ".$pdo->quote($password));
-        $pdo->exec("GRANT ALL PRIVILEGES ON `{$name}`.* TO '{$name}'@'{$host}'");
+        // MySQL 8 refuse le GRANT à un compte dont les droits viennent d'un motif (`gpe\_%`) :
+        // le serveur peut fournir une procédure stockée (créée par root, SQL SECURITY DEFINER) qui
+        // vérifie les noms puis donne les droits. Voir docs/developpeurs/essai-heberge.md.
+        if ($procedure = $this->config['grant_procedure'] ?? null) {
+            if (! preg_match('/^[a-z0-9_]+\.[a-z0-9_]+$/', (string) $procedure)) {
+                throw new InvalidArgumentException('Procédure de droits invalide.');
+            }
+            $pdo->prepare("CALL {$procedure}(?, ?, ?)")->execute([$name, $name, $host]);
+        } else {
+            $pdo->exec("GRANT ALL PRIVILEGES ON `{$name}`.* TO '{$name}'@'{$host}'");
+        }
 
         return [
             'DB_CONNECTION' => 'mysql',

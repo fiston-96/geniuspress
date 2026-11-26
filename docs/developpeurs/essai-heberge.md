@@ -163,3 +163,25 @@ Les commandes `geniuspress:trial` doivent être lancées avec l'utilisateur du s
 1. Achat du domaine des essais, distinct de celui de la plateforme, et certificat générique (défi DNS-01 : il faut un accès à l'API DNS du registraire).
 2. Taille du disque du VPS, pour fixer le nombre d'essais simultanés et le quota de médias.
 3. Un `php artisan queue:work` en service (`GP_HOSTING_QUEUE=database`) pour créer les essais hors de la requête web.
+
+## Sites gratuits sans limite et MySQL 8 (geniuspress.site, novembre 2026)
+
+- `GP_HOSTING_UNLIMITED=true` : chaque client crée autant de sites qu'il veut (`GP_HOSTING_SITES_PER_ACCOUNT`, 0 = sans limite), type « free », sans date de fin ni quota de pages, d'articles ou de médias ; seuls les quotas IA de l'essai restent. Page « Mes sites » dans l'espace client.
+- Adresses : `{site}.geniuspress.site` (enregistrement DNS `A *`), un certificat Let's Encrypt par site (`GP_HOSTING_CERTIFICATES=per-site`, script `certificats-essais.sh` lancé par root chaque minute avec `GP_HOSTING_DOMAIN=geniuspress.site GP_WEB_USER=geniuspress`).
+- **MySQL 8** refuse le `GRANT` au compte de provisionnement quand ses droits viennent d'un motif (`gpe\_%`). Plutôt que de lui donner des droits globaux, root crée une procédure qui vérifie les noms puis donne les droits, et le compte n'a que le droit de l'appeler (`GP_HOSTING_DB_GRANT_PROCEDURE=gp_hosting.grant_site`) :
+
+```sql
+CREATE DATABASE IF NOT EXISTS gp_hosting;
+DELIMITER //
+CREATE PROCEDURE gp_hosting.grant_site(IN db VARCHAR(64), IN usr VARCHAR(32), IN hst VARCHAR(64))
+SQL SECURITY DEFINER
+BEGIN
+    IF db NOT REGEXP '^gpe_[0-9]+_[a-f0-9]{4}$' OR usr <> db OR hst NOT IN ('localhost', '127.0.0.1') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nom de base ou d''utilisateur refusé';
+    END IF;
+    SET @gp_sql = CONCAT('GRANT ALL PRIVILEGES ON `', db, '`.* TO ''', usr, '''@''', hst, '''');
+    PREPARE gp_st FROM @gp_sql; EXECUTE gp_st; DEALLOCATE PREPARE gp_st;
+END//
+DELIMITER ;
+GRANT EXECUTE ON PROCEDURE gp_hosting.grant_site TO 'geniuspress_hosting'@'localhost';
+```

@@ -35,6 +35,9 @@ return [
         'username' => env('GP_HOSTING_DB_USERNAME', env('DB_USERNAME', 'root')),
         'password' => env('GP_HOSTING_DB_PASSWORD', env('DB_PASSWORD', '')),
         'prefix' => 'gpe_',
+        // Procédure stockée qui donne les droits d'un site sur sa base (« schéma.procédure »),
+        // pour MySQL 8 qui refuse le GRANT direct au compte de provisionnement. null : GRANT direct.
+        'grant_procedure' => env('GP_HOSTING_DB_GRANT_PROCEDURE'),
         // Hôte des utilisateurs MySQL créés (« % » si PHP et MySQL sont sur des machines différentes).
         'user_host' => env('GP_HOSTING_DB_USER_HOST', 'localhost'),
     ],
