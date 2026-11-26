@@ -28,4 +28,7 @@ if ($envDir = getenv('GP_ENV_DIR')) {
     $app->useEnvironmentPath($envDir);
 }
 
+// Site hébergé par la plateforme (essai) : son .env, son storage et sa base, même code.
+\App\Hosting\HostedBootstrap::apply($app);
+
 return $app;
