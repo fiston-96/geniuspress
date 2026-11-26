@@ -21,7 +21,7 @@ $repo = 'https://github.com/fiston-96/geniuspress';
 $base = dirname(__DIR__);
 
 // Palette éditoriale de la vitrine : crème, terracotta, or, nuit indigo (famille du logo, docs/marque.md).
-$primaire = '#b4532a';
+$primaire = '#aa4d26';
 $or = '#c9973a';
 $nuit = '#1e1b4b';
 $creme = '#fbf7f0';
@@ -161,12 +161,12 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
     // ─── Éléments réutilisés ─────────────────────────────────────────────
     $card = fn (string $title, string $text, string $bg = '#ffffff') => K::col([
         K::h($title, 'h3', ['font_size' => 20, 'margin_bottom' => 8]),
-        K::p('<p>'.$text.'</p>', ['color' => '#475569']),
+        K::p('<p>'.$text.'</p>', ['color' => '#57534e']),
     ], ['padding' => 28, 'background_color' => $bg, 'border_radius' => 16]);
 
     $hero = fn (string $title, string $intro, array $extra = []) => K::section([
         K::h($title, 'h1', ['align' => 'center', 'font_size' => 52, 'font_size_mobile' => 34, 'margin_bottom' => 18]),
-        K::p('<p>'.$intro.'</p>', ['align' => 'center', 'font_size' => 19, 'color' => '#475569', 'margin_bottom' => $extra ? 28 : 0]),
+        K::p('<p>'.$intro.'</p>', ['align' => 'center', 'font_size' => 19, 'color' => '#57534e', 'margin_bottom' => $extra ? 28 : 0]),
         ...$extra,
     ], ['background_color' => $creme, 'padding_top' => 88, 'padding_bottom' => 72, 'padding_top_mobile' => 56, 'padding_bottom_mobile' => 48, 'max_width' => 860]);
 

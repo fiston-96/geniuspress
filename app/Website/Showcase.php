@@ -134,7 +134,7 @@ final class Showcase
         return K::box([
             $dot('#f87171'), $dot('#fbbf24'), $dot('#34d399'),
             // Adresse du site seulement (sans le chemin) : elle tient sur une ligne, même sur les petits aperçus.
-            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'global:body', 'font_weight' => '400', 'color' => '#78716c', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
+            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'global:body', 'font_weight' => '400', 'color' => '#6f6862', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
         ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f5f0e8', 'padding' => ['t' => 9, 'r' => 12, 'b' => 9, 'l' => 12]]);
     }
 
@@ -164,7 +164,7 @@ final class Showcase
                         ['direction' => 'row', 'gap' => 4, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'width' => '92px', 'grow' => false]),
                 ], ['direction' => 'row', 'justify' => 'between', 'align' => 'center', 'gap' => 8, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0]]),
                 K::p($def['description'][$lang], ['font_size' => 15, 'color' => 'global:doux', 'line_height' => '1.55']),
-                K::p(($styles[$th->hero] ?? '').' · '.$fonts.' · '.$t('8 pages, FR + EN', '8 pages, FR + EN'), ['font_size' => 13, 'color' => '#a8a29e']),
+                K::p(($styles[$th->hero] ?? '').' · '.$fonts.' · '.$t('8 pages, FR + EN', '8 pages, FR + EN'), ['font_size' => 13, 'color' => '#6f6862']),
                 K::box([
                     // Un œil seul : « Voir la démo » reste lu par les lecteurs d'écran et s'affiche au survol.
                     K::w('icon', ['icon' => 'lucide:eye', 'link' => self::demoUrl($id, $lang), 'label' => $t('Voir la démo', 'View the demo'), 'new_tab' => true,
@@ -186,7 +186,7 @@ final class Showcase
         return K::w('icon-box', [
             'icon' => 'lucide:'.$icon, 'title' => $name, 'position' => 'top', 'align' => 'center', 'icon_size' => 26, 'icon_shape' => 'none',
             'icon_color' => 'global:primary', 'icon_color_hover' => 'global:accent', 'title_size' => 14, 'title_tag' => 'p',
-            'background_color' => '#ffffff', 'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e2e8f0', 'border_color_hover' => 'global:primary',
+            'background_color' => '#ffffff', 'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e7e0d4', 'border_color_hover' => 'global:primary',
             'border_radius' => ['t' => 12, 'r' => 12, 'b' => 12, 'l' => 12], 'padding' => ['t' => 18, 'r' => 8, 'b' => 14, 'l' => 8], 'transition' => 200,
         ]);
     }

@@ -97,7 +97,7 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                         K::btn($theme, $t('Voir les '.$templates.' modèles', 'See the '.$templates.' templates'), $u('templates')),
                         K::btn($theme, $t('Télécharger GeniusPress', 'Download GeniusPress'), $u('download'), 'outline'),
                     ], 'center'),
-                    K::p($t('Gratuit · licence AGPL-3.0 · aucune carte bancaire', 'Free · AGPL-3.0 license · no credit card'), ['align' => 'center', 'font_size' => 14, 'color' => '#a8a29e']),
+                    K::p($t('Gratuit · licence AGPL-3.0 · aucune carte bancaire', 'Free · AGPL-3.0 license · no credit card'), ['align' => 'center', 'font_size' => 14, 'color' => '#6f6862']),
                 ], ['gap' => 22, 'content_width' => 'boxed', 'max_width' => 940, 'padding' => $zero]),
                 K::row([
                     // Sur tablette et téléphone, seule la capture centrale reste, élargie.

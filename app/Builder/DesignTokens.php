@@ -100,8 +100,20 @@ class DesignTokens
         if ($heading = self::headingFont($settings)) {
             $vars['--gp-heading-font'] = self::stack($heading);
         }
+        $custom = [];
         foreach (self::customColors($settings['custom_colors'] ?? []) as $c) {
             $vars['--gp-color-'.$c['id']] = $c['value'];
+            $custom[$c['id']] = $c['value'];
+        }
+        // Filets et fonds discrets des éléments (site.css) : tirés du texte secondaire et du fond
+        // clair du thème, pour qu'une palette chaude n'ait pas de bordures gris bleuté.
+        if (isset($custom['doux'])) {
+            $paper = $custom['clair'] ?? '#ffffff';
+            foreach (['--gp-tint' => 0.07, '--gp-line' => 0.16, '--gp-line-strong' => 0.32] as $name => $weight) {
+                if ($mixed = self::mix($custom['doux'], $paper, $weight)) {
+                    $vars[$name] = $mixed;
+                }
+            }
         }
 
         return ':root{'.implode(';', array_map(fn ($k, $v) => "{$k}:{$v}", array_keys($vars), $vars)).'}';
@@ -117,6 +129,25 @@ class DesignTokens
         ])));
 
         return 'https://fonts.bunny.net/css?family='.implode('|', array_map(fn ($f) => urlencode(strtolower($f)).':400,500,600,700,800', $families)).'&display=swap';
+    }
+
+    /** Mélange deux couleurs #rgb / #rrggbb : $weight de la première, le reste de la seconde. */
+    public static function mix(string $a, string $b, float $weight): ?string
+    {
+        $rgb = function (string $hex): ?array {
+            $hex = ltrim(strtolower($hex), '#');
+            if (strlen($hex) === 3) {
+                $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+            }
+
+            return preg_match('/^[0-9a-f]{6}$/', $hex) ? array_map('hexdec', str_split($hex, 2)) : null;
+        };
+        [$x, $y] = [$rgb($a), $rgb($b)];
+        if (! $x || ! $y) {
+            return null;
+        }
+
+        return '#'.implode('', array_map(fn ($i) => sprintf('%02x', (int) round($x[$i] * $weight + $y[$i] * (1 - $weight))), [0, 1, 2]));
     }
 
     private static function stack(string $font): string
