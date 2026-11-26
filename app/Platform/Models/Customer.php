@@ -2,16 +2,21 @@
 
 namespace App\Platform\Models;
 
+use App\Notifications\ResetPasswordLink;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /** Client de la plateforme commerciale (distinct des utilisateurs d'un site GeniusPress). */
 #[Fillable(['name', 'email', 'password', 'phone', 'country', 'company', 'locale', 'status'])]
 #[Hidden(['password', 'remember_token'])]
-class Customer extends Authenticatable
+class Customer extends Authenticatable implements HasLocalePreference
 {
+    use Notifiable;
+
     protected $table = 'platform_customers';
 
     protected $attributes = ['status' => 'active', 'locale' => 'fr', 'ai_balance' => 0];
@@ -27,6 +32,17 @@ class Customer extends Authenticatable
             'trial_used_at' => 'datetime',
             'ai_balance' => 'integer',
         ];
+    }
+
+    public function preferredLocale(): ?string
+    {
+        return $this->locale ?: null;
+    }
+
+    /** Mot de passe oublié : lien vers l'espace client (config/auth.php, courtier customers). */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordLink(route('platform.password.reset', ['token' => $token, 'email' => $this->email])));
     }
 
     public function isActive(): bool

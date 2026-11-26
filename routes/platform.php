@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Platform\Http\Controllers\Admin;
 use App\Platform\Http\Controllers\Customer;
 use App\Platform\Http\Middleware\EnsurePlatformEnabled;
@@ -18,6 +19,12 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::post('/inscription', [Customer\AuthController::class, 'register'])->middleware('throttle:platform-auth');
             Route::get('/connexion', [Customer\AuthController::class, 'showLogin'])->name('login');
             Route::post('/connexion', [Customer\AuthController::class, 'login'])->middleware('throttle:platform-auth');
+
+            // Mot de passe oublié (courtier « customers », table platform_password_reset_tokens).
+            Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'request'])->defaults('audience', 'customer')->name('password.request');
+            Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'email'])->defaults('audience', 'customer')->middleware('throttle:6,1')->name('password.email');
+            Route::get('/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->defaults('audience', 'customer')->name('password.reset');
+            Route::post('/nouveau-mot-de-passe', [PasswordResetController::class, 'update'])->defaults('audience', 'customer')->middleware('throttle:6,1')->name('password.update');
         });
 
         Route::middleware('auth:customer')->group(function () {

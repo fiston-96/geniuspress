@@ -221,7 +221,7 @@ class LocalSiteProvisioner implements SiteProvisioner
             'CACHE_STORE' => 'database',
             'QUEUE_CONNECTION' => 'sync',
             'FILESYSTEM_DISK' => 'public',
-            'MAIL_MAILER' => (string) config('hosting.mailer', 'log'),
+        ] + $this->mailEnv($site) + [
             // IA : clé et modèle de la plateforme, dans la limite des quotas du site.
             'ANTHROPIC_API_KEY' => (string) config('hosting.ai_key'),
             'GP_AI_MODEL' => (string) config('geniuspress.ai.model'),
@@ -233,6 +233,30 @@ class LocalSiteProvisioner implements SiteProvisioner
             'GP_CATALOG_DEMO_URL' => (string) config('geniuspress.catalog.demo_url'),
         ]);
         @chmod($env->path(), 0600);
+    }
+
+    /**
+     * Envoi des e-mails du site (mot de passe oublié, formulaires, newsletter) : avec
+     * GP_HOSTING_MAILER=smtp, le serveur d'envoi de la plateforme, au nom du site.
+     */
+    private function mailEnv(Site $site): array
+    {
+        $mailer = (string) config('hosting.mailer', 'log');
+        if ($mailer !== 'smtp') {
+            return ['MAIL_MAILER' => $mailer];
+        }
+        $smtp = (array) config('mail.mailers.smtp');
+
+        return [
+            'MAIL_MAILER' => 'smtp',
+            'MAIL_SCHEME' => (string) ($smtp['scheme'] ?? ''),
+            'MAIL_HOST' => (string) ($smtp['host'] ?? ''),
+            'MAIL_PORT' => (string) ($smtp['port'] ?? ''),
+            'MAIL_USERNAME' => (string) ($smtp['username'] ?? ''),
+            'MAIL_PASSWORD' => (string) ($smtp['password'] ?? ''),
+            'MAIL_FROM_ADDRESS' => (string) config('mail.from.address'),
+            'MAIL_FROM_NAME' => $site->name,
+        ];
     }
 
     private function writeHost(string $host, string $slug): void

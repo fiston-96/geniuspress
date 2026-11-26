@@ -42,7 +42,7 @@ return [
     // Clé API Anthropic de la plateforme, copiée dans chaque site (jamais envoyée au navigateur).
     'ai_key' => env('GP_HOSTING_AI_KEY'),
 
-    // Envoi des e-mails des sites hébergés (formulaires de contact).
+    // Envoi des e-mails des sites hébergés : « smtp » = serveur d'envoi de la plateforme (MAIL_* du .env), au nom du site.
     'mailer' => env('GP_HOSTING_MAILER', 'log'),
 
     // File d'attente pour créer les sites (null : juste après la réponse, sans worker).

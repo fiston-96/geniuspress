@@ -108,6 +108,14 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        // Clients de la plateforme : table à part, une même adresse pouvant aussi être
+        // celle d'un utilisateur de l'administration.
+        'customers' => [
+            'provider' => 'platform_customers',
+            'table' => 'platform_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*

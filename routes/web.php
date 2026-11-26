@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LayoutController;
@@ -36,6 +37,12 @@ Route::prefix('install')->middleware(\App\Http\Middleware\InstallerOpen::class)-
 Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [LoginController::class, 'show'])->name('login');
     Route::post('/admin/login', [LoginController::class, 'login'])->middleware('throttle:login');
+
+    // Mot de passe oublié (même contrôleur que l'espace client, courtier « users »).
+    Route::get('/admin/mot-de-passe-oublie', [PasswordResetController::class, 'request'])->defaults('audience', 'admin')->name('password.request');
+    Route::post('/admin/mot-de-passe-oublie', [PasswordResetController::class, 'email'])->defaults('audience', 'admin')->middleware('throttle:6,1')->name('password.email');
+    Route::get('/admin/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->defaults('audience', 'admin')->name('password.reset');
+    Route::post('/admin/nouveau-mot-de-passe', [PasswordResetController::class, 'update'])->defaults('audience', 'admin')->middleware('throttle:6,1')->name('password.update');
 });
 Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
