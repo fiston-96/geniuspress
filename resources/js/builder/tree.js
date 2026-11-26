@@ -131,10 +131,24 @@ export function remove(content, id) {
     return next;
 }
 
-/** Donne de nouveaux identifiants à un élément et à tout ce qu'il contient. */
-export function reId(node) {
-    node.id = uid();
-    if (isContainer(node)) (node.children ?? []).forEach(reId);
+/**
+ * Donne de nouveaux identifiants à un élément et à tout ce qu'il contient. Une ancre
+ * (css_id) déjà utilisée dans $content est retirée : deux éléments ne peuvent pas
+ * porter le même id HTML sur le site.
+ */
+export function reId(node, content = null) {
+    const taken = new Set();
+    const collect = (n) => { if (n.settings?.css_id) taken.add(n.settings.css_id); (n.children ?? []).forEach(collect); };
+    if (content) content.elements.forEach(collect);
+    const walk = (n) => {
+        n.id = uid();
+        if (n.settings?.css_id && taken.has(n.settings.css_id)) {
+            const { css_id, ...rest } = n.settings;
+            n.settings = rest;
+        }
+        if (isContainer(n)) (n.children ?? []).forEach(walk);
+    };
+    walk(node);
     return node;
 }
 
@@ -142,7 +156,7 @@ export function duplicate(content, id) {
     const next = clone(content);
     const loc = find(next, id);
     if (!loc) return [content, null];
-    const copy = reId(clone(loc.node));
+    const copy = reId(clone(loc.node), next);
     (loc.parent ? loc.parent.children : next.elements).splice(loc.index + 1, 0, copy);
     return [next, copy.id];
 }

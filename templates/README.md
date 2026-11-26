@@ -1,7 +1,8 @@
 # Modèles de sites
 
-Le catalogue compte **72 modèles** : 10 secteurs × 6 thèmes, plus le secteur Médias et presse
-(6 packs × 2 thèmes), 8 pages chacun, en français et en anglais. Chaque modèle s'installe comme une
+Le catalogue compte **122 modèles** dans 20 secteurs : 10 secteurs × 6 thèmes, le secteur Médias et
+presse (6 packs × 2 thèmes) et 25 packs métiers internationaux × 2 thèmes, 8 pages chacun, en
+français et en anglais. Chaque modèle s'installe comme une
 sauvegarde de site et se prévisualise sans installation.
 
 | Secteur | Pack | Pages |
@@ -22,10 +23,37 @@ sauvegarde de site et se prévisualise sans installation.
 | Médias : télévision | `medias-tv` | accueil (la une), direct, programmes, émissions et replays, l'info, la chaîne, annonceurs, contact |
 | Médias : journaliste indépendant | `medias-journaliste` | accueil, à propos, reportages, articles, prestations, formations, publications et prix, contact |
 | Médias : podcast | `medias-podcast` | accueil, épisodes, saisons et séries, le podcast, être invité, nous soutenir, partenaires, contact |
+| Cabinets : avocats | `avocats` | accueil, domaines, le cabinet, avocats, honoraires, rendez-vous, actualités, contact |
+| Cabinets : expert-comptable | `comptable` | accueil, missions, création d'entreprise, offres, outils en ligne, le cabinet, ressources, contact |
+| Agences : marketing digital | `agence-marketing` | accueil, services, études de cas, méthode, tarifs, l'agence, blog, contact |
+| Agences : architecture | `architecte` | accueil, projets, approche, étapes, honoraires, le studio, journal, contact |
+| Immobilier | `immobilier` | accueil, acheter, vendre, louer, gestion locative, estimation, conseils, contact |
+| Hôtellerie : hôtel | `hotel` | accueil, chambres, restaurant et bar, services, séminaires, galerie, journal, réservation et contact |
+| Tourisme : agence de voyages | `voyage` | accueil, destinations, circuits, sur mesure, groupes, conseils, l'agence, contact |
+| Santé : pharmacie | `pharmacie` | accueil, services, ordonnances, parapharmacie, vaccination, horaires et gardes, conseils santé, contact |
+| Santé : cabinet dentaire | `dentiste` | accueil, soins et urgences, orthodontie, implants et esthétique, première visite et tarifs, le cabinet, conseils, contact |
+| Enseignement : université | `universite` | accueil, formations, recherche, admissions, frais et bourses, international, vie de campus, contact |
+| Enseignement : formation pro | `formation` | accueil, formations, calendrier, entreprises, tarifs et financement, le centre, actualités, contact |
+| Sport : club | `club-sport` | accueil, le club, équipes, inscriptions, calendrier et résultats, actualités, partenaires, contact |
+| Sport : salle de fitness | `fitness` | accueil, cours, planning, coachs, abonnements, transformations, conseils, contact |
+| Culture : centre culturel, théâtre | `culture` | accueil, programmation, ateliers, expositions, adhésion et mécénat, location de salles, journal, contact |
+| Collectivités : mairie | `mairie` | accueil, démarches, services, conseil municipal, vie associative, actualités, signaler un problème, contact |
+| Artisans : multiservice | `artisan` | accueil, interventions, dépannage, réalisations, tarifs et devis, l'entreprise, conseils, contact |
+| BTP : construction | `btp` | accueil, métiers, références, sécurité et qualité, l'entreprise, appels d'offres, recrutement, contact |
+| Transport : logistique | `logistique` | accueil, solutions, entreposage, suivi, secteurs, réseau, actualités, contact |
+| Transport : garage | `garage` | accueil, entretien, pneus, carrosserie, tarifs, occasions, conseils, contact |
+| Agriculture : ferme | `ferme` | accueil, produits, paniers et vente directe, la ferme, visites, professionnels, recettes, contact |
+| Beauté : salon de coiffure | `salon` | accueil, prestations, équipe, réservation, boutique, avant-après, conseils, contact |
+| Beauté : spa | `spa` | accueil, soins, rituels, yoga et méditation, cartes cadeaux, philosophie, journal, contact |
+| Événementiel : agence, mariages | `evenementiel` | accueil, mariages, entreprises, formules, réalisations, l'agence, inspirations, contact |
+| Événementiel : photographe | `photographe` | accueil, portfolio, mariage, portrait, entreprise, tarifs, journal, contact |
+| Tech : logiciel en ligne (SaaS) | `saas` | accueil, fonctionnalités, intégrations, tarifs, sécurité, clients, ressources, contact |
 
-Un secteur peut réunir plusieurs packs : les modèles du secteur `medias` déclarent leur pack
+Un secteur peut réunir plusieurs packs : les modèles du secteur `medias` et des packs métiers déclarent leur pack
 (`'pack' => 'medias-radio'`, dernier argument de `$tpl` dans `catalog.php`). Les emplacements de
-photos sont alors préfixés par le nom du pack (`medias-radio-accueil`).
+photos sont alors préfixés par le nom du pack (`medias-radio-accueil`). Les packs métiers sont
+internationaux : coordonnées neutres (`[Ville]`, `[Pays]`), prix en € ou $, et leurs photos se cherchent
+sans origine imposée (`PhotoLibrary::INTERNATIONAL`).
 
 ## Comment c'est construit
 

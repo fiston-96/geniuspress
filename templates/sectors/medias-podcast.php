@@ -115,9 +115,9 @@ return [
                 ]),
                 B::stats($theme, ['items' => [
                     [42, '', $T('épisodes publiés', 'episodes published')],
-                    [1.2, ' M', $T('écoutes au total', 'total plays')],
+                    [1200000, '', $T('écoutes au total', 'total plays')],
                     [40, '+', $T('pays d’écoute', 'listening countries')],
-                    [4.9, '/5', $T('note moyenne', 'average rating')],
+                    [96, ' %', $T('d’auditeurs qui recommandent le podcast', 'of listeners who recommend the show')],
                 ]]),
                 B::team($theme, ['eyebrow' => $T('L’équipe', 'The team'), 'title' => $T('Derrière le micro', 'Behind the microphone'), 'shape' => 'circle', 'items' => [
                     ['[Prénom Nom]', $T('Créatrice et animatrice', 'Creator and host'), 'medias-podcast-equipe-1'],

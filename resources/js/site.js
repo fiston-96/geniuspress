@@ -410,3 +410,16 @@ for (const h of document.querySelectorAll('[data-gp-ah]')) {
     };
     setTimeout(() => erase(texts[0], texts[0].length), pause);
 }
+
+// ─── Menu des gabarits d'en-tête (widget « Menu ») ───────────────────────
+// Sans JavaScript, la case à cocher ouvre et ferme le menu mobile. Ici : il se
+// referme après un clic sur un lien (ancres d'une page unique), avec Échap ou
+// par un clic à l'extérieur.
+document.querySelectorAll('.gp-menu').forEach((menu) => {
+    const toggle = menu.querySelector('.gp-menu__toggle');
+    if (!toggle) return;
+    const close = () => { toggle.checked = false; };
+    menu.querySelectorAll('.gp-menu__panel a').forEach((a) => a.addEventListener('click', close));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    document.addEventListener('click', (e) => { if (!menu.contains(e.target)) close(); });
+});

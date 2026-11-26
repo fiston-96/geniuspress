@@ -100,7 +100,10 @@ class PageController extends Controller
                 // Page en ligne : on garde la version publiée intacte.
                 $page->draft_content = $content;
             } else {
+                // Page hors ligne : un ancien brouillon (gardé quand elle était en ligne)
+                // serait sinon rechargé à la place de ce contenu.
                 $page->content = $content;
+                $page->draft_content = null;
             }
             $page->save();
 

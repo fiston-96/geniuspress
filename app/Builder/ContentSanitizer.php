@@ -5,6 +5,7 @@ namespace App\Builder;
 use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Str;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerAction;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 /**
@@ -349,12 +350,26 @@ class ContentSanitizer
 
     private function html(): HtmlSanitizer
     {
-        return $this->html ??= new HtmlSanitizer(
-            (new HtmlSanitizerConfig)
-                ->allowElement('p')->allowElement('br')->allowElement('strong')->allowElement('b')
+        if ($this->html) {
+            return $this->html;
+        }
+        // Liste blanche partagée avec le builder (resources/js/builder/html.js).
+        // Une balise non prévue (div collée, h1, figure…) est retirée mais son texte est
+        // gardé ; les balises dangereuses partent avec leur contenu.
+        $config = (new HtmlSanitizerConfig)
+            ->defaultAction(HtmlSanitizerAction::Block)
+            // 50 000 caractères (Str::limit) peuvent faire jusqu'à 200 000 octets.
+            ->withMaxInputLength(200_000);
+        foreach (['script', 'style', 'template', 'noscript', 'iframe', 'object', 'embed', 'svg', 'math', 'head', 'title', 'textarea', 'select', 'button', 'form', 'input', 'img', 'video', 'audio', 'picture', 'canvas'] as $tag) {
+            $config = $config->dropElement($tag);
+        }
+
+        return $this->html = new HtmlSanitizer(
+            $config
+                ->allowElement('p')->allowElement('div')->allowElement('br')->allowElement('strong')->allowElement('b')
                 ->allowElement('em')->allowElement('i')->allowElement('u')->allowElement('s')
                 ->allowElement('ul')->allowElement('ol')->allowElement('li')
-                ->allowElement('blockquote')->allowElement('h2')->allowElement('h3')->allowElement('h4')
+                ->allowElement('blockquote')->allowElement('h2')->allowElement('h3')->allowElement('h4')->allowElement('h5')->allowElement('h6')
                 ->allowElement('a', ['href', 'title', 'target'])
                 ->allowElement('span')
                 // Documentation : code, tableaux, séparateurs.

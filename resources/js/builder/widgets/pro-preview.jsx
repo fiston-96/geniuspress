@@ -1,6 +1,6 @@
 // Aperçu et CSS des widgets avancés (widgets/pro.js).
 // Le CSS est le miroir exact des méthodes render() de app/Builder/Widgets/*Widget.php.
-import DOMPurify from 'dompurify';
+import { cleanHtml } from '../html';
 import { Icon } from '../icons';
 import { t } from '../i18n';
 
@@ -8,7 +8,7 @@ const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
 const VJUSTIFY = { top: 'flex-start', center: 'center', bottom: 'flex-end' };
 const set = (v) => v !== undefined && v !== null && v !== '';
 const px = (v) => (set(v) ? `${v}px` : null);
-const html = (s) => ({ __html: DOMPurify.sanitize(s ?? '') });
+const html = (s) => ({ __html: cleanHtml(s ?? '') });
 const Ph = ({ children }) => <div className="gpe-empty" style={{ margin: 0 }}>{children}</div>;
 const ALERT_ICONS = { info: 'info', success: 'circle-check', warning: 'triangle-alert', danger: 'triangle-alert', note: 'lightbulb' };
 

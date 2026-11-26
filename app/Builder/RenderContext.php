@@ -169,8 +169,10 @@ class RenderContext
     public function renameId(string $id, string $htmlId): void
     {
         $pattern = '/#gp-'.preg_quote($id, '/').'(?![\w-])/';
+        // Une ancre qui commence par un chiffre (« 2024 ») s'échappe en CSS : #\32 024.
+        $selector = '#'.(preg_match('/^\d/', $htmlId) ? '\3'.$htmlId[0].' '.substr($htmlId, 1) : $htmlId);
         foreach ($this->css as $device => $lines) {
-            $this->css[$device] = preg_replace($pattern, '#'.$htmlId, $lines);
+            $this->css[$device] = preg_replace_callback($pattern, fn () => $selector, $lines);
         }
     }
 

@@ -70,7 +70,10 @@ class PostsWidget extends ThemeWidget
                 ->with(['categories', 'featuredMedia'])->orderByDesc('published_at')->orderByDesc('id')->limit($count)->get();
         }
         if ($posts->isEmpty()) {
-            return '<p class="gp-plist__empty">'.e(__('Aucun article pour le moment.', [], $locale)).'</p>';
+            // Même message que l'archive par défaut (partials/archive) pour une recherche sans résultat.
+            $search = $paginator && $ctx->site?->kind === \App\Site\SiteContext::SEARCH;
+
+            return '<p class="gp-plist__empty">'.e($search ? __('Aucun article ne correspond à votre recherche.', [], $locale) : __('Aucun article pour le moment.', [], $locale)).'</p>';
         }
 
         $layout = $s['layout'] ?? 'grid';

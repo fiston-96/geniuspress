@@ -48,6 +48,8 @@ export function useStore(selector) {
 /** Modifie le contenu en l'enregistrant dans l'historique (annuler / rétablir). */
 export function commit(nextContent, extra = {}) {
     if (nextContent === state.content) return;
+    // Une frappe en cours de regroupement devient d'abord sa propre étape.
+    flushBatch();
     setState({
         content: nextContent,
         past: [...state.past.slice(-HISTORY_LIMIT + 1), state.content],

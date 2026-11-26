@@ -36,7 +36,36 @@ final class PhotoLibrary
         'medias-tv' => 'african television studio',
         'medias-journaliste' => 'african journalist reporter',
         'medias-podcast' => 'african podcast microphone',
+        // Packs métiers internationaux : des photos de partout, sans origine imposée.
+        'avocats' => 'law firm office',
+        'comptable' => 'accountant office',
+        'agence-marketing' => 'marketing agency team',
+        'architecte' => 'architecture studio interior',
+        'immobilier' => 'modern house real estate',
+        'hotel' => 'boutique hotel',
+        'voyage' => 'travel destination',
+        'pharmacie' => 'pharmacy pharmacist',
+        'dentiste' => 'dental clinic',
+        'universite' => 'university campus',
+        'formation' => 'adult professional training classroom',
+        'club-sport' => 'amateur sports team training',
+        'fitness' => 'gym workout fitness class',
+        'culture' => 'theater stage performance audience',
+        'mairie' => 'town hall city square',
+        'artisan' => 'plumber electrician home repair',
+        'btp' => 'construction site crane workers',
+        'logistique' => 'freight truck warehouse logistics',
+        'garage' => 'auto repair shop mechanic',
+        'ferme' => 'farm vegetables harvest field',
+        'salon' => 'hair salon',
+        'spa' => 'spa massage relaxation',
+        'evenementiel' => 'event planning wedding reception',
+        'photographe' => 'professional photographer camera',
+        'saas' => 'software team laptop dashboard',
     ];
+
+    /** Packs dont les portraits d'équipe ne précisent pas d'origine (public international). */
+    private const INTERNATIONAL = ['avocats', 'comptable', 'agence-marketing', 'architecte', 'immobilier', 'hotel', 'voyage', 'pharmacie', 'dentiste', 'universite', 'formation', 'club-sport', 'fitness', 'culture', 'mairie', 'artisan', 'btp', 'logistique', 'garage', 'ferme', 'salon', 'spa', 'evenementiel', 'photographe', 'saas'];
 
     public static function path(string $file = ''): string
     {
@@ -91,15 +120,18 @@ final class PhotoLibrary
 
             return array_values(array_unique(array_filter([$chosen, count($words) > 2 ? implode(' ', array_slice($words, 0, 2)) : null, $context])));
         }
+        $international = in_array($sector, self::INTERNATIONAL, true);
         if (str_contains($slot, '-equipe-') || str_contains($slot, '-team-') || str_starts_with(trim($alt), '[')) {
-            return array_values(array_unique(['african professional portrait '.str_replace('african ', '', $context), 'african professional portrait', 'african portrait']));
+            return $international
+                ? array_values(array_unique(['professional portrait '.$context, 'professional portrait', 'portrait']))
+                : array_values(array_unique(['african professional portrait '.str_replace('african ', '', $context), 'african professional portrait', 'african portrait']));
         }
         $alt = strtolower(trim(preg_replace('/\s+/', ' ', preg_replace('/\[[^\]]*\]|[^\pL\pN\s-]/u', ' ', $alt))));
         $words = array_values(array_filter(explode(' ', $alt), fn ($w) => strlen($w) > 2 && ! in_array($w, self::STOPWORDS, true)));
 
         return array_values(array_unique(array_filter([
             trim($alt.' '.$context),
-            trim(implode(' ', array_slice($words, 0, 2)).' african'),
+            trim(implode(' ', array_slice($words, 0, 2)).($international ? '' : ' african')),
             $context,
         ])));
     }

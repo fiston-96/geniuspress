@@ -128,7 +128,7 @@ class DesignTokens
             ...array_filter($extra, fn ($f) => in_array($f, SettingController::FONTS, true)),
         ])));
 
-        return 'https://fonts.bunny.net/css?family='.implode('|', array_map(fn ($f) => urlencode(strtolower($f)).':400,500,600,700,800', $families)).'&display=swap';
+        return 'https://fonts.bunny.net/css?family='.implode('|', array_map(fn ($f) => urlencode(strtolower($f)).':300,400,500,600,700,800,900', $families)).'&display=swap';
     }
 
     /** Mélange deux couleurs #rgb / #rrggbb : $weight de la première, le reste de la seconde. */

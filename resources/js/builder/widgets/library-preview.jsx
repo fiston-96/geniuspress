@@ -1,12 +1,12 @@
 // Aperçu et CSS des widgets de widgets/library.js.
 // Le CSS est le miroir exact des méthodes render() de app/Builder/Widgets/*.php.
-import DOMPurify from 'dompurify';
+import { cleanHtml } from '../html';
 import { Icon, brandHex, brandTitle } from '../icons';
 import { t } from '../i18n';
 
 const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
 const ratio = (r, fallback = 'auto') => ((r ?? fallback) === 'auto' ? null : (r ?? fallback).replace(':', ' / '));
-const html = (s) => ({ __html: DOMPurify.sanitize(s ?? '') });
+const html = (s) => ({ __html: cleanHtml(s ?? '') });
 const Ph = ({ children }) => <div className="gpe-empty" style={{ margin: 0 }}>{children}</div>;
 
 /** CSS d'une icône (IconWidget::iconCss). */

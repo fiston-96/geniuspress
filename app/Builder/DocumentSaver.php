@@ -36,7 +36,10 @@ final class DocumentSaver
             } elseif ($doc->status === 'published') {
                 $doc->draft_content = $content;
             } else {
+                // Document hors ligne : un ancien brouillon (gardé quand il était en ligne)
+                // serait sinon rechargé à la place de ce contenu.
                 $doc->content = $content;
+                $doc->draft_content = null;
             }
             $doc->save();
 

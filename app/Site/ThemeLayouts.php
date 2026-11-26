@@ -65,7 +65,8 @@ final class ThemeLayouts
             if ($score === null) {
                 continue;
             }
-            $rank = [$layout->priority, $score, $layout->id];
+            // À priorité et précision égales, un gabarit propre à la langue l’emporte sur « toutes langues ».
+            $rank = [$layout->priority, $score, $layout->locale ? 1 : 0, $layout->id];
             if ($bestScore === null || $rank > $bestScore) {
                 [$best, $bestScore] = [$layout, $rank];
             }

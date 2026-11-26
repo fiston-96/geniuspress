@@ -1,6 +1,6 @@
 // Widgets du cœur : déclarés exactement comme le ferait un plugin.
 // Le CSS ici est le miroir des méthodes render() de app/Builder/Widgets/*.php.
-import DOMPurify from 'dompurify';
+import { cleanHtml } from '../html';
 import { registerWidget } from '../registry';
 import { CORE_WIDGETS } from '../widgets';
 import { LIBRARY_WIDGETS } from './library';
@@ -41,7 +41,8 @@ const IMPL = {
         },
     },
     text: {
-        preview: (o) => <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(o.html || '') }} />,
+        // gpe-html : voir EDITOR_CSS (Canvas.jsx), qui reproduit .gp-text > :first-child / :last-child.
+        preview: (o) => <div className="gpe-html" dangerouslySetInnerHTML={{ __html: cleanHtml(o.html || '') }} />,
         css: (o, { rule, responsive, typography, sel }) => {
             rule(sel, { color: o.color });
             responsive('align', (v) => ({ 'text-align': v }));

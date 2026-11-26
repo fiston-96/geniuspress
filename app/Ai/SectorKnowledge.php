@@ -87,6 +87,60 @@ final class SectorKnowledge
             Tone: clear, factual, lively; headlines short and concrete; never sensationalist; separate news from opinion and label sponsored content.
             Never invent: news facts, quotes attributed to real people, audience figures, frequencies, channel numbers, stream or platform links, awards, advertising rates, names of journalists or hosts. Sample articles stay clearly generic and keep placeholders in square brackets.
             TXT,
+        'agence' => <<<'TXT'
+            Sector: agency or creative studio (marketing, communication, digital, architecture, interior design). Audiences: business decision makers, private clients, partners, candidates.
+            Must show: services and expertise, method from brief to delivery, portfolio or case studies, team, pricing principles or quote request, contacts.
+            Tone: confident, inspiring, concrete about deliverables and results; no buzzword soup.
+            Never invent: client names or logos, awards, published projects, results or figures of case studies, professional registration numbers, fees.
+            TXT,
+        'immobilier' => <<<'TXT'
+            Sector: real estate agency or property manager. Audiences: buyers, sellers, tenants, landlords, investors.
+            Must show: services (sale, purchase, rental, property management, valuation), featured listings, neighbourhoods served, process and fees principles, team, contacts and valuation request.
+            Tone: trustworthy, precise, local, reassuring.
+            Never invent: listings, prices, surfaces, addresses, agent licence numbers, fees, market statistics.
+            TXT,
+        'tourisme' => <<<'TXT'
+            Sector: travel agency / tour operator / tourism office. Audiences: travellers, families, groups, companies.
+            Must show: destinations and tours, what is included, prices or how to get a quote, tailor-made trips, practical information (documents, health, insurance, booking conditions), reviews, contacts.
+            Tone: inspiring, warm, precise about what is included.
+            Never invent: prices, dates, partner airlines or hotels, licences and guarantees, visa or health rules.
+            TXT,
+        'sport-culture' => <<<'TXT'
+            Sector: sports club, gym, cultural centre, theatre or cultural association. Audiences: members, families, spectators, volunteers, sponsors and patrons.
+            Must show: activities (teams, classes, shows, workshops), schedule and calendar, membership or ticketing, prices, coaches or artists, venue and access, how to join or support, contacts.
+            Tone: lively, welcoming, inclusive.
+            Never invent: results, rankings, dates of events, coaches' or artists' names, prices, sponsors.
+            TXT,
+        'artisans' => <<<'TXT'
+            Sector: tradespeople and construction companies (plumbing, electrics, carpentry, renovation, building, civil engineering). Audiences: homeowners, businesses, property managers, public buyers, candidates.
+            Must show: services, area covered, emergency service if any, free quote request, completed projects, guarantees and insurance, certifications, safety and quality, reviews, contacts.
+            Tone: reliable, practical, concrete; clear calls to action.
+            Never invent: certifications, insurance policy numbers, guarantees, prices, project references, response times.
+            TXT,
+        'transport' => <<<'TXT'
+            Sector: transport, logistics and automotive (freight, warehousing, delivery, garage, car dealer). Audiences: shippers and businesses, private customers, drivers and candidates.
+            Must show: services, coverage and network, how to get a quote or book, tracking, fleet or equipment, flat-rate prices if any, quality and safety, contacts and hours.
+            Tone: efficient, reliable, precise.
+            Never invent: delivery times, coverage areas, prices, fleet size, certifications, brands represented.
+            TXT,
+        'agriculture' => <<<'TXT'
+            Sector: farm, producer, agricultural cooperative or food business. Audiences: local customers, restaurants and shops, partners, visitors.
+            Must show: products and seasons, farming practices, where and how to buy (farm shop, markets, baskets, delivery), offers for professionals, visits and events, the people behind the farm, contacts.
+            Tone: authentic, warm, concrete about products and practices.
+            Never invent: organic or quality labels, certifications, prices, points of sale, product availability.
+            TXT,
+        'beaute' => <<<'TXT'
+            Sector: hair salon, beauty institute, spa or wellness centre. Audiences: local clients, gift buyers, couples, companies.
+            Must show: services and prices list, team, online booking, opening hours, gift cards, products used, hygiene and care commitments, reviews, contacts.
+            Tone: warm, caring, elegant; never make medical or miracle claims.
+            Never invent: prices, product brands, qualifications, health benefits, opening hours.
+            TXT,
+        'evenementiel' => <<<'TXT'
+            Sector: event agency, wedding planner, photographer or videographer. Audiences: couples, families, companies, partners.
+            Must show: services and packages, portfolio, process from first meeting to the event or delivery, prices or quote request, availability and booking, reviews, contacts.
+            Tone: warm, reassuring, inspiring, organised.
+            Never invent: past clients, venues, awards, prices, published work, availability dates.
+            TXT,
         'autre' => <<<'TXT'
             Sector: other organisation or business. Adapt the template's pages to the owner's activity: what they do, for whom, how it works, why trust them, how to contact them.
             TXT,

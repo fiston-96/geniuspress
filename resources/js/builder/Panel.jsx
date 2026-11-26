@@ -325,7 +325,7 @@ function History({ urls }) {
                 {revisions.map((r) => (
                     <li key={r.id} className="flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-slate-50">
                         <div className="min-w-0">
-                            <p className="text-sm font-medium">{r.note}</p>
+                            <p className="text-sm font-medium">{r.note === 'Publication' ? t('Publication') : r.note === 'Enregistrement' ? t('Enregistrement') : r.note}</p>
                             <p className="truncate text-xs text-slate-500">{new Date(r.created_at).toLocaleString(locale())} · {r.user?.name ?? '—'}</p>
                         </div>
                         <button className="shrink-0 text-xs font-medium text-brand-600 hover:text-brand-500 disabled:opacity-50" disabled={loading === r.id} onClick={() => restore(r)}>

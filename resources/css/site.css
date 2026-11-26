@@ -18,7 +18,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
 .gp-el { min-width: 0; }
 .gp-con { position: relative; display: flex; flex-direction: column; padding: 10px; }
 .gp-con-inner { position: relative; display: flex; flex-direction: column; gap: 20px; flex: 1 1 auto; width: 100%; margin: 0 auto; }
-.gp-overlay { position: absolute; inset: 0; pointer-events: none; }
+.gp-overlay { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
 .gp-text > :first-child { margin-top: 0; }
 .gp-text > :last-child { margin-bottom: 0; }
 .gp-text ul, .gp-text ol { padding-left: 1.25em; }

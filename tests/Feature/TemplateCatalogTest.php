@@ -21,7 +21,7 @@ class TemplateCatalogTest extends TestCase
 
     private string $catalog;
 
-    /** Le catalogue (72 modèles) n'est construit qu'une fois pour toute la classe. */
+    /** Le catalogue (122 modèles) n'est construit qu'une fois pour toute la classe. */
     private static ?string $built = null;
 
     protected function setUp(): void

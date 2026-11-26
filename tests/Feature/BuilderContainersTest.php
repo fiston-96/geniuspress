@@ -257,7 +257,7 @@ class BuilderContainersTest extends TestCase
             ->assertSee('--gp-color-vert-foret:#14532d', false)
             ->assertSee("--gp-heading-font:'Merriweather'", false)
             ->assertSee('#gp-box0000001{background-color:var(--gp-color-vert-foret)}', false)
-            ->assertSee('family=inter:400,500,600,700,800|merriweather:400,500,600,700,800|lato:400,500,600,700,800', false);
+            ->assertSee('family=inter:300,400,500,600,700,800,900|merriweather:300,400,500,600,700,800,900|lato:300,400,500,600,700,800,900', false);
     }
 
     public function test_ai_layouts_in_the_old_format_still_work(): void

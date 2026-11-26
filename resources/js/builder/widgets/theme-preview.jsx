@@ -26,9 +26,8 @@ function textCss(o, h, scope = ' > *', heading = true) {
 function PostCard({ p, o }) {
     return (
         <article className="gp-plist__item">
-            {on(o.show_image) && (p.image
-                ? <a className="gp-plist__media"><img src={p.image} alt="" draggable={false} /></a>
-                : <a className="gp-plist__media"><span style={{ display: 'block', aspectRatio: (o.ratio ?? '16:9').replace(':', ' / '), background: 'linear-gradient(135deg, var(--gp-primary), var(--gp-secondary))', opacity: 0.25 }} /></a>)}
+            {/* Comme PostsWidget::render : un article sans image n'a pas de bloc image. */}
+            {on(o.show_image) && p.image && <a className="gp-plist__media"><img src={p.image} alt="" draggable={false} /></a>}
             <div className="gp-plist__body">
                 {on(o.show_category) && p.category && <a className="gp-plist__category">{p.category}</a>}
                 <h3 className="gp-plist__title"><a>{p.title}</a></h3>

@@ -1,4 +1,4 @@
-import { Component, createElement, useEffect, useState } from 'react';
+import { Component, createElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { buildCss, containerDefaults } from './style';
 import { Placeholder } from './widgets/core';
@@ -13,6 +13,8 @@ const EDITOR_CSS = `
 body { min-height: 100vh; }
 a { pointer-events: auto; }
 .gpe-el { position: relative; }
+.gp-text > .gpe-html > :first-child { margin-top: 0; }
+.gp-text > .gpe-html > :last-child { margin-bottom: 0; }
 .gpe-con { outline: 1px dashed rgba(148,163,184,.55); outline-offset: -1px; }
 .gpe-con.is-hovered { outline: 1px solid #df9f7e; }
 .gpe-con.is-selected { outline: 2px solid #aa4d26; outline-offset: -2px; }
@@ -130,27 +132,17 @@ export default function Canvas() {
     const menu = useStore((s) => s.menu);
     const { css, fonts } = buildCss(content);
 
-    // Polices choisies pour des éléments précis : chargées à la demande.
-    useEffect(() => {
-        for (const font of fonts) {
-            const id = `gpe-font-${font.replace(/\W+/g, '-')}`;
-            if (document.getElementById(id)) continue;
-            const link = document.createElement('link');
-            link.id = id;
-            link.rel = 'stylesheet';
-            link.href = `https://fonts.bunny.net/css?family=${encodeURIComponent(font.toLowerCase())}:400,500,600,700,800&display=swap`;
-            document.head.appendChild(link);
-        }
-    }, [fonts.join('|')]); // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
         <>
+            {/* Polices choisies pour des éléments précis : chargées dans le document du canevas (l'iframe). */}
+            {fonts.map((font) => <link key={font} rel="stylesheet" href={`https://fonts.bunny.net/css?family=${encodeURIComponent(font.toLowerCase())}:300,400,500,600,700,800,900&display=swap`} />)}
             <style>{EDITOR_CSS}</style>
             <style>{css}</style>
             <main
                 id="contenu"
                 className="gpe-root"
-                style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+                // Comme <main id="contenu"> sur le site : un bloc (les marges verticales fusionnent).
+                style={{ minHeight: '100vh' }}
                 onClick={() => select(null)}
                 onDragOver={(e) => onDragOverBox(e, null, null)}
                 onDragLeave={(e) => { if (!e.relatedTarget) setState({ drop: null }); }}
@@ -300,20 +292,29 @@ function ContextMenu({ menu }) {
     const content = useStore((s) => s.content);
     const loc = menu.id ? find(content, menu.id) : null;
     const hasClip = !!readClipboard();
+    // Le canevas vit dans une iframe : sa fenêtre (et non celle du builder) borne le menu.
+    const ref = useRef(null);
+    const [view, setView] = useState(null);
+    useLayoutEffect(() => setView(ref.current?.ownerDocument.defaultView ?? null), []);
     useEffect(() => {
+        if (!view) return undefined;
         const close = () => setState({ menu: null });
-        window.addEventListener('click', close);
-        window.addEventListener('blur', close);
-        window.addEventListener('scroll', close, true);
-        return () => { window.removeEventListener('click', close); window.removeEventListener('blur', close); window.removeEventListener('scroll', close, true); };
-    }, []);
-    const x = Math.min(menu.x, window.innerWidth - 220);
-    const y = Math.min(menu.y, window.innerHeight - 260);
+        const targets = view === window ? [window] : [window, view];
+        for (const w of targets) {
+            w.addEventListener('click', close);
+            w.addEventListener('blur', close);
+            w.addEventListener('scroll', close, true);
+        }
+        return () => targets.forEach((w) => { w.removeEventListener('click', close); w.removeEventListener('blur', close); w.removeEventListener('scroll', close, true); });
+    }, [view]);
+    const frame = view ?? window;
+    const x = Math.max(0, Math.min(menu.x, frame.innerWidth - 220));
+    const y = Math.max(0, Math.min(menu.y, frame.innerHeight - 260));
     const item = (label, kbd, fn, disabled = false) => (
         <button disabled={disabled} onClick={act(() => { setState({ menu: null }); fn(); })}>{label}{kbd && <kbd>{kbd}</kbd>}</button>
     );
     return (
-        <div className="gpe-menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()}>
+        <div ref={ref} className="gpe-menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()}>
             {loc && item(t('Modifier :label', { label: labelOf(loc.node) }), null, () => select(loc.node.id))}
             {loc && <hr />}
             {loc && item(t('Copier'), 'Ctrl+C', () => copyEl(loc.node.id))}
@@ -340,6 +341,11 @@ class SafePreview extends Component {
         console.error(`[GeniusPress] Aperçu du widget « ${this.props.type} » :`, error);
     }
 
+    componentDidUpdate(prev) {
+        // Un réglage corrigé : on retente l'aperçu.
+        if (this.state.error && prev.settings !== this.props.settings) this.setState({ error: null });
+    }
+
     render() {
         return this.state.error ? <Placeholder>{t('Aperçu indisponible (erreur du widget « :type »)', { type: this.props.type })}</Placeholder> : this.props.children;
     }
@@ -354,7 +360,7 @@ function WidgetBody({ widget }) {
         return <Placeholder>{t(':label — aperçu visible sur le site publié', { label: def.label })}</Placeholder>;
     }
     return (
-        <SafePreview type={widget.type}>
+        <SafePreview type={widget.type} settings={widget.settings}>
             {def.preview(widget.settings, { h: createElement, Placeholder, sanitize: (html) => DOMPurify.sanitize(html) })}
         </SafePreview>
     );

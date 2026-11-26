@@ -36,9 +36,11 @@ export default function App({ boot }) {
         if (getState().saving) return;
         setState({ saving: true });
         try {
-            const r = await api(urls.content, { method: 'PUT', body: { content: getState().content, publish } });
-            // On garde le contenu local (déjà identique après nettoyage) pour ne pas perdre la sélection.
-            setState({ dirty: false, status: r.status, hasDraft: r.has_draft, savedAt: r.saved_at, revisions: r.revisions });
+            const sent = getState().content;
+            const r = await api(urls.content, { method: 'PUT', body: { content: sent, publish } });
+            // On garde le contenu local pour ne pas perdre la sélection. Une modification faite
+            // pendant l'envoi reste « non enregistrée ».
+            setState({ dirty: getState().content !== sent, status: r.status, hasDraft: r.has_draft, savedAt: r.saved_at, revisions: r.revisions });
             toast(publish ? t('Page publiée ✔') : r.has_draft ? t('Brouillon enregistré : publiez pour le mettre en ligne') : t('Modifications enregistrées ✔'), 'success');
         } catch (e) {
             toast(e.message, 'error');
@@ -83,7 +85,8 @@ export default function App({ boot }) {
             copyEl(selected);
         } else if (mod && key === 'v' && e.shiftKey && selected) { e.preventDefault(); pasteStyle(selected); }
         else if (mod && key === 'v') { e.preventDefault(); pasteAfter(selected); }
-        else if ((e.key === 'Delete' || e.key === 'Backspace') && selected) { e.preventDefault(); removeEl(selected); }
+        // Suppr : seulement depuis la page (pas quand un bouton du panneau a le focus).
+        else if ((e.key === 'Delete' || e.key === 'Backspace') && selected && e.target === e.target.ownerDocument.body) { e.preventDefault(); removeEl(selected); }
         else if (e.key === 'Escape') setState({ selected: null, panel: 'elements', menu: null });
     }, [save]);
 
@@ -179,9 +182,12 @@ function Stage({ device, boot, onKey }) {
         observer.observe(el);
         return () => observer.disconnect();
     }, []);
-    const scale = device.id === 'desktop' && space.w > 0 && space.w < DESKTOP_MIN ? space.w / DESKTOP_MIN : 1;
+    // Ordinateur et tablette : si la place manque, on réduit à l'échelle plutôt que de
+    // rétrécir l'iframe (sinon les règles d'un autre appareil s'appliqueraient).
+    const target = device.id === 'desktop' ? DESKTOP_MIN : parseInt(device.width, 10);
+    const scale = device.id !== 'mobile' && space.w > 0 && space.w < target ? space.w / target : 1;
     const style = scale < 1
-        ? { width: DESKTOP_MIN, height: space.h / scale, transform: `scale(${scale})`, transformOrigin: 'top left' }
+        ? { width: target, height: space.h / scale, transform: `scale(${scale})`, transformOrigin: 'top left' }
         : { width: device.width, maxWidth: '100%' };
 
     return (
@@ -189,7 +195,7 @@ function Stage({ device, boot, onKey }) {
             <div className={scale < 1 ? 'absolute left-4 top-4' : 'h-full transition-[width] duration-300'} style={style} onClick={(e) => e.stopPropagation()}>
                 <Frame boot={boot} onKey={onKey} />
             </div>
-            {scale < 1 && <p className="pointer-events-none absolute bottom-1 right-3 text-[11px] text-slate-400">{t('Affichage ordinateur réduit à :percent %', { percent: Math.round(scale * 100) })}</p>}
+            {scale < 1 && <p className="pointer-events-none absolute bottom-1 right-3 text-[11px] text-slate-400">{device.id === 'desktop' ? t('Affichage ordinateur réduit à :percent %', { percent: Math.round(scale * 100) }) : t('Affichage tablette réduit à :percent %', { percent: Math.round(scale * 100) })}</p>}
         </div>
     );
 }

@@ -67,7 +67,7 @@ export function pasteAfter(id) {
     const node = readClipboard();
     if (!node) return toast(t('Rien à coller : copiez d’abord un élément.'));
     const content = getState().content;
-    const copy = reId(structuredClone(node));
+    const copy = reId(structuredClone(node), content);
     const loc = id ? find(content, id) : null;
     let parentId = loc ? loc.parent?.id ?? null : null;
     let index = loc ? loc.index + 1 : content.elements.length;
@@ -149,7 +149,9 @@ export function dropAt(parentId, index) {
     if (drag.kind === 'new') {
         const w = makeWidget(drag.type);
         const item = parentId === null ? makeContainer(makeStructure([100]).settings, [w]) : w;
-        commit(insert(content, parentId, index, item), { selected: w.id, panel: 'settings' });
+        const next = insert(content, parentId, index, item);
+        if (next === content) return toast(t('Impossible : profondeur maximale atteinte.'), 'error');
+        commit(next, { selected: w.id, panel: 'settings' });
     } else if (drag.kind === 'structure') {
         const box = makeStructure(drag.widths, parentId === null);
         const next = insert(content, parentId, index, box);

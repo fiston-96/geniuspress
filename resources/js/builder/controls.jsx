@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import DOMPurify from 'dompurify';
+import { cleanHtml } from './html';
 import MediaPicker from './MediaPicker';
 import { t } from './i18n';
 import { useStore } from './store';
@@ -86,7 +86,10 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                         <input type="range" className={`flex-1 accent-brand-600 ${has ? '' : 'opacity-50'}`} min={control.min} max={control.max} step={control.step ?? 1}
                             value={shown} onChange={(e) => set(Number(e.target.value))} />
                         <input type="number" className={`${inputCls} !w-16 !px-1.5 text-right`} min={control.min} max={control.max}
-                            value={value ?? ''} placeholder={String(placeholder ?? control.default ?? '—')} onChange={(e) => set(e.target.value === '' ? null : Number(e.target.value))} />
+                            value={value ?? ''} placeholder={String(placeholder ?? control.default ?? '—')}
+                            // Mêmes bornes que le serveur (ContentSanitizer) : le maximum tout de suite, le minimum en quittant le champ.
+                            onChange={(e) => set(e.target.value === '' ? null : Math.min(Number(e.target.value), control.max ?? Infinity))}
+                            onBlur={() => { if (value != null && control.min != null && value < control.min) set(control.min); }} />
                     </div>
                 </div>
             );
@@ -473,13 +476,13 @@ function RichText({ label, value, onChange }) {
     useEffect(() => {
         // Ne réécrit le DOM que si la valeur vient d'ailleurs (annuler, autre widget…).
         if (ref.current && value !== last.current) {
-            ref.current.innerHTML = DOMPurify.sanitize(value);
+            ref.current.innerHTML = cleanHtml(value);
             last.current = value;
         }
     }, [value]);
 
     useEffect(() => {
-        if (ref.current) ref.current.innerHTML = DOMPurify.sanitize(value);
+        if (ref.current) ref.current.innerHTML = cleanHtml(value);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -513,6 +516,16 @@ function RichText({ label, value, onChange }) {
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('removeFormat')}>{t('Effacer')}</button>
                 </div>
                 <div ref={ref} contentEditable suppressContentEditableWarning onInput={emit}
+                    // Entrée crée un paragraphe (<p>) et non une <div>.
+                    onFocus={() => document.execCommand('defaultParagraphSeparator', false, 'p')}
+                    // Collage : on ne garde que les balises acceptées à l'enregistrement.
+                    onPaste={(e) => {
+                        const pasted = e.clipboardData.getData('text/html');
+                        if (!pasted) return;
+                        e.preventDefault();
+                        document.execCommand('insertHTML', false, cleanHtml(pasted));
+                        emit();
+                    }}
                     className="prose-sm max-h-80 min-h-28 overflow-y-auto bg-white px-3 py-2 text-sm outline-none [&_a]:text-brand-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5" />
             </div>
         </div>

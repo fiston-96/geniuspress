@@ -50,9 +50,9 @@ return [
             ['medias-tv-emission-jeunesse', 'smile', $T('Les P’tits Curieux', 'Little Explorers'), $T('Le rendez-vous éducatif et ludique des 6-12 ans, chaque mercredi.', 'The fun, educational show for 6 to 12 year-olds, every Wednesday.'), $schedule],
         ];
         $audience = ['title' => $T('Une chaîne regardée par tout le pays', 'A channel watched across the country'), 'items' => [
-            [4.2, ' M', $T('téléspectateurs par semaine', 'weekly viewers')],
+            [4200000, '', $T('téléspectateurs par semaine', 'weekly viewers')],
             [26, ' %', $T('de part d’audience à 20 h', 'audience share at 8 pm')],
-            [1.5, ' M', $T('abonnés sur nos chaînes en ligne', 'online channel subscribers')],
+            [1500000, '', $T('abonnés sur nos chaînes en ligne', 'online channel subscribers')],
             [20, '', $T('ans de diffusion', 'years on air')],
         ]];
         $cta = ['title' => $T('Votre marque à l’écran', 'Your brand on screen'), 'text' => $T('Spots, parrainages, placements de produits : touchez des millions de téléspectateurs avec nos équipes de production.', 'Spots, sponsorships, product placement: reach millions of viewers with our production teams.'),

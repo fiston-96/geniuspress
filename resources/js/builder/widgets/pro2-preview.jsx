@@ -1,7 +1,7 @@
 // Aperçu et CSS des widgets avancés, lot 2 (widgets/pro2.js).
 // Le CSS est le miroir exact des méthodes render() de app/Builder/Widgets/*Widget.php.
 import { useId } from 'react';
-import DOMPurify from 'dompurify';
+import { cleanHtml } from '../html';
 import { Icon } from '../icons';
 import { t } from '../i18n';
 import { embedUrl } from './core';
@@ -22,7 +22,7 @@ const SHAPES = {
 const animatedWords = (text) => String(text ?? '').split(/\r\n|\r|\n/).map((w) => w.trim()).filter((w) => w !== '').slice(0, 10);
 const set = (v) => v !== undefined && v !== null && v !== '';
 const px = (v) => (set(v) ? `${v}px` : null);
-const html = (s) => ({ __html: DOMPurify.sanitize(s ?? '') });
+const html = (s) => ({ __html: cleanHtml(s ?? '') });
 const Ph = ({ children }) => <div className="gpe-empty" style={{ margin: 0 }}>{children}</div>;
 
 /** CarouselWidget::slidesCss */
