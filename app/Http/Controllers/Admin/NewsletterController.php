@@ -129,7 +129,9 @@ class NewsletterController extends Controller
 
             return redirect()->route('admin.newsletter.index')->with('warnings', [__('Aucun abonné inscrit ne correspond : rien n’a été envoyé.')]);
         }
-        config('queue.default') === 'sync' ? SendNewsletter::dispatchAfterResponse() : SendNewsletter::dispatch();
+        // Juste après la réponse, dans le même processus : aucun service de file d'attente n'est
+        // nécessaire (hébergement mutualisé, sites hébergés). La commande planifiée reprend le reste.
+        SendNewsletter::dispatchAfterResponse();
 
         return redirect()->route('admin.newsletter.index')->with('status', trans_choice(
             '{1} Envoi lancé à 1 abonné.|[2,*] Envoi lancé à :count abonnés, au rythme de :rate par minute.', $count, ['rate' => Newsletter::perMinute()]
