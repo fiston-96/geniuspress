@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['customer_id', 'name', 'status', 'registrar', 'registrar_reference', 'registered_at', 'expires_at'])]
+#[Fillable(['customer_id', 'name', 'status', 'registrar', 'registrar_reference', 'registered_at', 'expires_at', 'site_slug'])]
 class Domain extends Model
 {
     protected $table = 'platform_domains';

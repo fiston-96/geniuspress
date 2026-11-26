@@ -71,6 +71,15 @@ return [
             'key' => env('GP_MONERAILS_KEY'),
             'webhook_secret' => env('GP_MONERAILS_WEBHOOK_SECRET'),
         ],
+        // LWS (GP_DOMAIN_REGISTRAR=lws, offres partenaires « lws ») : identifiant et clé réglés dans la
+        // console (clé chiffrée en base) ou ici. Mode test (X-Test-Mode) : rien n'est créé ni facturé.
+        'lws' => [
+            'url' => env('GP_LWS_URL', 'https://api.lws.net/v1'),
+            'login' => env('GP_LWS_LOGIN'),
+            'key' => env('GP_LWS_KEY'),
+        ],
+        // Adresse IP du serveur des sites hébergés : un domaine branché sur un site pointe vers elle.
+        'server_ip' => env('GP_SERVER_IP'),
         // Relais IA : demandes par minute et par licence, plafond de jetons de sortie, taille maximale d'une demande.
         'relay_per_minute' => (int) env('GP_RELAY_PER_MINUTE', 30),
         'relay_max_tokens' => 32000,

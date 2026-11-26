@@ -58,7 +58,7 @@
                             <select name="operator" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Opérateur') }}">
                                 @foreach ($gateway->operators() as $code => $name)<option value="{{ $code }}">{{ $name }}</option>@endforeach
                             </select>
-                            <input name="phone" type="tel" value="{{ old('phone', auth('customer')->user()->phone) }}" placeholder="+243 …" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Numéro Mobile Money') }}">
+                            <input name="phone" type="tel" value="{{ old('phone', auth('customer')->user()->phone) }}" placeholder="{{ __('+ indicatif du pays') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Numéro Mobile Money') }}">
                         </div>
                     @endif
                     @if (in_array('card', $gateway->methods(), true))

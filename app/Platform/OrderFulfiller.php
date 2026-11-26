@@ -77,11 +77,22 @@ class OrderFulfiller
         }
     }
 
+    /** Offre GeniusPress (abonnement, crédits IA) ou offre partenaire (livrée par le fournisseur ou l'équipe). */
+    private function deliverPlan(Order $order, OrderItem $item, Plan $plan): void
+    {
+        if ($plan->isSupplied()) {
+            app(Suppliers\ServiceDesk::class)->deliver($order, $item, $plan);
+
+            return;
+        }
+        $this->accounts->activatePlan($order->customer, $plan, $order);
+    }
+
     private function deliverItem(Order $order, OrderItem $item): void
     {
         $customer = $order->customer;
         match ($item->kind) {
-            'plan' => $this->accounts->activatePlan($customer, Plan::query()->findOrFail($item->meta['plan_id'] ?? 0), $order),
+            'plan' => $this->deliverPlan($order, $item, Plan::query()->findOrFail($item->meta['plan_id'] ?? 0)),
             'template' => Entitlement::firstOrCreate(
                 ['customer_id' => $customer->id, 'kind' => 'template', 'reference' => $item->reference],
                 ['order_id' => $order->id],

@@ -90,8 +90,8 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                         'color' => $encre, 'words_color' => 'global:primary',
                     ]),
                     K::p($t(
-                        '<p>Partez d’un des <strong>'.$templates.' modèles</strong> conçus pour les organisations africaines, laissez l’assistant IA écrire vos textes, puis modifiez tout vous-même. Sans savoir coder.</p>',
-                        '<p>Start from one of <strong>'.$templates.' templates</strong> designed for African organizations, let the AI assistant write your text, then edit everything yourself. No coding needed.</p>'
+                        '<p>Partez d’un des <strong>'.$templates.' modèles</strong> conçus pour les entreprises, les ONG, les écoles et les institutions, laissez l’assistant IA écrire vos textes, puis modifiez tout vous-même. Sans savoir coder.</p>',
+                        '<p>Start from one of <strong>'.$templates.' templates</strong> designed for businesses, NGOs, schools and institutions, let the AI assistant write your text, then edit everything yourself. No coding needed.</p>'
                     ), ['align' => 'center', 'font_size' => 20, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $doux]),
                     K::buttons([
                         K::btn($theme, $t('Voir les '.$templates.' modèles', 'See the '.$templates.' templates'), $u('templates')),
@@ -213,23 +213,33 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                         $t('En-tête, pied de page et articles sur mesure | Inclus | Version payante de l’éditeur', 'Custom header, footer and article layout | Included | Paid version of the editor'),
                         $t('Site en plusieurs langues | Inclus | Extension payante', 'Multilingual website | Included | Paid add-on'),
                         $t('Assistant IA qui rédige vos pages | Inclus | Extension', 'AI assistant that writes your pages | Included | Add-on'),
-                        $t('Modèles pensés pour l’Afrique | '.$templates.', en français et en anglais | Rares', 'Templates designed for Africa | '.$templates.', in French and English | Rare'),
+                        $t('Modèles prêts par secteur d’activité | '.$templates.', en français et en anglais | Rares', 'Ready-made templates by sector | '.$templates.', in French and English | Rare'),
                         $t('Export complet en un fichier | Inclus | Extension', 'Full export in one file | Included | Add-on'),
                     ]),
                     'header' => true, 'striped' => true, 'header_bg' => 'global:secondary', 'header_color' => '#ffffff', 'border_color' => $bord, 'font_size' => 16, 'font_size_mobile' => 14,
                 ])], ['content_width' => 'boxed', 'max_width' => 940, 'padding' => $zero]),
             ], ['background_color' => $creme, 'gap' => 48]),
 
-            // 8. Fait pour l'Afrique.
+            // 8. Fait pour tous les terrains (connexion faible, mobile, WhatsApp, paiement en ligne).
             K::section($theme, [
-                $intro($t('Fait pour l’Afrique', 'Made for Africa'), $t('Pensé pour la réalité du terrain', 'Designed for real conditions on the ground')),
+                $intro($t('Partout dans le monde', 'Anywhere in the world'), $t('Pensé pour la réalité du terrain', 'Designed for real conditions on the ground')),
                 K::grid([
                     $feature('laptop', $t('Même sans Internet', 'Even without Internet'), $t('Installez GeniusPress sur un ordinateur et travaillez hors ligne. Publiez quand la connexion revient.', 'Install GeniusPress on a computer and work offline. Publish when the connection is back.')),
                     $feature('smartphone', $t('Léger sur mobile', 'Light on mobile'), $t('Des sites rapides, lisibles et faciles à toucher sur téléphone, même avec une petite connexion.', 'Fast, readable, easy-to-tap websites on phones, even on a weak connection.')),
                     $feature('message-circle', $t('WhatsApp et appel', 'WhatsApp and calls'), $t('Bouton WhatsApp flottant, appel en un geste, partage des articles sur WhatsApp.', 'Floating WhatsApp button, one-tap calling, article sharing on WhatsApp.')),
-                    $feature('wallet', $t('Mobile Money, bientôt', 'Mobile Money, soon'), $t('Le paiement par Mobile Money arrive avec l’offre hébergée : dons, abonnements et achats.', 'Mobile Money payments are coming with the hosted offer: donations, subscriptions and purchases.')),
+                    $feature('wallet', $t('Paiement en ligne', 'Online payment'), $t('Domaines, hébergement et mail pro se paient en ligne, dans votre devise, avec les moyens de paiement de votre pays.', 'Domains, hosting and business email are paid online, in your currency, with the payment methods of your country.')),
                 ], 4, ['gap' => 20, 'gap_mobile' => 16]),
             ], ['background_color' => $sable, 'gap' => 48]),
+
+            // Annonce : GeniusPress hébergeur.
+            K::section($theme, [K::box([
+                K::eyebrow($t('Nouveau', 'New'), ['align' => 'center', 'color' => 'global:accent', 'font_size' => 13, 'font_family' => 'global:body']),
+                K::h($t('GeniusPress est désormais hébergeur', 'GeniusPress is now a hosting provider'), 'h2', ['align' => 'center', 'font_size' => 44, 'font_size_mobile' => 30, 'font_weight' => '400', 'line_height' => '1.15', 'color' => '#ffffff']),
+                K::p('<p>'.$t('Site gratuit sur geniuspress.site, nom de domaine à votre nom, hébergement web, mail pro et stockage en ligne : tout se commande et se paie en ligne depuis votre espace client, où que vous soyez.',
+                    'A free website on geniuspress.site, a domain name in your name, web hosting, business email and online storage: everything is ordered and paid online from your account, wherever you are.').'</p>',
+                    ['align' => 'center', 'font_size' => 18, 'line_height' => '1.7', 'color' => 'rgba(255,255,255,0.8)']),
+                K::buttons([K::btn($theme, $t('Voir les offres', 'See the offers'), $u('hosting'), 'accent'), K::btn($theme, $t('Créer mon espace gratuit', 'Create my free account'), '/compte/inscription', 'outline-light')], 'center'),
+            ], ['gap' => 18, 'content_width' => 'boxed', 'max_width' => 820, 'padding' => $zero])], ['background_color' => 'global:secondary', 'padding' => ['t' => 88, 'r' => 20, 'b' => 88, 'l' => 20], 'padding_mobile' => ['t' => 56, 'b' => 56]]),
 
             // 9. Questions fréquentes.
             B::faq($theme, [
@@ -384,8 +394,8 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 'eyebrow' => $t('Pour les ONG', 'For NGOs'),
                 'title' => $t('Racontez votre impact, dans toutes vos langues', 'Tell your impact story, in all your languages'),
                 'html' => $t(
-                    '<p>Pages de projets, chiffres d’impact, appels aux dons, contenus en plusieurs langues pour vos partenaires et vos bénéficiaires. Six modèles sont conçus pour les ONG et associations.</p><p>Le plugin officiel de dons avec Mobile Money et carte bancaire est prévu dans une prochaine phase.</p>',
-                    '<p>Project pages, impact figures, calls for donations, content in several languages for your partners and the people you serve. Six templates are designed for NGOs and nonprofits.</p><p>The official donations plugin, with Mobile Money and card payments, is planned for a later phase.</p>'
+                    '<p>Pages de projets, chiffres d’impact, appels aux dons, contenus en plusieurs langues pour vos partenaires et vos bénéficiaires. Six modèles sont conçus pour les ONG et associations.</p><p>Le plugin officiel de dons, par carte bancaire, Mobile Money et autres moyens de paiement, est prévu dans une prochaine phase.</p>',
+                    '<p>Project pages, impact figures, calls for donations, content in several languages for your partners and the people you serve. Six templates are designed for NGOs and nonprofits.</p><p>The official donations plugin, with card, Mobile Money and other payment methods, is planned for a later phase.</p>'
                 ),
                 'buttons' => [[$t('Modèles pour ONG', 'NGO templates'), $u('templates', 'ong')]],
                 'photo' => ['ong-equipe-terrain', 'users', $t('Équipe de terrain avec des habitants', 'Field team with residents')],
@@ -457,6 +467,59 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 'title' => $t('Prêt à construire votre site ?', 'Ready to build your website?'),
                 'text' => $t('Installez GeniusPress, choisissez un modèle et publiez dès aujourd’hui.', 'Install GeniusPress, pick a template and publish today.'),
                 'buttons' => [[$t('Télécharger GeniusPress', 'Download GeniusPress'), $u('download')], [$t('Lire la documentation', 'Read the documentation'), $u('docs')]],
+            ]),
+        ],
+    ];
+
+    // ─── Hébergement : GeniusPress hébergeur (offres et prix en direct depuis la console) ───
+    $pages['hosting'] = [
+        'title' => $t('Hébergement', 'Hosting'),
+        'meta_title' => $t('Hébergement, domaines et mail pro · GeniusPress', 'Hosting, domains and business email · GeniusPress'),
+        'meta_description' => $t(
+            'GeniusPress héberge votre site, où que vous soyez : site gratuit sur un sous-domaine, nom de domaine à votre nom, hébergement web, mail pro et stockage en ligne, payables en ligne dans votre devise.',
+            'GeniusPress hosts your website, wherever you are: a free site on a subdomain, a domain name in your name, web hosting, business email and online storage, payable online in your currency.'
+        ),
+        'elements' => [
+            $pageHead($t('GeniusPress est désormais hébergeur', 'GeniusPress is now a hosting provider'),
+                $t('Votre site, votre domaine, vos e-mails : au même endroit', 'Your website, your domain, your email: all in one place'),
+                $t('Créez votre site gratuitement sur votre adresse geniuspress.site, puis passez à votre propre nom de domaine, à des adresses e-mail professionnelles et à de l’espace de stockage. Tout se commande et se paie en ligne depuis votre espace client, dans votre devise.',
+                    'Build your website for free on your geniuspress.site address, then move to your own domain name, professional email addresses and storage space. Everything is ordered and paid online from your account, in your currency.')),
+            K::section($theme, [
+                $intro($t('Nos offres', 'Our offers'), $t('Des prix clairs, sans surprise', 'Clear prices, no surprises')),
+                K::w(\App\Platform\Website\OffersWidget::TYPE, [
+                    'kinds' => 'hosting,web_hosting,mail,storage', 'show_domains' => true,
+                    'button_text' => $t('Commander', 'Order'),
+                    'empty_text' => $t('Les offres arrivent très bientôt. Créez déjà votre site gratuit depuis votre espace client.', 'Offers are coming very soon. Build your free website from your account in the meantime.'),
+                ]),
+                K::buttons([K::btn($theme, $t('Créer mon espace gratuit', 'Create my free account'), '/compte/inscription')], 'center'),
+            ], ['gap' => 40, 'padding' => ['t' => 72, 'r' => 20, 'b' => 88, 'l' => 20], 'padding_mobile' => ['t' => 48, 'b' => 56]]),
+            B::features($theme, [
+                'eyebrow' => $t('Pourquoi chez nous', 'Why us'),
+                'title' => $t('Un hébergeur simple, où que vous soyez', 'Simple hosting, wherever you are'),
+                'bg' => 'light',
+                'items' => [
+                    ['globe', $t('Paiement en ligne, dans votre devise', 'Online payment, in your currency'), $t('Payez depuis votre espace client avec les moyens de paiement proposés dans votre pays.', 'Pay from your account with the payment methods available in your country.')],
+                    ['link', $t('Branché en un clic', 'Connected in one click'), $t('Votre nom de domaine est relié à votre site GeniusPress automatiquement, certificat HTTPS compris.', 'Your domain name is linked to your GeniusPress website automatically, HTTPS certificate included.')],
+                    ['shield-check', $t('Le domaine est à vous', 'The domain is yours'), $t('Il est enregistré à votre nom. Vous pouvez demander son code de transfert à tout moment.', 'It is registered in your name. You can request its transfer code at any time.')],
+                    ['mail', $t('Mail pro', 'Business email'), $t('Des adresses à votre nom de domaine (contact@votre-organisation.org) pour inspirer confiance.', 'Addresses on your domain name (contact@your-organization.org) that inspire trust.')],
+                    ['cloud', $t('Stockage en ligne', 'Online storage'), $t('De l’espace pour vos documents, photos et sauvegardes, de 100 Go à plusieurs téraoctets.', 'Space for your documents, photos and backups, from 100 GB to several terabytes.')],
+                    ['headphones', $t('Accompagnement en français et en anglais', 'Support in French and English'), $t('Une équipe qui vous répond dans votre langue et vous aide à mettre votre site en ligne.', 'A team that answers in your language and helps you get your website online.')],
+                ],
+            ]),
+            B::faq($theme, [
+                'eyebrow' => $t('Questions fréquentes', 'Frequently asked questions'),
+                'title' => $t('Héberger son site chez GeniusPress', 'Hosting your website with GeniusPress'),
+                'items' => [
+                    [$t('Le site sur geniuspress.site est-il vraiment gratuit ?', 'Is the website on geniuspress.site really free?'), $t('Oui. Créez votre espace, choisissez un modèle et publiez votre site sur votre-site.geniuspress.site, sans moyen de paiement.', 'Yes. Create your account, choose a template and publish your website on your-site.geniuspress.site, with no payment details.')],
+                    [$t('Puis-je utiliser mon propre nom de domaine ?', 'Can I use my own domain name?'), $t('Oui. Achetez-le dans votre espace client ou utilisez celui que vous avez déjà, puis branchez-le sur votre site.', 'Yes. Buy it from your account or use the one you already have, then connect it to your website.')],
+                    [$t('Comment payer ?', 'How do I pay?'), $t('En ligne, depuis votre espace client et dans votre devise, avec les moyens de paiement proposés dans votre pays. La commande est livrée dès que le paiement est confirmé.', 'Online, from your account and in your currency, with the payment methods available in your country. The order is delivered as soon as the payment is confirmed.')],
+                    [$t('Combien de temps pour avoir mes adresses e-mail ?', 'How long until I get my email addresses?'), $t('Notre équipe prépare votre mail pro après le paiement et vous prévient par e-mail dès qu’il est prêt, généralement dans la journée ouvrée.', 'Our team sets up your business email after payment and lets you know by email as soon as it is ready, usually within the business day.')],
+                ],
+            ]),
+            B::cta($theme, [
+                'title' => $t('Lancez votre site aujourd’hui', 'Launch your website today'),
+                'text' => $t('Votre espace GeniusPress est gratuit : site, éditeur visuel et assistant IA compris.', 'Your GeniusPress account is free: website, visual editor and AI assistant included.'),
+                'buttons' => [[$t('Créer mon espace', 'Create my account'), '/compte/inscription'], [$t('Voir les modèles', 'See the templates'), $u('templates')]],
             ]),
         ],
     ];

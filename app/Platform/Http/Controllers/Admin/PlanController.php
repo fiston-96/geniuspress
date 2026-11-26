@@ -60,7 +60,22 @@ class PlanController extends Controller
             'features' => ['nullable', 'string', 'max:2000'],
             'sort' => ['nullable', 'integer', 'min:0', 'max:999'],
             'active' => ['sometimes', 'boolean'],
+            // Offres partenaires (hébergement web, mail pro, stockage).
+            'provider' => ['nullable', Rule::in(Plan::PROVIDERS)],
+            'provider_ref' => ['nullable', 'string', 'max:120'],
+            'cost' => ['nullable', 'string', 'regex:/^\d{1,9}([.,]\d{1,2})?$/'],
+            'cost_currency' => ['nullable', Rule::in(Money::CURRENCIES)],
+            'needs_domain' => ['sometimes', 'boolean'],
         ]);
+        $supplied = in_array($data['kind'], Plan::SUPPLIER_KINDS, true);
+        if ($supplied && empty($data['provider'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['provider' => __('Choisissez qui livre cette offre : LWS ou l’équipe.')]);
+        }
+        // L'API LWS n'achète que l'hébergement web, et pour un domaine donné.
+        if ($supplied && $data['provider'] === 'lws' && $data['kind'] === 'web_hosting' && trim((string) ($data['provider_ref'] ?? '')) === '') {
+            throw \Illuminate\Validation\ValidationException::withMessages(['provider_ref' => __('Indiquez le nom exact de l’offre chez LWS (ex. LWS Perso).')]);
+        }
+        $costCurrency = $data['cost_currency'] ?? 'EUR';
         // Un pack de crédits s'achète une fois ; un essai n'a de sens que pour l'hébergement.
         if ($data['kind'] === 'ai_credits') {
             $data['period'] = 'once';
@@ -80,6 +95,12 @@ class PlanController extends Controller
             'features' => array_values(array_filter(array_map('trim', preg_split('/\R/', (string) ($data['features'] ?? ''))))),
             'sort' => (int) ($data['sort'] ?? 0),
             'active' => $request->boolean('active'),
+            'provider' => $supplied ? $data['provider'] : null,
+            'provider_ref' => $supplied ? (trim((string) ($data['provider_ref'] ?? '')) ?: null) : null,
+            'cost' => $supplied && ($data['cost'] ?? '') !== '' ? Money::parse($data['cost'], $costCurrency) : null,
+            'cost_currency' => $supplied && ($data['cost'] ?? '') !== '' ? $costCurrency : null,
+            // Hébergement web : toujours pour un domaine.
+            'needs_domain' => $supplied && ($data['kind'] === 'web_hosting' || $request->boolean('needs_domain')),
         ];
     }
 }

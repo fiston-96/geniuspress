@@ -12,7 +12,51 @@ class DomainService
 {
     public const REGISTRARS = [
         'sandbox' => SandboxRegistrar::class,
+        'lws' => \App\Platform\Suppliers\Lws\LwsRegistrar::class,
     ];
+
+    /**
+     * Appel au registraire depuis l'espace client : une erreur du fournisseur (LWS mal configuré,
+     * en panne…) est signalée dans le journal mais jamais montrée telle quelle au client, pour que
+     * le nom du fournisseur et les détails techniques restent internes.
+     *
+     * @template T
+     *
+     * @param  callable(): T  $call
+     * @return T
+     */
+    public static function forCustomer(callable $call): mixed
+    {
+        try {
+            return $call();
+        } catch (\App\Platform\Suppliers\Lws\LwsException $e) {
+            report($e);
+
+            throw new PlatformException(__('Le service des noms de domaine est momentanément indisponible. Réessayez dans quelques minutes.'));
+        }
+    }
+
+    /** Libellés des coordonnées du titulaire (DomainRegistrar::contactFields). */
+    public static function contactLabels(): array
+    {
+        return [
+            'phone' => __('Téléphone, avec l’indicatif du pays (+33, +1, +225…)'),
+            'address' => __('Adresse'),
+            'postal_code' => __('Code postal'),
+            'city' => __('Ville'),
+            'country' => __('Pays (code à deux lettres : FR, CA, CI…)'),
+        ];
+    }
+
+    /**
+     * Coordonnées du titulaire qui manquent au client pour acheter un domaine.
+     *
+     * @return list<string>
+     */
+    public function missingContact(Customer $customer): array
+    {
+        return array_values(array_filter($this->registrar()->contactFields(), fn ($field) => $field !== 'postal_code' && trim((string) $customer->{$field}) === ''));
+    }
 
     public function registrar(): DomainRegistrar
     {
@@ -60,7 +104,7 @@ class DomainService
         }
         $tlds = $prices->keys()->sortBy(fn ($tld) => $tld === $wanted ? 0 : 1)->values();
         $domains = $tlds->map(fn ($tld) => $label.'.'.$tld)->all();
-        $availability = $this->registrar()->check($domains);
+        $availability = self::forCustomer(fn () => $this->registrar()->check($domains));
 
         return $tlds->map(fn ($tld) => [
             'domain' => $label.'.'.$tld,
@@ -84,8 +128,9 @@ class DomainService
     public function register(Customer $customer, string $domain, int $years): Domain
     {
         $result = $this->registrar()->register($domain, $years, [
-            'name' => $customer->name, 'email' => $customer->email, 'phone' => $customer->phone,
-            'country' => $customer->country, 'company' => $customer->company,
+            'customer_id' => $customer->id, 'name' => $customer->name, 'email' => $customer->email, 'phone' => $customer->phone,
+            'country' => $customer->country, 'company' => $customer->company, 'address' => $customer->address,
+            'postal_code' => $customer->postal_code, 'city' => $customer->city,
         ]);
 
         return Domain::updateOrCreate(['name' => $domain], [

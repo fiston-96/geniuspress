@@ -59,7 +59,7 @@
             </div>
             <div>
                 <label for="phone" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Numéro') }}</label>
-                <input id="phone" name="phone" type="tel" value="{{ old('phone', $customer->phone) }}" placeholder="+243 …" required class="{{ $input }}">
+                <input id="phone" name="phone" type="tel" value="{{ old('phone', $customer->phone) }}" placeholder="{{ __('+ indicatif du pays') }}" required class="{{ $input }}">
             </div>
             <button class="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Demander le retrait') }}</button>
             @error('amount')<p class="text-sm text-red-600 md:col-span-5">{{ $message }}</p>@enderror

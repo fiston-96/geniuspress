@@ -259,6 +259,32 @@ class LocalSiteProvisioner implements SiteProvisioner
         ];
     }
 
+    public function addHost(Site $site, string $host): void
+    {
+        $this->assertLive($site);
+        $host = HostedBootstrap::normalizeHost($host) ?? throw new HostingException(__('Adresse de site invalide.'));
+        if ($host === $site->host || str_ends_with($host, '.'.config('hosting.domain'))) {
+            throw new HostingException(__('Cette adresse est réservée aux sites de la plateforme.'));
+        }
+        $file = config('hosting.path').DIRECTORY_SEPARATOR.'hosts'.DIRECTORY_SEPARATOR.$host;
+        if (is_file($file) && trim((string) file_get_contents($file)) !== $site->slug) {
+            throw new HostingException(__('Cette adresse est déjà utilisée par un autre site.'));
+        }
+        $this->writeHost($host, $site->slug);
+    }
+
+    public function removeHost(Site $site, string $host): void
+    {
+        $host = HostedBootstrap::normalizeHost($host);
+        if ($host === null || $host === $site->host) {
+            return;
+        }
+        $file = config('hosting.path').DIRECTORY_SEPARATOR.'hosts'.DIRECTORY_SEPARATOR.$host;
+        if (is_file($file) && trim((string) file_get_contents($file)) === $site->slug) {
+            @unlink($file);
+        }
+    }
+
     private function writeHost(string $host, string $slug): void
     {
         $host = HostedBootstrap::normalizeHost($host) ?? throw new HostingException(__('Adresse de site invalide.'));

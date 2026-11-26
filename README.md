@@ -2,7 +2,7 @@
 
 # GeniusPress
 
-**Un CMS open source avec son propre page builder visuel et un assistant IA intégré**, pensé pour les entreprises et les ONG, en particulier en Afrique.
+**Un CMS open source avec son propre page builder visuel et un assistant IA intégré**, pensé pour les entreprises, les ONG et les institutions, partout dans le monde.
 
 > Statut : **MVP en développement**. Pas encore prêt pour la production. Voir la [feuille de route](docs/feuille-de-route.html).
 

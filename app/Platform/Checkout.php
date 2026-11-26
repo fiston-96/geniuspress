@@ -23,13 +23,35 @@ class Checkout
 {
     public function __construct(private PaymentManager $payments, private DomainService $domains, private OrderFulfiller $fulfiller) {}
 
-    public function forPlan(Customer $customer, Plan $plan): Order
+    /**
+     * @param  array{domain?: ?string, request?: ?string}  $options  offres partenaires : domaine concerné, précisions du client
+     */
+    public function forPlan(Customer $customer, Plan $plan, array $options = []): Order
     {
         if (! $plan->active) {
             throw new PlatformException(__('Cette offre n’est plus disponible.'));
         }
+        $meta = ['plan_id' => $plan->id];
+        $description = $plan->label();
+        if ($plan->isSupplied()) {
+            $domain = trim((string) ($options['domain'] ?? ''));
+            if ($domain !== '') {
+                [$label, $tld] = DomainService::parse($domain);
+                if ($tld === null) {
+                    throw new PlatformException(__('Indiquez le nom de domaine complet, avec son extension (ex. monassociation.org).'));
+                }
+                $meta['domain'] = $label.'.'.$tld;
+                $description .= ' · '.$meta['domain'];
+            } elseif ($plan->needs_domain) {
+                throw new PlatformException(__('Indiquez le nom de domaine de ce service.'));
+            }
+            $request = trim((string) ($options['request'] ?? ''));
+            if ($request !== '') {
+                $meta['request'] = mb_substr($request, 0, 1000);
+            }
+        }
 
-        return $this->create($customer, 'plan', $plan->slug, $plan->label(), $plan->price, $plan->currency, ['plan_id' => $plan->id]);
+        return $this->create($customer, 'plan', $plan->slug, mb_substr($description, 0, 255), $plan->price, $plan->currency, $meta);
     }
 
     public function forTemplate(Customer $customer, string $templateId, string $name): Order
@@ -48,7 +70,10 @@ class Checkout
         [$label, $tld] = DomainService::parse($domain);
         $domain = $label.'.'.$tld;
         $price = $this->domains->price($domain);
-        if (! ($this->domains->registrar()->check([$domain])[$domain] ?? false)) {
+        if ($this->domains->missingContact($customer)) {
+            throw new PlatformException(__('Complétez les coordonnées du titulaire du domaine.'));
+        }
+        if (! (DomainService::forCustomer(fn () => $this->domains->registrar()->check([$domain]))[$domain] ?? false)) {
             throw new PlatformException(__('Le domaine :domain n’est pas disponible.', ['domain' => $domain]));
         }
 
@@ -62,6 +87,9 @@ class Checkout
             throw new PlatformException(__('Ce domaine n’appartient pas à votre compte.'));
         }
         $price = $this->domains->price($domain->name);
+        if ($years > $this->domains->registrar()->maxRenewYears()) {
+            throw new PlatformException(trans_choice('{1} Ce domaine se renouvelle un an à la fois.|[2,*] Ce domaine se renouvelle :count ans au plus à la fois.', $this->domains->registrar()->maxRenewYears()));
+        }
 
         return $this->create($customer, 'domain_renew', $domain->name, __('Renouvellement de :domain (:years an(s))', ['domain' => $domain->name, 'years' => $years]),
             $price->renew_price * $years, $price->currency, ['years' => $years, 'domain_id' => $domain->id], $years);

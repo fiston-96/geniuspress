@@ -135,7 +135,9 @@ GP_PLATFORM_CURRENCY=USD         # devise par défaut des offres
 GP_PAYMENT_GATEWAY=sandbox       # prestataire de paiement : sandbox | monerails
 GP_MONERAILS_KEY=…               # mr_test_… ou mr_live_… (jamais affichée)
 GP_MONERAILS_WEBHOOK_SECRET=…    # whsec_…
-GP_DOMAIN_REGISTRAR=sandbox      # registraire
+GP_DOMAIN_REGISTRAR=sandbox      # registraire : sandbox | lws
+GP_SERVER_IP=78.24.248.103       # IP des sites hébergés : un domaine branché pointe vers elle
+GP_LWS_LOGIN=… / GP_LWS_KEY=…    # facultatif : de préférence dans la console (Fournisseurs), clé chiffrée
 GP_RELAY_PER_MINUTE=30
 ANTHROPIC_API_KEY=…              # clé de la plateforme pour le relais (jamais affichée)
 
@@ -144,7 +146,37 @@ GP_LICENSE_KEY=…                 # ou dans Réglages → Assistant IA
 GP_PLATFORM_URL=https://geniuspress.site
 ```
 
-## 9. Reste à faire
+## 9. Fournisseurs (LWS) : domaines, hébergement web, mail pro, stockage
+
+GeniusPress revend des services LWS avec sa marge, sans que LWS apparaisse dans l'espace client
+(`app/Platform/Suppliers/`). API : https://docs-api.lws.net/fr/api-client/ (en-têtes `X-Auth-Login`,
+`X-Auth-Pass`, `X-Test-Mode` ; achats débités sur le compte prépayé, traités en différé).
+
+- **Connexion** : console → Fournisseurs. Identifiant LWS, clé chiffrée (`Crypt`, jamais réaffichée,
+  réglages privés `platform_lws_*`), **mode test activé par défaut** (rien n'est créé ni facturé).
+  L'IP du serveur doit être autorisée dans l'espace LWS (onglet « Api LWS »).
+- **Domaines** (`GP_DOMAIN_REGISTRAR=lws`, `LwsRegistrar`) : achat au nom du client (contact LWS créé
+  une fois avec ses vraies coordonnées, exigées avant le paiement, retenu dans `provider_ids`),
+  `POST /hosting` offre « domaine ». Renouvellement un an à la fois (`maxRenewYears`). Code de transfert
+  envoyé au titulaire par LWS. Zone DNS : `pointTo()` pose les A `@` et `www` vers `GP_SERVER_IP`.
+- **Branchement sur un site hébergé** (espace client → Domaines → Brancher) : zone DNS, puis
+  `SiteProvisioner::addHost()` (index `storage/hosting/hosts/`). Le certificat et le fichier Nginx du
+  domaine sont faits par `scripts/hosting/certificats-essais.sh` (voir essai-heberge.md).
+- **Offres partenaires** : offres de type `web_hosting`, `mail`, `storage` avec un fournisseur
+  (`lws` ou `manual`), un nom chez LWS (`provider_ref`) et un coût. L'hébergement web LWS est acheté par
+  l'API à la livraison ; le mail pro et le stockage (absents de l'API) et tous les renouvellements vont
+  dans la file « À livrer » de la console (`platform_services.pending_action`), les exploitants sont
+  prévenus, puis le client quand l'équipe marque le service comme livré (`ServiceDesk`).
+- **Marges** : coûts synchronisés chaque nuit (`geniuspress:suppliers sync` : extensions et offres
+  « lws » ; prix LWS mensuel × 12 pour une offre annuelle), taux de change (1 € = x devise) et marge
+  conseillée réglés dans la console (`SupplierPricing`). Les prix de vente restent ceux de l'exploitant ;
+  « Appliquer les prix conseillés » les recalcule pour les extensions.
+- **Solde** : `geniuspress:suppliers balance` chaque heure, alerte aux exploitants sous le seuil (une fois par jour).
+- **Vitrine** : widget `platform-offers` (déclaré seulement avec `GP_PLATFORM=true`), page Hébergement de
+  `website/showcase.php`. La politique de confidentialité (`website/site.php`) nomme LWS comme prestataire.
+- Tests : `tests/Feature/Platform/SuppliersTest.php`, API simulée par `Http::fake`, jamais d'appel réel.
+
+## 10. Reste à faire
 
 - `npm run build` au déploiement : les vues de la plateforme utilisent quelques classes Tailwind nouvelles.
 

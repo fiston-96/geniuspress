@@ -53,6 +53,9 @@ class Setting extends Model
         'anthropic_api_key', 'anthropic_api_key_hint', 'forms_email', 'site_profile',
         // Clé de licence GeniusPress du site, et réglages de la plateforme commerciale.
         'gp_license_key', 'gp_license_key_hint', 'platform_ai_multiplier', 'platform_trial_plan', 'platform_trial_credits',
+        // Fournisseurs (LWS) : identifiant, clé chiffrée, mode test, seuil d'alerte, marge et taux de change.
+        'platform_lws_login', 'platform_lws_key', 'platform_lws_key_hint', 'platform_lws_test', 'platform_lws_low_balance',
+        'platform_supplier_markup', 'platform_supplier_rates',
     ];
 
     public static function publicValues(): array

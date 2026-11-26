@@ -189,3 +189,24 @@ GRANT EXECUTE ON PROCEDURE gp_hosting.grant_site TO 'geniuspress_hosting'@'local
 **Certificats par site et Nginx** : avec `ssl_certificate /…/$gp_cert/…`, Nginx lit le certificat à chaque connexion avec ses processus non privilégiés, qui ne peuvent pas lire `/etc/letsencrypt` (root seulement). Le script recopie donc chaque certificat dans `GP_CERT_DIR` (ex. `/etc/nginx/geniuspress-certs/{site}/`, groupe `GP_NGINX_GROUP`, clé privée en 0640) et Nginx lit ce dossier. Renouvellements : crochet `/etc/letsencrypt/renewal-hooks/deploy/geniuspress-sites.sh` qui appelle `certificats-essais.sh --deploy-hook` avec les mêmes variables.
 
 **Garde-fou** : `HostedBootstrap::apply()` refuse de servir un site hébergé si `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` ou `DB_HOST` sont définis dans l'environnement du serveur (`env[…]` d'un pool PHP-FPM, crontab) : sinon le site lirait la base de la plateforme (incident corrigé sur geniuspress.site le 26 novembre 2026, variables retirées du pool `geniuspress`).
+
+## Domaines des clients branchés sur leur site
+
+Un client branche son domaine sur un de ses sites depuis l'espace client (Domaines → Brancher) : la
+plateforme fait pointer `@` et `www` vers `GP_SERVER_IP` (registraire qui gère la zone DNS, comme LWS)
+et écrit les deux adresses dans `storage/hosting/hosts/` ; `HostedBootstrap` sert alors le site à ces
+adresses. Une adresse qui sert déjà un autre site est refusée.
+
+Côté serveur, `scripts/hosting/certificats-essais.sh` s'en occupe quand `GP_DOMAINS_CONF` et
+`GP_SERVER_IP` sont réglés dans la crontab :
+
+```
+* * * * * GP_CERT_EMAIL=… GP_CERT_DIR=/etc/nginx/geniuspress-certs GP_DOMAINS_CONF=/etc/nginx/geniuspress-domains GP_SERVER_IP=78.24.248.103 /var/www/geniuspress/scripts/hosting/certificats-essais.sh
+```
+
+Pour chaque domaine : vérification que le DNS pointe déjà vers le serveur (sinon nouvel essai 30 minutes
+plus tard, pour rester sous les limites de Let's Encrypt), fichier Nginx provisoire pour le défi HTTP-01,
+certificat, copie lisible par Nginx, puis fichier `{domaine}.conf` définitif (HTTPS, médias du site).
+Débrancher le domaine retire certificat et fichier. Le bloc `http` de Nginx doit contenir
+`include /etc/nginx/geniuspress-domains/*.conf;`.
+

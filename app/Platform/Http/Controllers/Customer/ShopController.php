@@ -15,17 +15,25 @@ use Throwable;
 /** Offres, packs de crédits IA et modèles de sites payants. */
 class ShopController extends CustomerController
 {
-    public function plans()
+    public function plans(Request $request)
     {
+        $customer = $this->customer($request);
+
         return view('platform.customer.plans', [
             'plans' => Plan::query()->active()->orderBy('sort')->orderBy('price')->get()->groupBy('kind'),
+            'services' => $customer->services()->with('plan')->whereIn('status', ['pending', 'active', 'failed'])->latest('id')->get(),
+            'domainNames' => $customer->domains()->where('status', 'active')->orderBy('name')->pluck('name'),
         ]);
     }
 
     public function buyPlan(Request $request, Plan $plan, Checkout $checkout)
     {
+        $options = $request->validate([
+            'domain' => ['nullable', 'string', 'max:190'],
+            'request' => ['nullable', 'string', 'max:1000'],
+        ]);
         try {
-            $order = $checkout->forPlan($this->customer($request), $plan);
+            $order = $checkout->forPlan($this->customer($request), $plan, $options);
         } catch (PlatformException $e) {
             return back()->withErrors(['plan' => $e->getMessage()]);
         }

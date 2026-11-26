@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /** Client de la plateforme commerciale (distinct des utilisateurs d'un site GeniusPress). */
-#[Fillable(['name', 'email', 'password', 'phone', 'country', 'company', 'locale', 'status'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'country', 'company', 'address', 'postal_code', 'city', 'locale', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class Customer extends Authenticatable implements HasLocalePreference
 {
@@ -33,7 +33,27 @@ class Customer extends Authenticatable implements HasLocalePreference
             'trial_used_at' => 'datetime',
             'referred_at' => 'datetime',
             'ai_balance' => 'integer',
+            'provider_ids' => 'array',
         ];
+    }
+
+    /** Services partenaires (hébergement web, mail pro, stockage). */
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    /** Identifiant de ce client chez un fournisseur (« lws »), ou null. */
+    public function providerId(string $provider): ?string
+    {
+        $id = $this->provider_ids[$provider] ?? null;
+
+        return $id === null ? null : (string) $id;
+    }
+
+    public function rememberProviderId(string $provider, string $id): void
+    {
+        $this->forceFill(['provider_ids' => [$provider => $id] + (array) $this->provider_ids])->save();
     }
 
     // ─── Affiliation (App\Platform\Referrals) ────────────────────────────

@@ -32,6 +32,8 @@ $slugs = [
     'home' => ['fr' => 'accueil', 'en' => 'home'],
     'features' => ['fr' => 'fonctionnalites', 'en' => 'features'],
     'templates' => ['fr' => 'modeles', 'en' => 'templates'],
+    'hosting' => ['fr' => 'hebergement', 'en' => 'hosting'],
+    'privacy' => ['fr' => 'confidentialite', 'en' => 'privacy'],
     'download' => ['fr' => 'telecharger', 'en' => 'download'],
     'docs' => ['fr' => 'documentation', 'en' => 'documentation'],
     'doc-installation' => ['fr' => 'documentation/installation', 'en' => 'documentation/installation'],
@@ -256,7 +258,7 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
                     .'<h2>Phase 1 · fondations open source · presque terminée</h2><ul><li>Système de plugins et registre de widgets.</li><li>Interface traduite (français, anglais).</li><li>Installateur depuis zéro, paquet zip, Docker.</li><li>Export et import de site.</li><li>Tests automatiques à chaque proposition sur GitHub : à venir.</li></ul>'
                     .'<h2>Phase 2 · éditeur avancé et modèles · terminée</h2><ul><li>Conteneurs imbriqués, réglages par appareil et au survol.</li><li>'.count(\App\Providers\AppServiceProvider::CORE_WIDGETS).' widgets, dont le formulaire de contact, les graphiques, les carrousels et les titres animés.</li><li>'.count(require __DIR__.'/../templates/catalog.php').' modèles dans 11 secteurs, dont les médias, avec démonstrations.</li><li>Page Modèles, assistant IA et nouvelle vitrine.</li></ul>'
                     .'<h2>Phase 3 · articles et constructeur de thème · terminée</h2><ul><li>Articles, catégories, étiquettes, flux RSS et recherche.</li><li>Gabarits d’en-tête, de pied de page, d’article et d’archive, avec conditions d’affichage.</li><li>Widgets dynamiques et en-tête collant.</li><li>Méga-menu : à venir.</li></ul>'
-                    .'<h2>Phase 4 · boutique (plugin Commerce officiel)</h2><ul><li>Produits à variantes, panier, livraison, plusieurs devises.</li><li>Paiements par Mobile Money, carte, à la livraison et par WhatsApp.</li><li>Commandes, gabarits et widgets de boutique.</li><li>Liste de souhaits, comparaison de produits et dons.</li></ul>'
+                    .'<h2>Phase 4 · boutique (plugin Commerce officiel)</h2><ul><li>Produits à variantes, panier, livraison, plusieurs devises.</li><li>Paiements par carte, Mobile Money, à la livraison et par WhatsApp.</li><li>Commandes, gabarits et widgets de boutique.</li><li>Liste de souhaits, comparaison de produits et dons.</li></ul>'
                     .'<h2>Phase 5 · éditeur enrichi · en grande partie fait</h2><ul><li>Animations d’apparition, effets au survol et au défilement, parallaxe, transitions entre les pages (fait).</li><li>Fenêtres surgissantes, CSS personnalisé et blocs réutilisables : à venir.</li></ul>'
                     .'<h2>Phase 6 · modèles nouvelle génération · en cours</h2><ul><li>Blog et gabarits du thème dans chaque modèle (fait).</li><li>Plus de 120 modèles, dont des boutiques : en cours.</li></ul>'
                     .'<h2>Phase 7 · hébergement et plateforme · en cours</h2><ul><li>Site et démonstrations en ligne sur un serveur, en HTTPS (fait).</li><li>Essai hébergé, offres, noms de domaine et crédits IA : en cours.</li><li>Sauvegardes automatiques et mises à jour en un clic.</li></ul>'
@@ -265,7 +267,7 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
                     .'<h2>Phase 1 · open source foundations · almost done</h2><ul><li>Plugin system and widget registry.</li><li>Translated interface (French, English).</li><li>Installer from scratch, zip package, Docker.</li><li>Site export and import.</li><li>Automated tests on every GitHub contribution: coming.</li></ul>'
                     .'<h2>Phase 2 · advanced editor and templates · done</h2><ul><li>Nested containers, per-device and hover settings.</li><li>'.count(\App\Providers\AppServiceProvider::CORE_WIDGETS).' widgets, including the contact form, charts, carousels and animated headings.</li><li>'.count(require __DIR__.'/../templates/catalog.php').' templates in 11 sectors, including media, with demos.</li><li>Templates page, AI assistant and new showcase.</li></ul>'
                     .'<h2>Phase 3 · posts and theme builder · done</h2><ul><li>Posts, categories, tags, RSS feed and search.</li><li>Header, footer, single post and archive templates, with display conditions.</li><li>Dynamic widgets and sticky header.</li><li>Mega menu: coming.</li></ul>'
-                    .'<h2>Phase 4 · online store (official Commerce plugin)</h2><ul><li>Products with variants, cart, shipping, multiple currencies.</li><li>Payments by Mobile Money, card, cash on delivery and WhatsApp.</li><li>Orders, store templates and widgets.</li><li>Wishlist, product comparison and donations.</li></ul>'
+                    .'<h2>Phase 4 · online store (official Commerce plugin)</h2><ul><li>Products with variants, cart, shipping, multiple currencies.</li><li>Payments by card, Mobile Money, cash on delivery and WhatsApp.</li><li>Orders, store templates and widgets.</li><li>Wishlist, product comparison and donations.</li></ul>'
                     .'<h2>Phase 5 · richer editor · largely done</h2><ul><li>Entrance animations, hover and scroll effects, parallax, page transitions (done).</li><li>Popups, custom CSS and reusable blocks: coming.</li></ul>'
                     .'<h2>Phase 6 · next-generation templates · in progress</h2><ul><li>Blog and theme templates in every template (done).</li><li>More than 120 templates, including stores: in progress.</li></ul>'
                     .'<h2>Phase 7 · hosting and platform · in progress</h2><ul><li>Website and demos online on a server, over HTTPS (done).</li><li>Hosted trial, plans, domain names and AI credits: in progress.</li><li>Automatic backups and one-click updates.</li></ul>'
@@ -291,8 +293,8 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
                     'The interface is in French and English. Help us translate it into Swahili, Lingala, Kinyarwanda… without writing code: one text file per language.'
                 ), $sable),
                 $card($t('Créer un plugin', 'Build a plugin'), $t(
-                    'Un formulaire, une galerie, une intégration Mobile Money : <a href="'.$u('doc-plugins').'">le guide des plugins</a> explique tout, avec une commande qui crée un plugin d’exemple.',
-                    'A form, a gallery, a Mobile Money integration: <a href="'.$u('doc-plugins').'">the plugin guide</a> explains everything, with a command that creates a sample plugin.'
+                    'Un formulaire, une galerie, un moyen de paiement : <a href="'.$u('doc-plugins').'">le guide des plugins</a> explique tout, avec une commande qui crée un plugin d’exemple.',
+                    'A form, a gallery, a payment method: <a href="'.$u('doc-plugins').'">the plugin guide</a> explains everything, with a command that creates a sample plugin.'
                 ), $sable),
                 $card($t('Améliorer le code', 'Improve the code'), $t(
                     'Corrigez un bogue ou proposez une fonctionnalité sur <a href="'.$repo.'">GitHub</a>. Chaque proposition est relue et doit passer les tests automatiques du projet.',
@@ -315,32 +317,56 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
             ], ['padding_top' => 0, 'padding_bottom' => 88, 'gap' => 24]),
         ]);
 
+    // ─── Confidentialité (données des comptes et des commandes, prestataires) ───
+    $pages[] = $page('privacy', $t('Confidentialité', 'Privacy'),
+        $t('Politique de confidentialité · GeniusPress', 'Privacy policy · GeniusPress'),
+        $t('Quelles données GeniusPress garde sur geniuspress.site, pourquoi, avec qui elles sont partagées et comment exercer vos droits.',
+            'What data GeniusPress keeps on geniuspress.site, why, who it is shared with and how to exercise your rights.'), [
+            $hero($t('Politique de confidentialité', 'Privacy policy'), $t(
+                'Ce que nous gardons sur geniuspress.site, pourquoi, et avec qui c’est partagé.',
+                'What we keep on geniuspress.site, why, and who it is shared with.'
+            )),
+            K::section([K::col([K::p($t(
+                '<h2>Données gardées</h2><ul><li><strong>Votre compte</strong> : nom, adresse e-mail, mot de passe chiffré (ou identifiant Google), langue, téléphone, pays et organisation si vous les indiquez.</li><li><strong>Vos commandes</strong> : offres achetées, montants, état des paiements. Nous ne voyons jamais votre numéro de carte ni le code secret de votre compte de paiement.</li><li><strong>Titulaire des noms de domaine</strong> : adresse, ville, pays et téléphone, exigés par les registres pour enregistrer un domaine à votre nom.</li><li><strong>Vos sites hébergés</strong> : leur contenu vous appartient ; nous n’y accédons que pour les faire fonctionner ou à votre demande.</li><li><strong>Newsletter</strong> : votre adresse e-mail, seulement après votre confirmation ; un lien de désinscription figure dans chaque envoi.</li></ul>'
+                .'<h2>Prestataires techniques</h2><p>Pour livrer certains services, des données strictement nécessaires sont transmises à nos prestataires :</p><ul><li><strong>LWS (Ligne Web Services, France)</strong> : enregistrement des noms de domaine, hébergement web, mail pro et stockage en ligne. Les coordonnées du titulaire d’un domaine lui sont transmises, comme l’exigent les registres.</li><li><strong>Le prestataire de paiement</strong> : montant, référence de commande et coordonnées de paiement, pour encaisser le paiement.</li><li><strong>Google</strong>, si vous choisissez « Continuer avec Google » : il nous confirme votre nom et votre adresse e-mail.</li><li><strong>Anthropic</strong>, quand vous utilisez l’assistant IA : le texte de vos demandes, pour produire la réponse.</li></ul><p>Nous ne vendons jamais vos données et ne les utilisons pas pour de la publicité.</p>'
+                .'<h2>Durée de conservation</h2><p>Les données du compte sont gardées tant que le compte existe. Les commandes et paiements sont gardés le temps exigé par les obligations comptables.</p>'
+                .'<h2>Vos droits</h2><p>Vous pouvez demander à consulter, corriger ou supprimer vos données, et récupérer le contenu de vos sites (export depuis leur administration). Un nom de domaine vous appartient : vous pouvez demander son code de transfert depuis votre espace client à tout moment.</p><p>Pour toute demande, écrivez-nous depuis l’adresse de votre compte.</p>',
+                '<h2>Data we keep</h2><ul><li><strong>Your account</strong>: name, email address, encrypted password (or Google identifier), language, and phone, country and organization if you provide them.</li><li><strong>Your orders</strong>: offers purchased, amounts, payment status. We never see your card number or the PIN of your payment account.</li><li><strong>Domain name holder</strong>: address, city, country and phone, required by registries to register a domain in your name.</li><li><strong>Your hosted websites</strong>: their content belongs to you; we only access it to keep them running or at your request.</li><li><strong>Newsletter</strong>: your email address, only after you confirm it; every mailing includes an unsubscribe link.</li></ul>'
+                .'<h2>Technical providers</h2><p>To deliver some services, strictly necessary data is shared with our providers:</p><ul><li><strong>LWS (Ligne Web Services, France)</strong>: domain name registration, web hosting, business email and online storage. The domain holder’s details are passed on to it, as registries require.</li><li><strong>The payment provider</strong>: amount, order reference and payment details, to collect the payment.</li><li><strong>Google</strong>, if you choose “Continue with Google”: it confirms your name and email address.</li><li><strong>Anthropic</strong>, when you use the AI assistant: the text of your requests, to produce the answer.</li></ul><p>We never sell your data and do not use it for advertising.</p>'
+                .'<h2>Retention</h2><p>Account data is kept as long as the account exists. Orders and payments are kept for as long as accounting obligations require.</p>'
+                .'<h2>Your rights</h2><p>You can ask to access, correct or delete your data, and retrieve the content of your websites (export from their admin). A domain name belongs to you: you can request its transfer code from your account at any time.</p><p>For any request, write to us from your account’s email address.</p>'
+            ), ['font_size' => 16])])], ['padding_top' => 56, 'padding_bottom' => 88, 'max_width' => 820]),
+        ]);
+
     // ─── Menus de cette langue ───────────────────────────────────────────
     $navigation = [
         'menu' => [
             ['label' => $t('Modèles', 'Templates'), 'url' => $u('templates')],
+            ['label' => $t('Hébergement', 'Hosting'), 'url' => $u('hosting')],
             ['label' => $t('Fonctionnalités', 'Features'), 'url' => $u('features')],
             ['label' => 'Documentation', 'url' => $u('docs')],
-            ['label' => $t('Feuille de route', 'Roadmap'), 'url' => $u('roadmap')],
-            // Espace client de la plateforme (comptes, site hébergé, offres) ; « Contribuer » est dans le pied de page.
+            // Espace client de la plateforme (comptes, site hébergé, offres) ; « Contribuer » et la feuille de route sont dans le pied de page.
             ['label' => $t('Espace client', 'My account'), 'url' => '/compte'],
         ],
         'cta_label' => $t('Télécharger', 'Download'),
         'cta_url' => $u('download'),
         'footer_text' => $t(
-            'GeniusPress est un logiciel libre (AGPL-3.0) pour créer des sites soignés, avec un éditeur visuel et un assistant IA, pensé pour les entreprises et les ONG africaines.',
-            'GeniusPress is free software (AGPL-3.0) for building polished websites, with a visual editor and an AI assistant, designed for African businesses and NGOs.'
+            'GeniusPress est un logiciel libre (AGPL-3.0) pour créer des sites soignés, avec un éditeur visuel et un assistant IA, pour les entreprises, les ONG et les institutions du monde entier.',
+            'GeniusPress is free software (AGPL-3.0) for building polished websites, with a visual editor and an AI assistant, for businesses, NGOs and institutions around the world.'
         ),
         'footer_links' => [
             ['label' => $t('Modèles', 'Templates'), 'url' => $u('templates')],
+            ['label' => $t('Hébergement', 'Hosting'), 'url' => $u('hosting')],
             ['label' => $t('Télécharger', 'Download'), 'url' => $u('download')],
             ['label' => 'Documentation', 'url' => $u('docs')],
             ['label' => $t('Espace client', 'My account'), 'url' => '/compte'],
             ['label' => $t('Contribuer', 'Contribute'), 'url' => $u('contribute')],
+            ['label' => $t('Feuille de route', 'Roadmap'), 'url' => $u('roadmap')],
             ['label' => $t('Créer un plugin', 'Creating a plugin'), 'url' => $u('doc-plugins')],
             ['label' => $t('Marque et logo', 'Brand and logo'), 'url' => $u('doc-brand')],
             ['label' => $t('Code source', 'Source code'), 'url' => $repo],
             ['label' => $t('Licence', 'License'), 'url' => $repo.'/blob/main/LICENSE'],
+            ['label' => $t('Confidentialité', 'Privacy'), 'url' => $u('privacy')],
         ],
     ];
 
@@ -356,7 +382,7 @@ return [
     'settings' => [
         'site_name' => 'GeniusPress',
         'site_tagline' => 'Le CMS open source qui construit votre site avec vous',
-        'organization_description' => 'GeniusPress est un CMS open source (AGPL-3.0) avec un page builder visuel et un assistant IA, pour les entreprises et les ONG africaines. Public : responsables de communication, développeurs, contributeurs open source. Ton : clair, chaleureux, précis, sans jargon.',
+        'organization_description' => 'GeniusPress est un CMS open source (AGPL-3.0) avec un page builder visuel et un assistant IA, pour les entreprises, les ONG et les institutions du monde entier. Public : responsables de communication, développeurs, contributeurs open source. Ton : clair, chaleureux, précis, sans jargon.',
         'primary_color' => $primaire,
         'secondary_color' => $nuit,
         'accent_color' => $or,

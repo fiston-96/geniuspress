@@ -6,13 +6,17 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 /** Offre de la plateforme : hébergement, option ou pack de crédits IA. */
-#[Fillable(['slug', 'kind', 'name', 'description', 'price', 'currency', 'period', 'trial_days', 'ai_credits', 'features', 'active', 'sort'])]
+#[Fillable(['slug', 'kind', 'name', 'description', 'price', 'currency', 'period', 'trial_days', 'ai_credits', 'features', 'active', 'sort', 'provider', 'provider_ref', 'cost', 'cost_currency', 'needs_domain'])]
 class Plan extends Model
 {
     protected $table = 'platform_plans';
 
-    public const KINDS = ['hosting', 'option', 'ai_credits'];
+    public const KINDS = ['hosting', 'option', 'ai_credits', 'web_hosting', 'mail', 'storage'];
     public const PERIODS = ['month', 'year', 'once'];
+
+    /** Offres partenaires : livrées par un fournisseur (API LWS) ou par l'équipe (« manual »). */
+    public const SUPPLIER_KINDS = ['web_hosting', 'mail', 'storage'];
+    public const PROVIDERS = ['lws', 'manual'];
 
     protected function casts(): array
     {
@@ -24,6 +28,8 @@ class Plan extends Model
             'price' => 'integer',
             'ai_credits' => 'integer',
             'trial_days' => 'integer',
+            'cost' => 'integer',
+            'needs_domain' => 'boolean',
         ];
     }
 
@@ -56,6 +62,12 @@ class Plan extends Model
     public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /** Offre livrée par un fournisseur ou par l'équipe (et non par GeniusPress lui-même). */
+    public function isSupplied(): bool
+    {
+        return in_array($this->kind, self::SUPPLIER_KINDS, true) && $this->provider !== null;
     }
 
     public function scopeActive($query)

@@ -9,7 +9,7 @@ Le symbole a été conçu pour ne pas rappeler les logos existants du secteur. I
 - les barres arrondies montantes sur une même ligne de base (Google Analytics, Power BI) ;
 - les colonnes dans un carré (Trello).
 
-Une recherche d'antériorité dans les bases de marques (WIPO, EUIPO, OAPI, office de propriété industrielle de la RDC) reste à faire avant tout dépôt.
+Une recherche d'antériorité dans les bases de marques (WIPO, EUIPO, OAPI et offices nationaux des pays visés) reste à faire avant tout dépôt.
 
 ## Fichiers
 

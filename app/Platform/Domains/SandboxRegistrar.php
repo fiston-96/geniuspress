@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * réservés ou s'il contient « pris » ou « taken ». Un nom contenant « echec »
  * fait échouer l'enregistrement (pour tester la reprise).
  */
-class SandboxRegistrar implements DomainRegistrar
+class SandboxRegistrar implements DomainRegistrar, ManagesDns
 {
     public const RESERVED = ['google', 'facebook', 'geniuspress', 'example', 'exemple'];
 
@@ -21,6 +21,26 @@ class SandboxRegistrar implements DomainRegistrar
     {
         return 'sandbox';
     }
+
+    /** Zones DNS modifiées (pour les tests) : domaine → adresse IP. */
+    public static array $pointed = [];
+
+    public function contactFields(): array
+    {
+        return [];
+    }
+
+    public function maxRenewYears(): int
+    {
+        return 10;
+    }
+
+    public function pointTo(string $domain, string $ip): void
+    {
+        self::$pointed[$domain] = $ip;
+    }
+
+    public function sendAuthCode(string $domain): void {}
 
     public function check(array $domains): array
     {

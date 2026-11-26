@@ -36,4 +36,10 @@ interface SiteProvisioner
 
     /** Lien de connexion en un clic à l'administration du site. */
     public function loginUrl(Site $site): string;
+
+    /** Fait servir ce site à une adresse de plus (domaine du client). Refusé si l'adresse sert déjà un autre site. */
+    public function addHost(Site $site, string $host): void;
+
+    /** Retire une adresse ajoutée par addHost (sans effet si elle sert un autre site). */
+    public function removeHost(Site $site, string $host): void;
 }

@@ -54,6 +54,9 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
                 Route::get('/domaines', [Customer\DomainController::class, 'index'])->name('domains');
                 Route::post('/domaines', [Customer\DomainController::class, 'buy'])->middleware('throttle:20,1')->name('domains.buy');
                 Route::post('/domaines/{domain}/renouveler', [Customer\DomainController::class, 'renew'])->name('domains.renew');
+                Route::post('/domaines/{domain}/brancher', [Customer\DomainController::class, 'connect'])->middleware('throttle:10,1')->name('domains.connect');
+                Route::post('/domaines/{domain}/debrancher', [Customer\DomainController::class, 'disconnect'])->name('domains.disconnect');
+                Route::post('/domaines/{domain}/code-transfert', [Customer\DomainController::class, 'authCode'])->middleware('throttle:platform-authcode')->name('domains.authcode');
 
                 Route::get('/commandes/{order:number}', [Customer\OrderController::class, 'show'])->name('orders.show');
                 Route::post('/commandes/{order:number}/payer', [Customer\OrderController::class, 'pay'])->middleware('throttle:10,1')->name('orders.pay');
@@ -123,6 +126,15 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
         Route::post('/orders/{order}/deliver', [Admin\OrderController::class, 'deliver'])->name('orders.deliver');
 
         Route::get('/domains', [Admin\OrderController::class, 'domains'])->name('domains.index');
+
+        // Fournisseurs (LWS) : connexion, coûts et marges, file de livraison des services.
+        Route::get('/fournisseurs', [Console\SupplierController::class, 'index'])->name('suppliers.index');
+        Route::put('/fournisseurs/reglages', [Console\SupplierController::class, 'settings'])->name('suppliers.settings');
+        Route::post('/fournisseurs/test', [Console\SupplierController::class, 'test'])->middleware('throttle:10,1')->name('suppliers.test');
+        Route::post('/fournisseurs/synchroniser', [Console\SupplierController::class, 'sync'])->middleware('throttle:10,1')->name('suppliers.sync');
+        Route::post('/fournisseurs/extensions/prix-conseilles', [Console\SupplierController::class, 'applyTldPrices'])->name('suppliers.tlds.apply');
+        Route::post('/fournisseurs/services/{service}/livre', [Console\SupplierController::class, 'done'])->name('suppliers.services.done');
+        Route::post('/fournisseurs/services/{service}/echec', [Console\SupplierController::class, 'fail'])->name('suppliers.services.fail');
         Route::get('/usage', [Admin\UsageController::class, 'index'])->name('usage.index');
     });
 });

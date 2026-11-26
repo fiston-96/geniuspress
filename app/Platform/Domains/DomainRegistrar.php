@@ -13,6 +13,17 @@ interface DomainRegistrar
     public function name(): string;
 
     /**
+     * Coordonnées du titulaire exigées avant l'achat (champs du client : phone, address,
+     * postal_code, city, country). Vide : le nom et l'e-mail suffisent.
+     *
+     * @return list<string>
+     */
+    public function contactFields(): array;
+
+    /** Années renouvelables en une fois (1 si le registraire renouvelle une période à la fois). */
+    public function maxRenewYears(): int;
+
+    /**
      * Disponibilité à l'enregistrement.
      *
      * @param  list<string>  $domains  noms complets en minuscules (« exemple.cd »)
@@ -21,7 +32,7 @@ interface DomainRegistrar
     public function check(array $domains): array;
 
     /**
-     * @param  array{name: string, email: string, phone?: ?string, country?: ?string, company?: ?string}  $contact  titulaire
+     * @param  array{customer_id?: int, name: string, email: string, phone?: ?string, country?: ?string, company?: ?string, address?: ?string, postal_code?: ?string, city?: ?string}  $contact  titulaire
      * @return array{reference: string, expires_at: \DateTimeInterface}
      *
      * @throws \App\Platform\PlatformException
