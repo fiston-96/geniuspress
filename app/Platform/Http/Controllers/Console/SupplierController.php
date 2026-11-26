@@ -29,6 +29,8 @@ class SupplierController extends Controller
         return view('platform.admin.suppliers', [
             'client' => $client,
             'keyHint' => Setting::read('platform_lws_key_hint'),
+            'registrar' => \App\Platform\Domains\DomainService::active(),
+            'registrarOpen' => $this->registrarOpen(),
             'lowBalance' => (string) Setting::read('platform_lws_low_balance', '20'),
             'pricing' => $pricing,
             'currencies' => array_values(array_diff(Money::CURRENCIES, ['EUR'])),
@@ -50,8 +52,10 @@ class SupplierController extends Controller
             'markup' => ['required', 'string', 'regex:/^\d{1,3}([.,]\d{1,2})?$/'],
             'rates' => ['array'],
             'rates.*' => ['nullable', 'string', 'regex:/^\d{1,9}([.,]\d{1,6})?$/'],
+            'registrar' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(\App\Platform\Domains\DomainService::REGISTRARS))],
         ]);
         $values = [
+            'platform_domain_registrar' => $data['registrar'] ?? \App\Platform\Domains\DomainService::active(),
             'platform_lws_login' => $data['lws_login'] ?? null,
             'platform_lws_test' => $request->boolean('lws_test'),
             'platform_lws_low_balance' => str_replace(',', '.', $data['low_balance']),
@@ -95,6 +99,45 @@ class SupplierController extends Controller
         }
 
         return back()->with('status', __('Coûts LWS mis à jour : :tlds extension(s), :plans offre(s).', $done));
+    }
+
+    /** Disponibilité d'un domaine chez LWS (lecture seule, fonctionne aussi en mode test). */
+    public function checkDomain(Request $request, \App\Platform\Suppliers\Lws\LwsRegistrar $lws)
+    {
+        $domain = strtolower(trim((string) $request->validate(['domain' => ['required', 'string', 'max:190', 'regex:/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i']])['domain']));
+        try {
+            $free = $lws->check([$domain])[$domain] ?? false;
+        } catch (PlatformException $e) {
+            return back()->withErrors(['lws' => $e->getMessage()]);
+        }
+
+        return back()->with('status', $free ? __('LWS : :domain est disponible.', ['domain' => $domain]) : __('LWS : :domain n’est pas disponible.', ['domain' => $domain]));
+    }
+
+    /** Échéances réelles des domaines et hébergements LWS (sinon fait chaque nuit). */
+    public function syncDomains(\App\Platform\Suppliers\Lws\LwsAccounts $accounts)
+    {
+        try {
+            $done = $accounts->syncAll();
+        } catch (PlatformException $e) {
+            return back()->withErrors(['lws' => $e->getMessage()]);
+        }
+
+        return back()->with('status', __('Suivi LWS : :synced élément(s) à jour, :missing achat(s) introuvable(s).', $done));
+    }
+
+    /** La vente de domaines est-elle ouverte aux clients avec le registraire choisi ? Sinon, pourquoi. */
+    private function registrarOpen(): ?string
+    {
+        try {
+            app(\App\Platform\Domains\DomainService::class)->registrar();
+
+            return null;
+        } catch (PlatformException) {
+            return \App\Platform\Domains\DomainService::active() === 'lws'
+                ? __('Fermée : connexion LWS absente, ou mode test (les achats seraient simulés alors que le client paie).')
+                : __('Fermée : choisissez LWS pour vendre des domaines.');
+        }
     }
 
     /** Prix conseillés (coût + marge) appliqués aux extensions dont le coût est connu. */

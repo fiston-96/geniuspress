@@ -58,12 +58,28 @@ class DomainService
         return array_values(array_filter($this->registrar()->contactFields(), fn ($field) => $field !== 'postal_code' && trim((string) $customer->{$field}) === ''));
     }
 
+    /** Registraire choisi dans la console (Fournisseurs), sinon GP_DOMAIN_REGISTRAR. */
+    public static function active(): string
+    {
+        $chosen = (string) \App\Models\Setting::read('platform_domain_registrar');
+
+        return isset(self::REGISTRARS[$chosen]) ? $chosen : (string) config('geniuspress.platform.domain_registrar');
+    }
+
     public function registrar(): DomainRegistrar
     {
-        $name = (string) config('geniuspress.platform.domain_registrar');
+        $name = self::active();
         $class = self::REGISTRARS[$name] ?? throw new PlatformException(__('La vente de noms de domaine n’est pas disponible pour le moment.'));
-        if ($name === 'sandbox' && ! \App\Platform\Payments\PaymentManager::sandboxAllowed()) {
+        $sandbox = \App\Platform\Payments\PaymentManager::sandboxAllowed();
+        if ($name === 'sandbox' && ! $sandbox) {
             throw new PlatformException(__('La vente de noms de domaine n’est pas disponible pour le moment.'));
+        }
+        // LWS en mode test : achats simulés. En production, un client paierait pour un domaine qui n'existe pas.
+        if ($name === 'lws') {
+            $client = app(\App\Platform\Suppliers\Lws\LwsClient::class);
+            if (! $client->configured() || ($client->testMode() && ! $sandbox)) {
+                throw new PlatformException(__('La vente de noms de domaine n’est pas disponible pour le moment.'));
+            }
         }
 
         return app($class);
@@ -146,7 +162,7 @@ class DomainService
     public function renew(Domain $domain, int $years): Domain
     {
         $result = $this->registrar()->renew($domain->name, $years, $domain->expires_at ?? now(), $domain->registrar_reference);
-        $domain->update(['status' => 'active', 'expires_at' => $result['expires_at']]);
+        $domain->update(['status' => 'active', 'expires_at' => $result['expires_at'], 'reminded_days' => null]);
 
         return $domain;
     }

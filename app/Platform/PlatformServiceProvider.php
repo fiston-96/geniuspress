@@ -87,7 +87,7 @@ class PlatformServiceProvider extends ServiceProvider
 
         // Rappels de fin d'essai, chaque jour à 9 h.
         if ($this->app->runningInConsole()) {
-            $this->commands([Console\TrialRemindersCommand::class, Console\OperatorCommand::class, Console\ReferralsReleaseCommand::class, Console\SuppliersCommand::class]);
+            $this->commands([Console\TrialRemindersCommand::class, Console\OperatorCommand::class, Console\ReferralsReleaseCommand::class, Console\SuppliersCommand::class, Console\RenewalRemindersCommand::class]);
         }
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
             if (config('geniuspress.platform.enabled')) {
@@ -95,6 +95,9 @@ class PlatformServiceProvider extends ServiceProvider
                 // Fournisseurs (sans effet tant que LWS n'est pas configuré) : solde chaque heure, coûts chaque nuit.
                 $schedule->command('geniuspress:suppliers balance')->hourly()->withoutOverlapping();
                 $schedule->command('geniuspress:suppliers sync')->dailyAt('04:00')->withoutOverlapping();
+                $schedule->command('geniuspress:suppliers domains')->dailyAt('05:00')->withoutOverlapping();
+                // Rappels d'échéance des domaines et services, chaque matin.
+                $schedule->command('geniuspress:renewal-reminders')->dailyAt('08:00')->withoutOverlapping();
             }
             if (config('geniuspress.platform.enabled') && config('hosting.enabled')) {
                 $schedule->command('geniuspress:trial-reminders')->dailyAt('09:00')->withoutOverlapping();

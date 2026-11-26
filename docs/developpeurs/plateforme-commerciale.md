@@ -172,6 +172,16 @@ GeniusPress revend des services LWS avec sa marge, sans que LWS apparaisse dans 
   conseillée réglés dans la console (`SupplierPricing`). Les prix de vente restent ceux de l'exploitant ;
   « Appliquer les prix conseillés » les recalcule pour les extensions.
 - **Solde** : `geniuspress:suppliers balance` chaque heure, alerte aux exploitants sous le seuil (une fois par jour).
+- **Registraire choisi dans la console** (Fournisseurs → Vente des noms de domaine, sinon `GP_DOMAIN_REGISTRAR`).
+  En production, la vente LWS reste fermée tant que la connexion manque ou que le mode test est coché :
+  le client paierait un domaine simulé. « Vérifier un domaine » interroge LWS en lecture seule, même en mode test.
+- **Suivi des achats** (`LwsAccounts`, `geniuspress:suppliers domains` chaque nuit, ou bouton de la console) :
+  échéance réelle lue chez LWS (`GET /hosting/{domaine}`), renouvellement automatique LWS coupé à la première
+  synchronisation (le client renouvelle et paie dans GeniusPress), alerte aux exploitants si un achat payé
+  n'apparaît pas sur le compte LWS après 48 heures (une fois par semaine au plus).
+- **Rappels d'échéance** (`geniuspress:renewal-reminders`, chaque matin) : domaines à 30, 7 et 1 jour(s),
+  services à 15 et 3 jours, par la cloche, l'e-mail et le SMS ; un rappel par palier, remis à zéro au
+  renouvellement. Ce qui dépasse son échéance passe à l'état « expiré ».
 - **Vitrine** : widget `platform-offers` (déclaré seulement avec `GP_PLATFORM=true`), page Hébergement de
   `website/showcase.php`. La politique de confidentialité (`website/site.php`) nomme LWS comme prestataire.
 - Tests : `tests/Feature/Platform/SuppliersTest.php`, API simulée par `Http::fake`, jamais d'appel réel.

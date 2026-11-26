@@ -17,10 +17,11 @@ use Illuminate\Support\Facades\Cache;
  *
  *   php artisan geniuspress:suppliers balance   solde prépayé ; alerte aux exploitants sous le seuil (une fois par jour)
  *   php artisan geniuspress:suppliers sync      coûts d'achat des extensions et des offres « lws »
+ *   php artisan geniuspress:suppliers domains   échéances réelles des domaines et hébergements LWS, renouvellement automatique LWS coupé
  */
 class SuppliersCommand extends Command
 {
-    protected $signature = 'geniuspress:suppliers {action : balance ou sync}';
+    protected $signature = 'geniuspress:suppliers {action : balance, sync ou domains}';
 
     protected $description = 'Solde et prix d’achat chez les fournisseurs (LWS)';
 
@@ -35,6 +36,7 @@ class SuppliersCommand extends Command
             return match ($this->argument('action')) {
                 'balance' => $this->balance($catalog),
                 'sync' => $this->sync($catalog),
+                'domains' => $this->domains(),
                 default => $this->invalid(),
             };
         } catch (PlatformException $e) {
@@ -64,9 +66,17 @@ class SuppliersCommand extends Command
         return self::SUCCESS;
     }
 
+    private function domains(): int
+    {
+        $done = app(\App\Platform\Suppliers\Lws\LwsAccounts::class)->syncAll();
+        $this->info(__('Suivi LWS : :synced élément(s) à jour, :missing achat(s) introuvable(s).', $done));
+
+        return self::SUCCESS;
+    }
+
     private function invalid(): int
     {
-        $this->error(__('Action inconnue. Actions : balance, sync.'));
+        $this->error(__('Action inconnue. Actions : balance, sync, domains.'));
 
         return self::FAILURE;
     }

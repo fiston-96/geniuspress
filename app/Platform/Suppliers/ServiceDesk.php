@@ -39,7 +39,7 @@ class ServiceDesk
             // Renouvellement toujours fait par l'équipe : chez LWS, renouveler un hébergement renouvelle
             // aussi son domaine s'il y a été acheté, ce que le client n'a pas forcément payé ici.
             $from = $existing->expires_at && $existing->expires_at->isFuture() ? $existing->expires_at : now();
-            $existing->update(['expires_at' => $plan->periodEnd($from), 'order_id' => $order->id, 'pending_action' => $existing->pending_action ?? 'renew']);
+            $existing->update(['expires_at' => $plan->periodEnd($from), 'order_id' => $order->id, 'pending_action' => $existing->pending_action ?? 'renew', 'reminded_days' => null]);
             PlatformNotifier::admins(new ServiceToDeliver($existing));
 
             return $existing;

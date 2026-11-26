@@ -146,6 +146,8 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
         Route::post('/fournisseurs/test', [Console\SupplierController::class, 'test'])->middleware('throttle:10,1')->name('suppliers.test');
         Route::post('/fournisseurs/synchroniser', [Console\SupplierController::class, 'sync'])->middleware('throttle:10,1')->name('suppliers.sync');
         Route::post('/fournisseurs/extensions/prix-conseilles', [Console\SupplierController::class, 'applyTldPrices'])->name('suppliers.tlds.apply');
+        Route::post('/fournisseurs/domaine', [Console\SupplierController::class, 'checkDomain'])->middleware('throttle:20,1')->name('suppliers.domain.check');
+        Route::post('/fournisseurs/domaines/synchroniser', [Console\SupplierController::class, 'syncDomains'])->middleware('throttle:5,1')->name('suppliers.domains.sync');
         Route::post('/fournisseurs/services/{service}/livre', [Console\SupplierController::class, 'done'])->name('suppliers.services.done');
         Route::post('/fournisseurs/services/{service}/echec', [Console\SupplierController::class, 'fail'])->name('suppliers.services.fail');
         Route::get('/usage', [Admin\UsageController::class, 'index'])->name('usage.index');

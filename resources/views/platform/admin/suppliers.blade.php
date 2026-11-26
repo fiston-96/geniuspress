@@ -63,6 +63,14 @@
                     <x-field name="lws_key" type="password" :label="__('Clé API')" :hint="$keyHint ? __('Clé enregistrée : :hint. Laissez vide pour la garder.', ['hint' => $keyHint]) : null" autocomplete="new-password" />
                 </div>
                 @if ($keyHint)<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="lws_key_remove" value="1"> {{ __('Supprimer la clé enregistrée') }}</label>@endif
+                <div>
+                    <label for="registrar" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Vente des noms de domaine') }}</label>
+                    <select id="registrar" name="registrar" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="lws" @selected($registrar === 'lws')>{{ __('LWS (achat réel au nom du client)') }}</option>
+                        <option value="sandbox" @selected($registrar !== 'lws')>{{ __('Test (aucun achat, refusé en production)') }}</option>
+                    </select>
+                    <p class="mt-1 text-xs {{ $registrarOpen ? 'text-amber-700' : 'text-emerald-700' }}">{{ $registrarOpen ?? __('Ouverte aux clients.') }}</p>
+                </div>
                 <label class="flex items-start gap-2 text-sm"><input type="hidden" name="lws_test" value="0"><input type="checkbox" name="lws_test" value="1" @checked($client->testMode()) class="mt-0.5"> <span>{{ __('Mode test (X-Test-Mode) : les demandes sont simulées par LWS, rien n’est créé ni facturé. Décochez seulement pour vendre réellement.') }}</span></label>
                 <div class="grid gap-4 md:grid-cols-2">
                     <x-field name="low_balance" :label="__('Alerte sous ce solde, en €')" :value="$lowBalance" required />
@@ -82,7 +90,12 @@
                 <div class="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
                     <form method="POST" action="{{ route('console.suppliers.test') }}">@csrf<button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50">{{ __('Tester la connexion et lire le solde') }}</button></form>
                     <form method="POST" action="{{ route('console.suppliers.sync') }}">@csrf<button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50">{{ __('Mettre à jour les coûts LWS') }}</button></form>
+                    <form method="POST" action="{{ route('console.suppliers.domains.sync') }}">@csrf<button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50">{{ __('Synchroniser les domaines et hébergements') }}</button></form>
                 </div>
+                <form method="POST" action="{{ route('console.suppliers.domain.check') }}" class="mt-3 flex flex-wrap items-end gap-2">@csrf
+                    <x-field name="domain" :label="__('Vérifier un domaine chez LWS')" placeholder="monassociation.org" />
+                    <button class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50">{{ __('Vérifier') }}</button>
+                </form>
             @endif
         </section>
 

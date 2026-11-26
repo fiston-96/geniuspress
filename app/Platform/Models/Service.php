@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * fournisseur. « pending_action » (create, renew) : travail à faire par l'équipe dans
  * l'espace du fournisseur, listé dans la console (file de livraison).
  */
-#[Fillable(['customer_id', 'plan_id', 'order_id', 'kind', 'provider', 'provider_ref', 'domain', 'request', 'status', 'pending_action', 'error', 'note', 'delivered_at', 'expires_at'])]
+#[Fillable(['customer_id', 'plan_id', 'order_id', 'kind', 'provider', 'provider_ref', 'domain', 'request', 'status', 'pending_action', 'error', 'note', 'delivered_at', 'expires_at', 'synced_at', 'reminded_days'])]
 class Service extends Model
 {
     protected $table = 'platform_services';
 
     protected function casts(): array
     {
-        return ['delivered_at' => 'datetime', 'expires_at' => 'datetime'];
+        return ['delivered_at' => 'datetime', 'expires_at' => 'datetime', 'synced_at' => 'datetime', 'reminded_days' => 'integer'];
     }
 
     public function customer(): BelongsTo

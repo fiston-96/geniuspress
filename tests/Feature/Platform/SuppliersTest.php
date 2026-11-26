@@ -174,13 +174,101 @@ class SuppliersTest extends PlatformTestCase
         Setting::write(['platform_lws_key' => null]);
 
         $this->actingAs($this->customer(), 'customer')->get(route('platform.customer.domains', ['q' => 'monasso.cd']))->assertOk()
-            ->assertSee('Le service des noms de domaine est momentanément indisponible')->assertDontSee('LWS')->assertDontSee('Fournisseurs');
+            ->assertSee('La vente de noms de domaine n’est pas disponible pour le moment', false)->assertDontSee('LWS')->assertDontSee('Fournisseurs');
 
         // LWS en panne : même message générique.
         Setting::write(['platform_lws_key' => Crypt::encryptString('cle-de-test-0000')]);
         $this->fakeLws(['GET /domain/monasso.cd/availability' => ['__status' => 500, 'body' => ['code' => 500, 'info' => 'Internal error']]]);
         $this->get(route('platform.customer.domains', ['q' => 'monasso.cd']))->assertOk()
             ->assertSee('momentanément indisponible')->assertDontSee('LWS');
+    }
+
+    public function test_registrar_is_chosen_in_the_console_and_never_sells_in_test_mode_in_production(): void
+    {
+        $operator = $this->operator();
+        $this->actingAs($operator, 'operator')->put(route('console.suppliers.settings'), ['registrar' => 'lws', 'lws_login' => '123456', 'lws_test' => '1', 'low_balance' => '20', 'markup' => '30'])
+            ->assertSessionHas('status');
+        $this->assertSame('lws', \App\Platform\Domains\DomainService::active());
+
+        // Production + mode test LWS : vente fermée (le client paierait un domaine simulé).
+        $this->app->detectEnvironment(fn () => 'production');
+        try {
+            $this->assertNotNull($this->catchRegistrar());
+            $this->get(route('console.suppliers.index'))->assertSee('mode test', false);
+            Setting::write(['platform_lws_test' => false]);
+            $this->assertNull($this->catchRegistrar(), 'Production, vraie connexion : vente ouverte.');
+        } finally {
+            $this->app->detectEnvironment(fn () => 'testing');
+        }
+
+        // Vérification d'un domaine depuis la console (lecture seule, aussi en mode test).
+        $this->fakeLws(['GET /domain/monasso.org/availability' => true]);
+        $this->post(route('console.suppliers.domain.check'), ['domain' => 'MonAsso.org'])->assertSessionHas('status', 'LWS : monasso.org est disponible.');
+    }
+
+    private function catchRegistrar(): ?string
+    {
+        try {
+            app(\App\Platform\Domains\DomainService::class)->registrar();
+
+            return null;
+        } catch (\App\Platform\PlatformException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function test_lws_purchases_are_tracked_and_lws_auto_renewal_is_turned_off(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $operator = $this->operator();
+        $customer = $this->customer();
+        $domain = Domain::create(['customer_id' => $customer->id, 'name' => 'monasso.cd', 'status' => 'active', 'registrar' => 'lws', 'registered_at' => now()->subHours(3), 'expires_at' => now()->addYear()]);
+        $lost = Domain::create(['customer_id' => $customer->id, 'name' => 'perdu.cd', 'status' => 'active', 'registrar' => 'lws', 'registered_at' => now()->subDays(3), 'expires_at' => now()->addYear()]);
+        $this->fakeLws([
+            'GET /hosting/monasso.cd' => ['domain' => 'monasso.cd', 'date_expiration' => '2027-11-20', 'package' => 'domaine'],
+            'PUT /hosting/monasso.cd/autorenew' => true,
+            'GET /hosting/perdu.cd' => ['__status' => 200, 'body' => ['code' => 314, 'info' => 'Domain not found', 'data' => null]],
+        ]);
+
+        $this->artisan('geniuspress:suppliers', ['action' => 'domains'])->assertSuccessful();
+        $this->assertSame('2027-11-20', $domain->fresh()->expires_at->format('Y-m-d'));
+        $this->assertNotNull($domain->fresh()->synced_at);
+        $this->assertSame([['enable' => false]], $this->sentTo('PUT /hosting/monasso.cd/autorenew'));
+        \Illuminate\Support\Facades\Notification::assertSentToTimes($operator, \App\Platform\Notifications\SupplierPurchaseMissing::class, 1);
+        $this->assertNull($lost->fresh()->synced_at);
+
+        // Deuxième passage : pas de nouvelle coupure, pas de nouvelle alerte pour le même achat.
+        $this->fakeLws($this->routes);
+        $this->artisan('geniuspress:suppliers', ['action' => 'domains'])->assertSuccessful();
+        $this->assertSame([], $this->sentTo('PUT /hosting/monasso.cd/autorenew'));
+        \Illuminate\Support\Facades\Notification::assertSentToTimes($operator, \App\Platform\Notifications\SupplierPurchaseMissing::class, 1);
+    }
+
+    public function test_customers_are_reminded_before_expiry_once_per_step(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $customer = $this->customer();
+        $domain = Domain::create(['customer_id' => $customer->id, 'name' => 'monasso.org', 'status' => 'active', 'registrar' => 'sandbox', 'expires_at' => now()->addDays(6)]);
+        $plan = Plan::create(['slug' => 'mail', 'kind' => 'mail', 'name' => ['fr' => 'Mail pro'], 'price' => 300, 'currency' => 'USD', 'period' => 'month', 'active' => true, 'provider' => 'manual']);
+        $service = Service::create(['customer_id' => $customer->id, 'plan_id' => $plan->id, 'kind' => 'mail', 'provider' => 'manual', 'domain' => 'monasso.org', 'status' => 'active', 'expires_at' => now()->addDays(2)]);
+        $old = Domain::create(['customer_id' => $customer->id, 'name' => 'ancien.org', 'status' => 'active', 'registrar' => 'sandbox', 'expires_at' => now()->subDay()]);
+
+        $this->artisan('geniuspress:renewal-reminders')->assertSuccessful();
+        \Illuminate\Support\Facades\Notification::assertSentToTimes($customer, \App\Platform\Notifications\ExpiringSoon::class, 2);
+        $this->assertSame([7, 3, 'expired'], [$domain->fresh()->reminded_days, $service->fresh()->reminded_days, $old->fresh()->status]);
+
+        // Le lendemain : même palier, pas de nouveau rappel. À la veille : dernier rappel.
+        $this->artisan('geniuspress:renewal-reminders');
+        \Illuminate\Support\Facades\Notification::assertSentToTimes($customer, \App\Platform\Notifications\ExpiringSoon::class, 2);
+        $domain->update(['expires_at' => now()->addHours(20)]);
+        $this->artisan('geniuspress:renewal-reminders');
+        \Illuminate\Support\Facades\Notification::assertSentToTimes($customer, \App\Platform\Notifications\ExpiringSoon::class, 3);
+        $this->assertSame(1, $domain->fresh()->reminded_days);
+
+        // Renouvelé : les rappels repartent de zéro pour la prochaine échéance.
+        app(\App\Platform\Domains\DomainService::class)->renew($domain->fresh(), 1);
+        $this->assertNull($domain->fresh()->reminded_days);
+        $this->assertTrue($domain->fresh()->expires_at->gt(now()->addMonths(11)));
     }
 
     public function test_dns_zone_points_domain_and_www_to_the_server(): void
