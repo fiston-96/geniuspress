@@ -350,4 +350,28 @@ export const LIBRARY_IMPL = {
             h.rule(`${h.sel} .gp-form input, ${h.sel} .gp-form textarea`, { 'border-radius': o.field_radius !== undefined ? `${o.field_radius}px` : null });
         },
     },
+    // Miroir de NewsletterWidget::render().
+    newsletter: {
+        preview: (o) => {
+            const layout = o.layout === 'stacked' ? 'stacked' : 'inline';
+            const field = (label) => (
+                <p className="gp-form__field"><label>{label}</label><input readOnly tabIndex={-1} placeholder={layout === 'inline' ? label : undefined} /></p>
+            );
+            const consent = o.consent_text ?? t('Une ou deux nouvelles par mois. Désinscription en un clic, à tout moment.');
+            return (
+                <form className={`gp-form gp-news gp-news--${layout}`} onSubmit={(e) => e.preventDefault()}>
+                    <div className="gp-news__fields">
+                        {o.show_name && field(o.name_label ?? t('Prénom'))}
+                        {field(o.email_label ?? t('Votre adresse e-mail'))}
+                        <button type="button" className="gp-btn gp-btn-md" tabIndex={-1}>{o.button_text ?? t('S’inscrire')}</button>
+                    </div>
+                    {consent !== '' && <p className="gp-news__consent">{consent}</p>}
+                </form>
+            );
+        },
+        css: (o, h) => {
+            h.rule(`${h.sel} .gp-news .gp-btn`, { background: o.button_color, 'border-color': o.button_color });
+            h.rule(`${h.sel} .gp-news input`, { 'border-radius': o.field_radius !== undefined ? `${o.field_radius}px` : null });
+        },
+    },
 };

@@ -246,6 +246,23 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 ],
             ]),
 
+            // 9 bis. Newsletter de GeniusPress (widget du cœur, double confirmation par e-mail).
+            K::section($theme, [K::box([
+                K::eyebrow($t('Newsletter', 'Newsletter'), ['align' => 'center', 'font_size' => 13, 'color' => 'global:primary', 'font_family' => 'global:body']),
+                K::h($t('Suivez l’aventure GeniusPress', 'Follow the GeniusPress journey'), 'h2', [
+                    'align' => 'center', 'font_size' => 40, 'font_size_tablet' => 36, 'font_size_mobile' => 30, 'font_weight' => '400', 'line_height' => '1.15', 'color' => $encre]),
+                K::p('<p>'.$t('Nouveaux modèles, nouvelles fonctions et conseils pour votre site, une ou deux fois par mois.', 'New templates, new features and tips for your website, once or twice a month.').'</p>',
+                    ['align' => 'center', 'font_size' => 18, 'font_size_mobile' => 16, 'line_height' => '1.7', 'color' => $doux]),
+                K::w('newsletter', [
+                    'layout' => 'inline',
+                    'button_text' => $t('Je m’abonne', 'Subscribe'),
+                    'email_label' => $t('Votre adresse e-mail', 'Your email address'),
+                    'consent_text' => $t('Désinscription en un clic, à tout moment. Votre adresse n’est jamais partagée.', 'Unsubscribe in one click, at any time. Your address is never shared.'),
+                    'success_message' => $t('Merci ! Ouvrez l’e-mail que nous venons de vous envoyer pour confirmer votre inscription.', 'Thank you! Open the email we just sent you to confirm your subscription.'),
+                    'field_radius' => 8,
+                ]),
+            ], ['gap' => 18, 'content_width' => 'boxed', 'max_width' => 640, 'padding' => $zero])], ['background_color' => $sable, 'padding' => ['t' => 96, 'r' => 20, 'b' => 96, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 64]]),
+
             // 10. Dernier appel, en terracotta.
             K::section($theme, [K::box([
                 K::h($t('Votre organisation mérite mieux qu’un site générique.', 'Your organization deserves better than a generic website.'), 'h2', [

@@ -12,6 +12,10 @@
         <x-field name="country" :label="__('Pays (code à 2 lettres, facultatif)')" maxlength="2" placeholder="CD" />
         <x-field name="password" type="password" :label="__('Mot de passe')" :hint="__('10 caractères minimum, avec des lettres et des chiffres.')" required autocomplete="new-password" />
         <x-field name="password_confirmation" type="password" :label="__('Confirmez le mot de passe')" required autocomplete="new-password" />
+        <label class="flex items-start gap-2 text-sm text-slate-600">
+            <input type="checkbox" name="newsletter" value="1" @checked(old('newsletter')) class="mt-0.5 rounded border-slate-300">
+            <span>{{ __('Recevoir les nouvelles de GeniusPress (nouveaux modèles, conseils), une ou deux fois par mois.') }}</span>
+        </label>
         <button class="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500">{{ __('Créer mon compte') }}</button>
     </form>
     <p class="mt-6 text-center text-sm text-slate-500">{{ __('Déjà un compte ?') }} <a href="{{ route('platform.login') }}" class="font-medium text-brand-600 hover:underline">{{ __('Se connecter') }}</a></p>

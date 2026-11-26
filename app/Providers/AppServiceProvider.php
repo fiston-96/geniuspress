@@ -44,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         Widgets\MapWidget::class,
         Widgets\CountdownWidget::class,
         Widgets\ContactFormWidget::class,
+        Widgets\NewsletterWidget::class,
         // Widgets avancés
         Widgets\FlipBoxWidget::class,
         Widgets\PromoBoxWidget::class,

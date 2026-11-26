@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LayoutController;
 use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\NewsletterController as AdminNewsletterController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\PostController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogDemoController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\PublicPageController;
@@ -123,6 +125,21 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
+        // Newsletter : abonnés et campagnes (données personnelles : administrateurs seulement).
+        Route::prefix('newsletter')->name('newsletter.')->group(function () {
+            Route::get('/', [AdminNewsletterController::class, 'index'])->name('index');
+            Route::get('/export', [AdminNewsletterController::class, 'export'])->name('export');
+            Route::put('/reglages', [AdminNewsletterController::class, 'settings'])->name('settings');
+            Route::delete('/abonnes/{subscriber}', [AdminNewsletterController::class, 'destroySubscriber'])->name('subscribers.destroy');
+            Route::get('/campagnes/nouvelle', [AdminNewsletterController::class, 'create'])->name('campaigns.create');
+            Route::post('/campagnes', [AdminNewsletterController::class, 'store'])->name('campaigns.store');
+            Route::get('/campagnes/{campaign}', [AdminNewsletterController::class, 'edit'])->name('campaigns.edit');
+            Route::put('/campagnes/{campaign}', [AdminNewsletterController::class, 'update'])->name('campaigns.update');
+            Route::delete('/campagnes/{campaign}', [AdminNewsletterController::class, 'destroy'])->name('campaigns.destroy');
+            Route::post('/campagnes/{campaign}/essai', [AdminNewsletterController::class, 'test'])->middleware('throttle:10,1')->name('campaigns.test');
+            Route::post('/campagnes/{campaign}/envoyer', [AdminNewsletterController::class, 'send'])->name('campaigns.send');
+        });
+
         Route::put('/posts-settings', [PostController::class, 'settings'])->name('posts.settings');
 
         // Constructeur de thème
@@ -159,6 +176,13 @@ Route::post('/formulaire', [FormController::class, 'submit'])->middleware('throt
 // Fichiers publics des plugins (dossier public/ de chaque plugin)
 Route::get('/plugin-assets/{slug}/{path}', PluginAssetController::class)
     ->where('path', '.*')->name('plugin.asset');
+
+// Newsletter : inscription (widget), confirmation, désinscription (même adresse en GET et en POST,
+// pour le bouton « Se désinscrire » des messageries : en-tête List-Unsubscribe-Post, sans jeton CSRF).
+Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->middleware('throttle:forms')->name('newsletter.subscribe');
+Route::get('/newsletter/confirmer/{token}', [NewsletterController::class, 'confirm'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:30,1')->name('newsletter.confirm');
+Route::get('/newsletter/desinscription/{token}', [NewsletterController::class, 'showUnsubscribe'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:30,1')->name('newsletter.unsubscribe');
+Route::post('/newsletter/desinscription/{token}', [NewsletterController::class, 'unsubscribe'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:30,1')->name('newsletter.unsubscribe.post');
 
 // Plan du site pour les moteurs de recherche
 Route::get('/sitemap.xml', \App\Http\Controllers\SitemapController::class)->name('sitemap');

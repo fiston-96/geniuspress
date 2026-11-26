@@ -16,6 +16,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // L'espace client de la plateforme commerciale (/compte) a sa propre connexion.
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('compte', 'compte/*', 'essayer', 'essayer/*') && config('geniuspress.platform.enabled') ? route('platform.login') : route('login'));
         $middleware->redirectUsersTo(fn (Request $request) => $request->is('compte', 'compte/*') ? route('platform.customer.dashboard') : route('admin.dashboard'));
+        // Désinscription en un clic depuis la messagerie (POST sans jeton CSRF ; le jeton secret de l'abonné suffit).
+        $middleware->validateCsrfTokens(except: ['newsletter/desinscription/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -235,6 +235,15 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
 .gp-form__hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .gp-form .gp-btn { align-self: flex-start; cursor: pointer; font: inherit; font-weight: 600; }
 .gp-form__success { padding: 18px 20px; border-radius: 12px; background: #ecfdf5; color: #065f46; font-weight: 600; }
+/* Newsletter : champs et bouton sur une ligne (inline) ou empilés, mention de consentement. */
+.gp-news__fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.gp-news__fields .gp-form__field { flex: 1 1 220px; }
+.gp-news .gp-btn { align-self: flex-end; white-space: nowrap; }
+.gp-news--inline label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.gp-news--inline .gp-form__field input::placeholder { color: inherit; opacity: .6; }
+.gp-news--stacked .gp-news__fields { flex-direction: column; align-items: stretch; }
+.gp-news--stacked .gp-btn { align-self: flex-start; }
+.gp-news__consent { margin: 0; font-size: .85rem; opacity: .75; }
 .gp-form__note { padding: 14px; border: 1px dashed var(--gp-line-strong, #cbd5e1); border-radius: 10px; font-size: .9rem; opacity: .8; }
 
 /* ─── Articles, archives, recherche et 404 (affichage par défaut, sans gabarit du thème) ─── */

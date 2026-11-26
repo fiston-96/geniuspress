@@ -36,6 +36,11 @@ class AuthController extends Controller
         Auth::guard('customer')->login($customer);
         $request->session()->regenerate();
 
+        // Newsletter de la plateforme, seulement si la case est cochée (double confirmation par e-mail).
+        if ($request->boolean('newsletter')) {
+            app(\App\Newsletter\Newsletter::class)->subscribe($customer->email, $customer->name, $customer->locale, __('Inscription à la plateforme'), false, $request->ip());
+        }
+
         return redirect()->route('platform.customer.dashboard')->with('status', __('Bienvenue :name ! Votre compte est créé.', ['name' => $customer->name]));
     }
 

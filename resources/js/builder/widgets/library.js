@@ -317,4 +317,22 @@ export const LIBRARY_WIDGETS = {
             { key: 'field_radius', label: t('Arrondi des champs (px)'), type: 'slider', min: 0, max: 30, tab: 'style' },
         ],
     },
+    // Inscription à la newsletter du site (double confirmation par e-mail). Rendu : NewsletterWidget.php.
+    newsletter: {
+        label: t('Newsletter'),
+        icon: 'M4 5h16v14H4zM4 7l8 6 8-6',
+        defaults: { layout: 'inline' },
+        controls: [
+            { key: 'layout', label: t('Disposition'), type: 'segmented', options: [{ value: 'inline', label: t('En ligne') }, { value: 'stacked', label: t('Empilée') }] },
+            { key: 'show_name', label: t('Demander le prénom'), type: 'toggle' },
+            { key: 'button_text', label: t('Texte du bouton'), type: 'text', placeholder: t('S’inscrire') },
+            { key: 'consent_text', label: t('Mention sous le formulaire'), type: 'text', placeholder: t('Une ou deux nouvelles par mois. Désinscription en un clic, à tout moment.') },
+            { key: 'success_message', label: t('Message après l’inscription'), type: 'text', placeholder: t('Merci ! Ouvrez l’e-mail que nous venons de vous envoyer pour confirmer votre inscription.') },
+            heading(t('Libellés des champs'), 'content'),
+            { key: 'email_label', label: t('E-mail'), type: 'text', placeholder: t('Votre adresse e-mail') },
+            { key: 'name_label', label: t('Prénom'), type: 'text', placeholder: t('Prénom'), when: (s) => !!s.show_name },
+            { key: 'button_color', label: t('Couleur du bouton'), type: 'color', tab: 'style' },
+            { key: 'field_radius', label: t('Arrondi des champs (px)'), type: 'slider', min: 0, max: 30, tab: 'style' },
+        ],
+    },
 };
