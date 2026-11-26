@@ -50,7 +50,12 @@ class SupplierPricing
         return (int) round($value * (10 ** Money::decimals($to)));
     }
 
-    /** Prix de vente conseillé : coût converti, plus la marge, arrondi à l'unité supérieure. */
+    /**
+     * Prix de vente conseillé : coût converti, plus la marge, arrondi au-dessus par paliers qui
+     * gardent la marge proche de celle réglée :
+     * - devises à centimes (USD, EUR…) : 0,10 sous 10 (1,29 → 1,30), puis à l'unité (28,59 → 29) ;
+     * - devises sans décimales ou à petite valeur (XOF, CDF…) : 10 sous 1 000, puis 100.
+     */
     public function suggested(?int $cost, ?string $costCurrency, string $currency): ?int
     {
         if ($cost === null || $costCurrency === null) {
@@ -60,13 +65,14 @@ class SupplierPricing
         if ($converted === null) {
             return null;
         }
-        $unit = 10 ** Money::decimals($currency);
-        // Devises sans décimales et à petite valeur (XOF, CDF…) : arrondi à la centaine.
-        if ($unit === 1 || in_array(strtoupper($currency), ['CDF', 'TZS', 'NGN', 'UGX', 'GNF', 'MGA'], true)) {
-            $unit = $unit * 100;
-        }
+        $minor = 10 ** Money::decimals($currency); // plus petites unités dans une unité (100 centimes, ou 1)
+        $value = $converted * (1 + $this->markup() / 100);
+        $lowValue = $minor === 1 || in_array(strtoupper($currency), ['CDF', 'TZS', 'NGN', 'UGX', 'GNF', 'MGA'], true);
+        $step = $lowValue
+            ? ($value < 1000 * $minor ? 10 : 100) * $minor
+            : ($value < 10 * $minor ? $minor / 10 : $minor);
 
-        return (int) (ceil($converted * (1 + $this->markup() / 100) / $unit) * $unit);
+        return (int) (ceil(round($value / $step, 6)) * $step);
     }
 
     /** Marge réelle (prix de vente moins coût converti), dans la devise de vente, ou null. */

@@ -370,6 +370,11 @@ class SuppliersTest extends PlatformTestCase
         $this->assertSame(801, $pricing->margin(3000, 'USD', 1999, 'EUR'));
         $this->assertSame(7_800_000, $pricing->suggested(1999, 'EUR', 'CDF'), 'Francs congolais : 77 961 FC arrondis à 78 000 FC (en centimes).');
         $this->assertNull($pricing->suggested(1999, 'EUR', 'XOF'), 'Sans taux de change, pas de prix conseillé.');
+        // Petits prix : arrondi à 0,10 sous 10 (0,99 € + 30 % = 1,287 € → 1,30 €, pas 2 €) ; petites devises : à 10 sous 1 000.
+        $this->assertSame(130, $pricing->suggested(99, 'EUR', 'EUR'));
+        $this->assertSame(1000, $pricing->suggested(769, 'EUR', 'EUR'), 'Juste au-dessus de 10 : à l’unité.');
+        Setting::write(['platform_supplier_rates' => ['USD' => '1.10', 'CDF' => '3000', 'XOF' => '655.957']]);
+        $this->assertSame(850, $pricing->suggested(99, 'EUR', 'XOF'), '0,99 € = 649,4 F CFA + 30 % = 844,2 → 850 F CFA.');
 
         $operator = $this->operator();
         $this->actingAs($operator, 'operator')->post(route('console.suppliers.tlds.apply'))->assertSessionHas('status');
