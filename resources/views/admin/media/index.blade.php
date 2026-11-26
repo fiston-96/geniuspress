@@ -6,7 +6,7 @@
         <form method="POST" action="{{ route('admin.media.store') }}" enctype="multipart/form-data" class="flex items-center gap-2">
             @csrf
             <input type="file" name="file" required accept="image/*,.pdf" class="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium">
-            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Envoyer') }}</button>
+            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Envoyer') }}</button>
         </form>
     </div>
     @error('file')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror

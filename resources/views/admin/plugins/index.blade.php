@@ -40,7 +40,7 @@
                         @if ($isActive)
                             <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50">{{ __('Désactiver') }}</button>
                         @else
-                            <button class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" @disabled(! $plugin->isValid())>{{ __('Activer') }}</button>
+                            <button class="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50" @disabled(! $plugin->isValid())>{{ __('Activer') }}</button>
                         @endif
                     </form>
                 </div>

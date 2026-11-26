@@ -18,7 +18,7 @@
         <label class="min-w-56 flex-1 text-sm font-medium text-slate-700">{{ __('Nom') }}
             <input name="name" required maxlength="120" placeholder="{{ __('Par exemple : En-tête principal') }}" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
         </label>
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Créer et ouvrir le builder') }}</button>
+        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Créer et ouvrir le builder') }}</button>
     </form>
 
     <div class="mt-6 grid gap-4 md:grid-cols-2">
@@ -29,7 +29,7 @@
                     @forelse ($layouts[$type] ?? [] as $layout)
                         <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
                             <div class="min-w-0">
-                                <a href="{{ route('admin.layouts.builder', $layout) }}" class="font-medium hover:text-indigo-600">{{ $layout->name }}</a>
+                                <a href="{{ route('admin.layouts.builder', $layout) }}" class="font-medium hover:text-brand-600">{{ $layout->name }}</a>
                                 <p class="text-xs text-slate-500">
                                     @if ($layout->isPublished())<span class="font-medium text-emerald-700">{{ __('Actif') }}</span>@else<span class="font-medium text-amber-700">{{ __('Inactif') }}</span>@endif
                                     · {{ $layout->locale ? strtoupper($layout->locale) : __('Toutes les langues') }}
@@ -38,7 +38,7 @@
                                 </p>
                             </div>
                             <div class="whitespace-nowrap">
-                                <a href="{{ route('admin.layouts.builder', $layout) }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('Builder') }}</a>
+                                <a href="{{ route('admin.layouts.builder', $layout) }}" class="font-medium text-brand-600 hover:text-brand-500">{{ __('Builder') }}</a>
                                 <a href="{{ route('admin.layouts.edit', $layout) }}" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Conditions') }}</a>
                             </div>
                         </li>

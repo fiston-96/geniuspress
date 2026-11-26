@@ -16,7 +16,7 @@
             <h2 class="font-semibold">{{ __('Exporter le site') }}</h2>
             <p class="mt-1 text-sm text-slate-600">{{ __('Un fichier zip avec toutes les pages (traductions et brouillons compris), les médias et les réglages.') }}</p>
             <p class="mt-2 text-xs text-slate-500">{{ __('Ne contient ni les comptes utilisateurs, ni la clé API, ni aucun mot de passe.') }}</p>
-            <a href="{{ route('admin.transfer.export') }}" class="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Télécharger l’export') }}</a>
+            <a href="{{ route('admin.transfer.export') }}" class="mt-4 inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Télécharger l’export') }}</a>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6">
@@ -36,7 +36,7 @@
                 </fieldset>
                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="settings" value="1" checked class="rounded border-slate-300"> {{ __('Importer aussi les réglages (nom, couleurs, police, langues)') }}</label>
 
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Importer') }}</button>
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Importer') }}</button>
             </form>
         </section>
     </div>

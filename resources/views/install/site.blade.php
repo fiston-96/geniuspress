@@ -28,7 +28,7 @@
             <legend class="mb-3 text-sm font-semibold">{{ __('Point de départ') }}</legend>
             <div class="grid gap-3 sm:grid-cols-3">
                 @foreach (['welcome' => [__('Page d’accueil d’exemple'), __('Une section d’accueil à personnaliser.')], 'blank' => [__('Page vide'), __('Partez de zéro, ou laissez l’assistant IA créer la page.')], 'import' => [__('Importer un site'), __('Reprenez un site exporté depuis une autre installation de GeniusPress.')]] as $value => [$title, $text])
-                    <label class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-4 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50">
+                    <label class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-4 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
                         <input type="radio" name="start" value="{{ $value }}" class="mt-1" @checked(old('start', 'welcome') === $value) onchange="document.getElementById('import-file').hidden = this.value !== 'import'">
                         <span><span class="block text-sm font-semibold">{{ $title }}</span><span class="block text-xs text-slate-500">{{ $text }}</span></span>
                     </label>
@@ -41,6 +41,6 @@
             </div>
         </fieldset>
 
-        <button class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Créer mon site') }}</button>
+        <button class="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Créer mon site') }}</button>
     </form>
 @endsection

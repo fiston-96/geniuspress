@@ -124,13 +124,13 @@ export default function App({ boot }) {
                 <button onClick={togglePanel} aria-pressed={panelOpen}
                     title={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
                     aria-label={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
-                    className={`rounded-md p-2 ${panelOpen ? 'text-slate-600 hover:bg-slate-100' : 'bg-indigo-50 text-indigo-700'}`}>
+                    className={`rounded-md p-2 ${panelOpen ? 'text-slate-600 hover:bg-slate-100' : 'bg-brand-50 text-brand-700'}`}>
                     <Svg d="M4 4h16v16H4zM9 4v16" />
                 </button>
                 <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
                     {DEVICES.map((d) => (
                         <button key={d.id} title={d.label} onClick={() => setState({ device: d.id })}
-                            className={`rounded-md p-1.5 ${device === d.id ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
+                            className={`rounded-md p-1.5 ${device === d.id ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
                             <Svg d={d.icon} />
                         </button>
                     ))}
@@ -145,7 +145,7 @@ export default function App({ boot }) {
                     <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50" disabled={saving} onClick={() => save(false)}>
                         {saving ? t('Enregistrement…') : t('Enregistrer')}
                     </button>
-                    <button className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50" disabled={saving} onClick={() => save(true)}>
+                    <button className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50" disabled={saving} onClick={() => save(true)}>
                         {status === 'published' ? t('Mettre à jour') : t('Publier')}
                     </button>
                 </div>

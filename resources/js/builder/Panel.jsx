@@ -49,7 +49,7 @@ export default function Panel({ boot }) {
             <div className="flex overflow-x-auto border-b border-slate-200 [scrollbar-width:none]">
                 {tabs.map((tab) => (
                     <button key={tab.id} disabled={tab.disabled} onClick={() => setState({ panel: tab.id })}
-                        className={`shrink-0 grow whitespace-nowrap border-b-2 px-2.5 py-2.5 text-[12px] font-medium transition disabled:opacity-40 ${panel === tab.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                        className={`shrink-0 grow whitespace-nowrap border-b-2 px-2.5 py-2.5 text-[12px] font-medium transition disabled:opacity-40 ${panel === tab.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                         {tab.label}
                     </button>
                 ))}
@@ -83,8 +83,8 @@ function Elements() {
                         <button key={l.label} title={l.label} draggable
                             onDragStart={(e) => startDrag(e, { kind: 'structure', widths: l.widths })} onDragEnd={endDrag}
                             onClick={() => addStructure(l.widths)}
-                            className="flex h-10 cursor-grab gap-0.5 rounded-md border border-slate-200 p-1 hover:border-indigo-400">
-                            {l.widths.map((w, i) => <span key={i} className="rounded-sm bg-indigo-200" style={{ flex: w }} />)}
+                            className="flex h-10 cursor-grab gap-0.5 rounded-md border border-slate-200 p-1 hover:border-brand-400">
+                            {l.widths.map((w, i) => <span key={i} className="rounded-sm bg-brand-200" style={{ flex: w }} />)}
                         </button>
                     ))}
                 </div>
@@ -101,7 +101,7 @@ function Elements() {
                             <button key={def.type} draggable
                                 onDragStart={(e) => startDrag(e, { kind: 'new', type: def.type })} onDragEnd={endDrag}
                                 onClick={() => addWidget(def.type)}
-                                className="flex cursor-grab flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-4 text-xs font-medium text-slate-700 transition hover:border-indigo-400 hover:text-indigo-700 hover:shadow-sm active:cursor-grabbing">
+                                className="flex cursor-grab flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-4 text-xs font-medium text-slate-700 transition hover:border-brand-400 hover:text-brand-700 hover:shadow-sm active:cursor-grabbing">
                                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={def.icon} /></svg>
                                 {def.label}
                             </button>
@@ -125,7 +125,7 @@ function DeviceSwitch({ device }) {
         <span className="inline-flex items-center gap-0.5" title={t('Réglable pour chaque appareil')}>
             {Object.entries(DEVICE_ICONS).map(([id, d]) => (
                 <button key={id} title={d.label} onClick={() => setState({ device: id })}
-                    className={`rounded p-0.5 ${device === id ? 'bg-indigo-100 text-indigo-700' : 'text-slate-300 hover:text-slate-600'}`}>
+                    className={`rounded p-0.5 ${device === id ? 'bg-brand-100 text-brand-700' : 'text-slate-300 hover:text-slate-600'}`}>
                     <Svg d={d.icon} className="h-3 w-3" />
                 </button>
             ))}
@@ -178,7 +178,7 @@ function Settings({ id, boot }) {
                     {crumbs.map((c, i) => (
                         <span key={c.id} className="flex items-center gap-1">
                             {i > 0 && '›'}
-                            <button className={c.id === id ? 'font-semibold text-slate-700' : 'hover:text-indigo-600'} onClick={() => setState({ selected: c.id })}>{labelOf(c)}</button>
+                            <button className={c.id === id ? 'font-semibold text-slate-700' : 'hover:text-brand-600'} onClick={() => setState({ selected: c.id })}>{labelOf(c)}</button>
                         </span>
                     ))}
                 </nav>
@@ -196,7 +196,7 @@ function Settings({ id, boot }) {
             <div className="flex border-b border-slate-200 px-2">
                 {TABS.map((tb) => (
                     <button key={tb.id} onClick={() => setTab(tb.id)}
-                        className={`border-b-2 px-3 py-2 text-xs font-medium ${tab === tb.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                        className={`border-b-2 px-3 py-2 text-xs font-medium ${tab === tb.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                         {tb.label}
                     </button>
                 ))}
@@ -206,7 +206,7 @@ function Settings({ id, boot }) {
                     <div className="flex gap-1 rounded-md bg-slate-100 p-0.5">
                         {[['normal', t('Normal')], ['hover', t('Au survol')]].map(([m, label]) => (
                             <button key={m} onClick={() => setMode(m)}
-                                className={`flex-1 rounded px-2 py-1 text-xs font-medium ${mode === m ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600'}`}>{label}</button>
+                                className={`flex-1 rounded px-2 py-1 text-xs font-medium ${mode === m ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-600'}`}>{label}</button>
                         ))}
                     </div>
                 )}
@@ -280,11 +280,11 @@ function NavNode({ node, depth }) {
                 onDrop={onDrop}
                 onClick={() => select(node.id)}
                 onMouseEnter={() => setState({ hovered: node.id })}
-                className={`relative flex cursor-pointer items-center gap-1.5 rounded-md py-1.5 pr-2 text-[13px] ${selected ? 'bg-indigo-600 text-white' : hovered ? 'bg-indigo-50 text-indigo-800' : 'text-slate-700 hover:bg-slate-50'} ${zone === 'inside' ? 'ring-2 ring-inset ring-indigo-500' : ''}`}
+                className={`relative flex cursor-pointer items-center gap-1.5 rounded-md py-1.5 pr-2 text-[13px] ${selected ? 'bg-brand-600 text-white' : hovered ? 'bg-brand-50 text-brand-800' : 'text-slate-700 hover:bg-slate-50'} ${zone === 'inside' ? 'ring-2 ring-inset ring-brand-500' : ''}`}
                 style={{ paddingLeft: 8 + depth * 14 }}
             >
-                {zone === 'before' && <span className="absolute inset-x-1 -top-0.5 h-1 rounded bg-indigo-500" />}
-                {zone === 'after' && <span className="absolute inset-x-1 -bottom-0.5 h-1 rounded bg-indigo-500" />}
+                {zone === 'before' && <span className="absolute inset-x-1 -top-0.5 h-1 rounded bg-brand-500" />}
+                {zone === 'after' && <span className="absolute inset-x-1 -bottom-0.5 h-1 rounded bg-brand-500" />}
                 {container ? (
                     <button className="w-4 text-center text-[10px] opacity-70" onClick={(e) => { e.stopPropagation(); setOpen(!open); }} aria-label={open ? t('Replier') : t('Déplier')}>{open ? '▾' : '▸'}</button>
                 ) : <span className="w-4" />}
@@ -328,7 +328,7 @@ function History({ urls }) {
                             <p className="text-sm font-medium">{r.note}</p>
                             <p className="truncate text-xs text-slate-500">{new Date(r.created_at).toLocaleString(locale())} · {r.user?.name ?? '—'}</p>
                         </div>
-                        <button className="shrink-0 text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50" disabled={loading === r.id} onClick={() => restore(r)}>
+                        <button className="shrink-0 text-xs font-medium text-brand-600 hover:text-brand-500 disabled:opacity-50" disabled={loading === r.id} onClick={() => restore(r)}>
                             {t('Restaurer')}
                         </button>
                     </li>

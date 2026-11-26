@@ -51,7 +51,7 @@
                 <div>
                     <p class="mb-2 text-sm font-medium text-slate-700">{{ __('Menu principal') }}</p>
                     <div class="space-y-2" data-link-list="locales[{{ $code }}][menu]">{!! $linkRows("locales[{$code}][menu]", $l['menu'] ?? []) !!}</div>
-                    <button type="button" class="mt-2 text-sm font-medium text-indigo-600" data-add-row>{{ __('+ Ajouter un lien') }}</button>
+                    <button type="button" class="mt-2 text-sm font-medium text-brand-600" data-add-row>{{ __('+ Ajouter un lien') }}</button>
                 </div>
 
                 <label class="block text-sm font-medium text-slate-700">{{ __('Texte du bouton d’action') }}
@@ -69,7 +69,7 @@
                 <div>
                     <p class="mb-2 text-sm font-medium text-slate-700">{{ __('Liens du pied de page') }}</p>
                     <div class="space-y-2" data-link-list="locales[{{ $code }}][footer_links]">{!! $linkRows("locales[{$code}][footer_links]", $l['footer_links'] ?? []) !!}</div>
-                    <button type="button" class="mt-2 text-sm font-medium text-indigo-600" data-add-row>{{ __('+ Ajouter un lien') }}</button>
+                    <button type="button" class="mt-2 text-sm font-medium text-brand-600" data-add-row>{{ __('+ Ajouter un lien') }}</button>
                 </div>
             </section>
         @endforeach
@@ -80,7 +80,7 @@
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="footer[credit]" value="1" @checked($nav['footer']['credit']) class="rounded border-slate-300"> {{ __('Afficher « Propulsé par GeniusPress »') }}</label>
         </section>
 
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Enregistrer l’apparence') }}</button>
+        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Enregistrer l’apparence') }}</button>
     </form>
 
     <script>

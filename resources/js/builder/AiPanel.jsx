@@ -5,7 +5,7 @@ import { updateSettings } from './tree';
 import { t } from './i18n';
 
 const box = 'rounded-xl border border-slate-200 bg-white p-4';
-const primary = 'inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50';
+const primary = 'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50';
 const secondary = 'rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50';
 
 export function Spinner({ label }) {
@@ -68,12 +68,12 @@ function Generate({ boot }) {
         <section className={box}>
             <h3 className="font-semibold">{t('✨ Créer la page avec l’IA')}</h3>
             <p className="mt-1 text-xs text-slate-500">{t('Décrivez la page voulue : objectif, public, sections, appel à l’action.')}</p>
-            <textarea className="mt-3 block w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+            <textarea className="mt-3 block w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 rows={5} maxLength={4000} value={brief} onChange={(e) => setBrief(e.target.value)}
                 placeholder={t('Ex. : Page d’accueil pour notre ONG d’éducation à Goma. Présenter notre mission, nos 3 programmes, nos chiffres clés, un appel aux dons et un formulaire de contact.')} />
             <div className="mt-2 flex gap-1 rounded-md bg-slate-100 p-0.5 text-xs">
                 {[['replace', t('Remplacer la page')], ['append', t('Ajouter à la fin')]].map(([v, l]) => (
-                    <button key={v} onClick={() => setMode(v)} className={`flex-1 rounded px-2 py-1 font-medium ${mode === v ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600'}`}>{l}</button>
+                    <button key={v} onClick={() => setMode(v)} className={`flex-1 rounded px-2 py-1 font-medium ${mode === v ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-600'}`}>{l}</button>
                 ))}
             </div>
             <button className={`${primary} mt-3 w-full`} disabled={busy || brief.trim().length < 10} onClick={run}>
@@ -164,7 +164,7 @@ function Audit({ boot }) {
                             <li key={i} className="rounded-lg border border-slate-200 p-2.5 text-xs">
                                 <div className="mb-1 flex gap-1.5">
                                     <span className={`rounded px-1.5 py-0.5 font-semibold ${SEVERITY[issue.severity]?.[1]}`}>{SEVERITY[issue.severity]?.[0]}</span>
-                                    <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-medium text-indigo-700">{CATEGORY[issue.category]}</span>
+                                    <span className="rounded bg-brand-50 px-1.5 py-0.5 font-medium text-brand-700">{CATEGORY[issue.category]}</span>
                                 </div>
                                 <p className="font-medium text-slate-800">{issue.message}</p>
                                 <p className="mt-0.5 text-slate-600">→ {issue.fix}</p>
@@ -218,7 +218,7 @@ function Translate({ boot }) {
                     {done.map((tr) => (
                         <li key={tr.locale} className="flex items-center justify-between gap-2">
                             <span className="truncate"><b className="uppercase">{tr.locale}</b> · {tr.title}</span>
-                            <a href={tr.builder_url} className="shrink-0 font-semibold text-indigo-600" onClick={(e) => { if (getState().dirty && !confirm(t('Quitter sans enregistrer ?'))) e.preventDefault(); else setState({ dirty: false }); }}>{t('Ouvrir')}</a>
+                            <a href={tr.builder_url} className="shrink-0 font-semibold text-brand-600" onClick={(e) => { if (getState().dirty && !confirm(t('Quitter sans enregistrer ?'))) e.preventDefault(); else setState({ dirty: false }); }}>{t('Ouvrir')}</a>
                         </li>
                     ))}
                 </ul>

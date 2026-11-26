@@ -36,7 +36,7 @@ export default function MediaPicker({ urls, onPick, onClose }) {
                     <h2 className="font-semibold">{t('Médiathèque')}</h2>
                     <div className="flex items-center gap-2">
                         <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => upload([...e.target.files])} />
-                        <button className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" disabled={uploading} onClick={() => input.current.click()}>
+                        <button className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50" disabled={uploading} onClick={() => input.current.click()}>
                             {uploading ? t('Envoi…') : t('Envoyer des images')}
                         </button>
                         <button className="rounded-lg px-2 py-1.5 text-slate-500 hover:bg-slate-100" onClick={onClose} aria-label={t('Fermer')}>✕</button>
@@ -46,7 +46,7 @@ export default function MediaPicker({ urls, onPick, onClose }) {
                     {items === null && <p className="col-span-full py-10 text-center text-sm text-slate-500">{t('Chargement…')}</p>}
                     {items?.length === 0 && <p className="col-span-full py-10 text-center text-sm text-slate-500">{t('Aucune image. Envoyez-en une ou glissez-la ici.')}</p>}
                     {items?.map((m) => (
-                        <button key={m.id} className="group aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-100 outline-none ring-indigo-500 hover:ring-2 focus:ring-2"
+                        <button key={m.id} className="group aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-100 outline-none ring-brand-500 hover:ring-2 focus:ring-2"
                             onClick={() => onPick(m)} title={m.original_name}>
                             <img src={m.url} alt={m.alt || ''} className="h-full w-full object-cover" loading="lazy" />
                         </button>

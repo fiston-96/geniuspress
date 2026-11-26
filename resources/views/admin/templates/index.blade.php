@@ -20,10 +20,10 @@
 @endif
 
 {{-- ─── Assistant IA : questionnaire ─────────────────────────────────── --}}
-<details class="mt-6 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6" @if (! $hasProfile || old('name')) open @endif>
+<details class="mt-6 rounded-xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-6" @if (! $hasProfile || old('name')) open @endif>
     <summary class="cursor-pointer list-none">
         <span class="flex items-start gap-3">
-            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-indigo-600 text-lg text-white">✨</span>
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-600 text-lg text-white">✨</span>
             <span>
                 <span class="block font-semibold">{{ __('Créer mon site avec l’assistant IA') }}</span>
                 <span class="block text-sm text-slate-600">{{ __('Répondez à quelques questions : l’assistant vous propose les modèles les plus adaptés, puis rédige les textes à votre place.') }}</span>
@@ -87,7 +87,7 @@
             <textarea name="extra" rows="2" maxlength="2000" class="{{ $field }}">{{ old('extra', $profile['extra'] ?? '') }}</textarea>
         </label>
         <p class="text-xs text-slate-500">{{ __('L’assistant n’invente jamais de chiffres, de noms ni de contacts : ce qu’il ne sait pas reste entre crochets, à compléter.') }}</p>
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ $aiConfigured ? __('Me proposer des modèles') : __('Voir les modèles de mon secteur') }}</button>
+        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ $aiConfigured ? __('Me proposer des modèles') : __('Voir les modèles de mon secteur') }}</button>
     </form>
 </details>
 

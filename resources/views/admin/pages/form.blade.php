@@ -44,8 +44,8 @@
         @endif
 
         <div class="flex items-center gap-3 pt-2">
-            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ $page->exists ? __('Enregistrer') : __('Créer et ouvrir le builder') }}</button>
-            @if ($page->exists)<a href="{{ route('admin.pages.builder', $page) }}" class="text-sm font-medium text-indigo-600">{{ __('Ouvrir le builder') }}</a>@endif
+            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ $page->exists ? __('Enregistrer') : __('Créer et ouvrir le builder') }}</button>
+            @if ($page->exists)<a href="{{ route('admin.pages.builder', $page) }}" class="text-sm font-medium text-brand-600">{{ __('Ouvrir le builder') }}</a>@endif
         </div>
     </form>
 

@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-semibold tracking-tight">{{ __('Bonjour :name', ['name' => auth()->user()->name]) }}</h1>
             <p class="text-sm text-slate-500">{{ __('Voici l’état de votre site.') }}</p>
         </div>
-        <a href="{{ route('admin.pages.create') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('+ Nouvelle page') }}</a>
+        <a href="{{ route('admin.pages.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('+ Nouvelle page') }}</a>
     </div>
 
     <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -26,7 +26,7 @@
                     <p class="truncate font-medium">{{ $page->title }}</p>
                     <p class="text-xs text-slate-500">{{ __('Modifiée :date', ['date' => $page->updated_at->diffForHumans()]) }}</p>
                 </div>
-                <a href="{{ route('admin.pages.builder', $page) }}" class="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500">{{ __('Ouvrir le builder') }}</a>
+                <a href="{{ route('admin.pages.builder', $page) }}" class="shrink-0 text-sm font-medium text-brand-600 hover:text-brand-500">{{ __('Ouvrir le builder') }}</a>
             </div>
         @empty
             <p class="px-5 py-8 text-center text-sm text-slate-500">{{ __('Aucune page pour l’instant.') }}</p>

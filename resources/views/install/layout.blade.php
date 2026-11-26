@@ -28,7 +28,7 @@
         @foreach ($steps as $n => $label)
             <li @class([
                 'rounded-lg border px-3 py-2',
-                'border-indigo-600 bg-indigo-600 text-white' => $n === $step,
+                'border-brand-600 bg-brand-600 text-white' => $n === $step,
                 'border-emerald-200 bg-emerald-50 text-emerald-800' => $n < $step,
                 'border-slate-200 bg-white text-slate-500' => $n > $step,
             ])>

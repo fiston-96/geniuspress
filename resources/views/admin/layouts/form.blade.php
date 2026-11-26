@@ -53,12 +53,12 @@
                     </div>
                 @endforeach
             </div>
-            <button type="button" class="mt-2 text-sm font-medium text-indigo-600" onclick="(() => { const rows = document.querySelectorAll('[data-rule]'); const row = rows[rows.length - 1].cloneNode(true); const n = rows.length; row.querySelectorAll('select').forEach((s) => { s.name = s.name.replace(/rules\[\d+\]/, 'rules[' + n + ']'); s.selectedIndex = 0; }); document.getElementById('rules').append(row); })()">{{ __('+ Ajouter une règle') }}</button>
+            <button type="button" class="mt-2 text-sm font-medium text-brand-600" onclick="(() => { const rows = document.querySelectorAll('[data-rule]'); const row = rows[rows.length - 1].cloneNode(true); const n = rows.length; row.querySelectorAll('select').forEach((s) => { s.name = s.name.replace(/rules\[\d+\]/, 'rules[' + n + ']'); s.selectedIndex = 0; }); document.getElementById('rules').append(row); })()">{{ __('+ Ajouter une règle') }}</button>
         </fieldset>
 
         <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
-            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Enregistrer') }}</button>
-            <a href="{{ route('admin.layouts.builder', $layout) }}" class="text-sm font-medium text-indigo-600">{{ __('Ouvrir le builder') }}</a>
+            <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
+            <a href="{{ route('admin.layouts.builder', $layout) }}" class="text-sm font-medium text-brand-600">{{ __('Ouvrir le builder') }}</a>
         </div>
     </form>
 

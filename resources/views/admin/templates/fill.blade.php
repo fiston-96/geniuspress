@@ -5,7 +5,7 @@
 <p class="mt-1 max-w-2xl text-sm text-slate-500">{{ __('Chaque page est réécrite pour votre organisation, une après l’autre (environ une demi-minute par page). Gardez cette page ouverte. Ce qui n’est pas connu reste entre crochets, à compléter.') }}</p>
 
 <div class="mt-6 max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
-    <div class="h-2 overflow-hidden rounded-full bg-slate-100"><div id="gp-fill-bar" class="h-full w-0 rounded-full bg-indigo-600 transition-all"></div></div>
+    <div class="h-2 overflow-hidden rounded-full bg-slate-100"><div id="gp-fill-bar" class="h-full w-0 rounded-full bg-brand-600 transition-all"></div></div>
     <p id="gp-fill-summary" class="mt-3 text-sm font-medium" role="status">{{ __('Préparation…') }}</p>
     <ul class="mt-4 divide-y divide-slate-100 text-sm" id="gp-fill-list">
         @foreach ($pages as $page)
@@ -16,7 +16,7 @@
         @endforeach
     </ul>
     <div id="gp-fill-done" class="mt-6 hidden flex-wrap gap-2">
-        <a href="{{ route('admin.pages.index') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Voir mes pages') }}</a>
+        <a href="{{ route('admin.pages.index') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Voir mes pages') }}</a>
         <a href="{{ url('/') }}" target="_blank" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">{{ __('Voir le site') }}</a>
     </div>
 </div>
@@ -39,7 +39,7 @@
     };
     async function fill(item) {
         const state = item.querySelector('[data-state]');
-        state.className = 'text-indigo-600';
+        state.className = 'text-brand-600';
         state.textContent = text.running;
         try {
             const response = await fetch(item.dataset.url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, Accept: 'application/json' } });

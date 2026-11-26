@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-semibold tracking-tight">{{ __('Articles') }}</h1>
         <div class="flex items-center gap-3">
             <a href="{{ route('admin.terms.index') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">{{ __('Catégories et étiquettes') }}</a>
-            <a href="{{ route('admin.posts.create') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('+ Nouvel article') }}</a>
+            <a href="{{ route('admin.posts.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('+ Nouvel article') }}</a>
         </div>
     </div>
 
@@ -37,7 +37,7 @@
                         <div class="flex items-center gap-3">
                             @if ($post->featuredMedia)<img src="{{ $post->featuredMedia->url }}" alt="" class="h-10 w-14 shrink-0 rounded object-cover">@endif
                             <div class="min-w-0">
-                                <a href="{{ route('admin.posts.builder', $post) }}" class="font-medium hover:text-indigo-600">{{ $post->title }}</a>
+                                <a href="{{ route('admin.posts.builder', $post) }}" class="font-medium hover:text-brand-600">{{ $post->title }}</a>
                                 <p class="truncate text-xs text-slate-500">{{ parse_url($post->url(), PHP_URL_PATH) }}</p>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                     <td class="px-5 py-3 uppercase text-slate-500">{{ $post->locale }}</td>
                     <td class="px-5 py-3 text-slate-500">{{ ($post->published_at ?? $post->updated_at)->translatedFormat('j M Y') }}</td>
                     <td class="whitespace-nowrap px-5 py-3 text-right">
-                        <a href="{{ route('admin.posts.builder', $post) }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('Builder') }}</a>
+                        <a href="{{ route('admin.posts.builder', $post) }}" class="font-medium text-brand-600 hover:text-brand-500">{{ __('Builder') }}</a>
                         <a href="{{ route('admin.posts.edit', $post) }}" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Réglages') }}</a>
                         <a href="{{ $post->url() }}" target="_blank" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Voir') }}</a>
                     </td>
@@ -90,7 +90,7 @@
                     <input type="number" name="per_page" min="1" max="48" value="{{ $blog['per_page'] ?? 9 }}" class="mt-1 block w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 </label>
                 <p class="text-xs text-slate-500">{{ __('Une page qui porte la même adresse que le blog (par exemple « actualites ») le remplace : posez-y une grille d’articles.') }}</p>
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Enregistrer') }}</button>
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>
             </form>
         </details>
     @endcan

@@ -5,7 +5,7 @@ import { t } from './i18n';
 import { useStore } from './store';
 import { ICONS, Icon, brandTitle } from './icons';
 
-const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
+const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20';
 
 function Label({ children, onReset, hasValue, extra }) {
     return (
@@ -69,7 +69,7 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                             const inherited = !has && placeholder === o.value;
                             return (
                                 <button key={o.value} onClick={() => set(active ? null : o.value)}
-                                    className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${active ? 'bg-white text-indigo-700 shadow-sm' : inherited ? 'text-indigo-500 ring-1 ring-inset ring-indigo-200' : 'text-slate-600 hover:text-slate-900'}`}>
+                                    className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${active ? 'bg-white text-brand-700 shadow-sm' : inherited ? 'text-brand-500 ring-1 ring-inset ring-brand-200' : 'text-slate-600 hover:text-slate-900'}`}>
                                     {o.label}
                                 </button>
                             );
@@ -83,7 +83,7 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                 <div>
                     {label({ hasValue: has, onReset: reset })}
                     <div className="flex items-center gap-2">
-                        <input type="range" className={`flex-1 accent-indigo-600 ${has ? '' : 'opacity-50'}`} min={control.min} max={control.max} step={control.step ?? 1}
+                        <input type="range" className={`flex-1 accent-brand-600 ${has ? '' : 'opacity-50'}`} min={control.min} max={control.max} step={control.step ?? 1}
                             value={shown} onChange={(e) => set(Number(e.target.value))} />
                         <input type="number" className={`${inputCls} !w-16 !px-1.5 text-right`} min={control.min} max={control.max}
                             value={value ?? ''} placeholder={String(placeholder ?? control.default ?? '—')} onChange={(e) => set(e.target.value === '' ? null : Number(e.target.value))} />
@@ -98,7 +98,7 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                 <label className="flex cursor-pointer items-center justify-between gap-3 py-0.5">
                     <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600">{control.label}{extra}</span>
                     <button role="switch" aria-checked={!!value} onClick={() => set(!value)}
-                        className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                        className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? 'bg-brand-600' : 'bg-slate-300'}`}>
                         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${value ? 'left-4.5' : 'left-0.5'}`} />
                     </button>
                 </label>
@@ -165,7 +165,7 @@ function ColorControl({ label, value, placeholder, onChange }) {
                 <div className="mt-1.5 flex flex-wrap gap-1" aria-label={t('Couleurs du site')}>
                     {colors.map((c) => (
                         <button key={c.id} title={c.name} onClick={() => onChange(`global:${c.id}`)}
-                            className={`h-5 w-5 rounded-full border border-slate-300 ${value === `global:${c.id}` ? 'ring-2 ring-indigo-500 ring-offset-1' : ''}`} style={{ background: c.value }} />
+                            className={`h-5 w-5 rounded-full border border-slate-300 ${value === `global:${c.id}` ? 'ring-2 ring-brand-500 ring-offset-1' : ''}`} style={{ background: c.value }} />
                     ))}
                 </div>
             )}
@@ -228,7 +228,7 @@ function SpacingControl({ label, control, value, placeholder, onChange }) {
                 ))}
                 <div className="mb-4 flex flex-col gap-1">
                     <button title={linked ? t('Valeurs liées') : t('Valeurs séparées')} onClick={() => setLinked(!linked)}
-                        className={`rounded px-1.5 py-1 text-xs ${linked ? 'bg-indigo-50 text-indigo-700' : 'text-slate-400 hover:bg-slate-100'}`}>{linked ? '🔗' : '⛓️‍💥'}</button>
+                        className={`rounded px-1.5 py-1 text-xs ${linked ? 'bg-brand-50 text-brand-700' : 'text-slate-400 hover:bg-slate-100'}`}>{linked ? '🔗' : '⛓️‍💥'}</button>
                 </div>
             </div>
             {units.length > 1 && (
@@ -264,7 +264,7 @@ function ShadowControl({ label, value, onChange }) {
             {label}
             <div className="flex flex-wrap gap-1">
                 {Object.entries(SHADOWS).map(([name, preset]) => (
-                    <button key={name} onClick={() => onChange(preset)} className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-indigo-400">{name}</button>
+                    <button key={name} onClick={() => onChange(preset)} className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-brand-400">{name}</button>
                 ))}
             </div>
             {v && (
@@ -318,7 +318,7 @@ function IconControl({ label, value, onChange, brands = true }) {
                     <div className="mt-2 grid max-h-56 grid-cols-7 gap-1 overflow-y-auto">
                         {refs.slice(0, 280).map((ref) => (
                             <button key={ref} title={ref.replace(/^(lucide|brand):/, '')} onClick={() => { onChange(ref); setOpen(false); }}
-                                className={`grid aspect-square place-items-center rounded text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 [&_svg]:h-5 [&_svg]:w-5 ${value === ref ? 'bg-indigo-100 text-indigo-700' : ''}`}>
+                                className={`grid aspect-square place-items-center rounded text-slate-700 hover:bg-brand-50 hover:text-brand-700 [&_svg]:h-5 [&_svg]:w-5 ${value === ref ? 'bg-brand-100 text-brand-700' : ''}`}>
                                 <Icon value={ref} />
                             </button>
                         ))}
@@ -388,7 +388,7 @@ function RepeaterControl({ control, value, onChange, urls }) {
                     </div>
                 ))}
             </div>
-            <button className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-40" disabled={full}
+            <button className="mt-2 text-xs font-medium text-brand-600 hover:text-brand-500 disabled:opacity-40" disabled={full}
                 onClick={() => { onChange([...value, structuredClone(control.newItem ?? {})]); setOpenIndex(value.length); }}>
                 {control.addLabel ?? t('+ Ajouter un élément')}
             </button>
@@ -437,7 +437,7 @@ function LinksControl({ label, value, onChange }) {
                     </div>
                 ))}
             </div>
-            <button className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500" onClick={() => onChange([...value, { label: '', url: '' }])}>{t('+ Ajouter un lien')}</button>
+            <button className="mt-2 text-xs font-medium text-brand-600 hover:text-brand-500" onClick={() => onChange([...value, { label: '', url: '' }])}>{t('+ Ajouter un lien')}</button>
         </div>
     );
 }
@@ -450,7 +450,7 @@ function ImageControl({ control, value, onChange, urls }) {
     return (
         <div>
             <Label hasValue={!!value} onReset={() => { onChange(control.key, null); setMedia(null); }}>{control.label}</Label>
-            <button onClick={() => setOpen(true)} className="grid aspect-video w-full place-items-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500 hover:border-indigo-400">
+            <button onClick={() => setOpen(true)} className="grid aspect-video w-full place-items-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500 hover:border-brand-400">
                 {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : t('Choisir une image')}
             </button>
             <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); setMedia(null); }} />
@@ -502,7 +502,7 @@ function RichText({ label, value, onChange }) {
     return (
         <div>
             <Label>{label}</Label>
-            <div className="overflow-hidden rounded-md border border-slate-300 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+            <div className="overflow-hidden rounded-md border border-slate-300 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20">
                 <div className="flex flex-wrap gap-0.5 border-b border-slate-200 bg-slate-50 p-1">
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('bold')}><b>G</b></button>
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('italic')}><i>I</i></button>
@@ -513,7 +513,7 @@ function RichText({ label, value, onChange }) {
                     <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('removeFormat')}>{t('Effacer')}</button>
                 </div>
                 <div ref={ref} contentEditable suppressContentEditableWarning onInput={emit}
-                    className="prose-sm max-h-80 min-h-28 overflow-y-auto bg-white px-3 py-2 text-sm outline-none [&_a]:text-indigo-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5" />
+                    className="prose-sm max-h-80 min-h-28 overflow-y-auto bg-white px-3 py-2 text-sm outline-none [&_a]:text-brand-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5" />
             </div>
         </div>
     );

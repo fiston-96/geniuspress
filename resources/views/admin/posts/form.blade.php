@@ -22,11 +22,11 @@
                 <legend class="mb-2 text-sm font-medium text-slate-700">{{ __('Image à la une') }}</legend>
                 @php($current = (int) old('featured_media_id', $post->featured_media_id))
                 <div class="grid max-h-72 grid-cols-3 gap-2 overflow-y-auto rounded-lg border border-slate-200 p-2 sm:grid-cols-5">
-                    <label class="flex aspect-[4/3] cursor-pointer items-center justify-center rounded-md border border-dashed border-slate-300 text-xs text-slate-500 has-[:checked]:border-indigo-600 has-[:checked]:ring-2 has-[:checked]:ring-indigo-200">
+                    <label class="flex aspect-[4/3] cursor-pointer items-center justify-center rounded-md border border-dashed border-slate-300 text-xs text-slate-500 has-[:checked]:border-brand-600 has-[:checked]:ring-2 has-[:checked]:ring-brand-200">
                         <input type="radio" name="featured_media_id" value="" class="sr-only" @checked(! $current)> {{ __('Aucune') }}
                     </label>
                     @foreach ($images as $image)
-                        <label class="cursor-pointer overflow-hidden rounded-md border border-transparent has-[:checked]:border-indigo-600 has-[:checked]:ring-2 has-[:checked]:ring-indigo-200">
+                        <label class="cursor-pointer overflow-hidden rounded-md border border-transparent has-[:checked]:border-brand-600 has-[:checked]:ring-2 has-[:checked]:ring-brand-200">
                             <input type="radio" name="featured_media_id" value="{{ $image->id }}" class="sr-only" @checked($current === $image->id)>
                             <img src="{{ $image->url }}" alt="{{ $image->alt }}" class="aspect-[4/3] w-full object-cover" loading="lazy">
                         </label>
@@ -84,8 +84,8 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ $post->exists ? __('Enregistrer') : __('Créer et ouvrir le builder') }}</button>
-                @if ($post->exists)<a href="{{ route('admin.posts.builder', $post) }}" class="text-sm font-medium text-indigo-600">{{ __('Ouvrir le builder') }}</a>@endif
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ $post->exists ? __('Enregistrer') : __('Créer et ouvrir le builder') }}</button>
+                @if ($post->exists)<a href="{{ route('admin.posts.builder', $post) }}" class="text-sm font-medium text-brand-600">{{ __('Ouvrir le builder') }}</a>@endif
             </div>
         </aside>
     </form>

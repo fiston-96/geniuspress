@@ -36,14 +36,14 @@
         <nav class="flex-1 space-y-0.5 px-3">
             @foreach ($nav as [$route, $label, $icon])
                 @php $active = request()->routeIs(str_replace('.index', '.*', $route)); @endphp
-                <a href="{{ route($route) }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition', 'bg-indigo-50 text-indigo-700' => $active, 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' => ! $active])>
+                <a href="{{ route($route) }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition', 'bg-brand-50 text-brand-700' => $active, 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' => ! $active])>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="{{ $icon }}"/></svg>
                     {{ $label }}
                 </a>
             @endforeach
         </nav>
         <div class="border-t border-slate-200 p-4">
-            <a href="{{ url('/') }}" target="_blank" class="mb-3 flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600">{{ __('Voir le site ↗') }}</a>
+            <a href="{{ url('/') }}" target="_blank" class="mb-3 flex items-center gap-2 text-sm text-slate-600 hover:text-brand-600">{{ __('Voir le site ↗') }}</a>
             <form method="POST" action="{{ route('admin.locale') }}" class="mb-3">
                 @csrf @method('PUT')
                 <label for="ui-locale" class="sr-only">{{ __('Langue de l’interface') }}</label>
@@ -54,7 +54,7 @@
                 </select>
             </form>
             <div class="flex items-center justify-between">
-                <a href="{{ route('admin.account.edit') }}" title="{{ __('Mon compte') }}" @class(['-m-1.5 min-w-0 rounded-lg p-1.5 transition hover:bg-slate-100', 'bg-indigo-50' => request()->routeIs('admin.account.*')])>
+                <a href="{{ route('admin.account.edit') }}" title="{{ __('Mon compte') }}" @class(['-m-1.5 min-w-0 rounded-lg p-1.5 transition hover:bg-slate-100', 'bg-brand-50' => request()->routeIs('admin.account.*')])>
                     <p class="truncate text-sm font-medium">{{ auth()->user()->name }}</p>
                     <p class="text-xs text-slate-500">{{ auth()->user()->isAdmin() ? __('Administrateur') : __('Éditeur') }} · {{ __('Mon compte') }}</p>
                 </a>

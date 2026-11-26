@@ -48,10 +48,10 @@
                         </div>
                     @endforeach
                 </div>
-                <button type="button" class="mt-2 text-sm font-medium text-indigo-600" id="gp-add-color">{{ __('+ Ajouter une couleur') }}</button>
+                <button type="button" class="mt-2 text-sm font-medium text-brand-600" id="gp-add-color">{{ __('+ Ajouter une couleur') }}</button>
                 <template id="gp-color-template">
                     <div class="flex items-center gap-2" data-color-row>
-                        <input type="color" name="custom_colors[__I__][value]" value="#4f46e5" class="h-9 w-12 cursor-pointer rounded border border-slate-300 bg-white p-0.5">
+                        <input type="color" name="custom_colors[__I__][value]" value="#aa4d26" class="h-9 w-12 cursor-pointer rounded border border-slate-300 bg-white p-0.5">
                         <input name="custom_colors[__I__][name]" maxlength="40" placeholder="{{ __('Nom de la couleur') }}" class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
                         <button type="button" class="shrink-0 rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100" data-remove-color title="{{ __('Retirer') }}">✕</button>
                     </div>
@@ -101,7 +101,7 @@
                 <x-field name="google_site_verification" :label="__('Code de vérification Google Search Console')" :value="$settings['google_site_verification'] ?? ''" :hint="__('Seulement le code (contenu de la balise meta), pas la balise entière.')" />
                 <x-field name="bing_site_verification" :label="__('Code de vérification Bing Webmaster Tools')" :value="$settings['bing_site_verification'] ?? ''" />
             </div>
-            <p class="text-xs text-slate-500">{{ __('Plan du site à déclarer aux moteurs de recherche :') }} <a href="{{ url('/sitemap.xml') }}" class="text-indigo-600 hover:underline" target="_blank">{{ url('/sitemap.xml') }}</a></p>
+            <p class="text-xs text-slate-500">{{ __('Plan du site à déclarer aux moteurs de recherche :') }} <a href="{{ url('/sitemap.xml') }}" class="text-brand-600 hover:underline" target="_blank">{{ url('/sitemap.xml') }}</a></p>
         </section>
 
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
@@ -154,6 +154,6 @@
         @if ($errors->any())
             <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ $errors->first() }}</div>
         @endif
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Enregistrer les réglages') }}</button>
+        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Enregistrer les réglages') }}</button>
     </form>
 @endsection

@@ -5,7 +5,7 @@
     $defaultLocales = array_values(array_intersect($available, $siteLocales)) ?: [$available[0] ?? 'fr'];
     $styleNames = ['split' => __('photo à côté du titre'), 'center' => __('présentation centrée'), 'image' => __('photo plein écran'), 'gradient' => __('dégradé')];
 @endphp
-<article data-template="{{ $t['id'] }}" data-sector="{{ $t['sector'] }}" class="flex flex-col overflow-hidden rounded-xl border bg-white {{ $highlight ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200' }}">
+<article data-template="{{ $t['id'] }}" data-sector="{{ $t['sector'] }}" class="flex flex-col overflow-hidden rounded-xl border bg-white {{ $highlight ? 'border-brand-400 ring-2 ring-brand-200' : 'border-slate-200' }}">
     <a href="{{ $t['demo'] }}" target="_blank" rel="noopener" class="relative block h-32" style="background: linear-gradient(135deg, {{ $c['primary'] }}, {{ $c['secondary'] }});" aria-label="{{ __('Aperçu de :name', ['name' => $t['name'][$lang] ?? $t['id']]) }}">
         <span class="absolute bottom-3 left-4 right-4 flex items-end justify-between">
             <span class="text-xl font-bold text-white drop-shadow" style="font-family: '{{ $t['fonts'][1] ?? $t['fonts'][0] ?? 'Inter' }}', system-ui">{{ $t['name'][$lang] ?? $t['id'] }}</span>
@@ -19,7 +19,7 @@
     <div class="flex flex-1 flex-col gap-2 p-4">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $sectors[$t['sector']]['name'][$lang] ?? $t['sector'] }}</p>
         @if ($reason)
-            <p class="rounded-md bg-indigo-50 px-3 py-2 text-sm text-indigo-900">✨ {{ $reason }}</p>
+            <p class="rounded-md bg-brand-50 px-3 py-2 text-sm text-brand-900">✨ {{ $reason }}</p>
         @endif
         <p class="text-sm text-slate-600">{{ $t['description'][$lang] ?? '' }}</p>
         <p class="text-xs text-slate-500">{{ implode(' · ', array_filter([$styleNames[$t['style']['hero'] ?? ''] ?? null, implode(' / ', $t['fonts'] ?? []), __(':count pages', ['count' => count($t['pages'] ?? [])])])) }}</p>
@@ -33,7 +33,7 @@
         <div class="mt-auto flex gap-2 pt-2">
             <a href="{{ $t['demo'] }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50">{{ __('Aperçu') }}</a>
             <details class="relative flex-1">
-                <summary class="cursor-pointer list-none rounded-lg bg-indigo-600 px-3 py-1.5 text-center text-sm font-semibold text-white hover:bg-indigo-500">{{ __('Installer…') }}</summary>
+                <summary class="cursor-pointer list-none rounded-lg bg-brand-600 px-3 py-1.5 text-center text-sm font-semibold text-white hover:bg-brand-500">{{ __('Installer…') }}</summary>
                 <form method="post" action="{{ route('admin.templates.install', $t['id']) }}" class="absolute right-0 z-10 mt-2 w-80 space-y-3 rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-xl"
                     onsubmit="return confirm(@js(__('Installer ce modèle ? Selon vos choix, les pages de même adresse et la page d’accueil seront remplacées.')))">
                     @csrf
@@ -55,7 +55,7 @@
                             @if (! $hasProfile)<span class="block text-xs text-slate-500">{{ __('Remplissez d’abord le questionnaire ci-dessus.') }}</span>@endif
                         </span>
                     </label>
-                    <button class="w-full rounded-lg bg-indigo-600 px-3 py-2 font-semibold text-white hover:bg-indigo-500">{{ __('Installer ce modèle') }}</button>
+                    <button class="w-full rounded-lg bg-brand-600 px-3 py-2 font-semibold text-white hover:bg-brand-500">{{ __('Installer ce modèle') }}</button>
                 </form>
             </details>
         </div>

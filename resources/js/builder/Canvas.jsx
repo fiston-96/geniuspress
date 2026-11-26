@@ -14,11 +14,11 @@ body { min-height: 100vh; }
 a { pointer-events: auto; }
 .gpe-el { position: relative; }
 .gpe-con { outline: 1px dashed rgba(148,163,184,.55); outline-offset: -1px; }
-.gpe-con.is-hovered { outline: 1px solid #818cf8; }
-.gpe-con.is-selected { outline: 2px solid #4f46e5; outline-offset: -2px; }
+.gpe-con.is-hovered { outline: 1px solid #df9f7e; }
+.gpe-con.is-selected { outline: 2px solid #aa4d26; outline-offset: -2px; }
 .gpe-widget { cursor: grab; outline: 1px solid transparent; outline-offset: 2px; }
-.gpe-widget.is-hovered { outline-color: #a5b4fc; }
-.gpe-widget.is-selected { outline: 2px solid #4f46e5; }
+.gpe-widget.is-hovered { outline-color: #df9f7e; }
+.gpe-widget.is-selected { outline: 2px solid #aa4d26; }
 .gpe-el.is-dragging { opacity: .35; }
 @media (min-width: 1025px) { .gpe-hide-desktop { opacity: .35; } }
 @media (min-width: 768px) and (max-width: 1024px) { .gpe-hide-tablet { opacity: .35; } }
@@ -26,8 +26,8 @@ a { pointer-events: auto; }
 .gpe-widget a { cursor: grab; }
 .gpe-empty { display: grid; place-items: center; flex: 1; min-height: 64px; border: 2px dashed #cbd5e1; border-radius: 8px;
   color: #94a3b8; font: 500 13px/1.3 system-ui, sans-serif; text-align: center; padding: 12px; }
-.gpe-drop-line { position: fixed; z-index: 60; background: #4f46e5; border-radius: 2px; box-shadow: 0 0 0 3px rgba(79,70,229,.2); pointer-events: none; }
-.gpe-toolbar { position: absolute; z-index: 20; display: none; gap: 1px; background: #4f46e5; border-radius: 6px; padding: 2px;
+.gpe-drop-line { position: fixed; z-index: 60; background: #aa4d26; border-radius: 2px; box-shadow: 0 0 0 3px rgba(170,77,38,.2); pointer-events: none; }
+.gpe-toolbar { position: absolute; z-index: 20; display: none; gap: 1px; background: #aa4d26; border-radius: 6px; padding: 2px;
   font: 500 12px/1 system-ui, sans-serif; box-shadow: 0 4px 12px rgba(15,23,42,.25); white-space: nowrap; }
 /* Les styles d'un widget visent parfois ses enfants directs (#gp-… > *), dont cette barre : elle garde sa propre typographie. */
 .gpe-el > .gpe-toolbar { font: 500 12px/1 system-ui, sans-serif !important; letter-spacing: normal !important; text-transform: none !important;
@@ -38,19 +38,19 @@ a { pointer-events: auto; }
 .gpe-toolbar svg { width: 14px; height: 14px; }
 .gpe-con > .gpe-toolbar { top: 0; left: 0; border-radius: 0 0 6px 0; }
 .gpe-con.is-hovered > .gpe-toolbar, .gpe-con.is-selected > .gpe-toolbar { display: inline-flex; }
-.gpe-widget > .gpe-toolbar { top: -26px; right: 0; background: #4338ca; }
+.gpe-widget > .gpe-toolbar { top: -26px; right: 0; background: #8e3f1f; }
 .gpe-widget.is-selected > .gpe-toolbar { display: inline-flex; }
 .gpe-layouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 300px; margin: 0 auto; }
 .gpe-layout-btn { all: unset; cursor: pointer; display: flex; gap: 3px; height: 34px; padding: 4px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; }
-.gpe-layout-btn:hover { border-color: #4f46e5; }
-.gpe-layout-btn span { background: #c7d2fe; border-radius: 3px; }
+.gpe-layout-btn:hover { border-color: #aa4d26; }
+.gpe-layout-btn span { background: #ecc6b0; border-radius: 3px; }
 .gpe-add { margin: 32px auto; max-width: 720px; padding: 28px; border: 2px dashed #cbd5e1; border-radius: 14px; text-align: center;
   font: 14px/1.4 system-ui, sans-serif; color: #64748b; background: #f8fafc; cursor: pointer; }
 .gpe-add h3 { font: 600 15px/1.3 system-ui, sans-serif; color: #0f172a; margin: 0 0 14px; }
 .gpe-menu { position: fixed; z-index: 80; min-width: 200px; background: #fff; border-radius: 10px; padding: 5px; box-shadow: 0 12px 32px rgba(15,23,42,.28);
   font: 13px/1.2 system-ui, sans-serif; color: #0f172a; }
 .gpe-menu button { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
-.gpe-menu button:hover { background: #eef2ff; color: #3730a3; }
+.gpe-menu button:hover { background: #fbf3ee; color: #72331a; }
 .gpe-menu button[disabled] { opacity: .4; pointer-events: none; }
 .gpe-menu kbd { color: #94a3b8; font: 11px system-ui, sans-serif; }
 .gpe-menu hr { border: 0; border-top: 1px solid #e2e8f0; margin: 4px 0; }

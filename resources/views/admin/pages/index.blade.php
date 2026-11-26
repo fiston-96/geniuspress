@@ -3,7 +3,7 @@
 @section('content')
     <div class="flex flex-wrap items-center justify-between gap-4">
         <h1 class="text-2xl font-semibold tracking-tight">{{ __('Pages') }}</h1>
-        <a href="{{ route('admin.pages.create') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('+ Nouvelle page') }}</a>
+        <a href="{{ route('admin.pages.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('+ Nouvelle page') }}</a>
     </div>
 
     <form class="mt-6 flex flex-wrap gap-2">
@@ -24,8 +24,8 @@
             @forelse ($pages as $page)
                 <tr>
                     <td class="px-5 py-3">
-                        <a href="{{ route('admin.pages.builder', $page) }}" class="font-medium hover:text-indigo-600">{{ $page->title }}</a>
-                        @if ($page->is_home)<span class="ml-2 rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-700">{{ __('Accueil') }}</span>@endif
+                        <a href="{{ route('admin.pages.builder', $page) }}" class="font-medium hover:text-brand-600">{{ $page->title }}</a>
+                        @if ($page->is_home)<span class="ml-2 rounded bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-700">{{ __('Accueil') }}</span>@endif
                         <p class="text-xs text-slate-500">/{{ $page->is_home ? '' : $page->slug }}</p>
                     </td>
                     <td class="px-5 py-3">
@@ -38,7 +38,7 @@
                     <td class="px-5 py-3 uppercase text-slate-500">{{ $page->locale }}</td>
                     <td class="px-5 py-3 text-slate-500">{{ $page->updated_at->diffForHumans() }}</td>
                     <td class="px-5 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('admin.pages.builder', $page) }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('Builder') }}</a>
+                        <a href="{{ route('admin.pages.builder', $page) }}" class="font-medium text-brand-600 hover:text-brand-500">{{ __('Builder') }}</a>
                         <a href="{{ route('admin.pages.edit', $page) }}" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Réglages') }}</a>
                         <a href="{{ $page->url() }}" target="_blank" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Voir') }}</a>
                     </td>

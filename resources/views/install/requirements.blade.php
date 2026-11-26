@@ -22,7 +22,7 @@
     </ul>
 
     @if ($passes)
-        <a href="{{ $next }}" class="mt-6 block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">{{ __('Continuer') }}</a>
+        <a href="{{ $next }}" class="mt-6 block w-full rounded-lg bg-brand-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Continuer') }}</a>
     @else
         <p class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ __('Corrigez les éléments marqués « Manquant », puis rechargez cette page. Votre hébergeur peut activer les extensions PHP et les droits d’écriture.') }}</p>
     @endif

@@ -38,7 +38,7 @@
                 <p class="mt-1 text-xs text-slate-500">{{ __('Affichée en haut de la page de la catégorie.') }}</p>
             </div>
             <div class="flex items-center gap-3">
-                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ $edit ? __('Enregistrer') : __('Ajouter') }}</button>
+                <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ $edit ? __('Enregistrer') : __('Ajouter') }}</button>
                 @if ($edit)<a href="{{ route('admin.terms.index', ['taxonomy' => $taxonomy]) }}" class="text-sm text-slate-600">{{ __('Annuler') }}</a>@endif
             </div>
         </form>
@@ -56,9 +56,9 @@
                             <p class="text-xs text-slate-500">{{ parse_url($item->url(), PHP_URL_PATH) }}</p>
                         </td>
                         <td class="px-5 py-3 uppercase text-slate-500">{{ $item->locale }}</td>
-                        <td class="px-5 py-3 text-slate-600"><a href="{{ route('admin.posts.index', $taxonomy === 'category' ? ['category' => $item->id] : []) }}" class="hover:text-indigo-600">{{ $item->posts_count }}</a></td>
+                        <td class="px-5 py-3 text-slate-600"><a href="{{ route('admin.posts.index', $taxonomy === 'category' ? ['category' => $item->id] : []) }}" class="hover:text-brand-600">{{ $item->posts_count }}</a></td>
                         <td class="whitespace-nowrap px-5 py-3 text-right">
-                            <a href="{{ route('admin.terms.index', ['taxonomy' => $taxonomy, 'edit' => $item->id]) }}" class="font-medium text-indigo-600 hover:text-indigo-500">{{ __('Modifier') }}</a>
+                            <a href="{{ route('admin.terms.index', ['taxonomy' => $taxonomy, 'edit' => $item->id]) }}" class="font-medium text-brand-600 hover:text-brand-500">{{ __('Modifier') }}</a>
                             <a href="{{ $item->url() }}" target="_blank" class="ml-3 text-slate-600 hover:text-slate-900">{{ __('Voir') }}</a>
                             <form method="POST" action="{{ route('admin.terms.destroy', $item) }}" class="inline" onsubmit="return confirm(@js(__('Supprimer ? Les articles sont conservés.')))">
                                 @csrf @method('DELETE')

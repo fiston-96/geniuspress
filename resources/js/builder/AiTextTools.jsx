@@ -58,14 +58,14 @@ export default function AiTextTools({ boot, widget }) {
     };
 
     return (
-        <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3">
-            <p className="mb-2 text-xs font-semibold text-indigo-900">{t('✨ Assistant de rédaction')}</p>
+        <div className="rounded-lg border border-brand-100 bg-brand-50/60 p-3">
+            <p className="mb-2 text-xs font-semibold text-brand-900">{t('✨ Assistant de rédaction')}</p>
             <div className="flex gap-1.5">
-                <input className="min-w-0 flex-1 rounded-md border border-indigo-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
+                <input className="min-w-0 flex-1 rounded-md border border-brand-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-brand-500"
                     value={instructions} onChange={(e) => setInstructions(e.target.value)} maxLength={1000}
                     placeholder={hasText ? t('Consigne (facultatif)') : t('Que doit-on écrire ?')}
                     onKeyDown={(e) => { if (e.key === 'Enter' && instructions.trim()) run('write'); }} />
-                <button className="rounded-md bg-indigo-600 px-2.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+                <button className="rounded-md bg-brand-600 px-2.5 text-xs font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
                     disabled={!!busy || (!instructions.trim() && !hasText)} onClick={() => run('write')}>
                     {busy === 'write' ? <Spinner /> : t('Écrire')}
                 </button>
@@ -74,7 +74,7 @@ export default function AiTextTools({ boot, widget }) {
                 <div className="mt-2 flex flex-wrap gap-1">
                     {ACTIONS.map(([action, label]) => (
                         <button key={action} disabled={!!busy} onClick={() => run(action)}
-                            className="rounded-full border border-indigo-200 bg-white px-2 py-0.5 text-[11px] font-medium text-indigo-700 hover:border-indigo-400 disabled:opacity-50">
+                            className="rounded-full border border-brand-200 bg-white px-2 py-0.5 text-[11px] font-medium text-brand-700 hover:border-brand-400 disabled:opacity-50">
                             {busy === action ? <Spinner label={label} /> : label}
                         </button>
                     ))}
