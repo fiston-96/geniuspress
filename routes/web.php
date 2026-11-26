@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -43,6 +44,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/admin/mot-de-passe-oublie', [PasswordResetController::class, 'email'])->defaults('audience', 'admin')->middleware('throttle:6,1')->name('password.email');
     Route::get('/admin/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->defaults('audience', 'admin')->name('password.reset');
     Route::post('/admin/nouveau-mot-de-passe', [PasswordResetController::class, 'update'])->defaults('audience', 'admin')->middleware('throttle:6,1')->name('password.update');
+
+    // « Continuer avec Google » : comptes existants seulement (introuvable sans GOOGLE_CLIENT_ID).
+    Route::get('/admin/google', [GoogleController::class, 'redirect'])->defaults('audience', 'admin')->middleware('throttle:20,1')->name('google.redirect');
+    Route::get('/admin/google/retour', [GoogleController::class, 'callback'])->defaults('audience', 'admin')->middleware('throttle:20,1')->name('google.callback');
 });
 Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 

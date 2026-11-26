@@ -7,6 +7,7 @@
         <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
     @endif
     <form method="POST" action="{{ route('platform.login') }}" class="mt-6 space-y-4">
+        <x-google-button :href="route('platform.google.redirect')" />
         @csrf
         <x-field name="email" type="email" :label="__('Adresse e-mail')" required autofocus autocomplete="email" />
         <x-field name="password" type="password" :label="__('Mot de passe')" required autocomplete="current-password" />

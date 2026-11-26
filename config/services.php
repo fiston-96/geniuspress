@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // « Continuer avec Google » (App\Auth\GoogleOAuth). Identifiants d'un client OAuth « Application
+    // Web » de la console Google Cloud ; le secret reste dans le .env, jamais affiché.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
+
 ];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Platform\Http\Controllers\Admin;
 use App\Platform\Http\Controllers\Customer;
@@ -25,6 +26,10 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'email'])->defaults('audience', 'customer')->middleware('throttle:6,1')->name('password.email');
             Route::get('/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->defaults('audience', 'customer')->name('password.reset');
             Route::post('/nouveau-mot-de-passe', [PasswordResetController::class, 'update'])->defaults('audience', 'customer')->middleware('throttle:6,1')->name('password.update');
+
+            // « Continuer avec Google » : connexion ou création du compte client.
+            Route::get('/google', [GoogleController::class, 'redirect'])->defaults('audience', 'customer')->middleware('throttle:20,1')->name('google.redirect');
+            Route::get('/google/retour', [GoogleController::class, 'callback'])->defaults('audience', 'customer')->middleware('throttle:20,1')->name('google.callback');
         });
 
         Route::middleware('auth:customer')->group(function () {

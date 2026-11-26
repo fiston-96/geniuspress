@@ -4,6 +4,7 @@
     <h1 class="text-xl font-semibold">{{ __('Créer un compte') }}</h1>
     <p class="mt-1 text-sm text-slate-500">{{ __('Votre espace client GeniusPress : hébergement, modèles, domaines et crédits IA.') }}</p>
     <form method="POST" action="{{ route('platform.register') }}" class="mt-6 space-y-4">
+        <x-google-button :href="route('platform.google.redirect')" />
         @csrf
         <x-field name="name" :label="__('Nom ou organisation')" required autofocus autocomplete="name" />
         <x-field name="email" type="email" :label="__('Adresse e-mail')" required autocomplete="email" />

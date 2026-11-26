@@ -1862,5 +1862,12 @@
     "Bonjour,": "Hello,",
     "À bientôt,": "See you soon,",
     "Si le bouton « :actionText » ne fonctionne pas, copiez cette adresse dans votre navigateur :": "If the “:actionText” button does not work, copy this address into your browser:",
-    "Tous droits réservés.": "All rights reserved."
+    "Tous droits réservés.": "All rights reserved.",
+    "Google n’a pas confirmé la connexion. Réessayez.": "Google did not confirm the sign-in. Try again.",
+    "Votre adresse Google n’est pas vérifiée. Vérifiez-la chez Google ou créez un compte avec un mot de passe.": "Your Google address is not verified. Verify it with Google or create an account with a password.",
+    "La connexion avec Google a expiré. Réessayez.": "Signing in with Google expired. Try again.",
+    "Connexion avec Google annulée.": "Signing in with Google was cancelled.",
+    "Bienvenue ! Votre compte GeniusPress est créé.": "Welcome! Your GeniusPress account has been created.",
+    "Aucun compte de cette administration n’utilise cette adresse Google. Demandez à un administrateur de vous créer un compte.": "No account of this admin uses this Google address. Ask an administrator to create an account for you.",
+    "Continuer avec Google": "Continue with Google"
 }
