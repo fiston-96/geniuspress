@@ -10,6 +10,7 @@ use App\Platform\Models\Order;
 use App\Platform\Models\Payment;
 use App\Platform\Models\Plan;
 use App\Platform\Models\TemplatePrice;
+use App\Platform\Payments\MonerailsGateway;
 use App\Platform\Payments\PaymentManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -111,7 +112,26 @@ class Checkout
         if (! in_array($method, $gateway->methods(), true)) {
             throw new PlatformException(__('Ce moyen de paiement n’est pas proposé.'));
         }
-        if ($method === 'mobile_money' && ! array_key_exists($details['operator'] ?? '', $gateway->operators())) {
+
+        // Mobile Money par pays (Monerails) : payé dans la devise du pays, converti si besoin.
+        $amount = $order->total;
+        $currency = $order->currency;
+        $country = null;
+        $original = [];
+        if ($method === 'mobile_money' && $gateway instanceof MonerailsGateway) {
+            $country = strtoupper((string) (($details['country'] ?? null) ?: $order->customer->country));
+            $local = MonerailsGateway::COUNTRIES[$country] ?? throw new PlatformException(__('Le paiement Mobile Money n’est pas disponible dans ce pays.'));
+            $quote = self::localAmount($order, $local) ?? throw new PlatformException(__('Le paiement en :currency n’est pas encore disponible. Contactez-nous.', ['currency' => $local]));
+            if ($local !== $order->currency) {
+                $original = ['original_amount' => $order->total, 'original_currency' => $order->currency];
+            } elseif ($quote !== $order->total) {
+                throw new PlatformException(__('Le montant doit être un nombre entier dans la devise :currency.', ['currency' => $local]));
+            }
+            [$amount, $currency] = [$quote, $local];
+            if (! array_key_exists($details['operator'] ?? '', $gateway->operatorsFor($country))) {
+                throw new PlatformException(__('Choisissez votre opérateur Mobile Money.'));
+            }
+        } elseif ($method === 'mobile_money' && ! array_key_exists($details['operator'] ?? '', $gateway->operators())) {
             throw new PlatformException(__('Choisissez votre opérateur Mobile Money.'));
         }
 
@@ -121,11 +141,12 @@ class Checkout
             'method' => $method,
             'operator' => $method === 'mobile_money' ? $details['operator'] : null,
             'phone' => $method === 'mobile_money' ? $details['phone'] : null,
+            'country' => $country,
             'reference' => 'GPP-'.Str::upper(Str::random(16)),
             'status' => 'pending',
-            'amount' => $order->total,
-            'currency' => $order->currency,
-        ]);
+            'amount' => $amount,
+            'currency' => $currency,
+        ] + $original);
 
         try {
             $start = $gateway->start($payment, $details + ['return_url' => route('platform.customer.orders.show', $order)]);
@@ -135,6 +156,34 @@ class Checkout
         }
 
         return ['payment' => $payment, 'start' => $start];
+    }
+
+    /**
+     * Total de la commande dans une devise de paiement Mobile Money, en unités entières
+     * (arrondi au-dessus) ; converti au taux réglé dans la console si la devise diffère.
+     * null : pas de taux pour cette devise.
+     */
+    public static function localAmount(Order $order, string $currency): ?int
+    {
+        $amount = $currency === $order->currency
+            ? $order->total
+            : app(Suppliers\SupplierPricing::class)->convert($order->total, $order->currency, $currency);
+        if ($amount === null || $amount <= 0) {
+            return null;
+        }
+        $unit = 10 ** Money::decimals($currency);
+
+        return (int) (ceil($amount / $unit) * $unit);
+    }
+
+    /** Code de paiement (OTP) saisi par le client, transmis au prestataire. */
+    public function authorize(Payment $payment, string $otp): void
+    {
+        $gateway = $this->payments->gateway($payment->gateway);
+        if ($payment->status !== 'pending' || ! $gateway instanceof MonerailsGateway) {
+            throw new PlatformException(__('Aucun code n’est attendu pour ce paiement.'));
+        }
+        $gateway->authorize($payment, $otp);
     }
 
     /**

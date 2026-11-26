@@ -112,12 +112,7 @@ class MonerailsGatewayTest extends PlatformTestCase
             ->assertSessionHasErrors(['payment' => 'Ce numéro Mobile Money est invalide. Indiquez-le avec l’indicatif du pays.']);
         $this->assertSame('failed', Payment::sole()->status);
 
-        // Validation par code SMS : pas encore prise en charge, message clair.
-        Http::fake(['monerails.test/v1/collections' => Http::response(['id' => 'col_2', 'status' => 'requires_otp', 'next_action' => ['type' => 'otp']], 201)]);
-        $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'operator' => 'ORANGE', 'phone' => '+243810000000'])
-            ->assertSessionHasErrors('payment');
-
-        // Offre en USD : Monerails n'encaisse pas cette devise en RDC, aucun appel.
+        // Offre en USD sans taux de change réglé : impossible à convertir, aucun appel.
         Http::fake();
         $usd = app(\App\Platform\Checkout::class)->forPlan($order->customer, $this->plan(['slug' => 'usd', 'price' => 1000, 'currency' => 'USD']));
         $this->post(route('platform.customer.orders.pay', $usd), ['method' => 'mobile_money', 'operator' => 'MPESA', 'phone' => '+243810000000'])
@@ -125,8 +120,97 @@ class MonerailsGatewayTest extends PlatformTestCase
         // Francs congolais : centimes par multiples de 100.
         $odd = app(\App\Platform\Checkout::class)->forPlan($order->customer, $this->plan(['slug' => 'cdf-impair', 'price' => 150050, 'currency' => 'CDF']));
         $this->post(route('platform.customer.orders.pay', $odd), ['method' => 'mobile_money', 'operator' => 'MPESA', 'phone' => '+243810000000'])
-            ->assertSessionHasErrors(['payment' => 'Le montant doit être un nombre entier de francs congolais.']);
+            ->assertSessionHasErrors(['payment' => 'Le montant doit être un nombre entier dans la devise CDF.']);
         Http::assertNothingSent();
+    }
+
+    public function test_operator_code_is_asked_then_sent_to_monerails(): void
+    {
+        [$customer, $order] = $this->order();
+        Http::fake(['monerails.test/v1/collections' => Http::response(['id' => 'col_2', 'status' => 'requires_otp', 'next_action' => ['type' => 'otp', 'message' => 'Code']], 201)]);
+        $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'operator' => 'ORANGE', 'phone' => '+243810000000'])
+            ->assertSessionHasNoErrors()->assertSessionHas('status');
+        $payment = Payment::sole();
+        $this->assertSame(['pending', 'otp'], [$payment->status, $payment->awaiting]);
+        $this->get(route('platform.customer.orders.show', $order))->assertOk()->assertSee('Code de paiement');
+
+        // Mauvais code : message en français, le client peut réessayer ; le bon code est transmis ensuite.
+        Http::fake([
+            'monerails.test/v1/collections/col_2/authorize' => Http::sequence()
+                ->push(['error' => ['code' => 'otp_invalid']], 402)
+                ->push(['id' => 'col_2', 'status' => 'processing']),
+            'monerails.test/v1/collections/col_2' => Http::response($this->collection($payment, 'succeeded', ['id' => 'col_2'])),
+        ]);
+        $this->post(route('platform.customer.orders.authorize', $order), ['otp' => '000000'])
+            ->assertSessionHasErrors(['payment' => 'Code incorrect. Vérifiez-le et réessayez.']);
+
+        $this->post(route('platform.customer.orders.authorize', $order), ['otp' => '482913'])->assertSessionHas('status', 'Paiement confirmé.');
+        Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), '/collections/col_2/authorize') && $r['otp'] === '482913');
+        $this->assertSame(['paid', null], [$order->fresh()->status, $payment->fresh()->awaiting]);
+        $this->assertSame(5_000_000, $customer->fresh()->ai_balance);
+    }
+
+    public function test_usd_order_is_paid_in_the_local_currency_of_the_customer(): void
+    {
+        // Taux réglés dans la console : 1 € = 1,08 $ = 3 100 FC = 655,957 F CFA.
+        \App\Models\Setting::write(['platform_supplier_rates' => ['USD' => '1.08', 'CDF' => '3100', 'XOF' => '655.957']]);
+        $customer = $this->customer(['name' => 'Awa Ndiaye', 'country' => 'SN']);
+        $plan = $this->plan(['slug' => 'pro-usd', 'kind' => 'ai_credits', 'period' => 'once', 'trial_days' => 0, 'price' => 1000, 'currency' => 'USD', 'ai_credits' => 1_000_000]);
+        $order = app(\App\Platform\Checkout::class)->forPlan($customer, $plan);
+        Http::fake([
+            'monerails.test/v1/operators*' => Http::response(['object' => 'list', 'data' => [
+                ['object' => 'operator', 'code' => 'WAVE', 'name' => 'Wave', 'country' => 'SN', 'currency' => 'XOF', 'authorization' => ['PIN']],
+                ['object' => 'operator', 'code' => 'ORANGE', 'name' => 'Orange Money', 'country' => 'CI', 'currency' => 'XOF', 'authorization' => ['OTP']],
+            ], 'has_more' => false]),
+            'monerails.test/v1/collections' => Http::response(['id' => 'col_xof', 'status' => 'processing'], 202),
+        ]);
+
+        // Page de paiement : pays du client présélectionné, montant converti, pays sans taux absents.
+        $this->actingAs($customer, 'customer')->get(route('platform.customer.orders.show', $order))->assertOk()
+            ->assertSee("6\u{202F}074")->assertSee('converti depuis', false)->assertDontSee('(GNF)');
+
+        // Opérateur d'un autre pays : refusé.
+        $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'country' => 'SN', 'operator' => 'ORANGE', 'phone' => '+221770000000'])
+            ->assertSessionHasErrors(['payment' => 'Choisissez votre opérateur Mobile Money.']);
+
+        // 10 $ → 9,259 € → 6 073,7 F CFA, arrondis à 6 074 F CFA (unités entières, au-dessus).
+        $this->post(route('platform.customer.orders.pay', $order), ['method' => 'mobile_money', 'country' => 'SN', 'operator' => 'WAVE', 'phone' => '+221770000000'])
+            ->assertSessionHasNoErrors();
+        $payment = Payment::query()->latest('id')->first();
+        $this->assertSame([6074, 'XOF', 1000, 'USD', 'SN'], [$payment->amount, $payment->currency, $payment->original_amount, $payment->original_currency, $payment->country]);
+        Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), '/collections') && $r['amount'] === 6074 && $r['currency'] === 'XOF' && $r['country'] === 'SN');
+
+        // Encaissé au bon montant : commande en USD payée et livrée.
+        Http::fake(['monerails.test/v1/collections/col_xof' => Http::response($this->collection($payment, 'succeeded', ['id' => 'col_xof']))]);
+        $this->post(route('platform.customer.orders.check', $order));
+        $this->assertSame('paid', $order->fresh()->status);
+        $this->assertSame(1_000_000, $customer->fresh()->ai_balance);
+
+        // RDC : 10 $ → 28 703,70 FC, arrondis à 28 704 FC (en centimes, multiple de 100).
+        $this->assertSame(2_870_400, \App\Platform\Checkout::localAmount($order, 'CDF'));
+        $this->assertNull(\App\Platform\Checkout::localAmount($order, 'GNF'), 'Sans taux : pas de paiement dans cette devise.');
+    }
+
+    public function test_console_stores_monerails_keys_encrypted_and_tests_the_connection(): void
+    {
+        config(['geniuspress.platform.monerails.key' => null, 'geniuspress.platform.monerails.webhook_secret' => null, 'geniuspress.platform.payment_gateway' => 'sandbox']);
+        $operator = \App\Platform\Models\Operator::create(['name' => 'Exploitant', 'email' => 'ops@test.local', 'password' => 'secret-password-1']);
+        $this->actingAs($operator, 'operator')->get(route('console.payments.index'))->assertOk()
+            ->assertSee('/api/platform/v1/payments/monerails/webhook')->assertSee('Taux de change manquants');
+
+        $this->put(route('console.payments.settings'), ['gateway' => 'monerails', 'monerails_key' => 'cle-sans-prefixe'])->assertSessionHasErrors('monerails_key');
+        $this->put(route('console.payments.settings'), ['gateway' => 'monerails', 'monerails_key' => 'mr_test_cle_console_1234', 'monerails_webhook_secret' => 'whsec_secret_console_5678'])
+            ->assertSessionHas('status');
+        $this->assertNotSame('mr_test_cle_console_1234', \App\Models\Setting::read('platform_monerails_key'));
+        $this->assertSame(['mr_test_cle_console_1234', 'whsec_secret_console_5678', 'monerails', 'test'], [
+            \App\Platform\Payments\MonerailsGateway::key(), \App\Platform\Payments\MonerailsGateway::webhookSecret(), PaymentManager::active(), \App\Platform\Payments\MonerailsGateway::mode(),
+        ]);
+        $this->assertArrayNotHasKey('platform_monerails_key', \App\Models\Setting::publicValues());
+        $this->get(route('console.payments.index'))->assertDontSee('mr_test_cle_console_1234')->assertDontSee('whsec_secret_console_5678');
+
+        Http::fake(['monerails.test/v1/balance' => Http::response(['object' => 'balance', 'livemode' => false, 'available' => [['currency' => 'XAF', 'amount' => 150000]], 'cards' => null])]);
+        $this->post(route('console.payments.test'))->assertSessionHas('status');
+        Http::assertSent(fn (HttpRequest $r) => $r->hasHeader('Authorization', 'Bearer mr_test_cle_console_1234'));
     }
 
     public function test_webhook_signature_timestamp_and_confirmation(): void

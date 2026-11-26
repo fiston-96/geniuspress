@@ -56,6 +56,9 @@ class Setting extends Model
         // Fournisseurs (LWS) : identifiant, clé chiffrée, mode test, seuil d'alerte, marge et taux de change.
         'platform_lws_login', 'platform_lws_key', 'platform_lws_key_hint', 'platform_lws_test', 'platform_lws_low_balance',
         'platform_supplier_markup', 'platform_supplier_rates',
+        // Paiements : prestataire actif, clés Monerails chiffrées et leurs indices.
+        'platform_payment_gateway', 'platform_monerails_key', 'platform_monerails_key_hint',
+        'platform_monerails_webhook_secret', 'platform_monerails_webhook_secret_hint',
     ];
 
     public static function publicValues(): array

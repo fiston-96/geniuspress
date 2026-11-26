@@ -55,6 +55,9 @@ class PlatformServiceProvider extends ServiceProvider
         RateLimiter::for('platform-authcode', fn (Request $request) => Limit::perHour(3)
             // Le limiteur passe avant la liaison du modèle : « domain » est encore l'identifiant brut.
             ->by('platform-authcode|'.$request->user('customer')?->getAuthIdentifier().'|'.(string) $request->route()?->originalParameter('domain')));
+        // Code de paiement Mobile Money : 10 essais par 10 minutes et par commande.
+        RateLimiter::for('platform-otp', fn (Request $request) => Limit::perMinutes(10, 10)
+            ->by('platform-otp|'.$request->user('customer')?->getAuthIdentifier().'|'.(string) $request->route()?->originalParameter('order')));
         RateLimiter::for('platform-auth', fn (Request $request) => Limit::perMinute(5)
             ->by('platform-auth|'.strtolower((string) $request->input('email')).'|'.$request->ip()));
 

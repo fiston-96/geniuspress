@@ -69,7 +69,7 @@
                     <x-field name="markup" :label="__('Marge conseillée, en %')" :value="$pricing->markup()" required />
                 </div>
                 <fieldset>
-                    <legend class="mb-1.5 text-sm font-medium text-slate-700">{{ __('Taux de change : valeur de 1 € dans chaque devise de vente') }}</legend>
+                    <legend class="mb-1.5 text-sm font-medium text-slate-700">{{ __('Taux de change : valeur de 1 € dans chaque devise (prix conseillés, et paiement Mobile Money d’une offre dans la devise du client)') }}</legend>
                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         @foreach ($currencies as $currency)
                             <label class="text-xs text-slate-500">{{ $currency }}<input name="rates[{{ $currency }}]" value="{{ old('rates.'.$currency, $pricing->rates()[$currency] ?? '') }}" inputmode="decimal" class="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-900"></label>

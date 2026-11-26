@@ -28,10 +28,21 @@
     @if ($order->status === 'pending')
         <div class="mt-6 max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
             @if ($payment && $payment->status === 'pending')
-                <p class="text-sm text-slate-600">{{ __('Paiement en cours (:method).', ['method' => Labels::method($payment->method)]) }}</p>
-                <form method="POST" action="{{ route('platform.customer.orders.check', $order) }}" class="mt-3">@csrf
-                    <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">{{ __('J’ai payé : vérifier') }}</button>
-                </form>
+                <p class="text-sm text-slate-600">{{ __('Paiement en cours (:method).', ['method' => Labels::method($payment->method)]) }}
+                    @if ($payment->currency !== $order->currency) {{ __('Montant : :amount.', ['amount' => Money::format($payment->amount, $payment->currency)]) }}@endif</p>
+                @if ($payment->awaiting === 'otp')
+                    {{-- Opérateur qui envoie un code (SMS) ou le fait obtenir par un code USSD. --}}
+                    <form method="POST" action="{{ route('platform.customer.orders.authorize', $order) }}" class="mt-3 flex flex-wrap items-end gap-2">@csrf
+                        <label class="text-sm font-medium text-slate-700">{{ __('Code de paiement') }}
+                            <input name="otp" required inputmode="numeric" autocomplete="one-time-code" maxlength="12" class="mt-1 block w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm tracking-widest">
+                        </label>
+                        <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Valider le paiement') }}</button>
+                    </form>
+                @else
+                    <form method="POST" action="{{ route('platform.customer.orders.check', $order) }}" class="mt-3">@csrf
+                        <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">{{ __('J’ai payé : vérifier') }}</button>
+                    </form>
+                @endif
                 <hr class="my-5 border-slate-100">
             @elseif ($payment && $payment->status === 'failed')
                 <p class="mb-4 text-sm text-red-600">{{ __('Le dernier paiement a échoué. Vous pouvez réessayer.') }}</p>
@@ -52,7 +63,44 @@
             @if ($gateway)
                 <h2 class="font-semibold">{{ __('Payer') }}</h2>
                 <form method="POST" action="{{ route('platform.customer.orders.pay', $order) }}" class="mt-4 space-y-4">@csrf
-                    @if (in_array('mobile_money', $gateway->methods(), true))
+                    @if (in_array('mobile_money', $gateway->methods(), true) && $countries)
+                        {{-- Mobile Money par pays : montant dans la devise du pays, opérateurs ouverts dans ce pays. --}}
+                        @php($customerCountry = auth('customer')->user()->country)
+                        @php($selected = old('country', isset($countries[$customerCountry]) ? $customerCountry : array_key_first($countries)))
+                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="method" value="mobile_money" checked> {{ __('Mobile Money') }}</label>
+                        <div class="grid gap-3 pl-6 md:grid-cols-3" data-gp-momo>
+                            <select name="country" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Pays du compte Mobile Money') }}">
+                                @foreach ($countries as $code => $c)<option value="{{ $code }}" data-amount="{{ $c['amount'] }}" data-converted="{{ $c['currency'] !== $order->currency ? 1 : 0 }}" @selected($selected === $code)>{{ $c['name'] }} ({{ $c['currency'] }})</option>@endforeach
+                            </select>
+                            <select name="operator" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Opérateur') }}">
+                                @foreach ($countries as $code => $c)
+                                    @foreach ($c['operators'] as $op => $o)<option value="{{ $op }}" data-country="{{ $code }}" @selected(old('operator') === $op && $selected === $code) @disabled($selected !== $code) @if ($selected !== $code) hidden @endif>{{ $o['name'] }}</option>@endforeach
+                                @endforeach
+                            </select>
+                            <input name="phone" type="tel" value="{{ old('phone', auth('customer')->user()->phone) }}" placeholder="{{ __('+ indicatif du pays') }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Numéro Mobile Money') }}">
+                        </div>
+                        <p class="pl-6 text-sm text-slate-600">{{ __('Montant prélevé :') }} <strong data-gp-momo-amount>{{ $countries[$selected]['amount'] }}</strong>
+                            <span class="text-xs text-slate-500" data-gp-momo-rate @if ($countries[$selected]['currency'] === $order->currency) hidden @endif>{{ __('(converti depuis :amount au taux du jour)', ['amount' => Money::format($order->total, $order->currency)]) }}</span></p>
+                        <script>
+                            (() => {
+                                const box = document.querySelector('[data-gp-momo]');
+                                const country = box.querySelector('select[name=country]');
+                                const operator = box.querySelector('select[name=operator]');
+                                const amount = document.querySelector('[data-gp-momo-amount]');
+                                country.addEventListener('change', () => {
+                                    let first = null;
+                                    operator.querySelectorAll('option').forEach((o) => {
+                                        const show = o.dataset.country === country.value;
+                                        o.hidden = !show; o.disabled = !show;
+                                        if (show && !first) first = o;
+                                    });
+                                    if (first) operator.value = first.value;
+                                    amount.textContent = country.selectedOptions[0].dataset.amount;
+                                    document.querySelector('[data-gp-momo-rate]').hidden = country.selectedOptions[0].dataset.converted !== '1';
+                                });
+                            })();
+                        </script>
+                    @elseif (in_array('mobile_money', $gateway->methods(), true) && ! $gateway instanceof \App\Platform\Payments\MonerailsGateway)
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="method" value="mobile_money" checked> {{ __('Mobile Money') }}</label>
                         <div class="grid gap-3 pl-6 md:grid-cols-2">
                             <select name="operator" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" aria-label="{{ __('Opérateur') }}">
@@ -64,7 +112,11 @@
                     @if (in_array('card', $gateway->methods(), true))
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="method" value="card" @checked(! in_array('mobile_money', $gateway->methods(), true))> {{ __('Carte bancaire') }}</label>
                     @endif
-                    <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Payer :amount', ['amount' => Money::format($order->total, $order->currency)]) }}</button>
+                    @if ($gateway instanceof \App\Platform\Payments\MonerailsGateway && ! $countries)
+                        <p class="text-sm text-slate-600">{{ __('Le paiement en ligne de cette commande n’est pas encore disponible. Contactez-nous pour la régler.') }}</p>
+                    @else
+                        <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-500">{{ $countries ? __('Payer') : __('Payer :amount', ['amount' => Money::format($order->total, $order->currency)]) }}</button>
+                    @endif
                     @if ($gateway->name() === 'sandbox')<p class="text-xs text-amber-700">{{ __('Mode test : aucun argent n’est prélevé.') }}</p>@endif
                 </form>
             @else

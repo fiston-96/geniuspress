@@ -29,7 +29,10 @@ class OrderFulfiller
             if ($order->status === 'paid') {
                 return null;
             }
-            if ($payment->amount !== $order->total || $payment->currency !== $order->currency) {
+            // Montant payé : le total de la commande, ou sa conversion en devise locale (Mobile Money).
+            $matches = ($payment->amount === $order->total && $payment->currency === $order->currency)
+                || ($payment->original_amount === $order->total && $payment->original_currency === $order->currency);
+            if (! $matches) {
                 report(new PlatformException("Paiement {$payment->reference} : montant différent de la commande {$order->number}."));
 
                 return null;

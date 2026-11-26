@@ -61,6 +61,7 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
                 Route::get('/commandes/{order:number}', [Customer\OrderController::class, 'show'])->name('orders.show');
                 Route::post('/commandes/{order:number}/payer', [Customer\OrderController::class, 'pay'])->middleware('throttle:10,1')->name('orders.pay');
                 Route::post('/commandes/{order:number}/verifier', [Customer\OrderController::class, 'check'])->middleware('throttle:20,1')->name('orders.check');
+                Route::post('/commandes/{order:number}/code', [Customer\OrderController::class, 'authorizePayment'])->middleware('throttle:platform-otp')->name('orders.authorize');
 
                 Route::post('/licences', [Customer\LicenseController::class, 'store'])->middleware('throttle:10,1')->name('licenses.store');
                 Route::delete('/licences/{license}', [Customer\LicenseController::class, 'destroy'])->name('licenses.destroy');
@@ -126,6 +127,11 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
         Route::post('/orders/{order}/deliver', [Admin\OrderController::class, 'deliver'])->name('orders.deliver');
 
         Route::get('/domains', [Admin\OrderController::class, 'domains'])->name('domains.index');
+
+        // Paiements : prestataire actif, clés Monerails, essai de connexion.
+        Route::get('/paiements', [Console\PaymentController::class, 'index'])->name('payments.index');
+        Route::put('/paiements/reglages', [Console\PaymentController::class, 'settings'])->name('payments.settings');
+        Route::post('/paiements/test', [Console\PaymentController::class, 'test'])->middleware('throttle:10,1')->name('payments.test');
 
         // Fournisseurs (LWS) : connexion, coûts et marges, file de livraison des services.
         Route::get('/fournisseurs', [Console\SupplierController::class, 'index'])->name('suppliers.index');

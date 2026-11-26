@@ -132,9 +132,9 @@ Côté facturation, `activatePlan($customer, $plan)` (appelé à la livraison d'
 ```
 GP_PLATFORM=true                 # active la plateforme sur ce serveur
 GP_PLATFORM_CURRENCY=USD         # devise par défaut des offres
-GP_PAYMENT_GATEWAY=sandbox       # prestataire de paiement : sandbox | monerails
-GP_MONERAILS_KEY=…               # mr_test_… ou mr_live_… (jamais affichée)
-GP_MONERAILS_WEBHOOK_SECRET=…    # whsec_…
+GP_PAYMENT_GATEWAY=sandbox       # prestataire par défaut : sandbox | monerails (la console → Paiements l'emporte)
+GP_MONERAILS_KEY=…               # facultatif : de préférence dans la console (Paiements), chiffrée
+GP_MONERAILS_WEBHOOK_SECRET=…    # idem (whsec_…)
 GP_DOMAIN_REGISTRAR=sandbox      # registraire : sandbox | lws
 GP_SERVER_IP=78.24.248.103       # IP des sites hébergés : un domaine branché pointe vers elle
 GP_LWS_LOGIN=… / GP_LWS_KEY=…    # facultatif : de préférence dans la console (Fournisseurs), clé chiffrée
@@ -176,7 +176,28 @@ GeniusPress revend des services LWS avec sa marge, sans que LWS apparaisse dans 
   `website/showcase.php`. La politique de confidentialité (`website/site.php`) nomme LWS comme prestataire.
 - Tests : `tests/Feature/Platform/SuppliersTest.php`, API simulée par `Http::fake`, jamais d'appel réel.
 
-## 10. Reste à faire
+## 10. Paiements Mobile Money (Monerails)
+
+`App\Platform\Payments\MonerailsGateway` (https://docs.monerails.com) : encaissement Mobile Money dans les
+pays ouverts par l'API (`MonerailsGateway::COUNTRIES`, chacun dans sa devise : CDF, XAF, XOF, GNF, GMD,
+UGX, TZS, RWF). Monerails n'encaisse ni les cartes ni l'USD.
+
+- **Console → Paiements** : prestataire actif, clé API et secret de notification (chiffrés, jamais
+  réaffichés, refus d'une clé de test en production), adresse de notification à déclarer chez Monerails
+  (`/api/platform/v1/payments/monerails/webhook`), essai de connexion (soldes).
+- **Devise locale** : le client choisit le pays de son compte Mobile Money ; une commande dans une autre
+  devise (USD) est convertie au taux de la console (Fournisseurs → taux de change, 1 € = x) par
+  `Checkout::localAmount()`, arrondie à l'unité entière supérieure. Le paiement garde le montant d'origine
+  (`original_amount`, `original_currency`) ; `OrderFulfiller` n'accepte que le total exact de la commande,
+  ou sa conversion. Un pays sans taux n'est pas proposé.
+- **Opérateurs** : liste en direct (`GET /v1/operators` par devise, gardée 10 minutes), liste de repli
+  si l'API ne répond pas. Opérateurs à code (OTP, ou code obtenu par USSD) : le paiement attend le code
+  (`awaiting = otp`), saisi sur la page de la commande et transmis par `authorize`.
+- Le contenu d'une notification ne suffit jamais : l'état est redemandé à Monerails (montant et devise
+  comparés au paiement demandé).
+- Tests : `tests/Feature/Platform/MonerailsGatewayTest.php` (Http::fake, aucune clé réelle).
+
+## 11. Reste à faire
 
 - `npm run build` au déploiement : les vues de la plateforme utilisent quelques classes Tailwind nouvelles.
 
