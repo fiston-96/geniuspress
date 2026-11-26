@@ -132,6 +132,22 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                 ]), 4, ['gap' => 32, 'gap_mobile' => 16, 'direction_mobile' => 'row']),
             ], ['background_color' => $creme, 'gap' => 64]),
 
+            // 3 bis. Le builder lui-même : vraie capture de l'éditeur (cette page, en cours de modification).
+            K::section($theme, [
+                $intro($t('Le page builder', 'The page builder'), $t('Vous voyez la page telle qu’elle sera publiée', 'You see the page exactly as it will be published'),
+                    $t('Cliquez sur un élément de la page et réglez-le à gauche : textes, couleurs, tailles, marges, animations. Cette page d’accueil a été construite avec ce même builder.', 'Click any element on the page and adjust it on the left: text, colors, sizes, spacing, animations. This very home page was built with the same builder.')),
+                S::builderShot($lang, ['entrance' => 'fade-up', 'entrance_duration' => 900]),
+                K::grid(array_map(fn ($p) => K::box([
+                    K::w('icon', ['icon' => 'lucide:'.$p[0], 'shape' => 'rounded', 'size' => 20, 'box' => 11, 'color' => 'global:primary', 'bg_color' => '#ffffff', 'align' => 'left']),
+                    K::h($p[1], 'h3', ['font_size' => 21, 'font_weight' => '400', 'line_height' => '1.3', 'color' => $encre, 'margin' => ['t' => 4, 'r' => 0, 'b' => 0, 'l' => 0]]),
+                    K::p('<p>'.$p[2].'</p>', ['font_size' => 16, 'line_height' => '1.65', 'color' => $doux]),
+                ], ['gap' => 10, 'padding' => $zero]), [
+                    ['layers', $t('Cliquez, glissez, déposez', 'Click, drag, drop'), $t($widgets.' widgets à placer où vous voulez, dans des conteneurs imbriqués.', $widgets.' widgets to place wherever you like, inside nested containers.')],
+                    ['smartphone', $t('Réglé pour chaque écran', 'Tuned for every screen'), $t('Tailles, marges et visibilité par appareil : ordinateur, tablette et téléphone.', 'Sizes, spacing and visibility per device: desktop, tablet and phone.')],
+                    ['history', $t('Rien n’est perdu', 'Nothing gets lost'), $t('Annuler, historique des versions et brouillon séparé de la version en ligne.', 'Undo, version history and a draft kept apart from the live version.')],
+                ]), 3, ['gap' => 40, 'gap_mobile' => 28]),
+            ], ['background_color' => $sable, 'gap' => 56, 'gap_mobile' => 40, 'padding' => ['t' => 112, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 72, 'b' => 72]]),
+
             // 4. Tout est inclus.
             K::section($theme, [
                 $intro($t('Tout est inclus', 'Everything included'), $t('Tout ce qu’un vrai site demande, sans extension payante', 'Everything a real website needs, with no paid add-ons'),
@@ -144,7 +160,7 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
                     $feature('languages', $t('Français et anglais', 'French and English'), $t('Une version de chaque page par langue, reliées entre elles, et une administration traduite.', 'One version of each page per language, linked together, and a translated admin.')),
                     $feature('package', $t('Vos données vous appartiennent', 'Your data belongs to you'), $t('Exportez tout le site dans un seul fichier et installez-le ailleurs. Jamais prisonnier d’une plateforme.', 'Export the whole site into a single file and install it elsewhere. Never locked into a platform.')),
                 ], 3, ['gap' => 24, 'gap_mobile' => 16]),
-            ], ['background_color' => $creme, 'gap' => 56, 'padding' => ['t' => 40, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 24, 'b' => 72]]),
+            ], ['background_color' => $creme, 'gap' => 56, 'padding' => ['t' => 112, 'r' => 20, 'b' => 112, 'l' => 20], 'padding_mobile' => ['t' => 72, 'b' => 72]]),
 
             // 5. Assistant IA, sur fond nuit.
             K::section($theme, [K::row([

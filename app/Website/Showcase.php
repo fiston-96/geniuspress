@@ -118,7 +118,25 @@ final class Showcase
     /** Fenêtre de navigateur contenant la capture d'un modèle, ombre douce et coins arrondis. */
     public static function screen(string $id, string $lang, array $s = []): array
     {
-        return K::box([self::browserBar($id), self::shot($id, self::catalog()[$id], $lang)], $s + [
+        return self::window([self::browserBar(), self::shot($id, self::catalog()[$id], $lang)], $s);
+    }
+
+    /**
+     * Capture de l'éditeur (dist/website/captures/builder.jpg, builder-en.jpg pour l'anglais) dans
+     * une fenêtre de navigateur ouverte sur l'administration.
+     */
+    public static function builderShot(string $lang, array $s = []): array
+    {
+        $slot = 'capture-builder'.($lang === 'fr' ? '' : '-'.$lang);
+        $alt = $lang === 'fr' ? 'Le builder GeniusPress : réglages du titre à gauche, page modifiée à droite' : 'The GeniusPress builder: heading settings on the left, the page being edited on the right';
+
+        return self::window([self::browserBar(self::$host.'/admin'), K::photo($slot, 'layout-template', $alt, ['border_radius' => 0])], $s);
+    }
+
+    /** Cadre de fenêtre : coins arrondis, filet chaud, ombre douce. */
+    private static function window(array $children, array $s = []): array
+    {
+        return K::box($children, $s + [
             'gap' => 0, 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'overflow' => 'hidden', 'background_color' => '#ffffff',
             'border_radius' => ['t' => 12, 'r' => 12, 'b' => 12, 'l' => 12],
             'border_style' => 'solid', 'border_width' => ['t' => 1, 'r' => 1, 'b' => 1, 'l' => 1], 'border_color' => '#e7e0d4',
@@ -127,14 +145,14 @@ final class Showcase
     }
 
     /** Barre de navigateur au-dessus d'un aperçu : trois points et l'adresse de la démonstration. */
-    private static function browserBar(string $id): array
+    private static function browserBar(?string $address = null): array
     {
         $dot = fn (string $color) => K::box([], ['width' => '9px', 'min_height' => '9px', 'background_color' => $color, 'border_radius' => ['t' => 9, 'r' => 9, 'b' => 9, 'l' => 9], 'padding' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 0], 'grow' => false]);
 
         return K::box([
             $dot('#f87171'), $dot('#fbbf24'), $dot('#34d399'),
             // Adresse du site seulement (sans le chemin) : elle tient sur une ligne, même sur les petits aperçus.
-            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'global:body', 'font_weight' => '400', 'color' => '#6f6862', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
+            K::h($address ?? self::$host, 'p', ['font_size' => 12, 'font_family' => 'global:body', 'font_weight' => '400', 'color' => '#6f6862', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
         ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f5f0e8', 'padding' => ['t' => 9, 'r' => 12, 'b' => 9, 'l' => 12]]);
     }
 
@@ -155,7 +173,7 @@ final class Showcase
         $fonts = implode(' / ', array_unique(array_filter([$th->headingFont, $th->font])));
 
         return K::box([
-            self::browserBar($id),
+            self::browserBar(),
             self::shot($id, $def, $lang),
             K::box([
                 K::box([

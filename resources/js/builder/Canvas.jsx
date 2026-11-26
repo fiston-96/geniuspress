@@ -29,6 +29,9 @@ a { pointer-events: auto; }
 .gpe-drop-line { position: fixed; z-index: 60; background: #4f46e5; border-radius: 2px; box-shadow: 0 0 0 3px rgba(79,70,229,.2); pointer-events: none; }
 .gpe-toolbar { position: absolute; z-index: 20; display: none; gap: 1px; background: #4f46e5; border-radius: 6px; padding: 2px;
   font: 500 12px/1 system-ui, sans-serif; box-shadow: 0 4px 12px rgba(15,23,42,.25); white-space: nowrap; }
+/* Les styles d'un widget visent parfois ses enfants directs (#gp-… > *), dont cette barre : elle garde sa propre typographie. */
+.gpe-el > .gpe-toolbar { font: 500 12px/1 system-ui, sans-serif !important; letter-spacing: normal !important; text-transform: none !important;
+  text-align: left !important; color: #fff !important; text-shadow: none !important; margin: 0 !important; width: auto !important; max-width: none !important; }
 .gpe-toolbar button, .gpe-toolbar span { all: unset; cursor: pointer; color: #fff; padding: 5px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; }
 .gpe-toolbar button:hover, .gpe-toolbar span:hover { background: rgba(255,255,255,.18); }
 .gpe-toolbar .gpe-handle { cursor: grab; }
