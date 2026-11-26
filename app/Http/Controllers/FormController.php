@@ -8,10 +8,12 @@ use App\Models\FormSubmission;
 use App\Models\Page;
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\ContactMessageReceived;
 use App\Plugins\Hooks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
 
@@ -78,6 +80,13 @@ class FormController extends Controller
     /** Envoie le message par e-mail ; un problème d'envoi n'empêche jamais l'enregistrement. */
     private function notify(FormSubmission $submission, Page $page): void
     {
+        // Cloche des administrateurs (en plus de l'e-mail ci-dessous).
+        try {
+            Notification::send(User::query()->where('role', User::ROLE_ADMIN)->get(), new ContactMessageReceived($submission, $page->title));
+        } catch (Throwable $e) {
+            report($e);
+        }
+
         $to = Setting::read('forms_email') ?: User::query()->where('role', User::ROLE_ADMIN)->orderBy('id')->value('email');
         if (! $to) {
             return;

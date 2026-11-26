@@ -27,12 +27,17 @@ class PlatformAccounts
             throw new PlatformException(__('Un compte existe déjà avec cette adresse e-mail.'));
         }
 
-        return Customer::create([
+        $customer = Customer::create([
             'name' => $name, 'email' => $email, 'password' => $password,
             'phone' => $phone, 'country' => $country ? strtoupper($country) : null,
             'locale' => in_array($locale, array_keys(config('geniuspress.ui_locales')), true) ? $locale : 'fr',
             'status' => Customer::ACTIVE,
         ]);
+
+        PlatformNotifier::send($customer, new Notifications\CustomerWelcome);
+        PlatformNotifier::admins(new Notifications\NewCustomer($customer));
+
+        return $customer;
     }
 
     public function findByEmail(string $email): ?Customer

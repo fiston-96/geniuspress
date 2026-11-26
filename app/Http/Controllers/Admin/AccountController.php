@@ -46,6 +46,7 @@ class AccountController extends Controller
         $user->setRememberToken(Str::random(60));
         $user->save();
         $request->session()->regenerate();
+        \App\Platform\PlatformNotifier::send($user, new \App\Notifications\PasswordChanged(route('password.request')));
 
         return redirect()->route('admin.account.edit')->with('status', __('Votre mot de passe est modifié.'));
     }

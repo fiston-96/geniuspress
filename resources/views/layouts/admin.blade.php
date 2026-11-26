@@ -34,9 +34,11 @@
 @endphp
 <div class="flex min-h-screen">
     <aside class="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-5 py-5">
-            <x-logo :size="30" />
-        </a>
+        @php $unreadNotices = auth()->user()->unreadNotifications()->count(); @endphp
+        <div class="flex items-center justify-between gap-2 px-5 py-5">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2"><x-logo :size="30" /></a>
+            <x-notification-bell :href="route('admin.notifications.index')" :count="$unreadNotices" class="-mr-2" />
+        </div>
         <nav class="flex-1 space-y-0.5 px-3">
             @foreach ($nav as [$route, $label, $icon])
                 @php $active = request()->routeIs(str_replace('.index', '.*', $route)); @endphp
@@ -73,7 +75,10 @@
 
     <div class="flex min-w-0 flex-1 flex-col">
         <header class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
-            <x-logo :size="24" />
+            <div class="flex items-center gap-2">
+                <x-logo :size="24" />
+                <x-notification-bell :href="route('admin.notifications.index')" :count="$unreadNotices" />
+            </div>
             <nav class="flex gap-3 text-sm">
                 @foreach ($nav as [$route, $label])<a href="{{ route($route) }}" class="text-slate-600">{{ $label }}</a>@endforeach
                 <a href="{{ route('admin.account.edit') }}" class="text-slate-600">{{ __('Mon compte') }}</a>

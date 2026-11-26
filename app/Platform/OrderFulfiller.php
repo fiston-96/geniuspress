@@ -41,6 +41,8 @@ class OrderFulfiller
 
         if ($order) {
             $this->deliver($order);
+            PlatformNotifier::send($order->customer, new Notifications\OrderPaid($order));
+            PlatformNotifier::admins(new Notifications\OrderPaid($order, forAdmin: true));
         }
     }
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\NotificationController;
 use App\Platform\Http\Controllers\Admin;
 use App\Platform\Http\Controllers\Customer;
 use App\Platform\Http\Middleware\EnsurePlatformEnabled;
@@ -38,6 +39,9 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::name('customer.')->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
+                Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'customer')->name('notifications.index');
+                Route::post('/notifications/tout-lire', [NotificationController::class, 'readAll'])->defaults('audience', 'customer')->name('notifications.read');
+                Route::get('/notifications/{id}', [NotificationController::class, 'open'])->defaults('audience', 'customer')->whereUuid('id')->name('notifications.open');
                 Route::get('/offres', [Customer\ShopController::class, 'plans'])->name('plans');
                 Route::post('/offres/{plan:slug}', [Customer\ShopController::class, 'buyPlan'])->name('plans.buy');
                 Route::get('/modeles', [Customer\ShopController::class, 'templates'])->name('templates');

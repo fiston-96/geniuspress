@@ -25,6 +25,9 @@
             @foreach ($links as [$route, $label])
                 <a href="{{ route($route) }}" @class(['rounded-lg px-3 py-2 font-medium transition', 'bg-brand-50 text-brand-700' => request()->routeIs($route), 'text-slate-600 hover:bg-slate-100' => ! request()->routeIs($route)])>{{ $label }}</a>
             @endforeach
+            @if (auth('customer')->check())
+                <x-notification-bell :href="route('platform.customer.notifications.index')" :count="auth('customer')->user()->unreadNotifications()->count()" />
+            @endif
             <form method="POST" action="{{ route('platform.logout') }}">@csrf
                 <button class="rounded-lg px-3 py-2 text-slate-500 hover:bg-slate-100">{{ __('Se déconnecter') }}</button>
             </form>

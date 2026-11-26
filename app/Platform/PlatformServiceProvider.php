@@ -10,6 +10,7 @@ use App\Platform\Ai\Pricing;
 use App\Platform\Domains\DomainService;
 use App\Platform\Payments\PaymentManager;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
@@ -54,6 +55,7 @@ class PlatformServiceProvider extends ServiceProvider
             if (! config('geniuspress.platform.enabled') || $site->kind !== 'trial' || ! $customer) {
                 return;
             }
+            PlatformNotifier::send($customer, new Notifications\SiteReady($site));
             $accounts = $this->app->make(PlatformAccounts::class);
             if ($accounts->activeSubscription($customer)) {
                 return;
@@ -62,6 +64,16 @@ class PlatformServiceProvider extends ServiceProvider
                 $accounts->startTrial($customer, $site->slug);
             } catch (PlatformException $e) {
                 report($e);
+            }
+        });
+
+        // Rappels de fin d'essai, chaque jour à 9 h.
+        if ($this->app->runningInConsole()) {
+            $this->commands([Console\TrialRemindersCommand::class]);
+        }
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+            if (config('geniuspress.platform.enabled') && config('hosting.enabled')) {
+                $schedule->command('geniuspress:trial-reminders')->dailyAt('09:00')->withoutOverlapping();
             }
         });
 

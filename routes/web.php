@@ -20,6 +20,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogDemoController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,11 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('au
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::put('/locale', LocaleController::class)->name('locale');
+
+    // Notifications de la personne connectée (cloche).
+    Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'admin')->name('notifications.index');
+    Route::post('/notifications/tout-lire', [NotificationController::class, 'readAll'])->defaults('audience', 'admin')->name('notifications.read');
+    Route::get('/notifications/{id}', [NotificationController::class, 'open'])->defaults('audience', 'admin')->whereUuid('id')->name('notifications.open');
 
     // Mon compte : nom, e-mail et mot de passe (essais limités : mot de passe actuel demandé).
     Route::get('/account', [\App\Http\Controllers\Admin\AccountController::class, 'edit'])->name('account.edit');
