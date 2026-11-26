@@ -12,7 +12,11 @@ class SettingController extends Controller
 {
     public const AVAILABLE_LOCALES = ['fr' => 'Français', 'en' => 'English', 'sw' => 'Kiswahili', 'ln' => 'Lingála', 'pt' => 'Português', 'es' => 'Español', 'ar' => 'العربية', 'rw' => 'Kinyarwanda'];
 
-    public const FONTS = ['Inter', 'Poppins', 'Montserrat', 'Roboto', 'Open Sans', 'Lato', 'Nunito', 'Playfair Display', 'Merriweather'];
+    public const FONTS = ['Inter', 'Poppins', 'Montserrat', 'Roboto', 'Open Sans', 'Lato', 'Nunito', 'DM Sans', 'Plus Jakarta Sans',
+        'Playfair Display', 'Merriweather', 'DM Serif Display', 'Fraunces', 'Instrument Serif'];
+
+    /** Polices à empattement : leur police de secours est Georgia, pas une police système sans empattement. */
+    public const SERIF_FONTS = ['Playfair Display', 'Merriweather', 'DM Serif Display', 'Fraunces', 'Instrument Serif'];
 
     public function edit()
     {

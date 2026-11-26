@@ -48,8 +48,8 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
     $corners = fn (int $r) => ['t' => $r, 'r' => $r, 'b' => $r, 'l' => $r];
     // Titre de section : sur-titre, grand titre en Playfair, introduction.
     $intro = fn (string $eyebrow, string $title, ?string $text = null, string $align = 'center', bool $dark = false) => K::box(array_filter([
-        K::eyebrow($eyebrow, ['align' => $align, 'color' => $dark ? 'global:accent' : 'global:primary', 'font_size' => 13, 'font_family' => 'Inter']),
-        K::h($title, 'h2', ['align' => $align, 'font_size' => 50, 'font_size_tablet' => 42, 'font_size_mobile' => 32, 'font_weight' => '700', 'line_height' => '1.12', 'letter_spacing' => '-0.015em', 'color' => $dark ? '#ffffff' : $encre]),
+        K::eyebrow($eyebrow, ['align' => $align, 'color' => $dark ? 'global:accent' : 'global:primary', 'font_size' => 13, 'font_family' => 'global:body']),
+        K::h($title, 'h2', ['align' => $align, 'font_size' => 50, 'font_size_tablet' => 42, 'font_size_mobile' => 32, 'font_weight' => '400', 'line_height' => '1.12', 'letter_spacing' => '-0.015em', 'color' => $dark ? '#ffffff' : $encre]),
         $text ? K::p('<p>'.$text.'</p>', ['align' => $align, 'font_size' => 19, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $dark ? 'rgba(255,255,255,0.78)' : $doux]) : null,
     ]), ['gap' => 18, 'content_width' => 'boxed', 'max_width' => $align === 'center' ? 780 : 1140, 'padding' => $zero]);
     // Carte claire, bordure chaude.
@@ -59,13 +59,13 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
     ]);
     $feature = fn (string $icon, string $title, string $text) => $card([
         K::w('icon', ['icon' => 'lucide:'.$icon, 'shape' => 'rounded', 'size' => 22, 'box' => 13, 'color' => 'global:primary', 'bg_color' => '#f6e9e1', 'align' => 'left']),
-        K::h($title, 'h3', ['font_size' => 24, 'font_weight' => '700', 'line_height' => '1.25', 'color' => $encre, 'margin' => ['t' => 6, 'r' => 0, 'b' => 0, 'l' => 0]]),
+        K::h($title, 'h3', ['font_size' => 24, 'font_weight' => '400', 'line_height' => '1.25', 'color' => $encre, 'margin' => ['t' => 6, 'r' => 0, 'b' => 0, 'l' => 0]]),
         K::p('<p>'.$text.'</p>', ['font_size' => 16, 'line_height' => '1.65', 'color' => $doux]),
     ]);
     // En-tête des pages intérieures : crème, grand titre en Playfair.
     $pageHead = fn (string $eyebrow, string $title, string $text) => K::section($theme, [K::box([
-        K::eyebrow($eyebrow, ['align' => 'center', 'color' => 'global:primary', 'font_size' => 13, 'font_family' => 'Inter']),
-        K::h($title, 'h1', ['align' => 'center', 'font_size' => 64, 'font_size_tablet' => 52, 'font_size_mobile' => 38, 'font_weight' => '700', 'line_height' => '1.08', 'letter_spacing' => '-0.02em', 'color' => $encre]),
+        K::eyebrow($eyebrow, ['align' => 'center', 'color' => 'global:primary', 'font_size' => 13, 'font_family' => 'global:body']),
+        K::h($title, 'h1', ['align' => 'center', 'font_size' => 64, 'font_size_tablet' => 52, 'font_size_mobile' => 38, 'font_weight' => '400', 'line_height' => '1.08', 'letter_spacing' => '-0.02em', 'color' => $encre]),
         K::p('<p>'.$text.'</p>', ['align' => 'center', 'font_size' => 20, 'font_size_mobile' => 17, 'line_height' => '1.7', 'color' => $doux]),
     ], ['gap' => 18, 'content_width' => 'boxed', 'max_width' => 820, 'padding' => $zero])], ['background_color' => $creme, 'padding' => ['t' => 104, 'r' => 20, 'b' => 72, 'l' => 20], 'padding_mobile' => ['t' => 64, 'b' => 48]]);
     $sectorWords = $t("ONG\nécole\nradio\néglise\nentreprise\nmairie\ntélévision\nclinique", "NGO\nschool\nradio station\nchurch\nbusiness\ntown hall\nTV channel\nclinic");
@@ -81,12 +81,12 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
             // 1. Ouverture : titre animé, promesse, deux boutons, trois vraies captures de modèles.
             K::section($theme, [
                 K::box([
-                    K::eyebrow($t('CMS libre · open source · page builder et IA', 'Free CMS · open source · page builder and AI'), ['align' => 'center', 'font_size' => 13, 'color' => 'global:primary', 'font_family' => 'Inter']),
+                    K::eyebrow($t('CMS libre · open source · page builder et IA', 'Free CMS · open source · page builder and AI'), ['align' => 'center', 'font_size' => 13, 'color' => 'global:primary', 'font_family' => 'global:body']),
                     K::w('animated-heading', [
                         // Mot animé en fin de phrase : aucune place réservée, aucun décalage, quelle que soit la largeur.
                         'before' => $t('Un site élégant pour votre', 'An elegant website for your'), 'words' => $sectorWords, 'after' => '',
                         'effect' => 'typing', 'speed' => 6, 'pause' => 2000, 'tag' => 'h1', 'align' => 'center',
-                        'font_size' => 76, 'font_size_tablet' => 58, 'font_size_mobile' => 40, 'font_weight' => '700', 'line_height' => '1.06', 'letter_spacing' => '-0.02em',
+                        'font_size' => 76, 'font_size_tablet' => 58, 'font_size_mobile' => 40, 'font_weight' => '400', 'line_height' => '1.06', 'letter_spacing' => '-0.02em',
                         'color' => $encre, 'words_color' => 'global:primary',
                     ]),
                     K::p($t(
@@ -110,9 +110,9 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
             // 3. Manifeste et chiffres.
             K::section($theme, [K::row([
                 K::col([
-                    K::eyebrow($t('Pourquoi GeniusPress', 'Why GeniusPress'), ['font_size' => 13, 'color' => 'global:primary', 'font_family' => 'Inter']),
+                    K::eyebrow($t('Pourquoi GeniusPress', 'Why GeniusPress'), ['font_size' => 13, 'color' => 'global:primary', 'font_family' => 'global:body']),
                     K::h($t('Un site professionnel ne devrait pas coûter un budget d’agence.', 'A professional website shouldn’t cost an agency budget.'), 'h2', [
-                        'font_size' => 46, 'font_size_tablet' => 40, 'font_size_mobile' => 31, 'font_weight' => '700', 'line_height' => '1.14', 'letter_spacing' => '-0.015em', 'color' => $encre]),
+                        'font_size' => 46, 'font_size_tablet' => 40, 'font_size_mobile' => 31, 'font_weight' => '400', 'line_height' => '1.14', 'letter_spacing' => '-0.015em', 'color' => $encre]),
                 ], '52%', ['gap' => 18]),
                 K::col([
                     K::p($t(
@@ -232,7 +232,7 @@ return function (string $lang, callable $u, string $repo, Theme $theme): array {
             // 10. Dernier appel, en terracotta.
             K::section($theme, [K::box([
                 K::h($t('Votre organisation mérite mieux qu’un site générique.', 'Your organization deserves better than a generic website.'), 'h2', [
-                    'align' => 'center', 'font_size' => 52, 'font_size_tablet' => 44, 'font_size_mobile' => 32, 'font_weight' => '700', 'line_height' => '1.12', 'color' => '#ffffff']),
+                    'align' => 'center', 'font_size' => 52, 'font_size_tablet' => 44, 'font_size_mobile' => 32, 'font_weight' => '400', 'line_height' => '1.12', 'color' => '#ffffff']),
                 K::p($t('<p>Choisissez un modèle, laissez l’assistant écrire, publiez. Le reste vous appartient.</p>', '<p>Pick a template, let the assistant write, publish. The rest is yours.</p>'), ['align' => 'center', 'font_size' => 19, 'color' => 'rgba(255,255,255,0.88)']),
                 K::buttons([
                     K::btn($theme, $t('Choisir un modèle', 'Choose a template'), $u('templates'), 'light'),

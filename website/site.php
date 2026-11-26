@@ -61,7 +61,7 @@ $docFiles = [
 // Thème des pages vitrines (format 2), aux couleurs de la marque : mêmes blocs que les modèles de sites.
 $theme = new Theme(
     colors: ['primary' => $primaire, 'secondary' => $nuit, 'accent' => $or, 'light' => $creme, 'text' => '#1c1917', 'muted' => '#57534e'],
-    font: 'Inter', headingFont: 'Playfair Display', hero: 'split', cards: 'border', buttons: 'rounded', radius: 12, space: 112,
+    font: 'DM Sans', headingFont: 'DM Serif Display', hero: 'split', cards: 'border', buttons: 'rounded', radius: 12, space: 112,
 );
 // Accueil, fonctionnalités et modèles : website/showcase.php.
 $showcase = require __DIR__.'/showcase.php';
@@ -357,7 +357,7 @@ return [
         'primary_color' => $primaire,
         'secondary_color' => $nuit,
         'accent_color' => $or,
-        'font_family' => 'Inter',
+        'font_family' => $theme->font,
         'heading_font' => $theme->headingFont,
         'custom_colors' => $theme->settings()['custom_colors'],
         'locales' => ['fr', 'en'],

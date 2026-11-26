@@ -134,7 +134,7 @@ final class Showcase
         return K::box([
             $dot('#f87171'), $dot('#fbbf24'), $dot('#34d399'),
             // Adresse du site seulement (sans le chemin) : elle tient sur une ligne, même sur les petits aperçus.
-            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'Inter', 'font_weight' => '400', 'color' => '#78716c', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
+            K::h(self::$host, 'p', ['font_size' => 12, 'font_family' => 'global:body', 'font_weight' => '400', 'color' => '#78716c', 'margin' => ['t' => 0, 'r' => 0, 'b' => 0, 'l' => 8]]),
         ], ['direction' => 'row', 'align' => 'center', 'gap' => 5, 'background_color' => '#f5f0e8', 'padding' => ['t' => 9, 'r' => 12, 'b' => 9, 'l' => 12]]);
     }
 

@@ -121,6 +121,10 @@ class DesignTokens
 
     private static function stack(string $font): string
     {
-        return "'".str_replace("'", '', $font)."', system-ui, -apple-system, 'Segoe UI', sans-serif";
+        $name = "'".str_replace("'", '', $font)."'";
+
+        return in_array($font, SettingController::SERIF_FONTS, true)
+            ? "{$name}, Georgia, 'Times New Roman', serif"
+            : "{$name}, system-ui, -apple-system, 'Segoe UI', sans-serif";
     }
 }
