@@ -30,11 +30,23 @@ class TemplateInstallTest extends TestCase
         Storage::fake('public');
         $this->admin = User::create(['name' => 'Admin', 'email' => 'admin@test.local', 'password' => 'secret-password-1', 'role' => 'admin']);
         if (self::$built === null) {
+            // Sans les photos téléchargées localement (environ 350 Mo) : inutiles ici, testées dans TemplatePhotosTest.
+            config(['geniuspress.catalog.photos_path' => $this->sandbox.'/sans-photos']);
             self::$built = sys_get_temp_dir().'/gp-catalog-install-'.getmypid();
             $this->artisan('geniuspress:templates', ['--output' => self::$built])->assertSuccessful();
         }
         config(['geniuspress.catalog.path' => self::$built, 'geniuspress.catalog.local' => true]);
         Setting::write(['locales' => ['fr']]);
+    }
+
+    /** Catalogue construit pour la classe : supprimé à la fin (sinon un dossier reste dans le dossier temporaire à chaque exécution). */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$built !== null) {
+            (new \Illuminate\Filesystem\Filesystem)->deleteDirectory(self::$built);
+            self::$built = null;
+        }
+        parent::tearDownAfterClass();
     }
 
     private function fake(array $responses = [], bool $configured = true): FakeLlm
@@ -184,7 +196,8 @@ class TemplateInstallTest extends TestCase
     public function test_a_tampered_template_is_refused(): void
     {
         $this->fake(configured: false);
-        $copy = sys_get_temp_dir().'/gp-catalog-tampered-'.getmypid();
+        // Dans le bac à sable du test, vidé automatiquement à la fin.
+        $copy = $this->sandbox.'/catalogue-modifie';
         @mkdir($copy);
         copy(self::$built.'/index.json', $copy.'/index.json');
         file_put_contents($copy.'/ong-horizon.zip', 'contenu modifié');

@@ -40,6 +40,16 @@ class TemplateCatalogTest extends TestCase
         $this->catalog = self::$built;
     }
 
+    /** Catalogue construit pour la classe : supprimé à la fin (sinon un dossier reste dans le dossier temporaire à chaque exécution). */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$built !== null) {
+            (new \Illuminate\Filesystem\Filesystem)->deleteDirectory(self::$built);
+            self::$built = null;
+        }
+        parent::tearDownAfterClass();
+    }
+
     public function test_every_palette_is_readable(): void
     {
         $luminance = function (string $hex) {
