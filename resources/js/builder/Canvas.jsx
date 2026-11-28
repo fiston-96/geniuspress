@@ -1,6 +1,7 @@
 import { Component, createElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
-import { buildCss, containerDefaults } from './style';
+import { buildCss, containerDefaults, safeUrl } from './style';
+import SHAPES from '../../builder/shapes.json';
 import { Placeholder } from './widgets/core';
 import { getState, setState, useStore } from './store';
 import { contains, find, isContainer } from './tree';
@@ -258,7 +259,7 @@ function Container({ node, depth }) {
                 <Tool icon="bookmark-plus" label={t('Enregistrer dans Mes blocs')} onClick={act(() => saveAsBlock(node.id))} />
                 <Tool icon="trash-2" label={t('Supprimer')} onClick={act(() => removeEl(node.id))} />
             </div>
-            {node.settings.overlay_color && <div className="gp-overlay" />}
+            <Layers s={node.settings} />
             <div
                 className="gp-con-inner"
                 onDragOver={(e) => onDragOverBox(e, node.id, e.currentTarget.parentElement)}
@@ -300,6 +301,28 @@ function WidgetEl({ node }) {
             </div>
             <WidgetBody widget={node} />
         </div>
+    );
+}
+
+/** Calques de fond d'un conteneur, comme Renderer::container : vidéo, voile, séparateurs de formes. */
+function Layers({ s }) {
+    const video = s.background_video ? safeUrl(s.background_video) : null;
+    return (
+        <>
+            {video && (
+                <div className={`gp-bg-video${s.background_video_mobile ? '' : ' gp-bg-video--no-mobile'}`} aria-hidden="true">
+                    <video src={video} autoPlay muted loop playsInline preload="metadata" />
+                </div>
+            )}
+            {s.overlay_color && <div className="gp-overlay" />}
+            {['top', 'bottom'].map((side) => SHAPES[s[`shape_${side}`]] && (
+                <div key={side} className={`gp-shape gp-shape--${side}`} aria-hidden="true">
+                    <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+                        {SHAPES[s[`shape_${side}`]].map((p, i) => <path key={i} d={p.d} opacity={p.opacity} />)}
+                    </svg>
+                </div>
+            ))}
+        </>
     );
 }
 

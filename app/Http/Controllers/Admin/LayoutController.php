@@ -12,13 +12,14 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\Setting;
 use App\Models\Term;
+use App\Site\Popups;
 use App\Site\SiteContext;
 use App\Site\SiteResponder;
 use App\Site\ThemeLayouts;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Constructeur de thème : gabarits (en-tête, pied de page, article, archive, recherche, 404) et leurs conditions. */
+/** Constructeur de thème : gabarits (en-tête, pied de page, article, archive, recherche, 404, popup) et leurs conditions. */
 class LayoutController extends Controller
 {
     public function index()
@@ -46,6 +47,7 @@ class LayoutController extends Controller
             'types' => Layout::typeLabels(),
             'locales' => $this->locales(),
             'targets' => $this->targets(),
+            'popup' => $layout->type === 'popup' ? Popups::sanitize($layout->options) : null,
         ]);
     }
 
@@ -59,6 +61,7 @@ class LayoutController extends Controller
             'rules' => ['nullable', 'array', 'max:30'],
             'rules.*.mode' => ['nullable', 'in:include,exclude'],
             'rules.*.what' => ['nullable', 'string', 'max:40'],
+            'options' => ['nullable', 'array'],
         ]);
         // « what » : « all », « page », « page:12 », « in_category:3 »…
         $conditions = ThemeLayouts::sanitizeConditions(array_map(function ($row) {
@@ -70,6 +73,8 @@ class LayoutController extends Controller
         $layout->update([
             'name' => $data['name'], 'locale' => $data['locale'] ?: null, 'status' => $data['status'],
             'priority' => $data['priority'], 'conditions' => $conditions,
+            // Popups : déclencheur, fréquence, apparence (valeurs validées par Popups::sanitize).
+            'options' => $layout->type === 'popup' ? Popups::sanitize($data['options'] ?? []) : $layout->options,
         ]);
 
         return back()->with('status', $conditions || $layout->status !== Layout::STATUS_PUBLISHED

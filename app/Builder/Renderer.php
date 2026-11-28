@@ -78,6 +78,16 @@ class Renderer
 
         $inner = $this->children($node['children'], $node, $depth + 1, $ctx);
         $overlay = isset($o['overlay_color']) ? '<div class="gp-overlay"></div>' : '';
+        // Calques de fond, sous le contenu : vidéo, voile, séparateurs de formes.
+        if (isset($o['background_video']) && preg_match('#^(https?://|/(?!/))#i', $o['background_video'])) {
+            $overlay = '<div class="gp-bg-video'.(empty($o['background_video_mobile']) ? ' gp-bg-video--no-mobile' : '').'" aria-hidden="true">'
+                .'<video src="'.e($o['background_video']).'" autoplay muted loop playsinline preload="metadata"></video></div>'.$overlay;
+        }
+        foreach (['top', 'bottom'] as $side) {
+            if (isset($o['shape_'.$side])) {
+                $overlay .= Shapes::layer($o['shape_'.$side], $side);
+            }
+        }
         $tag = $o['tag'] ?? 'div';
 
         return "<{$tag} id=\"{$this->htmlId($node, $ctx)}\" class=\"{$this->classes($node, 'gp-el gp-con')}\">{$overlay}<div class=\"gp-con-inner\">{$inner}</div></{$tag}>\n";

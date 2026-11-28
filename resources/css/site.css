@@ -19,6 +19,16 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
 .gp-con { position: relative; display: flex; flex-direction: column; padding: 10px; }
 .gp-con-inner { position: relative; display: flex; flex-direction: column; gap: 20px; flex: 1 1 auto; width: 100%; margin: 0 auto; }
 .gp-overlay { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
+/* Fond vidéo (sous le voile) : l'image de fond du conteneur reste visible tant que la vidéo charge, et la remplace sur mobile ou si l'utilisateur limite les animations. */
+.gp-bg-video { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.gp-bg-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 767px) { .gp-bg-video--no-mobile { display: none; } }
+@media (prefers-reduced-motion: reduce) { .gp-bg-video { display: none; } }
+/* Séparateurs de formes (App\Builder\Shapes) : collés au bord, sous le contenu sauf réglage « devant ». */
+.gp-shape { position: absolute; left: 0; right: 0; overflow: hidden; line-height: 0; pointer-events: none; color: #ffffff; }
+.gp-shape--top { top: -1px; }
+.gp-shape--bottom { bottom: -1px; transform: rotate(180deg); }
+.gp-shape svg { display: block; position: relative; left: 50%; width: calc(100% + 1.3px); height: 80px; transform: translateX(-50%); fill: currentColor; }
 .gp-text > :first-child { margin-top: 0; }
 .gp-text > :last-child { margin-bottom: 0; }
 .gp-text ul, .gp-text ol { padding-left: 1.25em; }
@@ -861,3 +871,32 @@ body { overflow-x: clip; }
     /* Téléphone, e-mail, WhatsApp : liens qu'on touche pour appeler ou écrire. */
     a.gp-ilist__item { padding: 6px 0; }
 }
+
+/* Popups du thème (App\Site\Popups, ouvertes par site.js) */
+.gp-popup { position: fixed; inset: 0; z-index: 9990; display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: none; }
+.gp-popup[hidden] { display: none; }
+.gp-popup--top { align-items: flex-start; }
+.gp-popup--bottom { align-items: flex-end; }
+.gp-popup--bottom-left { align-items: flex-end; justify-content: flex-start; }
+.gp-popup--bottom-right { align-items: flex-end; justify-content: flex-end; }
+.gp-popup--left, .gp-popup--right { align-items: stretch; justify-content: flex-start; padding: 0; }
+.gp-popup--right { justify-content: flex-end; }
+.gp-popup-overlay { position: fixed; inset: 0; background: var(--gp-popup-overlay, rgba(15,23,42,.6)); pointer-events: auto; opacity: 0; transition: opacity .3s ease; }
+.gp-popup-box { position: relative; pointer-events: auto; width: min(var(--gp-popup-w, 560px), 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain;
+  background: var(--gp-popup-bg, #fff); border-radius: var(--gp-popup-radius, 16px); box-shadow: 0 30px 70px -20px rgba(15,23,42,.5);
+  opacity: 0; transition: opacity .3s ease, transform .4s cubic-bezier(.22,1,.36,1); outline: none; }
+.gp-popup--left .gp-popup-box, .gp-popup--right .gp-popup-box { max-height: none; height: 100%; border-radius: 0; }
+.gp-popup--zoom .gp-popup-box { transform: scale(.92); }
+.gp-popup--slide-up .gp-popup-box { transform: translateY(40px); }
+.gp-popup--slide-down .gp-popup-box { transform: translateY(-40px); }
+.gp-popup--slide-left .gp-popup-box { transform: translateX(40px); }
+.gp-popup--slide-right .gp-popup-box { transform: translateX(-40px); }
+.gp-popup.is-open .gp-popup-overlay, .gp-popup.is-open .gp-popup-box { opacity: 1; }
+.gp-popup.is-open .gp-popup-box { transform: none; }
+.gp-popup-close { position: sticky; top: 10px; float: right; margin: 10px 10px -46px 0; z-index: 3; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 999px;
+  background: rgba(255,255,255,.92); color: #0f172a; cursor: pointer; box-shadow: 0 2px 10px rgba(15,23,42,.18); }
+.gp-popup-close:hover { background: #fff; transform: scale(1.06); }
+.gp-popup-close:focus-visible { outline: 2px solid var(--gp-primary, #aa4d26); outline-offset: 2px; }
+.gp-popup-content { clear: both; }
+html.gp-popup-lock { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .gp-popup-box, .gp-popup-overlay { transition: opacity .15s linear; transform: none !important; } }

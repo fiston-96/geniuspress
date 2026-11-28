@@ -9,16 +9,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Gabarit du thème, conçu dans le builder : en-tête, pied de page, article,
- * archive (blog, catégorie, étiquette), résultats de recherche, page 404.
+ * archive (blog, catégorie, étiquette), résultats de recherche, page 404, popup
+ * (réglages dans « options », App\Site\Popups).
  * Il s'applique selon ses conditions d'affichage (App\Site\ThemeLayouts).
  * « published » = actif sur le site.
  */
-#[Fillable(['name', 'type', 'locale', 'status', 'conditions', 'priority', 'content', 'draft_content'])]
+#[Fillable(['name', 'type', 'locale', 'status', 'conditions', 'options', 'priority', 'content', 'draft_content'])]
 class Layout extends Model
 {
     use HasBuilderContent, SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
-    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found'];
+    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found', 'popup'];
 
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';
@@ -29,6 +30,7 @@ class Layout extends Model
             'content' => 'array',
             'draft_content' => 'array',
             'conditions' => 'array',
+            'options' => 'array',
             'priority' => 'integer',
         ];
     }
@@ -56,6 +58,7 @@ class Layout extends Model
             'archive' => __('Archive (blog, catégorie, étiquette)'),
             'search' => __('Résultats de recherche'),
             'not_found' => __('Page introuvable (404)'),
+            'popup' => __('Popup'),
         ];
     }
 }

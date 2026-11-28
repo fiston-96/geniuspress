@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-semibold tracking-tight">{{ __('Médiathèque') }}</h1>
         <form method="POST" action="{{ route('admin.media.store') }}" enctype="multipart/form-data" class="flex items-center gap-2">
             @csrf
-            <input type="file" name="file" required accept="image/*,.pdf" class="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium">
+            <input type="file" name="file" required accept="image/*,.pdf,video/mp4,video/webm" class="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium">
             <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">{{ __('Envoyer') }}</button>
         </form>
     </div>
@@ -17,6 +17,8 @@
                 <div class="grid aspect-square place-items-center bg-slate-100">
                     @if (str_starts_with($m->mime_type, 'image/'))
                         <img src="{{ $m->url }}" alt="{{ $m->alt }}" class="h-full w-full object-cover" loading="lazy">
+                    @elseif (str_starts_with($m->mime_type, 'video/'))
+                        <video src="{{ $m->url }}" muted preload="metadata" class="h-full w-full object-cover"></video>
                     @else
                         <span class="text-sm font-semibold text-slate-500">{{ __('PDF') }}</span>
                     @endif

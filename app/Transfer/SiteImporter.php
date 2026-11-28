@@ -472,6 +472,8 @@ class SiteImporter
                 'status' => ($item['status'] ?? null) === Layout::STATUS_PUBLISHED ? Layout::STATUS_PUBLISHED : Layout::STATUS_DRAFT,
                 'priority' => max(-99, min(99, (int) ($item['priority'] ?? 0))),
                 'conditions' => $conditions,
+                // Réglages d'une popup : seulement les valeurs connues et valides.
+                'options' => $item['type'] === 'popup' ? \App\Site\Popups::sanitize($item['options'] ?? []) : null,
                 'content' => $this->sanitizer->sanitize($this->remap($item['content'] ?? [], $mediaIds, $urlMap)),
                 'draft_content' => isset($item['draft_content']) ? $this->sanitizer->sanitize($this->remap($item['draft_content'], $mediaIds, $urlMap)) : null,
             ])->save();

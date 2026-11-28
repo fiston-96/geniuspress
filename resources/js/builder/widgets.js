@@ -169,7 +169,27 @@ export const CONTAINER_CONTROLS = [
     heading(t('Voile de couleur')),
     { key: 'overlay_color', label: t('Couleur du voile'), type: 'color', tab: 'style' },
     { key: 'overlay_opacity', label: t('Opacité du voile (%)'), type: 'slider', min: 0, max: 100, default: 50, tab: 'style', when: (s) => !!s.overlay_color },
+    heading(t('Fond vidéo'), 'style'),
+    { key: 'background_video', label: t('Vidéo de fond (MP4 ou WebM, sans son)'), type: 'video', tab: 'style' },
+    { key: 'background_video_mobile', label: t('Lire aussi sur mobile (sinon l’image de fond la remplace)'), type: 'toggle', tab: 'style', when: (s) => !!s.background_video },
+    ...shapeControls('top', t('Séparateur du haut')),
+    ...shapeControls('bottom', t('Séparateur du bas')),
 ];
+
+/** Réglages d'un séparateur de formes (App\Builder\Shapes), en haut ou en bas du conteneur. */
+function shapeControls(side, title) {
+    const k = `shape_${side}`;
+    const on = (s) => !!s[k];
+    return [
+        heading(title, 'style'),
+        { key: k, label: t('Forme'), type: 'shape', tab: 'style' },
+        { key: `${k}_color`, label: t('Couleur'), type: 'color', tab: 'style', when: on },
+        { key: `${k}_height`, label: t('Hauteur (px)'), type: 'slider', min: 10, max: 600, default: 80, responsive: true, tab: 'style', when: on },
+        { key: `${k}_width`, label: t('Largeur (%)'), type: 'slider', min: 100, max: 300, default: 100, tab: 'style', when: on },
+        { key: `${k}_flip`, label: t('Retourner horizontalement'), type: 'toggle', tab: 'style', when: on },
+        { key: `${k}_front`, label: t('Devant le contenu'), type: 'toggle', tab: 'style', when: on },
+    ];
+}
 
 /** Courbes d'accélération (ElementStyle::EASING). */
 const EASING_OPTIONS = [

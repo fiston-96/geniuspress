@@ -423,3 +423,105 @@ document.querySelectorAll('.gp-menu').forEach((menu) => {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
     document.addEventListener('click', (e) => { if (!menu.contains(e.target)) close(); });
 });
+
+// ─── Popups du thème (App\Site\Popups) ────────────────────────────────────
+// Déclencheurs : au chargement, après un délai, après un défilement, à l'intention de quitter
+// la page (ordinateur ; sur mobile, après 20 s), au clic sur un lien « #popup-{id} ».
+// Fréquence retenue dans ce navigateur. Échap, le bouton ou un lien « #fermer » ferment la popup.
+const popups = [...document.querySelectorAll('[data-popup]')];
+if (popups.length) {
+    const store = (kind) => { try { return kind === 'session' ? window.sessionStorage : window.localStorage; } catch { return null; } };
+    const keyOf = (p) => `gp-popup-${p.dataset.popup}`;
+    const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
+    const focusable = (root) => [...root.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])')]
+        .filter((el) => el.offsetParent !== null);
+    let lastFocus = null;
+
+    const allowed = (p) => {
+        if (p.hasAttribute('data-preview')) return true;
+        const devices = p.dataset.devices;
+        if ((devices === 'desktop' && isMobile()) || (devices === 'mobile' && !isMobile())) return false;
+        const freq = p.dataset.frequency;
+        if (freq === 'always') return true;
+        const seen = store(freq === 'session' ? 'session' : 'local')?.getItem(keyOf(p));
+        if (!seen) return true;
+        if (freq === 'days') return Date.now() - Number(seen) > Number(p.dataset.days || 7) * 86400000;
+        return false;
+    };
+    const remember = (p) => {
+        const freq = p.dataset.frequency;
+        if (freq === 'always' || p.hasAttribute('data-preview')) return;
+        try { store(freq === 'session' ? 'session' : 'local')?.setItem(keyOf(p), String(Date.now())); } catch { /* stockage indisponible */ }
+    };
+
+    const open = (p, manual = false) => {
+        if (!p.hidden || (!manual && !allowed(p))) return;
+        // Une seule popup modale à la fois.
+        if (p.hasAttribute('data-modal') && document.querySelector('.gp-popup.is-open[data-modal]')) return;
+        lastFocus = document.activeElement;
+        p.hidden = false;
+        if (p.hasAttribute('data-modal')) document.documentElement.classList.add('gp-popup-lock');
+        requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('is-open')));
+        const box = p.querySelector('.gp-popup-box');
+        (p.querySelector('[data-popup-close]') ?? box)?.focus({ preventScroll: true });
+        remember(p);
+    };
+    const close = (p) => {
+        if (p.hidden) return;
+        p.classList.remove('is-open');
+        const done = () => {
+            p.hidden = true;
+            if (!document.querySelector('.gp-popup.is-open[data-modal]')) document.documentElement.classList.remove('gp-popup-lock');
+            if (lastFocus?.focus) lastFocus.focus({ preventScroll: true });
+        };
+        if (reduceMotion) done(); else setTimeout(done, 300);
+    };
+
+    popups.forEach((p) => {
+        p.querySelector('[data-popup-close]')?.addEventListener('click', () => close(p));
+        if (p.hasAttribute('data-close-outside')) p.querySelector('.gp-popup-overlay')?.addEventListener('click', () => close(p));
+        p.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.stopPropagation(); close(p); return; }
+            // Le focus reste dans une popup modale.
+            if (e.key === 'Tab' && p.hasAttribute('data-modal')) {
+                const items = focusable(p);
+                if (!items.length) return;
+                const [first, last] = [items[0], items[items.length - 1]];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+        // Un lien « #fermer » (ou « #close ») dans la popup la ferme.
+        p.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href="#fermer"], a[href="#close"]');
+            if (link) { e.preventDefault(); close(p); }
+        });
+
+        const trigger = p.hasAttribute('data-preview') ? 'load' : p.dataset.trigger;
+        if (trigger === 'load') open(p);
+        else if (trigger === 'delay') setTimeout(() => open(p), Number(p.dataset.delay || 0) * 1000);
+        else if (trigger === 'scroll') {
+            const onScroll = () => {
+                const max = document.documentElement.scrollHeight - window.innerHeight;
+                if (max <= 0 || (window.scrollY / max) * 100 >= Number(p.dataset.scroll || 50)) {
+                    window.removeEventListener('scroll', onScroll);
+                    open(p);
+                }
+            };
+            window.addEventListener('scroll', onScroll, { passive: true });
+        } else if (trigger === 'exit') {
+            if (isMobile()) setTimeout(() => open(p), 20000);
+            else {
+                const onLeave = (e) => { if (e.clientY <= 0 && !e.relatedTarget) { document.removeEventListener('mouseout', onLeave); open(p); } };
+                setTimeout(() => document.addEventListener('mouseout', onLeave), 3000);
+            }
+        }
+    });
+
+    // Lien « #popup-{id} » n'importe où dans la page : ouvre la popup (quelle que soit la fréquence).
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href^="#popup-"]');
+        const p = link && document.getElementById(link.getAttribute('href').slice(1));
+        if (p?.hasAttribute('data-popup')) { e.preventDefault(); open(p, true); }
+    });
+}

@@ -10,7 +10,10 @@ use Illuminate\Support\Str;
 
 class MediaController extends Controller
 {
-    private const MIMES = 'jpg,jpeg,png,gif,webp,svg,pdf';
+    private const MIMES = 'jpg,jpeg,png,gif,webp,svg,pdf,mp4,webm';
+
+    /** Vidéos (fonds vidéo des conteneurs) : jusqu'à 30 Mo ; images et documents : 10 Mo. */
+    private const VIDEOS = ['mp4', 'webm'];
 
     public function index(Request $request)
     {
@@ -26,13 +29,14 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:10240', 'mimes:'.self::MIMES],
+            'file' => ['required', 'file', 'max:30720', 'mimes:'.self::MIMES],
             'alt' => ['nullable', 'string', 'max:300'],
         ]);
 
         $file = $request->file('file');
         $ext = strtolower($file->guessExtension() ?: $file->getClientOriginalExtension());
         abort_unless(in_array($ext, explode(',', self::MIMES), true), 422, __('Type de fichier non autorisé.'));
+        abort_if(! in_array($ext, self::VIDEOS, true) && $file->getSize() > 10 * 1024 * 1024, 422, __('Les images et documents sont limités à 10 Mo.'));
 
         // Les SVG peuvent contenir du JavaScript : on refuse ceux qui en contiennent.
         if ($ext === 'svg' && preg_match('/<script|on\w+\s*=|javascript:/i', (string) file_get_contents($file->getRealPath()))) {

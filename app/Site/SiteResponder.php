@@ -37,6 +37,8 @@ final class SiteResponder
             'rendered' => $main,
             'themeHeader' => $parts['header'],
             'themeFooter' => $parts['footer'],
+            // Popups du thème (App\Site\Popups) : rendues ici, ouvertes par le script du site.
+            'themePopups' => Popups::forSite($site, $this->layouts, $this->renderer),
             'settings' => Setting::publicValues(),
             'preview' => $site->preview,
         ];

@@ -102,6 +102,22 @@ class Schema
         'gap' => 'int:0:400@r',
         'overlay_color' => 'color',
         'overlay_opacity' => 'int:0:100',
+        // Fond vidéo (MP4/WebM, sans son, en boucle) : l'image de fond sert d'affiche et le remplace sur mobile.
+        'background_video' => 'url',
+        'background_video_mobile' => 'bool',
+        // Séparateurs de formes (App\Builder\Shapes), en haut et en bas.
+        'shape_top' => 'enum:tilt,triangle,triangle-asym,curve,curve-asym,arrow,split,wave,waves,zigzag,mountains',
+        'shape_top_color' => 'color',
+        'shape_top_height' => 'int:10:600@r',
+        'shape_top_width' => 'int:100:300',
+        'shape_top_flip' => 'bool',
+        'shape_top_front' => 'bool',
+        'shape_bottom' => 'enum:tilt,triangle,triangle-asym,curve,curve-asym,arrow,split,wave,waves,zigzag,mountains',
+        'shape_bottom_color' => 'color',
+        'shape_bottom_height' => 'int:10:600@r',
+        'shape_bottom_width' => 'int:100:300',
+        'shape_bottom_flip' => 'bool',
+        'shape_bottom_front' => 'bool',
     ];
 
     /** Typographie, à ajouter aux règles des widgets qui affichent du texte. */

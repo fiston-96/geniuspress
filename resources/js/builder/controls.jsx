@@ -5,6 +5,14 @@ import { t } from './i18n';
 import { useStore } from './store';
 import { ICONS, Icon, brandTitle } from './icons';
 import { cleanCustomCss } from './style';
+import { UiIcon } from './ui';
+import SHAPES from '../../builder/shapes.json';
+
+/** Noms des séparateurs de formes (resources/builder/shapes.json). */
+const SHAPE_LABELS = {
+    tilt: t('Pente'), triangle: t('Triangle'), 'triangle-asym': t('Triangle décalé'), curve: t('Courbe'), 'curve-asym': t('Courbe décalée'),
+    arrow: t('Flèche'), split: t('Fente'), wave: t('Vague'), waves: t('Vagues superposées'), zigzag: t('Zigzag'), mountains: t('Montagnes'),
+};
 
 const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20';
 
@@ -47,6 +55,27 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                 <div>
                     {label()}
                     <textarea className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
+                </div>
+            );
+        case 'shape':
+            // Séparateurs de formes : vignettes cliquables (forme dessinée telle qu'elle apparaîtra).
+            return (
+                <div>
+                    {label({ hasValue: has, onReset: reset })}
+                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label={control.label}>
+                        <button type="button" role="radio" aria-checked={!has} title={t('Aucune')} aria-label={t('Aucune')} onClick={reset}
+                            className={`grid h-10 place-items-center rounded-md border text-slate-400 ${!has ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 hover:border-brand-300'}`}>
+                            <UiIcon name="x" className="h-4 w-4" />
+                        </button>
+                        {Object.entries(SHAPES).map(([name, paths]) => (
+                            <button key={name} type="button" role="radio" aria-checked={value === name} title={SHAPE_LABELS[name] ?? name} aria-label={SHAPE_LABELS[name] ?? name} onClick={() => set(name)}
+                                className={`h-10 overflow-hidden rounded-md border bg-white p-1 ${value === name ? 'border-brand-500 text-brand-600 ring-2 ring-brand-500/20' : 'border-slate-200 text-slate-400 hover:border-brand-300 hover:text-slate-600'}`}>
+                                <svg viewBox="0 0 1000 100" preserveAspectRatio="none" className="h-full w-full" fill="currentColor" aria-hidden="true">
+                                    {paths.map((p, i) => <path key={i} d={p.d} opacity={p.opacity} />)}
+                                </svg>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             );
         case 'code': {
@@ -132,6 +161,7 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                 </label>
             );
         case 'image':
+        case 'video':
             return <ImageControl control={control} value={value} onChange={onChange} urls={urls} />;
         case 'richtext':
             return <RichText label={control.label} value={value ?? ''} onChange={set} />;
@@ -475,15 +505,17 @@ function ImageControl({ control, value, onChange, urls }) {
     // Numéro du média : « media_id » pour l'image principale, ou une clé propre (« before_media_id »…).
     const mediaKey = control.mediaKey ?? (control.key === 'url' ? 'media_id' : null);
     const setMedia = (id) => { if (mediaKey) onChange(mediaKey, id); };
+    const video = control.type === 'video';
     return (
         <div>
             <Label hasValue={!!value} onReset={() => { onChange(control.key, null); setMedia(null); }}>{control.label}</Label>
             <button onClick={() => setOpen(true)} className="grid aspect-video w-full place-items-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500 hover:border-brand-400">
-                {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : t('Choisir une image')}
+                {value ? (video ? <video src={value} muted autoPlay loop playsInline className="h-full w-full object-cover" /> : <img src={value} alt="" className="h-full w-full object-cover" />)
+                    : video ? t('Choisir une vidéo') : t('Choisir une image')}
             </button>
-            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); setMedia(null); }} />
+            <input className={`${inputCls} mt-1.5`} value={value ?? ''} placeholder={video ? t('ou collez l’adresse d’une vidéo MP4') : t('ou collez l’adresse d’une image')} onChange={(e) => { onChange(control.key, e.target.value); setMedia(null); }} />
             {open && (
-                <MediaPicker urls={urls} onClose={() => setOpen(false)} onPick={(m) => {
+                <MediaPicker urls={urls} kind={video ? 'video' : 'image'} onClose={() => setOpen(false)} onPick={(m) => {
                     onChange(control.key, m.url);
                     setMedia(m.id);
                     if (control.key === 'url' && m.alt) onChange('alt', m.alt);

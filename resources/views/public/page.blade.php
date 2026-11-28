@@ -12,7 +12,8 @@
     // Gabarits du thème (en-tête, pied de page) : leur CSS et leurs polices s'ajoutent à ceux du contenu.
     $themeHeader ??= null;
     $themeFooter ??= null;
-    $fonts = array_values(array_unique(array_merge($rendered['fonts'] ?? [], $themeHeader['fonts'] ?? [], $themeFooter['fonts'] ?? [])));
+    $themePopups ??= [];
+    $fonts = array_values(array_unique(array_merge($rendered['fonts'] ?? [], $themeHeader['fonts'] ?? [], $themeFooter['fonts'] ?? [], ...array_column($themePopups, 'fonts'))));
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $site->locale }}" @if($site->locale === 'ar') dir="rtl" @endif>
@@ -48,6 +49,8 @@
         {!! $themeHeader['css'] ?? '' !!}
         {!! $rendered['css'] !!}
         {!! $themeFooter['css'] ?? '' !!}
+        @foreach ($themePopups as $popup){!! $popup['css'] !!}
+        @endforeach
     </style>
     @foreach ($plugins->assets('site_css') as $href)<link rel="stylesheet" href="{{ $href }}">@endforeach
     {{-- Les plugins peuvent ajouter du HTML dans <head> (balises meta, statistiques…). --}}
@@ -68,6 +71,7 @@
     @elseif ($nav['footer']['enabled'])
         @include('public.partials.footer')
     @endif
+    @include('public.partials.popups', ['popups' => $themePopups])
     @foreach ($plugins->assets('site_js') as $src)<script src="{{ $src }}" defer></script>@endforeach
     {!! \App\Plugins\Hooks::filter('page.body_end', '', $page, $site) !!}
 </body>

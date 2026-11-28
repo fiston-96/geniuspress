@@ -194,6 +194,21 @@ class ElementStyle
         if (isset($s['overlay_color'])) {
             $ctx->rule($id, ['background' => $s['overlay_color'], 'opacity' => (string) (($s['overlay_opacity'] ?? 50) / 100)], false, ' > .gp-overlay');
         }
+
+        // Séparateurs de formes : couleur, hauteur (par appareil), largeur, miroir, devant le contenu.
+        foreach (['top', 'bottom'] as $side) {
+            $k = 'shape_'.$side;
+            if (! isset($s[$k])) {
+                continue;
+            }
+            $sel = " > .gp-shape--{$side}";
+            $ctx->rule($id, ['color' => $s[$k.'_color'] ?? null, 'z-index' => ! empty($s[$k.'_front']) ? '2' : null], false, $sel);
+            $ctx->rule($id, [
+                'width' => isset($s[$k.'_width']) ? "calc({$s[$k.'_width']}% + 1.3px)" : null,
+                'transform' => ! empty($s[$k.'_flip']) ? 'translateX(-50%) rotateY(180deg)' : null,
+            ], false, $sel.' svg');
+            $ctx->responsive($id, $s, $k.'_height', fn ($v) => ['height' => $v.'px'], $sel.' svg');
+        }
     }
 
     /**

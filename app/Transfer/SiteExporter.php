@@ -85,7 +85,7 @@ class SiteExporter
         ])->all()));
 
         $zip->addFromString('layouts.json', $json(Layout::query()->orderBy('id')->get()->map(fn (Layout $l) => $l->only([
-            'id', 'name', 'type', 'locale', 'status', 'conditions', 'priority', 'content', 'draft_content',
+            'id', 'name', 'type', 'locale', 'status', 'conditions', 'options', 'priority', 'content', 'draft_content',
         ]))->all()));
 
         $media = [];

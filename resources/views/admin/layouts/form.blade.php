@@ -32,6 +32,87 @@
             <x-field name="priority" type="number" :label="__('Priorité')" :value="$layout->priority" :hint="__('La plus haute l’emporte.')" />
         </div>
 
+        @if ($popup)
+            @php
+                $opt = fn ($key) => old('options.'.$key, $popup[$key]);
+                $select = 'block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm';
+            @endphp
+            <fieldset class="space-y-5 border-t border-slate-100 pt-5">
+                <legend class="text-sm font-semibold text-slate-900">{{ __('Ouverture de la popup') }}</legend>
+                <div class="grid gap-5 sm:grid-cols-3">
+                    <div>
+                        <label for="opt-trigger" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Déclencheur') }}</label>
+                        <select id="opt-trigger" name="options[trigger]" class="{{ $select }}">
+                            @foreach (['load' => __('Au chargement de la page'), 'delay' => __('Après un délai'), 'scroll' => __('Après un défilement'), 'exit' => __('Quand le visiteur s’apprête à partir'), 'click' => __('Au clic sur un lien seulement')] as $v => $l)
+                                <option value="{{ $v }}" @selected($opt('trigger') === $v)>{{ $l }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <x-field name="options[delay]" type="number" :label="__('Délai (secondes)')" :value="$opt('delay')" min="0" max="300" />
+                    <x-field name="options[scroll]" type="number" :label="__('Défilement (% de la page)')" :value="$opt('scroll')" min="5" max="100" />
+                </div>
+                <div class="grid gap-5 sm:grid-cols-3">
+                    <div>
+                        <label for="opt-frequency" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Fréquence pour un même visiteur') }}</label>
+                        <select id="opt-frequency" name="options[frequency]" class="{{ $select }}">
+                            @foreach (['always' => __('À chaque page vue'), 'session' => __('Une fois par visite'), 'days' => __('Tous les N jours'), 'once' => __('Une seule fois')] as $v => $l)
+                                <option value="{{ $v }}" @selected($opt('frequency') === $v)>{{ $l }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <x-field name="options[days]" type="number" :label="__('Nombre de jours')" :value="$opt('days')" min="1" max="365" />
+                    <div>
+                        <label for="opt-devices" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Appareils') }}</label>
+                        <select id="opt-devices" name="options[devices]" class="{{ $select }}">
+                            @foreach (['all' => __('Tous'), 'desktop' => __('Ordinateur et tablette'), 'mobile' => __('Mobile seulement')] as $v => $l)
+                                <option value="{{ $v }}" @selected($opt('devices') === $v)>{{ $l }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <p class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                    {!! __('Pour l’ouvrir depuis un bouton ou un lien, utilisez l’adresse :anchor. Un lien :close dans la popup la ferme.', ['anchor' => '<code class="font-mono text-brand-700">#popup-'.$layout->id.'</code>', 'close' => '<code class="font-mono text-brand-700">#fermer</code>']) !!}
+                </p>
+            </fieldset>
+
+            <fieldset class="space-y-5 border-t border-slate-100 pt-5">
+                <legend class="text-sm font-semibold text-slate-900">{{ __('Apparence de la popup') }}</legend>
+                <div class="grid gap-5 sm:grid-cols-3">
+                    <div>
+                        <label for="opt-position" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Position') }}</label>
+                        <select id="opt-position" name="options[position]" class="{{ $select }}">
+                            @foreach (['center' => __('Au centre'), 'top' => __('En haut'), 'bottom' => __('En bas'), 'bottom-left' => __('En bas à gauche'), 'bottom-right' => __('En bas à droite'), 'left' => __('Panneau à gauche'), 'right' => __('Panneau à droite')] as $v => $l)
+                                <option value="{{ $v }}" @selected($opt('position') === $v)>{{ $l }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="opt-animation" class="mb-1.5 block text-sm font-medium text-slate-700">{{ __('Animation') }}</label>
+                        <select id="opt-animation" name="options[animation]" class="{{ $select }}">
+                            @foreach (['fade' => __('Fondu'), 'zoom' => __('Zoom'), 'slide-up' => __('Glisse vers le haut'), 'slide-down' => __('Glisse vers le bas'), 'slide-left' => __('Glisse vers la gauche'), 'slide-right' => __('Glisse vers la droite')] as $v => $l)
+                                <option value="{{ $v }}" @selected($opt('animation') === $v)>{{ $l }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <x-field name="options[width]" type="number" :label="__('Largeur (px)')" :value="$opt('width')" min="260" max="1400" />
+                </div>
+                <div class="grid gap-5 sm:grid-cols-3">
+                    <x-field name="options[radius]" type="number" :label="__('Arrondi des coins (px)')" :value="$opt('radius')" min="0" max="60" />
+                    <x-field name="options[background]" :label="__('Couleur de fond')" :value="$opt('background')" />
+                    <x-field name="options[overlay_color]" :label="__('Couleur du voile')" :value="$opt('overlay_color')" />
+                </div>
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-700">
+                    @foreach (['overlay' => __('Voile derrière la popup'), 'close_outside' => __('Fermer en cliquant sur le voile'), 'close_button' => __('Bouton de fermeture')] as $key => $l)
+                        <label class="inline-flex items-center gap-2">
+                            <input type="hidden" name="options[{{ $key }}]" value="0">
+                            <input type="checkbox" name="options[{{ $key }}]" value="1" @checked($opt($key)) class="rounded border-slate-300 text-brand-600">
+                            {{ $l }}
+                        </label>
+                    @endforeach
+                </div>
+            </fieldset>
+        @endif
+
         <fieldset>
             <legend class="text-sm font-semibold text-slate-900">{{ __('Conditions d’affichage') }}</legend>
             <p class="mt-1 text-xs text-slate-500">{{ __('Le gabarit s’affiche là où au moins une règle « Afficher sur » correspond, sauf là où une règle « Sauf sur » correspond.') }}</p>

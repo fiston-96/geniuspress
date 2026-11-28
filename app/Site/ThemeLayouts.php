@@ -75,6 +75,39 @@ final class ThemeLayouts
         return $best;
     }
 
+    /**
+     * Tous les gabarits actifs d'un type qui s'appliquent (popups : plusieurs à la fois),
+     * du plus prioritaire au moins prioritaire. Un gabarit imposé (aperçu) en fait partie.
+     *
+     * @return list<Layout>
+     */
+    public function all(string $type, SiteContext $site, int $limit = 5): array
+    {
+        $found = [];
+        foreach ($this->active($type) as $layout) {
+            if ($this->forced?->is($layout) || ($layout->locale && $layout->locale !== $site->locale)) {
+                continue;
+            }
+            $score = $this->match((array) $layout->conditions, $site);
+            if ($score !== null) {
+                $found[] = [[$layout->priority, $score, $layout->id], $layout];
+            }
+        }
+        usort($found, fn ($a, $b) => $b[0] <=> $a[0]);
+        $list = array_column($found, 1);
+        if ($this->forced?->type === $type) {
+            array_unshift($list, $this->forced);
+        }
+
+        return array_slice($list, 0, $limit);
+    }
+
+    /** Gabarit imposé pour l'aperçu dans le builder. */
+    public function isForced(Layout $layout): bool
+    {
+        return $this->forced !== null && $this->forced === $layout;
+    }
+
     private function active(string $type): Collection
     {
         return $this->cache[$type] ??= Layout::query()->where('type', $type)->where('status', Layout::STATUS_PUBLISHED)->get();

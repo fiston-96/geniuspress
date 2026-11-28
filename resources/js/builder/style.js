@@ -28,6 +28,9 @@ export const STYLE_KEYS = {
 export const CONTAINER_KEYS = {
     tag: '', content_width: '', max_width: 'r', direction: 'r', wrap: 'r', justify: 'r', align: 'r', gap: 'r',
     overlay_color: '', overlay_opacity: '',
+    background_video: '', background_video_mobile: '',
+    shape_top: '', shape_top_color: '', shape_top_height: 'r', shape_top_width: '', shape_top_flip: '', shape_top_front: '',
+    shape_bottom: '', shape_bottom_color: '', shape_bottom_height: 'r', shape_bottom_width: '', shape_bottom_flip: '', shape_bottom_front: '',
 };
 
 /** Toutes les clés d'un ensemble de réglages, suffixes compris. */
@@ -392,6 +395,19 @@ export function containerLayout(sheet, node, depth) {
     }
     if (s.overlay_color) {
         sheet.rule(node.id, { background: s.overlay_color, opacity: String((s.overlay_opacity ?? 50) / 100) }, 'desktop', ' > .gp-overlay');
+    }
+
+    // Séparateurs de formes : couleur, hauteur (par appareil), largeur, miroir, devant le contenu.
+    for (const side of ['top', 'bottom']) {
+        const k = `shape_${side}`;
+        if (empty(s[k])) continue;
+        const sel = ` > .gp-shape--${side}`;
+        sheet.rule(node.id, { color: s[`${k}_color`] || null, 'z-index': s[`${k}_front`] ? '2' : null }, 'desktop', sel);
+        sheet.rule(node.id, {
+            width: empty(s[`${k}_width`]) ? null : `calc(${s[`${k}_width`]}% + 1.3px)`,
+            transform: s[`${k}_flip`] ? 'translateX(-50%) rotateY(180deg)' : null,
+        }, 'desktop', `${sel} svg`);
+        sheet.responsive(node.id, s, `${k}_height`, (v) => ({ height: `${v}px` }), `${sel} svg`);
     }
 }
 
