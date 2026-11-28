@@ -19,7 +19,7 @@ class Layout extends Model
 {
     use HasBuilderContent, SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
-    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found', 'popup', 'mega'];
+    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found', 'popup', 'mega', 'block'];
 
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';
@@ -43,6 +43,9 @@ class Layout extends Model
         });
     }
 
+    /** Gabarits affichés par un widget (méga-menu, section globale) : sans conditions d'affichage propres. */
+    public const EMBEDDED = ['mega', 'block'];
+
     public function isPublished(): bool
     {
         return $this->status === self::STATUS_PUBLISHED;
@@ -60,6 +63,7 @@ class Layout extends Model
             'not_found' => __('Page introuvable (404)'),
             'popup' => __('Popup'),
             'mega' => __('Panneau de méga-menu'),
+            'block' => __('Section globale'),
         ];
     }
 }

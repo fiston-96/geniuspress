@@ -116,7 +116,8 @@ class DesignTokens
             }
         }
 
-        return ':root{'.implode(';', array_map(fn ($k, $v) => "{$k}:{$v}", array_keys($vars), $vars)).'}';
+        // Styles globaux (titres, texte, liens, boutons) : après les variables, avant le contenu.
+        return ':root{'.implode(';', array_map(fn ($k, $v) => "{$k}:{$v}", array_keys($vars), $vars)).'}'.GlobalStyles::css($settings);
     }
 
     /** Adresse de la feuille de polices (police du texte, des titres et polices utilisées par les éléments). */

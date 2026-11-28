@@ -143,8 +143,8 @@ class LayoutController extends Controller
         };
         $site->postsUsing($posts);
 
-        // Panneau de méga-menu : affiché seul, comme contenu de la page d'aperçu.
-        if ($layout->type === 'mega') {
+        // Panneau de méga-menu, section globale : affichés seuls, comme contenu de la page d'aperçu.
+        if (in_array($layout->type, Layout::EMBEDDED, true)) {
             return response()->view('public.page', ['rendered' => app(\App\Builder\Renderer::class)->render($content, null, $site)] + $responder->viewData($site));
         }
 

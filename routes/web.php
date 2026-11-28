@@ -84,6 +84,14 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/builder/blocks', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'index'])->name('builder.blocks.index');
     Route::post('/builder/blocks', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'store'])->middleware('throttle:30,1')->name('builder.blocks.store');
     Route::delete('/builder/blocks/{block}', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'destroy'])->name('builder.blocks.destroy');
+    // Builder : sections globales (gabarits « block »), créées par les administrateurs.
+    Route::post('/builder/globals', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'storeGlobal'])->middleware(['can:admin', 'throttle:30,1'])->name('builder.globals.store');
+    Route::get('/builder/globals/{layout}', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'renderGlobal'])->name('builder.globals.render');
+    // Builder : bibliothèque de sections prêtes à l'emploi.
+    Route::get('/builder/sections', [\App\Http\Controllers\Admin\SectionLibraryController::class, 'index'])->name('builder.sections.index');
+    Route::get('/builder/sections/photo/{slot}', [\App\Http\Controllers\Admin\SectionLibraryController::class, 'photo'])->name('builder.sections.photo');
+    Route::get('/builder/sections/{section}/preview', [\App\Http\Controllers\Admin\SectionLibraryController::class, 'preview'])->where('section', '[a-z0-9-]{3,120}')->name('builder.sections.preview');
+    Route::post('/builder/sections/{section}', [\App\Http\Controllers\Admin\SectionLibraryController::class, 'insert'])->where('section', '[a-z0-9-]{3,120}')->middleware('throttle:60,1')->name('builder.sections.insert');
 
     // Articles, catégories et étiquettes
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');

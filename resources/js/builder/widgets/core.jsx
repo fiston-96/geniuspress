@@ -12,7 +12,7 @@ import { PRO_IMPL } from './pro-preview';
 import { PRO2_WIDGETS } from './pro2';
 import { PRO2_IMPL } from './pro2-preview';
 import { t } from '../i18n';
-import { STUDIO_THEME_WIDGETS, STUDIO_WIDGETS } from './studio';
+import { STUDIO_HIDDEN_WIDGETS, STUDIO_THEME_WIDGETS, STUDIO_WIDGETS } from './studio';
 import { STUDIO_IMPL } from './studio-preview';
 
 export function embedUrl(url = '') {
@@ -153,6 +153,9 @@ export function registerCoreWidgets() {
     // Widgets dynamiques (articles, archives, en-tête) : un groupe à part dans la palette.
     for (const [type, def] of Object.entries(THEME_WIDGETS)) {
         registerWidget(type, { ...def, ...THEME_IMPL[type], group: THEME_GROUP });
+    }
+    for (const [type, def] of Object.entries(STUDIO_HIDDEN_WIDGETS)) {
+        registerWidget(type, { ...def, ...STUDIO_IMPL[type] });
     }
     for (const [type, def] of Object.entries(STUDIO_THEME_WIDGETS)) {
         registerWidget(type, { ...def, ...STUDIO_IMPL[type], group: THEME_GROUP });

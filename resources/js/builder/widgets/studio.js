@@ -57,6 +57,19 @@ export const STUDIO_WIDGETS = {
     },
 };
 
+/** Section globale : insérée depuis l'onglet « Mes blocs », absente de la palette. */
+export const STUDIO_HIDDEN_WIDGETS = {
+    'global-block': {
+        label: t('Section globale'),
+        icon: 'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M3 21v-5h5',
+        hidden: true,
+        controls: [
+            { key: 'global_help', type: 'heading', label: t('Cette section est partagée : modifiez-la une fois, toutes les pages qui l’utilisent suivent.'), tab: 'content' },
+            { key: 'layout', label: t('Modifier la section globale'), type: 'global-edit' },
+        ],
+    },
+};
+
 export const STUDIO_THEME_WIDGETS = {
     'mega-menu': {
         label: t('Méga-menu'),

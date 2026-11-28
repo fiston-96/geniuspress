@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cleanHtml } from './html';
 import MediaPicker from './MediaPicker';
 import { t } from './i18n';
-import { useStore } from './store';
+import { getState, useStore } from './store';
 import { ICONS, Icon, brandTitle } from './icons';
 import { cleanCustomCss } from './style';
 import { IconButton, UiIcon } from './ui';
@@ -70,6 +70,17 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                     <textarea ref={field} className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
                 </div>
             );
+        case 'global-edit': {
+            // Lien vers le builder de la section globale (nouvel onglet), pour les administrateurs.
+            const url = getState().urls.layoutBuilder;
+            if (!url || !value) return null;
+            return (
+                <a href={url.replace('__ID__', value)} target="_blank" rel="noopener"
+                    className="flex items-center justify-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-medium text-violet-800 hover:bg-violet-100">
+                    <UiIcon name="pencil" className="h-4 w-4" />{control.label}
+                </a>
+            );
+        }
         case 'shape':
             // Séparateurs de formes : vignettes cliquables (forme dessinée telle qu'elle apparaîtra).
             return (

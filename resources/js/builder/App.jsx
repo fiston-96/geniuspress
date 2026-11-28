@@ -7,6 +7,7 @@ import { getState, redo, setState, toast, undo, useStore } from './store';
 import { copyEl, duplicateEl, pasteAfter, pasteStyle, removeEl, togglePanel } from './actions';
 import { t } from './i18n';
 import { IconButton, UiIcon } from './ui';
+import SectionLibrary, { openLibrary } from './SectionLibrary';
 
 // L'ordinateur commence à 1025 px (tablette : 768 à 1024 px, mobile : 767 px et moins).
 const DESKTOP_MIN = 1025;
@@ -151,6 +152,8 @@ export default function App({ boot }) {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-1">
+                    <IconButton icon="layout-template" label={t('Bibliothèque de sections')} onClick={openLibrary} className={tool} />
+                    <span className="mx-1 hidden h-6 w-px bg-slate-200 lg:block" aria-hidden="true" />
                     <IconButton icon="undo-2" label={t('Annuler')} shortcut="Ctrl+Z" disabled={!canUndo} onClick={undo} className={tool} />
                     <IconButton icon="redo-2" label={t('Rétablir')} shortcut="Ctrl+Y" disabled={!canRedo} onClick={redo} className={tool} />
                     <Shortcuts />
@@ -176,6 +179,7 @@ export default function App({ boot }) {
                 <Stage device={current} boot={boot} onKey={onKey} />
             </div>
 
+            <SectionLibrary locale={boot.page.locale} />
             {toastMsg && (
                 <div className={`fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg ${toastMsg.type === 'error' ? 'bg-red-600' : toastMsg.type === 'success' ? 'bg-emerald-600' : 'bg-slate-800'}`}>
                     {toastMsg.message}

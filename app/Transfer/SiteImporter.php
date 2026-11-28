@@ -235,6 +235,10 @@ class SiteImporter
         if (is_array($settings['custom_colors'] ?? null)) {
             $values['custom_colors'] = \App\Builder\DesignTokens::customColors($settings['custom_colors']);
         }
+        // Styles globaux (titres, liens, boutons) : seulement les valeurs connues et valides.
+        if (is_array($settings['typography'] ?? null)) {
+            $values['typography'] = \App\Builder\GlobalStyles::sanitize($settings['typography']);
+        }
         if (is_string($settings['logo_url'] ?? null) && preg_match('#^(https?://|/(?!/))#', $settings['logo_url'])) {
             $values['logo_url'] = Str::limit($settings['logo_url'], 2000, '');
         }

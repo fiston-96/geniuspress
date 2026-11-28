@@ -73,6 +73,67 @@
             </div>
         </section>
 
+        @php
+            // Styles globaux (App\Builder\GlobalStyles) : vides = styles par défaut du site.
+            $typo = \App\Builder\GlobalStyles::sanitize($settings['typography'] ?? []);
+            $tv = fn (string $group, string $key) => old("typography.{$group}.{$key}", $typo[$group][$key] ?? null);
+            $in = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm';
+            $weights = ['' => '—', '300' => __('Léger'), '400' => __('Normal'), '500' => __('Moyen'), '600' => __('Demi-gras'), '700' => __('Gras'), '800' => __('Très gras'), '900' => __('Noir')];
+            $cases = ['' => '—', 'none' => __('Normale'), 'uppercase' => __('MAJUSCULES'), 'capitalize' => __('Première Lettre')];
+        @endphp
+        <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+            <h2 class="font-semibold">{{ __('Titres, liens et boutons') }}</h2>
+            <p class="text-xs text-slate-500">{{ __('Styles appliqués à tout le site. Un élément réglé dans le builder garde ses propres réglages. Laissez vide pour le style par défaut.') }}</p>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[560px] text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr><th class="py-1.5 pr-2 font-medium"></th><th class="px-1 font-medium">{{ __('Taille (px)') }}</th><th class="px-1 font-medium">{{ __('Sur mobile (px)') }}</th><th class="px-1 font-medium">{{ __('Graisse') }}</th><th class="px-1 font-medium">{{ __('Interligne') }}</th><th class="px-1 font-medium">{{ __('Espacement (em)') }}</th><th class="px-1 font-medium">{{ __('Casse') }}</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (\App\Builder\GlobalStyles::HEADINGS as $h)
+                            <tr>
+                                <th class="py-1 pr-2"><span class="font-semibold uppercase text-slate-700">{{ $h }}</span></th>
+                                <td class="px-1"><input type="number" min="10" max="160" name="typography[{{ $h }}][size]" value="{{ $tv($h, 'size') }}" placeholder="{{ \App\Builder\GlobalStyles::PLACEHOLDERS[$h] }}" class="{{ $in }}" aria-label="{{ __('Taille de :tag (px)', ['tag' => strtoupper($h)]) }}"></td>
+                                <td class="px-1"><input type="number" min="10" max="120" name="typography[{{ $h }}][size_mobile]" value="{{ $tv($h, 'size_mobile') }}" class="{{ $in }}" aria-label="{{ __('Taille de :tag sur mobile (px)', ['tag' => strtoupper($h)]) }}"></td>
+                                <td class="px-1"><select name="typography[{{ $h }}][weight]" class="{{ $in }}" aria-label="{{ __('Graisse de :tag', ['tag' => strtoupper($h)]) }}">@foreach ($weights as $v => $l)<option value="{{ $v }}" @selected((string) $tv($h, 'weight') === (string) $v)>{{ $l }}</option>@endforeach</select></td>
+                                <td class="px-1"><input type="number" step="0.05" min="0.8" max="2.5" name="typography[{{ $h }}][line_height]" value="{{ $tv($h, 'line_height') }}" placeholder="1.15" class="{{ $in }}" aria-label="{{ __('Interligne de :tag', ['tag' => strtoupper($h)]) }}"></td>
+                                <td class="px-1"><input type="number" step="0.01" min="-0.1" max="0.5" name="typography[{{ $h }}][letter_spacing]" value="{{ $tv($h, 'letter_spacing') }}" placeholder="0" class="{{ $in }}" aria-label="{{ __('Espacement des lettres de :tag (em)', ['tag' => strtoupper($h)]) }}"></td>
+                                <td class="px-1"><select name="typography[{{ $h }}][transform]" class="{{ $in }}" aria-label="{{ __('Casse de :tag', ['tag' => strtoupper($h)]) }}">@foreach ($cases as $v => $l)<option value="{{ $v }}" @selected((string) $tv($h, 'transform') === (string) $v)>{{ $l }}</option>@endforeach</select></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="grid gap-5 border-t border-slate-100 pt-4 md:grid-cols-3">
+                <fieldset class="space-y-2">
+                    <legend class="text-sm font-semibold text-slate-800">{{ __('Texte courant') }}</legend>
+                    <label class="block text-xs text-slate-600">{{ __('Taille (px)') }}<input type="number" min="12" max="24" name="typography[body][size]" value="{{ $tv('body', 'size') }}" placeholder="16" class="mt-1 {{ $in }}"></label>
+                    <label class="block text-xs text-slate-600">{{ __('Interligne') }}<input type="number" step="0.05" min="1" max="2.5" name="typography[body][line_height]" value="{{ $tv('body', 'line_height') }}" placeholder="1.6" class="mt-1 {{ $in }}"></label>
+                </fieldset>
+                <fieldset class="space-y-2">
+                    <legend class="text-sm font-semibold text-slate-800">{{ __('Liens') }}</legend>
+                    <label class="block text-xs text-slate-600">{{ __('Couleur') }}<input name="typography[links][color]" value="{{ $tv('links', 'color') }}" placeholder="global:primary" class="mt-1 {{ $in }}"></label>
+                    <label class="block text-xs text-slate-600">{{ __('Couleur au survol') }}<input name="typography[links][hover]" value="{{ $tv('links', 'hover') }}" placeholder="#000000" class="mt-1 {{ $in }}"></label>
+                    <label class="block text-xs text-slate-600">{{ __('Soulignement') }}
+                        <select name="typography[links][underline]" class="mt-1 {{ $in }}">
+                            @foreach (['' => '—', 'always' => __('Toujours'), 'hover' => __('Au survol'), 'none' => __('Jamais')] as $v => $l)<option value="{{ $v }}" @selected((string) $tv('links', 'underline') === (string) $v)>{{ $l }}</option>@endforeach
+                        </select>
+                    </label>
+                </fieldset>
+                <fieldset class="space-y-2">
+                    <legend class="text-sm font-semibold text-slate-800">{{ __('Boutons') }}</legend>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="block text-xs text-slate-600">{{ __('Arrondi (px)') }}<input type="number" min="0" max="999" name="typography[buttons][radius]" value="{{ $tv('buttons', 'radius') }}" placeholder="8" class="mt-1 {{ $in }}"></label>
+                        <label class="block text-xs text-slate-600">{{ __('Taille du texte (px)') }}<input type="number" min="12" max="24" name="typography[buttons][size]" value="{{ $tv('buttons', 'size') }}" placeholder="16" class="mt-1 {{ $in }}"></label>
+                        <label class="block text-xs text-slate-600">{{ __('Marge verticale (px)') }}<input type="number" min="4" max="30" name="typography[buttons][padding_y]" value="{{ $tv('buttons', 'padding_y') }}" placeholder="12" class="mt-1 {{ $in }}"></label>
+                        <label class="block text-xs text-slate-600">{{ __('Marge horizontale (px)') }}<input type="number" min="8" max="60" name="typography[buttons][padding_x]" value="{{ $tv('buttons', 'padding_x') }}" placeholder="24" class="mt-1 {{ $in }}"></label>
+                        <label class="block text-xs text-slate-600">{{ __('Graisse') }}<select name="typography[buttons][weight]" class="mt-1 {{ $in }}">@foreach ($weights as $v => $l)<option value="{{ $v }}" @selected((string) $tv('buttons', 'weight') === (string) $v)>{{ $l }}</option>@endforeach</select></label>
+                        <label class="block text-xs text-slate-600">{{ __('Casse') }}<select name="typography[buttons][transform]" class="mt-1 {{ $in }}">@foreach ($cases as $v => $l)<option value="{{ $v }}" @selected((string) $tv('buttons', 'transform') === (string) $v)>{{ $l }}</option>@endforeach</select></label>
+                    </div>
+                </fieldset>
+            </div>
+        </section>
+
         <section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
             <h2 class="font-semibold">{{ __('Transition entre les pages') }}</h2>
             <p class="text-xs text-slate-500">{{ __('Quand un visiteur passe d’une page à l’autre, la nouvelle page apparaît en douceur et l’en-tête reste en place. Sans effet dans les navigateurs qui ne le permettent pas, et pour les visiteurs qui demandent moins d’animations.') }}</p>

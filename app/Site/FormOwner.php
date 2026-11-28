@@ -33,8 +33,8 @@ final class FormOwner
             $page = Page::query()->published()->find((int) $id);
             $content = $page?->content;
         } elseif ($kind === 'layout') {
-            // Gabarit actif, ou panneau de méga-menu (affiché par un widget, sans statut propre).
-            $layout = Layout::query()->where(fn ($q) => $q->where('status', Layout::STATUS_PUBLISHED)->orWhere('type', 'mega'))->find((int) $id);
+            // Gabarit actif, ou gabarit affiché par un widget (méga-menu, section globale).
+            $layout = Layout::query()->where(fn ($q) => $q->where('status', Layout::STATUS_PUBLISHED)->orWhereIn('type', Layout::EMBEDDED))->find((int) $id);
             $content = $layout?->content;
         } else {
             return null;

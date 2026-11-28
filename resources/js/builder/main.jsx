@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         siteSettings: boot.settings ?? {},
         pageTitle: boot.page.title,
         megaLayouts: boot.megaLayouts ?? [],
+        isAdmin: !!boot.isAdmin,
         status: boot.page.status,
         hasDraft: boot.page.has_draft,
         revisions: boot.revisions,

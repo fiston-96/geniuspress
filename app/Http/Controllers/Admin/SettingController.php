@@ -58,6 +58,7 @@ class SettingController extends Controller
             'remove_api_key' => ['nullable', 'boolean'],
             'gp_license_key' => ['nullable', 'string', 'max:100', 'regex:'.\App\Platform\LicenseKeys::PATTERN],
             'remove_license_key' => ['nullable', 'boolean'],
+            'typography' => ['nullable', 'array'],
         ], [
             'anthropic_api_key.regex' => __('La clé API doit commencer par « sk-ant- ».'),
             'gp_license_key.regex' => __('La clé de licence doit commencer par « gpl_ » : copiez-la telle qu’elle est affichée dans votre espace client.'),
@@ -97,6 +98,8 @@ class SettingController extends Controller
             $data[$key] ??= null;
         }
         $data['custom_colors'] = \App\Builder\DesignTokens::customColors($request->input('custom_colors', []));
+        // Styles globaux : champ absent (autre formulaire) = réglages actuels conservés.
+        $data['typography'] = $request->has('typography') ? \App\Builder\GlobalStyles::sanitize($request->input('typography')) : Setting::read('typography', []);
 
         Setting::write($data);
 

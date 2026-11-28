@@ -1,6 +1,7 @@
 // Aperçus et CSS des widgets de widgets/studio.js : miroir de FormWidget::render()
 // et MegaMenuWidget::render() (app/Builder/Widgets).
 import { t } from '../i18n';
+import { GlobalPreview } from '../globals';
 
 const lines = (text) => String(text ?? '').split(/\r\n|\r|\n/).map((l) => l.trim()).filter(Boolean);
 const ALIGN_SELF = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch' };
@@ -36,6 +37,9 @@ function Field({ f, i }) {
 }
 
 export const STUDIO_IMPL = {
+    'global-block': {
+        preview: (o) => <GlobalPreview id={o.layout} />,
+    },
     form: {
         preview: (o) => {
             const fields = o.fields ?? [];

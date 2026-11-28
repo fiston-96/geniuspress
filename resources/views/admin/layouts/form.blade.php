@@ -115,6 +115,8 @@
 
         @if ($layout->type === 'mega')
             <p class="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{{ __('Ce panneau s’affiche dans les entrées du widget « Méga-menu » qui le choisissent ; il n’a pas de conditions d’affichage.') }}</p>
+        @elseif ($layout->type === 'block')
+            <p class="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{{ __('Cette section s’affiche sur toutes les pages où elle a été insérée (onglet « Mes blocs » du builder) ; la modifier ici les met toutes à jour.') }}</p>
         @else
         <fieldset>
             <legend class="text-sm font-semibold text-slate-900">{{ __('Conditions d’affichage') }}</legend>

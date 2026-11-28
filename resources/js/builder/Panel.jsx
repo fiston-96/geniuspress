@@ -12,6 +12,7 @@ import { addStructure, addWidget, copyEl, dropAt, duplicateEl, labelOf, pasteSty
 import { locale, t } from './i18n';
 import { IconButton, PathIcon, UiIcon } from './ui';
 import Blocks, { saveAsBlock } from './Blocks';
+import { convertToGlobal } from './globals';
 
 const TABS = [
     { id: 'content', label: t('Contenu'), icon: 'pencil' },
@@ -87,7 +88,7 @@ function Elements() {
         const haystack = fold([def.label, def.type, def.group, ...(def.keywords ?? [])].join(' '));
         return words.every((w) => haystack.includes(w));
     };
-    const defs = allWidgets().filter((def) => !words.length || matches(def));
+    const defs = allWidgets().filter((def) => !def.hidden && (!words.length || matches(def)));
     const groups = Object.entries(defs.reduce((acc, def) => {
         // Groupes de la palette : widgets de contenu, puis widgets dynamiques du site.
         (acc[def.group ?? t('Widgets')] ??= []).push(def);
@@ -166,6 +167,7 @@ function Settings({ id, boot }) {
     const urls = boot.urls;
     const content = useStore((s) => s.content);
     const device = useStore((s) => s.device);
+    const isAdmin = useStore((s) => s.isAdmin);
     const [tab, setTab] = useState('content');
     const [mode, setMode] = useState('normal');
     const loc = find(content, id);
@@ -218,6 +220,7 @@ function Settings({ id, boot }) {
                         <IconButton icon="paintbrush" label={t('Coller le style')} shortcut="Ctrl+Maj+V" disabled={!hasClip} onClick={() => pasteStyle(id)} className={tool} iconClass="h-3.5 w-3.5" />
                         <IconButton icon="square-dashed" label={t('Envelopper dans un conteneur')} onClick={() => wrapEl(id)} className={tool} iconClass="h-3.5 w-3.5" />
                         <IconButton icon="bookmark-plus" label={t('Enregistrer dans Mes blocs')} onClick={() => saveAsBlock(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        {isAdmin && node.type !== 'global-block' && <IconButton icon="refresh-cw" label={t('Transformer en section globale')} onClick={() => convertToGlobal(id)} className={tool} iconClass="h-3.5 w-3.5" />}
                         <IconButton icon="copy-plus" label={t('Dupliquer')} shortcut="Ctrl+D" onClick={() => duplicateEl(id)} className={tool} iconClass="h-3.5 w-3.5" />
                         <IconButton icon="trash-2" label={t('Supprimer')} shortcut="Suppr" onClick={() => removeEl(id)} className={`${tool} hover:!bg-red-50 hover:!text-red-600`} iconClass="h-3.5 w-3.5" />
                     </div>

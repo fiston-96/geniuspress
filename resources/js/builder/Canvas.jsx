@@ -11,6 +11,8 @@ import { addStructure, copyEl, dropAt, duplicateEl, labelOf, pasteAfter, pasteSt
 import { t } from './i18n';
 import { PathIcon, UiIcon } from './ui';
 import { saveAsBlock } from './Blocks';
+import { openLibrary } from './SectionLibrary';
+import { convertToGlobal } from './globals';
 import { hasTags, resolveTags } from './dynamic-tags';
 
 const EDITOR_CSS = `
@@ -60,6 +62,8 @@ a { pointer-events: auto; }
 .gpe-menu svg { width: 15px; height: 15px; flex: none; color: #64748b; }
 .gpe-menu button:hover svg { color: inherit; }
 .gpe-menu .is-danger:hover { background: #fef2f2; color: #b91c1c; }
+.gpe-global { position: relative; outline: 1px dashed #8b5cf6; outline-offset: -1px; }
+.gpe-global__badge { position: absolute; z-index: 5; top: -9px; left: 6px; max-width: calc(100% - 12px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 7px; border-radius: 999px; background: #7c3aed; color: #fff; font: 600 10px/1.5 system-ui, sans-serif; pointer-events: none; }
 .gpe-add-btns { display: flex; justify-content: center; gap: 10px; }
 .gpe-add-btn { all: unset; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: #fff; background: #aa4d26; box-shadow: 0 4px 10px rgba(170,77,38,.25); }
 .gpe-add-btn:hover { background: #8e3f1f; }
@@ -188,6 +192,8 @@ function AddArea({ empty }) {
                     <div className="gpe-add-btns">
                         <button type="button" className="gpe-add-btn" title={t('Ajouter un conteneur')} aria-label={t('Ajouter un conteneur')}
                             onClick={(e) => { e.stopPropagation(); setOpen(true); }}><UiIcon name="plus" strokeWidth={2.2} /></button>
+                        <button type="button" className="gpe-add-btn is-alt" title={t('Bibliothèque de sections')} aria-label={t('Bibliothèque de sections')}
+                            onClick={(e) => { e.stopPropagation(); openLibrary(); }}><UiIcon name="layout-template" strokeWidth={2} /></button>
                         <button type="button" className="gpe-add-btn is-alt" title={t('Mes blocs')} aria-label={t('Mes blocs')}
                             onClick={(e) => { e.stopPropagation(); setState({ panel: 'blocks', panelOpen: true }); }}><UiIcon name="library-big" strokeWidth={2} /></button>
                     </div>
@@ -366,9 +372,11 @@ function ContextMenu({ menu }) {
             {loc && item('copy-plus', t('Dupliquer'), 'Ctrl+D', () => duplicateEl(loc.node.id))}
             {loc && item('square-dashed', t('Envelopper dans un conteneur'), null, () => wrapEl(loc.node.id))}
             {loc && item('bookmark-plus', t('Enregistrer dans Mes blocs'), null, () => saveAsBlock(loc.node.id))}
+            {loc && getState().isAdmin && loc.node.type !== 'global-block' && item('refresh-cw', t('Transformer en section globale'), null, () => convertToGlobal(loc.node.id))}
             {loc && <hr />}
             {loc && item('trash-2', t('Supprimer'), 'Suppr', () => removeEl(loc.node.id), false, true)}
             {!loc && item('plus', t('Ajouter un conteneur'), null, () => { select(null); addStructure([100]); })}
+            {!loc && item('layout-template', t('Bibliothèque de sections'), null, openLibrary)}
             {!loc && item('library-big', t('Mes blocs'), null, () => setState({ panel: 'blocks', panelOpen: true }))}
         </div>
     );

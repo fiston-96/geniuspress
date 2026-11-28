@@ -8,13 +8,14 @@ import { find, isContainer } from './tree';
 import { getWidget } from './registry';
 import { t } from './i18n';
 import { IconButton, PathIcon, UiIcon } from './ui';
+import { insertGlobal, refreshGlobals } from './globals';
 
 async function loadBlocks() {
     const { urls } = getState();
     if (!urls?.blocks) return;
     try {
-        const { blocks } = await api(urls.blocks);
-        setState({ blocks });
+        const { blocks, globals } = await api(urls.blocks);
+        setState({ blocks, globals: globals ?? [] });
     } catch (e) {
         setState({ blocks: [] });
         toast(e.message, 'error');
@@ -48,6 +49,8 @@ function countOf(node) {
 
 export default function Blocks() {
     const blocks = useStore((s) => s.blocks);
+    const globals = useStore((s) => s.globals);
+    const layoutBuilder = useStore((s) => s.urls.layoutBuilder);
     const selected = useStore((s) => s.selected);
     const [query, setQuery] = useState('');
     useEffect(() => { if (blocks === undefined || blocks === null) loadBlocks(); }, [blocks]);
@@ -66,6 +69,29 @@ export default function Blocks() {
 
     return (
         <div className="space-y-3 p-4">
+            {/* Sections globales : liées, mises à jour partout quand on les modifie. */}
+            <div className="flex items-center justify-between">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{t('Sections globales')}</h3>
+                <IconButton icon="refresh-cw" label={t('Actualiser les aperçus')} onClick={() => { refreshGlobals(); loadBlocks(); }} className="h-6 w-6 text-slate-400 hover:bg-slate-100 hover:text-slate-700" iconClass="h-3.5 w-3.5" />
+            </div>
+            {(globals ?? []).length === 0
+                ? <p className="text-xs text-slate-500">{t('Aucune section globale. Transformez un élément avec l’icône « section globale » de ses réglages : il sera partagé par toutes les pages qui l’utilisent.')}</p>
+                : (
+                    <ul className="space-y-1.5">
+                        {globals.map((g) => (
+                            <li key={g.id} className="group flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50/50 px-2.5 py-2">
+                                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-violet-100 text-violet-700"><UiIcon name="refresh-cw" /></span>
+                                <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">{g.name}</span>
+                                <IconButton icon="plus" label={t('Insérer (lié)')} onClick={() => insertGlobal(g)} className="h-7 w-7 text-slate-500 hover:bg-violet-100 hover:text-violet-800" iconClass="h-3.5 w-3.5" />
+                                {layoutBuilder && (
+                                    <a href={layoutBuilder.replace('__ID__', g.id)} target="_blank" rel="noopener" title={t('Modifier la section globale')} aria-label={t('Modifier la section globale')}
+                                        className="grid h-7 w-7 place-items-center rounded-md text-slate-500 hover:bg-violet-100 hover:text-violet-800"><UiIcon name="pencil" className="h-3.5 w-3.5" /></a>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            <h3 className="border-t border-slate-100 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{t('Mes blocs')}</h3>
             <p className="text-xs text-slate-500">{t('Enregistrez un conteneur ou un widget avec l’icône signet de ses réglages, puis glissez-le sur n’importe quelle page.')}</p>
             {(blocks?.length ?? 0) > 6 && (
                 <label className="relative block">

@@ -21,7 +21,7 @@ const UI = [
     // Actions sur un élément
     'copy', 'clipboard-paste', 'paintbrush', 'square-dashed', 'copy-plus', 'trash-2', 'bookmark-plus', 'move', 'plus', 'code',
     // Divers
-    'search', 'x', 'chevron-right', 'chevron-down', 'chevron-up', 'braces', 'bold', 'italic', 'underline', 'list', 'list-ordered', 'link', 'remove-formatting', 'archive-restore', 'mouse-pointer-2', 'square', 'grip-vertical', 'box',
+    'search', 'x', 'chevron-right', 'chevron-down', 'chevron-up', 'braces', 'bold', 'italic', 'underline', 'list', 'list-ordered', 'link', 'remove-formatting', 'layout-template', 'refresh-cw', 'unlink', 'type', 'archive-restore', 'mouse-pointer-2', 'square', 'grip-vertical', 'box',
 ];
 
 /** Contenu du SVG (formes Lucide), sans l'enveloppe ni le commentaire de licence. */
