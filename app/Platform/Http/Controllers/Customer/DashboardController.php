@@ -28,6 +28,17 @@ class DashboardController extends CustomerController
         ]);
     }
 
+    /** Mon compte : coordonnées, pays et devise, SMS, clés de licence des sites. */
+    public function account(Request $request)
+    {
+        $customer = $this->customer($request);
+
+        return view('platform.customer.account', [
+            'customer' => $customer,
+            'licenses' => $customer->licenses()->latest('id')->get(),
+        ]);
+    }
+
     /** Crédits IA : grand livre et derniers appels. */
     public function credits(Request $request)
     {

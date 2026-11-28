@@ -115,7 +115,8 @@ class MessagingTest extends PlatformTestCase
     public function test_customer_sets_phone_and_can_refuse_sms(): void
     {
         $customer = $this->customer();
-        $this->actingAs($customer, 'customer')->get(route('platform.customer.dashboard'))->assertOk()
+        // Réglages du compte (pays, téléphone, SMS) : page « Mon compte ».
+        $this->actingAs($customer, 'customer')->get(route('platform.customer.account'))->assertOk()
             ->assertSee('Recevoir par SMS les messages importants', false)->assertSee('Ajoutez votre numéro', false);
 
         $this->put(route('platform.customer.country'), ['country' => 'SN', 'phone' => '+221 77 000 00 01'])->assertSessionHas('status');

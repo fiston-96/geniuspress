@@ -22,6 +22,11 @@ const UI = [
     'copy', 'clipboard-paste', 'paintbrush', 'square-dashed', 'copy-plus', 'trash-2', 'bookmark-plus', 'move', 'plus', 'code',
     // Divers
     'search', 'x', 'chevron-right', 'chevron-down', 'chevron-up', 'braces', 'bold', 'italic', 'underline', 'list', 'list-ordered', 'link', 'remove-formatting', 'layout-template', 'refresh-cw', 'unlink', 'type', 'archive-restore', 'mouse-pointer-2', 'square', 'grip-vertical', 'box',
+    // Administration et espace client (composant Blade <x-icon>)
+    'layout-dashboard', 'file-text', 'newspaper', 'image', 'inbox', 'users', 'puzzle', 'hard-drive-download', 'globe', 'server',
+    'credit-card', 'gift', 'bell', 'log-out', 'external-link', 'menu', 'user', 'circle-help', 'receipt', 'key-round', 'shopping-bag',
+    'rocket', 'wand-sparkles', 'circle-check', 'circle', 'check', 'ellipsis', 'languages', 'house', 'layers', 'files', 'mail',
+    'chart-no-axes-column', 'arrow-right', 'at-sign', 'shield-check', 'store', 'zap', 'clock', 'pen-line',
 ];
 
 /** Contenu du SVG (formes Lucide), sans l'enveloppe ni le commentaire de licence. */

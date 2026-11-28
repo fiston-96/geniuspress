@@ -19,14 +19,20 @@ class PageController extends Controller
 
     public function index(Request $request)
     {
+        $locale = $request->string('locale')->toString();
         $pages = Page::query()->withoutContent()
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('title', 'like', "%{$term}%"))
             ->when($request->string('status')->toString(), fn ($q, $s) => $q->where('status', $s))
+            ->when($locale, fn ($q, $l) => $q->where('locale', $l))
             ->with('author:id,name')
             ->orderByDesc('is_home')->orderByDesc('updated_at')
             ->paginate(20)->withQueryString();
 
-        return view('admin.pages.index', compact('pages'));
+        // Compteurs des onglets de statut (comme WordPress), dans la langue choisie.
+        $counts = Page::query()->when($locale, fn ($q, $l) => $q->where('locale', $l))
+            ->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
+
+        return view('admin.pages.index', ['pages' => $pages, 'counts' => $counts, 'locales' => $this->locales()]);
     }
 
     public function create()

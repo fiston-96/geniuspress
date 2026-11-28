@@ -19,6 +19,15 @@
     --color-brand-700: #8e3f1f;
     --color-brand-800: #72331a;
     --color-brand-900: #5c2a16;
+
+    /* Charte (docs/marque.md) : aplats uniquement, ni dégradé ni ombre portée décorative. */
+    --color-night: #1e1b4b;      /* Nuit indigo : menus, titres, fonds sombres */
+    --color-night-soft: #2b2766; /* survol sur fond nuit */
+    --color-gold: #c9973a;       /* Or : chiffres, détails */
+    --color-gold-light: #e3c48f; /* Or clair : accents sur fond sombre */
+    --color-cream: #fbf7f0;      /* Crème : fond des espaces de travail */
+    --color-paper: #f4ede1;      /* Crème soutenue : zones secondaires */
+    --color-line: #e8dfd0;       /* Filets chauds */
 }
 
 button:not(:disabled), [role='button'] { cursor: pointer; }

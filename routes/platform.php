@@ -40,6 +40,8 @@ Route::middleware(EnsurePlatformEnabled::class)->group(function () {
             Route::name('customer.')->group(function () {
                 Route::get('/', [Customer\DashboardController::class, 'index'])->name('dashboard');
                 Route::get('/credits', [Customer\DashboardController::class, 'credits'])->name('credits');
+                Route::get('/mon-compte', [Customer\DashboardController::class, 'account'])->name('account');
+                Route::get('/commandes', [Customer\OrderController::class, 'index'])->name('orders');
                 Route::put('/pays', [Customer\DashboardController::class, 'country'])->name('country');
                 Route::put('/sms', [Customer\DashboardController::class, 'sms'])->name('sms');
                 Route::get('/affiliation', [Customer\ReferralController::class, 'index'])->name('referrals');

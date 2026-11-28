@@ -58,6 +58,7 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->middleware('au
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::put('/locale', LocaleController::class)->name('locale');
+    Route::get('/recherche', \App\Http\Controllers\Admin\SearchController::class)->name('search');
 
     // Notifications de la personne connectée (cloche).
     Route::get('/notifications', [NotificationController::class, 'index'])->defaults('audience', 'admin')->name('notifications.index');

@@ -13,6 +13,16 @@ use Illuminate\Http\Request;
 /** Commande : récapitulatif, paiement (Mobile Money ou carte) et suivi. */
 class OrderController extends CustomerController
 {
+    /** Toutes les commandes du client, de la plus récente à la plus ancienne. */
+    public function index(Request $request)
+    {
+        $customer = $this->customer($request);
+
+        return view('platform.customer.orders', [
+            'orders' => $customer->orders()->with('items')->latest('id')->paginate(20),
+        ]);
+    }
+
     public function show(Request $request, Order $order, PaymentManager $payments)
     {
         $this->own($request, $order);
