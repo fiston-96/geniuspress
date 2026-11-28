@@ -24,6 +24,9 @@ let state = {
     past: [],
     future: [],
     toast: null,
+    urls: {}, // adresses du serveur (boot.urls)
+    blocks: null, // « Mes blocs », chargés à la première ouverture de l'onglet
+    searchFocus: 0, // Ctrl+K : horodatage qui donne le focus à la recherche de widgets
 };
 
 const listeners = new Set();

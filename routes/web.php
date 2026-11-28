@@ -80,6 +80,11 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/pages/{page}/revisions/{revision}/restore', [PageController::class, 'restoreRevision'])->name('pages.revisions.restore');
     Route::delete('/pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy');
 
+    // Builder : « Mes blocs », éléments réutilisables sur toutes les pages.
+    Route::get('/builder/blocks', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'index'])->name('builder.blocks.index');
+    Route::post('/builder/blocks', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'store'])->middleware('throttle:30,1')->name('builder.blocks.store');
+    Route::delete('/builder/blocks/{block}', [\App\Http\Controllers\Admin\BuilderBlockController::class, 'destroy'])->name('builder.blocks.destroy');
+
     // Articles, catégories et étiquettes
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');

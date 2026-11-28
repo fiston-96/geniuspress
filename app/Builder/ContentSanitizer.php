@@ -161,6 +161,7 @@ class ContentSanitizer
             'shadow' => $this->shadow($v),
             'font' => in_array($v, ['global:heading', 'global:body', ...SettingController::FONTS], true) ? $v : null,
             'classes' => $this->classes($v, (int) ($args ?: 200)),
+            'css' => CustomCss::clean($v),
             'icon' => Icons::exists($v) ? $v : null,
             'datetime' => is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $v) && strtotime($v) !== false ? $v : null,
             'list' => $this->listValue($v, $args),

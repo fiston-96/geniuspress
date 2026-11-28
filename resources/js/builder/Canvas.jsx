@@ -8,6 +8,8 @@ import { getWidget } from './registry';
 import { LAYOUTS } from './widgets';
 import { addStructure, copyEl, dropAt, duplicateEl, labelOf, pasteAfter, pasteStyle, readClipboard, removeEl, select, wrapEl } from './actions';
 import { t } from './i18n';
+import { PathIcon, UiIcon } from './ui';
+import { saveAsBlock } from './Blocks';
 
 const EDITOR_CSS = `
 body { min-height: 100vh; }
@@ -51,23 +53,28 @@ a { pointer-events: auto; }
 .gpe-add h3 { font: 600 15px/1.3 system-ui, sans-serif; color: #0f172a; margin: 0 0 14px; }
 .gpe-menu { position: fixed; z-index: 80; min-width: 200px; background: #fff; border-radius: 10px; padding: 5px; box-shadow: 0 12px 32px rgba(15,23,42,.28);
   font: 13px/1.2 system-ui, sans-serif; color: #0f172a; }
-.gpe-menu button { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+.gpe-menu button { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+.gpe-menu button > span { flex: 1; }
+.gpe-menu svg { width: 15px; height: 15px; flex: none; color: #64748b; }
+.gpe-menu button:hover svg { color: inherit; }
+.gpe-menu .is-danger:hover { background: #fef2f2; color: #b91c1c; }
+.gpe-add-btns { display: flex; justify-content: center; gap: 10px; }
+.gpe-add-btn { all: unset; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: #fff; background: #aa4d26; box-shadow: 0 4px 10px rgba(170,77,38,.25); }
+.gpe-add-btn:hover { background: #8e3f1f; }
+.gpe-add-btn.is-alt { background: #1e1b4b; box-shadow: 0 4px 10px rgba(30,27,75,.25); }
+.gpe-add-btn.is-alt:hover { background: #312e81; }
+.gpe-add-btn svg { width: 20px; height: 20px; }
+.gpe-add small { display: block; margin-top: 12px; color: #94a3b8; font-size: 12px; }
 .gpe-menu button:hover { background: #fbf3ee; color: #72331a; }
 .gpe-menu button[disabled] { opacity: .4; pointer-events: none; }
 .gpe-menu kbd { color: #94a3b8; font: 11px system-ui, sans-serif; }
 .gpe-menu hr { border: 0; border-top: 1px solid #e2e8f0; margin: 4px 0; }
 `;
 
-const Icon = ({ d }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
+/** Bouton de la barre d'outils d'un élément (icône, infobulle et nom accessible). */
+const Tool = ({ icon, d, label, onClick }) => (
+    <button type="button" title={label} aria-label={label} onClick={onClick}>{d ? <PathIcon d={d} strokeWidth={2} /> : <UiIcon name={icon} strokeWidth={2} />}</button>
 );
-const I = {
-    copy: 'M9 9h11v11H9zM5 15H4V4h11v1',
-    trash: 'M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14',
-    plus: 'M12 5v14M5 12h14',
-    move: 'M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20',
-    edit: 'M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z',
-};
 
 const act = (fn) => (e) => { e.stopPropagation(); e.preventDefault(); fn(); };
 
@@ -175,7 +182,15 @@ function AddArea({ empty }) {
                     <p style={{ marginTop: 14 }}>{t('… ou glissez un élément ici depuis le panneau de gauche.')}</p>
                 </>
             ) : (
-                <>{t('＋ Ajouter un conteneur')} <br /><small>{t('ou glissez un élément ici')}</small></>
+                <>
+                    <div className="gpe-add-btns">
+                        <button type="button" className="gpe-add-btn" title={t('Ajouter un conteneur')} aria-label={t('Ajouter un conteneur')}
+                            onClick={(e) => { e.stopPropagation(); setOpen(true); }}><UiIcon name="plus" strokeWidth={2.2} /></button>
+                        <button type="button" className="gpe-add-btn is-alt" title={t('Mes blocs')} aria-label={t('Mes blocs')}
+                            onClick={(e) => { e.stopPropagation(); setState({ panel: 'blocks', panelOpen: true }); }}><UiIcon name="library-big" strokeWidth={2} /></button>
+                    </div>
+                    <small>{t('ou glissez un élément ici')}</small>
+                </>
             )}
         </div>
     );
@@ -236,11 +251,12 @@ function Container({ node, depth }) {
                         setState({ drag: { kind: 'move', id: node.id } });
                     }}
                     onDragEnd={() => setState({ drag: null, drop: null })}
-                ><Icon d={I.move} /></span>
-                <button title={t('Modifier le conteneur')} onClick={act(() => select(node.id))}><Icon d={I.edit} /> {t('Conteneur')}</button>
-                <button title={t('Ajouter un conteneur à l’intérieur')} onClick={act(() => { select(node.id); addStructure([100]); })}><Icon d={I.plus} /></button>
-                <button title={t('Dupliquer')} onClick={act(() => duplicateEl(node.id))}><Icon d={I.copy} /></button>
-                <button title={t('Supprimer')} onClick={act(() => removeEl(node.id))}><Icon d={I.trash} /></button>
+                ><UiIcon name="move" strokeWidth={2} /></span>
+                <Tool icon="square-dashed" label={t('Modifier le conteneur')} onClick={act(() => select(node.id))} />
+                <Tool icon="plus" label={t('Ajouter un conteneur à l’intérieur')} onClick={act(() => { select(node.id); addStructure([100]); })} />
+                <Tool icon="copy-plus" label={t('Dupliquer')} onClick={act(() => duplicateEl(node.id))} />
+                <Tool icon="bookmark-plus" label={t('Enregistrer dans Mes blocs')} onClick={act(() => saveAsBlock(node.id))} />
+                <Tool icon="trash-2" label={t('Supprimer')} onClick={act(() => removeEl(node.id))} />
             </div>
             {node.settings.overlay_color && <div className="gp-overlay" />}
             <div
@@ -278,9 +294,9 @@ function WidgetEl({ node }) {
             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); select(node.id); setState({ menu: { x: e.clientX, y: e.clientY, id: node.id } }); }}
         >
             <div className="gpe-toolbar">
-                <button title={label}><Icon d={I.edit} /> {label}</button>
-                <button title={t('Dupliquer')} onClick={act(() => duplicateEl(node.id))}><Icon d={I.copy} /></button>
-                <button title={t('Supprimer')} onClick={act(() => removeEl(node.id))}><Icon d={I.trash} /></button>
+                <Tool d={getWidget(node.type)?.icon ?? 'M4 4h16v16H4z'} label={t('Modifier :label', { label })} onClick={act(() => select(node.id))} />
+                <Tool icon="copy-plus" label={t('Dupliquer')} onClick={act(() => duplicateEl(node.id))} />
+                <Tool icon="trash-2" label={t('Supprimer')} onClick={act(() => removeEl(node.id))} />
             </div>
             <WidgetBody widget={node} />
         </div>
@@ -310,21 +326,26 @@ function ContextMenu({ menu }) {
     const frame = view ?? window;
     const x = Math.max(0, Math.min(menu.x, frame.innerWidth - 220));
     const y = Math.max(0, Math.min(menu.y, frame.innerHeight - 260));
-    const item = (label, kbd, fn, disabled = false) => (
-        <button disabled={disabled} onClick={act(() => { setState({ menu: null }); fn(); })}>{label}{kbd && <kbd>{kbd}</kbd>}</button>
+    const item = (icon, label, kbd, fn, disabled = false, danger = false) => (
+        <button disabled={disabled} className={danger ? 'is-danger' : undefined} onClick={act(() => { setState({ menu: null }); fn(); })}>
+            <UiIcon name={icon} /><span>{label}</span>{kbd && <kbd>{kbd}</kbd>}
+        </button>
     );
     return (
         <div ref={ref} className="gpe-menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()}>
-            {loc && item(t('Modifier :label', { label: labelOf(loc.node) }), null, () => select(loc.node.id))}
+            {loc && item('pencil', t('Modifier :label', { label: labelOf(loc.node) }), null, () => select(loc.node.id))}
             {loc && <hr />}
-            {loc && item(t('Copier'), 'Ctrl+C', () => copyEl(loc.node.id))}
-            {item(t('Coller après'), 'Ctrl+V', () => pasteAfter(loc?.node.id ?? null), !hasClip)}
-            {loc && item(t('Coller le style'), 'Ctrl+Maj+V', () => pasteStyle(loc.node.id), !hasClip)}
+            {loc && item('copy', t('Copier'), 'Ctrl+C', () => copyEl(loc.node.id))}
+            {item('clipboard-paste', t('Coller après'), 'Ctrl+V', () => pasteAfter(loc?.node.id ?? null), !hasClip)}
+            {loc && item('paintbrush', t('Coller le style'), 'Ctrl+Maj+V', () => pasteStyle(loc.node.id), !hasClip)}
             {loc && <hr />}
-            {loc && item(t('Dupliquer'), 'Ctrl+D', () => duplicateEl(loc.node.id))}
-            {loc && item(t('Envelopper dans un conteneur'), null, () => wrapEl(loc.node.id))}
-            {loc && item(t('Supprimer'), 'Suppr', () => removeEl(loc.node.id))}
-            {!loc && item(t('Ajouter un conteneur'), null, () => { select(null); addStructure([100]); })}
+            {loc && item('copy-plus', t('Dupliquer'), 'Ctrl+D', () => duplicateEl(loc.node.id))}
+            {loc && item('square-dashed', t('Envelopper dans un conteneur'), null, () => wrapEl(loc.node.id))}
+            {loc && item('bookmark-plus', t('Enregistrer dans Mes blocs'), null, () => saveAsBlock(loc.node.id))}
+            {loc && <hr />}
+            {loc && item('trash-2', t('Supprimer'), 'Suppr', () => removeEl(loc.node.id), false, true)}
+            {!loc && item('plus', t('Ajouter un conteneur'), null, () => { select(null); addStructure([100]); })}
+            {!loc && item('library-big', t('Mes blocs'), null, () => setState({ panel: 'blocks', panelOpen: true }))}
         </div>
     );
 }

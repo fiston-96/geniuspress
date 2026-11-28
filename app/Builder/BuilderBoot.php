@@ -38,6 +38,8 @@ final class BuilderBoot
             'i18n' => app('translator')->getLoader()->load(app()->getLocale(), '*', '*'),
             'urls' => $urls + [
                 'media' => route('admin.media.index'),
+                'blocks' => route('admin.builder.blocks.index'),
+                'blockDelete' => route('admin.builder.blocks.destroy', ['block' => '__ID__']),
                 'aiText' => route('admin.ai.text'),
                 'aiGenerate' => null,
                 'aiTranslate' => null,

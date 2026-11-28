@@ -61,6 +61,14 @@ class RenderContext
         $this->css[$device][] = "#gp-{$id}{$suffix}{{$body}}";
     }
 
+    /** CSS déjà limité à un élément (CSS personnalisé) : ajouté tel quel, couleurs globales comprises. */
+    public function raw(string $css): void
+    {
+        if ($css !== '') {
+            $this->css['desktop'][] = self::value($css);
+        }
+    }
+
     /**
      * Réglage réglable par appareil (« font_size », « font_size_tablet », « font_size_mobile ») :
      * $props reçoit la valeur et renvoie les propriétés CSS.

@@ -17,7 +17,7 @@ namespace App\Builder;
  * les widgets ceux de leur classe (app/Builder/Widgets).
  *
  * Règles : string:MAX | html | color | int:MIN:MAX | enum:a,b,c | url | bool |
- * slug:MAX | links:MAX | dim | spacing | shadow | font | classes:MAX
+ * slug:MAX | links:MAX | dim | spacing | shadow | font | classes:MAX | css
  *
  * Suffixes : « @r » = réglable par appareil (clé, clé_tablet, clé_mobile),
  * « @h » = réglable au survol (clé_hover), « @rh » = les deux.
@@ -86,6 +86,8 @@ class Schema
         'hide_mobile' => 'bool',
         'css_id' => 'slug:60',
         'css_classes' => 'classes:200',
+        // CSS personnalisé (« selector » = l'élément), limité à l'élément : App\Builder\CustomCss
+        'custom_css' => 'css',
     ];
 
     /** Disposition d'un conteneur (flexbox). */

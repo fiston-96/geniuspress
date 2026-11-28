@@ -158,6 +158,10 @@ class ElementStyle
                 'box-shadow' => ! empty($s['sticky_shadow']) ? '0 10px 30px -12px rgba(15,23,42,.35)' : null,
             ], false, '.is-stuck');
         }
+        // CSS personnalisé, après les réglages : il peut les compléter ou les remplacer.
+        if (isset($has['custom_css'], $s['custom_css'])) {
+            $ctx->raw(CustomCss::scope($s['custom_css'], '#gp-'.$id));
+        }
     }
 
     /** Disposition flexbox d'un conteneur (appliquée à sa boîte intérieure). */

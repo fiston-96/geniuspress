@@ -6,19 +6,32 @@ import Panel from './Panel';
 import { getState, redo, setState, toast, undo, useStore } from './store';
 import { copyEl, duplicateEl, pasteAfter, pasteStyle, removeEl, togglePanel } from './actions';
 import { t } from './i18n';
+import { IconButton, UiIcon } from './ui';
 
 // L'ordinateur commence à 1025 px (tablette : 768 à 1024 px, mobile : 767 px et moins).
 const DESKTOP_MIN = 1025;
 
 const DEVICES = [
-    { id: 'desktop', label: t('Ordinateur'), width: '100%', icon: 'M3 4h18v12H3zM8 20h8M12 16v4' },
-    { id: 'tablet', label: t('Tablette'), width: '768px', icon: 'M6 2h12v20H6zM11 18h2' },
-    { id: 'mobile', label: t('Mobile'), width: '390px', icon: 'M8 2h8v20H8zM11 18h2' },
+    { id: 'desktop', label: t('Ordinateur'), width: '100%', icon: 'monitor' },
+    { id: 'tablet', label: t('Tablette'), width: '768px', icon: 'tablet' },
+    { id: 'mobile', label: t('Mobile'), width: '390px', icon: 'smartphone' },
 ];
 
-const Svg = ({ d, className = 'h-4 w-4' }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
-);
+/** Raccourcis clavier affichés dans l'aide (icône clavier de la barre du haut). */
+const SHORTCUTS = [
+    ['Ctrl+S', t('Enregistrer')],
+    ['Ctrl+Z', t('Annuler')],
+    ['Ctrl+Y', t('Rétablir')],
+    ['Ctrl+C', t('Copier')],
+    ['Ctrl+V', t('Coller après')],
+    ['Ctrl+Maj+V', t('Coller le style')],
+    ['Ctrl+D', t('Dupliquer')],
+    ['Suppr', t('Supprimer')],
+    ['Ctrl+K', t('Rechercher un widget')],
+    ['Échap', t('Désélectionner')],
+];
+
+const tool = 'h-9 w-9 text-slate-600 hover:bg-slate-100 hover:text-slate-900';
 
 export default function App({ boot }) {
     const { urls } = boot;
@@ -71,6 +84,8 @@ export default function App({ boot }) {
         const mod = e.ctrlKey || e.metaKey;
         const typing = /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable;
         if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return; }
+        // Ctrl+K : recherche de widgets (le panneau s'ouvre sur les éléments, le champ prend le focus).
+        if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); setState({ panel: 'elements', panelOpen: true, searchFocus: Date.now() }); return; }
         if (typing) return;
         const key = e.key.toLowerCase();
         const selected = getState().selected;
@@ -101,8 +116,8 @@ export default function App({ boot }) {
 
     return (
         <div className="flex h-screen flex-col bg-slate-100 text-slate-900">
-            <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-3">
-                <div className="flex min-w-0 items-center gap-3">
+            <header className="flex h-14 shrink-0 items-center justify-between gap-4 overflow-x-auto border-b border-slate-200 bg-white px-3 [scrollbar-width:none]">
+                <div className="flex min-w-0 shrink-0 items-center gap-3 md:shrink">
                     <a href={urls.back} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg hover:bg-slate-100" title={t('Retour à l’administration')} aria-label={t('Retour à l’administration')}>
                         <svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true">
                             <rect x="5" y="25" width="25" height="33" rx="5" fill="#e3c48f" />
@@ -113,9 +128,9 @@ export default function App({ boot }) {
                             <rect x="45" y="20" width="8" height="10" rx="2" fill="#ffffff" fillOpacity="0.6" />
                         </svg>
                     </a>
-                    <div className="min-w-0">
+                    <div className="hidden min-w-0 md:block">
                         <p className="truncate text-sm font-semibold">{boot.page.title}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="truncate text-xs text-slate-500">
                             {status === 'published' ? <span className="text-emerald-600">{t('● Publiée')}</span> : <span className="text-amber-600">{t('● Brouillon')}</span>}
                             {dirty ? <span className="ml-2">{t('· modifications non enregistrées')}</span>
                                 : hasDraft && status === 'published' && <span className="ml-2">{t('· brouillon non publié')}</span>}
@@ -123,32 +138,34 @@ export default function App({ boot }) {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                <button onClick={togglePanel} aria-pressed={panelOpen}
-                    title={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
-                    aria-label={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
-                    className={`rounded-md p-2 ${panelOpen ? 'text-slate-600 hover:bg-slate-100' : 'bg-brand-50 text-brand-700'}`}>
-                    <Svg d="M4 4h16v16H4zM9 4v16" />
-                </button>
-                <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
-                    {DEVICES.map((d) => (
-                        <button key={d.id} title={d.label} onClick={() => setState({ device: d.id })}
-                            className={`rounded-md p-1.5 ${device === d.id ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
-                            <Svg d={d.icon} />
-                        </button>
-                    ))}
-                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                    <IconButton icon={panelOpen ? 'panel-left-close' : 'panel-left-open'} onClick={togglePanel} pressed={panelOpen}
+                        label={panelOpen ? t('Masquer le panneau (plus de place pour la page)') : t('Afficher le panneau')}
+                        className={panelOpen ? tool : 'h-9 w-9 bg-brand-50 text-brand-700'} />
+                    <div className="flex items-center gap-0.5 rounded-lg bg-slate-100 p-1" role="group" aria-label={t('Appareil')}>
+                        {DEVICES.map((d) => (
+                            <IconButton key={d.id} icon={d.icon} label={d.label} pressed={device === d.id} onClick={() => setState({ device: d.id })}
+                                className={`h-7 w-8 ${device === d.id ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`} />
+                        ))}
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canUndo} onClick={undo} title={t('Annuler (Ctrl+Z)')}><Svg d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11" /></button>
-                    <button className="rounded-md p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={!canRedo} onClick={redo} title={t('Rétablir (Ctrl+Y)')}><Svg d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 000 11H13" /></button>
-                    <a href={urls.settings} className="hidden rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 lg:block">{t('Réglages SEO')}</a>
-                    <button className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100" onClick={preview}>{t('Aperçu')}</button>
-                    <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50" disabled={saving} onClick={() => save(false)}>
+                <div className="flex shrink-0 items-center gap-1">
+                    <IconButton icon="undo-2" label={t('Annuler')} shortcut="Ctrl+Z" disabled={!canUndo} onClick={undo} className={tool} />
+                    <IconButton icon="redo-2" label={t('Rétablir')} shortcut="Ctrl+Y" disabled={!canRedo} onClick={redo} className={tool} />
+                    <Shortcuts />
+                    <span className="mx-1 hidden h-6 w-px bg-slate-200 lg:block" aria-hidden="true" />
+                    {urls.settings && (
+                        <a href={urls.settings} className={`grid place-items-center rounded-md ${tool}`} title={t('Réglages SEO')} aria-label={t('Réglages SEO')}>
+                            <UiIcon name="settings-2" />
+                        </a>
+                    )}
+                    <IconButton icon="eye" label={t('Aperçu')} onClick={preview} className={tool} />
+                    <span className="mx-1 hidden h-6 w-px bg-slate-200 lg:block" aria-hidden="true" />
+                    <button className="whitespace-nowrap rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50" disabled={saving} onClick={() => save(false)}>
                         {saving ? t('Enregistrement…') : t('Enregistrer')}
                     </button>
-                    <button className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50" disabled={saving} onClick={() => save(true)}>
+                    <button className="whitespace-nowrap rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50" disabled={saving} onClick={() => save(true)}>
                         {status === 'published' ? t('Mettre à jour') : t('Publier')}
                     </button>
                 </div>
@@ -162,6 +179,34 @@ export default function App({ boot }) {
             {toastMsg && (
                 <div className={`fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg ${toastMsg.type === 'error' ? 'bg-red-600' : toastMsg.type === 'success' ? 'bg-emerald-600' : 'bg-slate-800'}`}>
                     {toastMsg.message}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/** Aide des raccourcis clavier, ouverte par l'icône clavier. */
+function Shortcuts() {
+    const [open, setOpen] = useState(false);
+    useEffect(() => {
+        if (!open) return undefined;
+        const close = () => setOpen(false);
+        window.addEventListener('click', close);
+        return () => window.removeEventListener('click', close);
+    }, [open]);
+    return (
+        <div className="relative hidden lg:block" onClick={(e) => e.stopPropagation()}>
+            <IconButton icon="keyboard" label={t('Raccourcis clavier')} pressed={open} onClick={() => setOpen(!open)} className={tool} />
+            {open && (
+                <div className="absolute right-0 top-11 z-50 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                    <ul className="text-sm">
+                        {SHORTCUTS.map(([keys, label]) => (
+                            <li key={keys} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5">
+                                <span className="text-slate-700">{label}</span>
+                                <kbd className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[11px] text-slate-500">{keys}</kbd>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             )}
         </div>

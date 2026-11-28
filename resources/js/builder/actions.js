@@ -66,16 +66,29 @@ export function readClipboard() {
 export function pasteAfter(id) {
     const node = readClipboard();
     if (!node) return toast(t('Rien à coller : copiez d’abord un élément.'));
+    insertCopy(node, id);
+}
+
+/**
+ * Insère une copie de l'élément (nouveaux identifiants) après l'élément « id », ou à la fin
+ * de la page. Un conteneur sélectionné vide le reçoit à l'intérieur. Sert au collage et à « Mes blocs ».
+ */
+export function insertCopy(node, id) {
     const content = getState().content;
     const copy = reId(structuredClone(node), content);
     const loc = id ? find(content, id) : null;
     let parentId = loc ? loc.parent?.id ?? null : null;
     let index = loc ? loc.index + 1 : content.elements.length;
-    // Un conteneur sélectionné vide reçoit l'élément à l'intérieur.
     if (loc && isContainer(loc.node) && !loc.node.children.length) {
         parentId = loc.node.id;
         index = 0;
     }
+    placeCopy(copy, parentId, index);
+}
+
+/** Place un élément déjà copié ; au premier niveau, un widget reçoit son conteneur. */
+function placeCopy(copy, parentId, index) {
+    const content = getState().content;
     const item = parentId === null && !isContainer(copy) ? makeContainer(makeStructure([100]).settings, [copy]) : copy;
     if (!fits(content, item, parentId)) return toast(t('Impossible : profondeur maximale atteinte.'), 'error');
     commit(insert(content, parentId, index, item), { selected: copy.id, panel: 'settings', menu: null });
@@ -157,6 +170,8 @@ export function dropAt(parentId, index) {
         const next = insert(content, parentId, index, box);
         if (next === content) return toast(t('Impossible : profondeur maximale atteinte.'), 'error');
         commit(next, { selected: box.id, panel: 'settings' });
+    } else if (drag.kind === 'block') {
+        placeCopy(reId(structuredClone(drag.node), content), parentId, index);
     } else if (drag.kind === 'move') {
         const loc = find(content, drag.id);
         if (!loc) return;

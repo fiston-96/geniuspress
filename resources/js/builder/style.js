@@ -21,7 +21,7 @@ export const STYLE_KEYS = {
     text_color: 'h', opacity: 'h', z_index: '', overflow: '', transition: '',
     transition_easing: '', hover_effect: '', entrance: '', entrance_duration: '', entrance_delay: '', entrance_easing: '', entrance_repeat: '',
     sticky: '', sticky_offset: '', sticky_devices: '', sticky_bg: '', sticky_shadow: '', scroll_effect: '', scroll_intensity: '',
-    hide_desktop: '', hide_tablet: '', hide_mobile: '', css_id: '', css_classes: '',
+    hide_desktop: '', hide_tablet: '', hide_mobile: '', css_id: '', css_classes: '', custom_css: '',
 };
 
 /** Disposition des conteneurs (Schema::CONTAINER). */
@@ -102,6 +102,11 @@ export class Sheet {
             .map(([k, v]) => `${k}:${cssValue(v)}`)
             .join(';');
         if (body && this.css[device]) this.css[device].push(`${selector}{${body}}`);
+    }
+
+    /** CSS déjà limité à un élément (CSS personnalisé), couleurs globales comprises (RenderContext::raw). */
+    raw(css) {
+        if (css !== '') this.css.desktop.push(cssValue(css));
     }
 
     rule(id, props, device = 'desktop', suffix = '') {
@@ -309,6 +314,60 @@ export function applyStyle(sheet, node, parent, keys) {
     if (sticky) {
         sheet.rule(id, { 'background-color': s.sticky_bg || null, 'box-shadow': s.sticky_shadow ? '0 10px 30px -12px rgba(15,23,42,.35)' : null }, 'desktop', '.is-stuck');
     }
+    // CSS personnalisé, après les réglages : il peut les compléter ou les remplacer.
+    if (has.has('custom_css') && !empty(s.custom_css)) {
+        const css = cleanCustomCss(s.custom_css);
+        if (css !== null) sheet.raw(scopeCustomCss(css, `#gp-${id}`));
+    }
+}
+
+/* CSS personnalisé d'un élément : miroir exact de App\Builder\CustomCss. */
+export const CUSTOM_CSS_MAX = 10000;
+const CSS_FORBIDDEN = /[<\\]|@import|@charset|@namespace|expression\s*\(|javascript:|vbscript:|behavior\s*:|-moz-binding/i;
+const CSS_SELECTOR = /(?<![\w-])selector(?![\w-])/g;
+
+/** CSS accepté (commentaires retirés), ou null s'il contient une instruction interdite ou des accolades déséquilibrées. */
+export function cleanCustomCss(value) {
+    if (typeof value !== 'string') return null;
+    const css = value.replace(/\/\*[\s\S]*?\*\//g, '').trim();
+    if (css === '' || new TextEncoder().encode(css).length > CUSTOM_CSS_MAX || CSS_FORBIDDEN.test(css)) return null;
+    let depth = 0;
+    for (const char of css) {
+        depth += char === '{' ? 1 : char === '}' ? -1 : 0;
+        if (depth < 0 || depth > 2) return null;
+    }
+    return depth === 0 ? css : null;
+}
+
+/** Règles limitées à l'élément désigné par « selector » (#gp-…). */
+export function scopeCustomCss(css, selector, nested = false) {
+    if (!nested && !css.includes('{')) return `${selector}{${css.trim()}}`;
+    let out = '';
+    let i = 0;
+    while (i < css.length) {
+        const open = css.indexOf('{', i);
+        if (open < 0) break;
+        // Ce qui précède la règle (déclarations sans sélecteur…) est ignoré.
+        const prelude = css.slice(i, open).replace(/^[\s\S]*[;}]/, '').trim();
+        let depth = 1;
+        let j = open + 1;
+        while (j < css.length && depth > 0) {
+            depth += css[j] === '{' ? 1 : css[j] === '}' ? -1 : 0;
+            j++;
+        }
+        const body = css.slice(open + 1, j - 1);
+        i = j;
+        if (!nested && /^@(media|supports)\b/i.test(prelude)) {
+            const inner = scopeCustomCss(body, selector, true);
+            if (inner !== '') out += `${prelude}{${inner}}`;
+            continue;
+        }
+        if (prelude === '' || prelude.startsWith('@') || body.includes('{')) continue;
+        const selectors = prelude.split(',').map((p) => p.trim()).filter(Boolean)
+            .map((p) => (p.match(CSS_SELECTOR) ? p.replace(CSS_SELECTOR, selector) : `${selector} ${p}`));
+        if (selectors.length) out += `${selectors.join(',')}{${body.trim()}}`;
+    }
+    return out;
 }
 
 /** Disposition flexbox d'un conteneur (ElementStyle::container). */

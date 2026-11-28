@@ -4,6 +4,7 @@ import MediaPicker from './MediaPicker';
 import { t } from './i18n';
 import { useStore } from './store';
 import { ICONS, Icon, brandTitle } from './icons';
+import { cleanCustomCss } from './style';
 
 const inputCls = 'block w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20';
 
@@ -48,6 +49,30 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                     <textarea className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
                 </div>
             );
+        case 'code': {
+            // CSS personnalisé : refusé (et non appliqué) s'il contient une instruction interdite.
+            const invalid = has && cleanCustomCss(value) === null;
+            return (
+                <div>
+                    {label({ hasValue: has, onReset: reset })}
+                    <textarea className={`${inputCls} font-mono text-[12px] leading-5 ${invalid ? '!border-red-400' : ''}`} rows={8} spellCheck={false}
+                        value={value ?? ''} placeholder={control.placeholder} onChange={(e) => set(e.target.value)}
+                        onKeyDown={(e) => {
+                            // Tab insère une indentation au lieu de quitter le champ.
+                            if (e.key !== 'Tab' || e.shiftKey) return;
+                            e.preventDefault();
+                            const el = e.currentTarget;
+                            const next = `${el.value.slice(0, el.selectionStart)}    ${el.value.slice(el.selectionEnd)}`;
+                            const at = el.selectionStart + 4;
+                            set(next);
+                            requestAnimationFrame(() => el.setSelectionRange(at, at));
+                        }} />
+                    {invalid
+                        ? <p className="mt-1 text-[11px] text-red-600">{t('Ce CSS n’est pas appliqué : accolades déséquilibrées, ou instruction interdite (@import, url javascript:, expression…).')}</p>
+                        : control.help && <p className="mt-1 text-[11px] text-slate-500">{control.help}</p>}
+                </div>
+            );
+        }
         case 'select':
             return (
                 <div>

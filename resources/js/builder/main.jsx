@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Le serveur envoie toujours le format actuel (converti si besoin).
         content: Array.isArray(boot.page.content?.elements) ? boot.page.content : { version: 2, elements: [] },
         design: boot.design ?? { colors: [], fonts: [] },
+        // Adresses du serveur (« Mes blocs » est utilisé depuis le panneau et le canevas).
+        urls: boot.urls,
         status: boot.page.status,
         hasDraft: boot.page.has_draft,
         revisions: boot.revisions,

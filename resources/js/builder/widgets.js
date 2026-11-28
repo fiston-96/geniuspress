@@ -277,6 +277,9 @@ export const STYLE_CONTROLS = [
     heading(t('Attributs'), 'advanced'),
     { key: 'css_id', label: t('Ancre (pour les liens #ancre)'), type: 'text', placeholder: t('contact'), tab: 'advanced' },
     { key: 'css_classes', label: t('Classes CSS'), type: 'text', placeholder: 'ma-classe autre-classe', tab: 'advanced' },
+    heading(t('CSS personnalisé'), 'advanced'),
+    { key: 'custom_css', label: t('CSS de cet élément'), type: 'code', tab: 'advanced', placeholder: ['selector {', '    border-radius: 24px;', '}', 'selector:hover h3 {', '    color: global:primary;', '}'].join('\n'),
+        help: t('« selector » désigne cet élément ; les autres règles s’appliquent à son contenu. Couleurs globales : global:primary.') },
 ].map((c) => ({ ...c, common: true }));
 
 /** Structures proposées pour un nouveau conteneur. */

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AiPanel from './AiPanel';
 import AiTextTools from './AiTextTools';
 import { api } from './api';
@@ -10,22 +10,23 @@ import { CONTAINER_CONTROLS, LAYOUTS, STYLE_CONTROLS } from './widgets';
 import { DEVICES } from './style';
 import { addStructure, addWidget, copyEl, dropAt, duplicateEl, labelOf, pasteStyle, readClipboard, removeEl, select, wrapEl } from './actions';
 import { locale, t } from './i18n';
+import { IconButton, PathIcon, UiIcon } from './ui';
+import Blocks, { saveAsBlock } from './Blocks';
 
 const TABS = [
-    { id: 'content', label: t('Contenu') },
-    { id: 'style', label: t('Style') },
-    { id: 'advanced', label: t('Avancé') },
+    { id: 'content', label: t('Contenu'), icon: 'pencil' },
+    { id: 'style', label: t('Style'), icon: 'palette' },
+    { id: 'advanced', label: t('Avancé'), icon: 'settings' },
 ];
 
-export const DEVICE_ICONS = {
-    desktop: { label: t('Ordinateur'), icon: 'M3 4h18v12H3zM8 20h8M12 16v4' },
-    tablet: { label: t('Tablette'), icon: 'M6 2h12v20H6zM11 18h2' },
-    mobile: { label: t('Mobile'), icon: 'M8 2h8v20H8zM11 18h2' },
+const DEVICE_ICONS = {
+    desktop: { label: t('Ordinateur'), icon: 'monitor' },
+    tablet: { label: t('Tablette'), icon: 'tablet' },
+    mobile: { label: t('Mobile'), icon: 'smartphone' },
 };
 
-const Svg = ({ d, className = 'h-3.5 w-3.5' }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
-);
+/** Texte comparable sans accents ni majuscules (recherche de widgets). */
+const fold = (v) => String(v ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
 export default function Panel({ boot }) {
     const urls = boot.urls;
@@ -34,30 +35,32 @@ export default function Panel({ boot }) {
     const open = useStore((s) => s.panelOpen);
 
     const tabs = [
-        { id: 'elements', label: t('Éléments') },
-        { id: 'settings', label: t('Réglages'), disabled: !selected },
-        { id: 'navigator', label: t('Structure') },
-        { id: 'ai', label: t('✨ IA') },
-        { id: 'history', label: t('Historique') },
+        { id: 'elements', label: t('Éléments'), icon: 'square-plus' },
+        { id: 'settings', label: t('Réglages'), icon: 'sliders-horizontal', disabled: !selected },
+        { id: 'navigator', label: t('Structure'), icon: 'list-tree' },
+        { id: 'blocks', label: t('Mes blocs'), icon: 'library-big' },
+        { id: 'ai', label: t('Assistant IA'), icon: 'sparkles' },
+        { id: 'history', label: t('Historique'), icon: 'history' },
     ];
 
     if (!open) return null;
 
     return (
         <aside className="flex w-80 shrink-0 flex-col border-r border-slate-200 bg-white">
-            {/* Onglets : ils défilent au lieu d'être coupés quand la place manque. */}
-            <div className="flex overflow-x-auto border-b border-slate-200 [scrollbar-width:none]">
+            {/* Onglets en icônes (infobulle et nom accessible traduits). */}
+            <div className="flex border-b border-slate-200" role="tablist" aria-label={t('Panneau')}>
                 {tabs.map((tab) => (
-                    <button key={tab.id} disabled={tab.disabled} onClick={() => setState({ panel: tab.id })}
-                        className={`shrink-0 grow whitespace-nowrap border-b-2 px-2.5 py-2.5 text-[12px] font-medium transition disabled:opacity-40 ${panel === tab.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-                        {tab.label}
-                    </button>
+                    <IconButton key={tab.id} icon={tab.icon} label={tab.label} disabled={tab.disabled} onClick={() => setState({ panel: tab.id })}
+                        role="tab" aria-selected={panel === tab.id}
+                        className={`h-11 flex-1 rounded-none border-b-2 ${panel === tab.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800'}`}
+                        iconClass="h-[18px] w-[18px]" />
                 ))}
             </div>
             <div className="flex-1 overflow-y-auto">
                 {panel === 'elements' && <Elements />}
                 {panel === 'settings' && selected && <Settings key={selected} id={selected} boot={boot} />}
                 {panel === 'navigator' && <Navigator />}
+                {panel === 'blocks' && <Blocks />}
                 {panel === 'ai' && <AiPanel boot={boot} />}
                 {panel === 'history' && <History urls={urls} />}
             </div>
@@ -66,6 +69,12 @@ export default function Panel({ boot }) {
 }
 
 function Elements() {
+    const [query, setQuery] = useState('');
+    const focus = useStore((s) => s.searchFocus);
+    const input = useRef(null);
+    // Ctrl+K : le champ de recherche prend le focus (et son texte est sélectionné).
+    useEffect(() => { if (focus) { input.current?.focus(); input.current?.select(); } }, [focus]);
+
     const startDrag = (e, drag) => {
         e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('text/plain', drag.type ?? 'structure');
@@ -73,37 +82,59 @@ function Elements() {
     };
     const endDrag = () => setState({ drag: null, drop: null });
 
+    const words = fold(query).split(/\s+/).filter(Boolean);
+    const matches = (def) => {
+        const haystack = fold([def.label, def.type, def.group, ...(def.keywords ?? [])].join(' '));
+        return words.every((w) => haystack.includes(w));
+    };
+    const defs = allWidgets().filter((def) => !words.length || matches(def));
+    const groups = Object.entries(defs.reduce((acc, def) => {
+        // Groupes de la palette : widgets de contenu, puis widgets dynamiques du site.
+        (acc[def.group ?? t('Widgets')] ??= []).push(def);
+        return acc;
+    }, {}));
+    // Entrée : ajoute le premier résultat.
+    const onKeyDown = (e) => {
+        if (e.key === 'Enter' && defs[0]) { e.preventDefault(); addWidget(defs[0].type); setQuery(''); }
+        if (e.key === 'Escape') { e.stopPropagation(); setQuery(''); e.currentTarget.blur(); }
+    };
+
     return (
         <div className="space-y-5 p-4">
-            <p className="text-xs text-slate-500">{t('Glissez un élément sur la page, ou cliquez pour l’ajouter dans le conteneur sélectionné.')}</p>
-            <div>
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{t('Structure')}</h3>
-                <div className="grid grid-cols-3 gap-2">
-                    {LAYOUTS.map((l) => (
-                        <button key={l.label} title={l.label} draggable
-                            onDragStart={(e) => startDrag(e, { kind: 'structure', widths: l.widths })} onDragEnd={endDrag}
-                            onClick={() => addStructure(l.widths)}
-                            className="flex h-10 cursor-grab gap-0.5 rounded-md border border-slate-200 p-1 hover:border-brand-400">
-                            {l.widths.map((w, i) => <span key={i} className="rounded-sm bg-brand-200" style={{ flex: w }} />)}
-                        </button>
-                    ))}
+            <label className="relative block">
+                <span className="pointer-events-none absolute inset-y-0 left-2.5 grid place-items-center text-slate-400"><UiIcon name="search" /></span>
+                <input ref={input} type="search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKeyDown}
+                    placeholder={t('Rechercher un widget')} aria-label={t('Rechercher un widget')}
+                    className="block w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-9 pr-14 text-sm outline-none focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/20" />
+                {!query && <kbd className="pointer-events-none absolute inset-y-0 right-2 my-auto h-5 rounded border border-slate-200 bg-white px-1.5 font-mono text-[10px] leading-5 text-slate-400">Ctrl K</kbd>}
+            </label>
+            {!words.length && (
+                <div>
+                    <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{t('Structure')}</h3>
+                    <div className="grid grid-cols-3 gap-2">
+                        {LAYOUTS.map((l) => (
+                            <button key={l.label} title={l.label} aria-label={l.label} draggable
+                                onDragStart={(e) => startDrag(e, { kind: 'structure', widths: l.widths })} onDragEnd={endDrag}
+                                onClick={() => addStructure(l.widths)}
+                                className="flex h-10 cursor-grab gap-0.5 rounded-md border border-slate-200 p-1 hover:border-brand-400">
+                                {l.widths.map((w, i) => <span key={i} className="rounded-sm bg-brand-200" style={{ flex: w }} />)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-            {Object.entries(allWidgets().reduce((groups, def) => {
-                // Groupes de la palette : widgets de contenu, puis widgets dynamiques du site.
-                (groups[def.group ?? t('Widgets')] ??= []).push(def);
-                return groups;
-            }, {})).map(([group, defs]) => (
+            )}
+            {words.length > 0 && defs.length === 0 && <p className="text-center text-sm text-slate-500">{t('Aucun widget ne correspond à « :query ».', { query })}</p>}
+            {groups.map(([group, list]) => (
                 <div key={group}>
                     <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{group}</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                        {defs.map((def) => (
-                            <button key={def.type} draggable
+                    <div className="grid grid-cols-3 gap-2">
+                        {list.map((def) => (
+                            <button key={def.type} draggable title={def.label}
                                 onDragStart={(e) => startDrag(e, { kind: 'new', type: def.type })} onDragEnd={endDrag}
                                 onClick={() => addWidget(def.type)}
-                                className="flex cursor-grab flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-4 text-xs font-medium text-slate-700 transition hover:border-brand-400 hover:text-brand-700 hover:shadow-sm active:cursor-grabbing">
-                                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={def.icon} /></svg>
-                                {def.label}
+                                className="flex cursor-grab flex-col items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-1 py-3 text-[11px] font-medium leading-tight text-slate-700 transition hover:border-brand-400 hover:text-brand-700 hover:shadow-sm active:cursor-grabbing">
+                                <PathIcon d={def.icon} className="h-6 w-6" strokeWidth={1.6} />
+                                <span className="line-clamp-2 text-center">{def.label}</span>
                             </button>
                         ))}
                     </div>
@@ -124,10 +155,8 @@ function DeviceSwitch({ device }) {
     return (
         <span className="inline-flex items-center gap-0.5" title={t('Réglable pour chaque appareil')}>
             {Object.entries(DEVICE_ICONS).map(([id, d]) => (
-                <button key={id} title={d.label} onClick={() => setState({ device: id })}
-                    className={`rounded p-0.5 ${device === id ? 'bg-brand-100 text-brand-700' : 'text-slate-300 hover:text-slate-600'}`}>
-                    <Svg d={d.icon} className="h-3 w-3" />
-                </button>
+                <IconButton key={id} icon={d.icon} label={d.label} pressed={device === id} onClick={() => setState({ device: id })}
+                    className={`rounded p-0.5 ${device === id ? 'bg-brand-100 text-brand-700' : 'text-slate-300 hover:text-slate-600'}`} iconClass="h-3 w-3" />
             ))}
         </span>
     );
@@ -169,7 +198,7 @@ function Settings({ id, boot }) {
 
     const crumbs = [...loc.path, node];
     const hasClip = !!readClipboard();
-    const tool = 'rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30';
+    const tool = 'h-7 w-7 text-slate-500 hover:bg-slate-100 hover:text-slate-900';
 
     return (
         <div>
@@ -185,28 +214,29 @@ function Settings({ id, boot }) {
                 <div className="flex items-center justify-between gap-2">
                     <h2 className="font-semibold">{labelOf(node)}</h2>
                     <div className="flex items-center">
-                        <button className={tool} title={t('Copier (Ctrl+C)')} onClick={() => copyEl(id)}><Svg d="M9 9h11v11H9zM5 15H4V4h11v1" /></button>
-                        <button className={tool} title={t('Coller le style (Ctrl+Maj+V)')} disabled={!hasClip} onClick={() => pasteStyle(id)}><Svg d="M4 20l7-7M14 4l6 6-8 8H6v-6z" /></button>
-                        <button className={tool} title={t('Envelopper dans un conteneur')} onClick={() => wrapEl(id)}><Svg d="M3 3h18v18H3zM8 8h8v8H8z" /></button>
-                        <button className={tool} title={t('Dupliquer (Ctrl+D)')} onClick={() => duplicateEl(id)}><Svg d="M8 8h12v12H8zM4 16V4h12" /></button>
-                        <button className={tool} title={t('Supprimer (Suppr)')} onClick={() => removeEl(id)}><Svg d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></button>
+                        <IconButton icon="copy" label={t('Copier')} shortcut="Ctrl+C" onClick={() => copyEl(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        <IconButton icon="paintbrush" label={t('Coller le style')} shortcut="Ctrl+Maj+V" disabled={!hasClip} onClick={() => pasteStyle(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        <IconButton icon="square-dashed" label={t('Envelopper dans un conteneur')} onClick={() => wrapEl(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        <IconButton icon="bookmark-plus" label={t('Enregistrer dans Mes blocs')} onClick={() => saveAsBlock(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        <IconButton icon="copy-plus" label={t('Dupliquer')} shortcut="Ctrl+D" onClick={() => duplicateEl(id)} className={tool} iconClass="h-3.5 w-3.5" />
+                        <IconButton icon="trash-2" label={t('Supprimer')} shortcut="Suppr" onClick={() => removeEl(id)} className={`${tool} hover:!bg-red-50 hover:!text-red-600`} iconClass="h-3.5 w-3.5" />
                     </div>
                 </div>
             </div>
-            <div className="flex border-b border-slate-200 px-2">
+            <div className="flex border-b border-slate-200" role="tablist" aria-label={t('Réglages')}>
                 {TABS.map((tb) => (
-                    <button key={tb.id} onClick={() => setTab(tb.id)}
-                        className={`border-b-2 px-3 py-2 text-xs font-medium ${tab === tb.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-                        {tb.label}
-                    </button>
+                    <IconButton key={tb.id} icon={tb.icon} label={tb.label} onClick={() => setTab(tb.id)} role="tab" aria-selected={tab === tb.id}
+                        className={`h-10 flex-1 rounded-none border-b-2 ${tab === tb.id ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800'}`} />
                 ))}
             </div>
             <div className="space-y-4 p-4">
                 {hoverable && (
                     <div className="flex gap-1 rounded-md bg-slate-100 p-0.5">
-                        {[['normal', t('Normal')], ['hover', t('Au survol')]].map(([m, label]) => (
-                            <button key={m} onClick={() => setMode(m)}
-                                className={`flex-1 rounded px-2 py-1 text-xs font-medium ${mode === m ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-600'}`}>{label}</button>
+                        {[['normal', t('Normal'), 'square'], ['hover', t('Au survol'), 'mouse-pointer-2']].map(([m, label, icon]) => (
+                            <button key={m} onClick={() => setMode(m)} aria-pressed={mode === m}
+                                className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1 text-xs font-medium ${mode === m ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-600'}`}>
+                                <UiIcon name={icon} className="h-3.5 w-3.5" />{label}
+                            </button>
                         ))}
                     </div>
                 )}
@@ -286,9 +316,11 @@ function NavNode({ node, depth }) {
                 {zone === 'before' && <span className="absolute inset-x-1 -top-0.5 h-1 rounded bg-brand-500" />}
                 {zone === 'after' && <span className="absolute inset-x-1 -bottom-0.5 h-1 rounded bg-brand-500" />}
                 {container ? (
-                    <button className="w-4 text-center text-[10px] opacity-70" onClick={(e) => { e.stopPropagation(); setOpen(!open); }} aria-label={open ? t('Replier') : t('Déplier')}>{open ? '▾' : '▸'}</button>
+                    <button className="grid w-4 place-items-center opacity-70" onClick={(e) => { e.stopPropagation(); setOpen(!open); }} title={open ? t('Replier') : t('Déplier')} aria-label={open ? t('Replier') : t('Déplier')}>
+                        <UiIcon name={open ? 'chevron-down' : 'chevron-right'} className="h-3 w-3" strokeWidth={2.2} />
+                    </button>
                 ) : <span className="w-4" />}
-                <Svg d={container ? 'M3 3h18v18H3z' : (getWidget(node.type)?.icon ?? 'M4 4h16v16H4z')} />
+                {container ? <UiIcon name="square-dashed" className="h-3.5 w-3.5" /> : <PathIcon d={getWidget(node.type)?.icon ?? 'M4 4h16v16H4z'} className="h-3.5 w-3.5" />}
                 <span className="font-medium">{labelOf(node)}</span>
                 {container && node.settings.direction?.startsWith('row') && <span className="text-[10px] opacity-60">→</span>}
                 {!container && <span className="truncate text-xs opacity-60">{summary(node)}</span>}
@@ -328,9 +360,8 @@ function History({ urls }) {
                             <p className="text-sm font-medium">{r.note === 'Publication' ? t('Publication') : r.note === 'Enregistrement' ? t('Enregistrement') : r.note}</p>
                             <p className="truncate text-xs text-slate-500">{new Date(r.created_at).toLocaleString(locale())} · {r.user?.name ?? '—'}</p>
                         </div>
-                        <button className="shrink-0 text-xs font-medium text-brand-600 hover:text-brand-500 disabled:opacity-50" disabled={loading === r.id} onClick={() => restore(r)}>
-                            {t('Restaurer')}
-                        </button>
+                        <IconButton icon="archive-restore" label={t('Restaurer')} disabled={loading === r.id} onClick={() => restore(r)}
+                            className="h-8 w-8 shrink-0 text-brand-600 hover:bg-brand-50" />
                     </li>
                 ))}
             </ul>
