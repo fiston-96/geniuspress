@@ -26,7 +26,13 @@ class RenderContext
      * @param  int|null  $pageId  page rendue (pour les formulaires), null dans un aperçu sans page
      * @param  SiteContext|null  $site  ce que regarde le visiteur (article, archive…), pour les widgets dynamiques
      */
-    public function __construct(private array $media = [], public readonly ?int $pageId = null, public readonly ?SiteContext $site = null) {}
+    public function __construct(private array $media = [], public readonly ?int $pageId = null, public readonly ?SiteContext $site = null, public readonly ?string $owner = null) {}
+
+    /** Document qui reçoit les formulaires de ce rendu (« page:12 », « layout:3 »), ou null dans un aperçu sans document. */
+    public function formOwner(): ?string
+    {
+        return $this->owner ?? ($this->pageId ? 'page:'.$this->pageId : null);
+    }
 
     /** Ajoute le résultat d'un autre rendu (CSS et polices), par exemple le contenu d'un article. */
     public function embed(array $rendered): void

@@ -28,7 +28,7 @@ final class SiteResponder
         $parts = [];
         foreach (['header', 'footer'] as $type) {
             $layout = $this->layouts->find($type, $site);
-            $parts[$type] = $layout ? $this->renderer->render($layout->content, null, $site) : null;
+            $parts[$type] = $layout ? $this->renderer->render($layout->content, null, $site, 'layout:'.$layout->id) : null;
         }
 
         return [
@@ -62,7 +62,7 @@ final class SiteResponder
         // Gabarit du thème ; la recherche se rabat sur le gabarit d'archive.
         $layout = $this->layouts->find($type, $site) ?? ($type === 'search' ? $this->layouts->find('archive', $site) : null);
         if ($layout) {
-            return $this->renderer->render($layout->content, null, $site);
+            return $this->renderer->render($layout->content, null, $site, 'layout:'.$layout->id);
         }
 
         // Affichage par défaut.

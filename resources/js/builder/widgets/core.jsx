@@ -12,6 +12,8 @@ import { PRO_IMPL } from './pro-preview';
 import { PRO2_WIDGETS } from './pro2';
 import { PRO2_IMPL } from './pro2-preview';
 import { t } from '../i18n';
+import { STUDIO_THEME_WIDGETS, STUDIO_WIDGETS } from './studio';
+import { STUDIO_IMPL } from './studio-preview';
 
 export function embedUrl(url = '') {
     let m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/);
@@ -138,6 +140,9 @@ export function registerCoreWidgets() {
     for (const [type, def] of Object.entries(LIBRARY_WIDGETS)) {
         registerWidget(type, { ...def, ...LIBRARY_IMPL[type] });
     }
+    for (const [type, def] of Object.entries(STUDIO_WIDGETS)) {
+        registerWidget(type, { ...def, ...STUDIO_IMPL[type] });
+    }
     // Widgets avancés : un groupe à part dans la palette.
     for (const [type, def] of Object.entries(PRO_WIDGETS)) {
         registerWidget(type, { ...def, ...PRO_IMPL[type], group: PRO_GROUP });
@@ -148,5 +153,8 @@ export function registerCoreWidgets() {
     // Widgets dynamiques (articles, archives, en-tête) : un groupe à part dans la palette.
     for (const [type, def] of Object.entries(THEME_WIDGETS)) {
         registerWidget(type, { ...def, ...THEME_IMPL[type], group: THEME_GROUP });
+    }
+    for (const [type, def] of Object.entries(STUDIO_THEME_WIDGETS)) {
+        registerWidget(type, { ...def, ...STUDIO_IMPL[type], group: THEME_GROUP });
     }
 }

@@ -19,7 +19,7 @@ class Layout extends Model
 {
     use HasBuilderContent, SoftDeletes, \App\Models\Concerns\ListsWithoutContent;
 
-    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found', 'popup'];
+    public const TYPES = ['header', 'footer', 'single', 'archive', 'search', 'not_found', 'popup', 'mega'];
 
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';
@@ -59,6 +59,7 @@ class Layout extends Model
             'search' => __('Résultats de recherche'),
             'not_found' => __('Page introuvable (404)'),
             'popup' => __('Popup'),
+            'mega' => __('Panneau de méga-menu'),
         ];
     }
 }

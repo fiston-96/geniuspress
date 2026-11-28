@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Builder\ContentSanitizer;
-use App\Builder\Renderer;
-use App\Models\Page;
 use App\Newsletter\Newsletter;
+use App\Site\FormOwner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -21,15 +19,11 @@ class NewsletterController extends Controller
 
     public function subscribe(Request $request)
     {
-        $page = Page::query()->published()->find((int) $request->input('page'));
-        $widgetId = (string) $request->input('widget');
-        $found = false;
-        if ($page) {
-            Renderer::walk(app(ContentSanitizer::class)->sanitize($page->content)['elements'], function ($node) use ($widgetId, &$found) {
-                $found = $found || (($node['type'] ?? '') === 'newsletter' && ($node['id'] ?? '') === $widgetId);
-            });
-        }
-        abort_unless($found, 404);
+        // Page ou gabarit (popup…) qui affiche le formulaire.
+        $owner = FormOwner::locate($request, ['newsletter']);
+        abort_unless($owner, 404);
+        $widgetId = $owner['node']['id'];
+        $page = $owner['page'];
 
         $back = fn () => redirect()->to(url()->previous().'#gp-news-'.$widgetId);
 
@@ -51,7 +45,7 @@ class NewsletterController extends Controller
             return $back()->withErrors($validator, 'gp_news_'.$widgetId)->withInput($request->only(['email', 'name']));
         }
 
-        $this->newsletter->subscribe($request->input('email'), $request->input('name'), $page->locale ?? app()->getLocale(), $page->title, false, $request->ip());
+        $this->newsletter->subscribe($request->input('email'), $request->input('name'), $page?->locale ?? $owner['layout']?->locale ?? app()->getLocale(), $page?->title ?? $owner['layout']?->name, false, $request->ip());
 
         return $back()->with('gp_news_sent', $widgetId);
     }

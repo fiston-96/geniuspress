@@ -113,6 +113,9 @@
             </fieldset>
         @endif
 
+        @if ($layout->type === 'mega')
+            <p class="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{{ __('Ce panneau s’affiche dans les entrées du widget « Méga-menu » qui le choisissent ; il n’a pas de conditions d’affichage.') }}</p>
+        @else
         <fieldset>
             <legend class="text-sm font-semibold text-slate-900">{{ __('Conditions d’affichage') }}</legend>
             <p class="mt-1 text-xs text-slate-500">{{ __('Le gabarit s’affiche là où au moins une règle « Afficher sur » correspond, sauf là où une règle « Sauf sur » correspond.') }}</p>
@@ -136,6 +139,7 @@
             </div>
             <button type="button" class="mt-2 text-sm font-medium text-brand-600" onclick="(() => { const rows = document.querySelectorAll('[data-rule]'); const row = rows[rows.length - 1].cloneNode(true); const n = rows.length; row.querySelectorAll('select').forEach((s) => { s.name = s.name.replace(/rules\[\d+\]/, 'rules[' + n + ']'); s.selectedIndex = 0; }); document.getElementById('rules').append(row); })()">{{ __('+ Ajouter une règle') }}</button>
         </fieldset>
+        @endif
 
         <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
             <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500">{{ __('Enregistrer') }}</button>

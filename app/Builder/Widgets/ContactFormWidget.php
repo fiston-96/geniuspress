@@ -51,7 +51,7 @@ class ContactFormWidget extends Widget
         if (session('gp_form_sent') === $id) {
             return '<div class="gp-form__success" role="status" id="gp-form-'.e($id).'">'.e($s['success_message'] ?? __('Merci ! Votre message a bien été envoyé.')).'</div>';
         }
-        if (! $ctx->pageId) {
+        if (! $ctx->formOwner()) {
             return '<p class="gp-form__note">'.e(__('Le formulaire fonctionnera sur la page publiée.')).'</p>';
         }
 
@@ -69,7 +69,7 @@ class ContactFormWidget extends Widget
 
         $html = '<form class="gp-form" id="gp-form-'.e($id).'" method="post" action="'.e(route('forms.submit')).'" novalidate>'
             .'<input type="hidden" name="_token" value="'.e(csrf_token()).'">'
-            .'<input type="hidden" name="page" value="'.$ctx->pageId.'"><input type="hidden" name="widget" value="'.e($id).'">'
+            .'<input type="hidden" name="owner" value="'.e($ctx->formOwner()).'"><input type="hidden" name="widget" value="'.e($id).'">'
             // Heure d'affichage chiffrée : un envoi trop rapide est celui d'un robot.
             .'<input type="hidden" name="_ts" value="'.e(Crypt::encryptString((string) time())).'">'
             .'<p class="gp-form__hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></p>';

@@ -525,3 +525,63 @@ if (popups.length) {
         if (p?.hasAttribute('data-popup')) { e.preventDefault(); open(p, true); }
     });
 }
+
+// ─── Méga-menu (MegaMenuWidget) ───────────────────────────────────────────
+// Clic sur une entrée sans lien ou sur sa flèche : ouvre ou ferme son panneau. Échap ferme.
+// Largeur « contenu » (1140 px au plus) ou « pleine largeur » : panneau recalé sur l'écran.
+// Menu replié (mobile, tablette) : les panneaux deviennent des accordéons.
+document.querySelectorAll('[data-gp-mega]').forEach((nav) => {
+    const items = [...nav.querySelectorAll('.gp-mega__item.has-panel')];
+    const collapseAt = nav.classList.contains('gp-mega--collapse-tablet') ? 1024 : nav.classList.contains('gp-mega--collapse-mobile') ? 767 : 0;
+    const collapsed = () => collapseAt > 0 && window.innerWidth <= collapseAt;
+    const mode = nav.classList.contains('gp-mega--w-full') ? 'full' : nav.classList.contains('gp-mega--w-auto') ? 'auto' : 'content';
+
+    const place = (item) => {
+        const panel = item.querySelector('.gp-mega__panel');
+        if (!panel || collapsed()) { panel?.style.removeProperty('--gp-mega-left'); panel?.style.removeProperty('--gp-mega-w'); return; }
+        const vw = document.documentElement.clientWidth;
+        const left = item.getBoundingClientRect().left;
+        if (mode === 'auto') {
+            // Reste dans l'écran : décalé vers la gauche s'il dépasse à droite.
+            panel.style.removeProperty('--gp-mega-w');
+            const width = Math.min(panel.offsetWidth || 260, vw - 16);
+            panel.style.setProperty('--gp-mega-left', `${Math.min(0, vw - 8 - (left + width))}px`);
+            return;
+        }
+        const width = mode === 'full' ? vw : Math.min(1140, vw - 32);
+        panel.style.setProperty('--gp-mega-w', `${width}px`);
+        panel.style.setProperty('--gp-mega-left', `${(vw - width) / 2 - left}px`);
+    };
+    const setOpen = (item, open) => {
+        item.classList.toggle('is-open', open);
+        item.classList.remove('is-closed');
+        item.querySelectorAll(':scope > [data-gp-mega-open]').forEach((b) => b.setAttribute('aria-expanded', String(open)));
+        if (open) place(item);
+    };
+    const closeAll = (except) => items.forEach((i) => { if (i !== except && i.classList.contains('is-open')) setOpen(i, false); });
+    const sync = () => {
+        nav.classList.toggle('is-collapsed', collapsed());
+        items.forEach(place);
+    };
+
+    items.forEach((item) => {
+        item.addEventListener('mouseenter', () => { if (!collapsed()) place(item); });
+        item.querySelectorAll(':scope > [data-gp-mega-open]').forEach((btn) => btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const open = !item.classList.contains('is-open');
+            closeAll(item);
+            setOpen(item, open);
+            // Fermé au clic alors que le survol ou le focus le garderait ouvert : on le force fermé.
+            if (!open) item.classList.add('is-closed');
+        }));
+        item.addEventListener('mouseleave', () => item.classList.remove('is-closed'));
+    });
+    nav.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const item = e.target.closest('.gp-mega__item.has-panel');
+        if (item) { setOpen(item, false); item.classList.add('is-closed'); item.querySelector(':scope > [data-gp-mega-open], :scope > .gp-mega__top')?.focus(); }
+    });
+    document.addEventListener('click', (e) => { if (!nav.contains(e.target)) closeAll(); });
+    window.addEventListener('resize', sync, { passive: true });
+    sync();
+});

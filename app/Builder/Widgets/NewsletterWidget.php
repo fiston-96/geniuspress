@@ -50,7 +50,7 @@ class NewsletterWidget extends Widget
             return '<div class="gp-form__success" role="status" id="gp-news-'.e($id).'">'
                 .e($s['success_message'] ?? __('Merci ! Ouvrez l’e-mail que nous venons de vous envoyer pour confirmer votre inscription.')).'</div>';
         }
-        if (! $ctx->pageId) {
+        if (! $ctx->formOwner()) {
             return '<p class="gp-form__note">'.e(__('L’inscription fonctionnera sur la page publiée.')).'</p>';
         }
 
@@ -69,7 +69,7 @@ class NewsletterWidget extends Widget
 
         $html = '<form class="gp-form gp-news gp-news--'.$layout.'" id="gp-news-'.e($id).'" method="post" action="'.e(route('newsletter.subscribe')).'" novalidate>'
             .'<input type="hidden" name="_token" value="'.e(csrf_token()).'">'
-            .'<input type="hidden" name="page" value="'.$ctx->pageId.'"><input type="hidden" name="widget" value="'.e($id).'">'
+            .'<input type="hidden" name="owner" value="'.e($ctx->formOwner()).'"><input type="hidden" name="widget" value="'.e($id).'">'
             .'<input type="hidden" name="_ts" value="'.e(Crypt::encryptString((string) time())).'">'
             .'<p class="gp-form__hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></p>'
             .'<div class="gp-news__fields">';

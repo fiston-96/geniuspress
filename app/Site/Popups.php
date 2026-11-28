@@ -92,7 +92,7 @@ final class Popups
                 $options = ['trigger' => 'load', 'delay' => 0, 'frequency' => 'always', 'devices' => 'all'] + $options;
             }
             $out[] = ['id' => (int) $layout->id, 'name' => $layout->name, 'options' => $options, 'preview' => $forced]
-                + $renderer->render($layout->content, null, $site);
+                + $renderer->render($layout->content, null, $site, $forced ? null : 'layout:'.$layout->id);
         }
 
         return $out;

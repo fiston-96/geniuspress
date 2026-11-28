@@ -273,6 +273,18 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--gp-heading-font); }
 .gp-news--stacked .gp-news__fields { flex-direction: column; align-items: stretch; }
 .gp-news--stacked .gp-btn { align-self: flex-start; }
 .gp-news__consent { margin: 0; font-size: .85rem; opacity: .75; }
+.gp-form__grid { display: flex; flex-wrap: wrap; gap: 14px; }
+.gp-form__grid > .gp-form__field { flex: 1 1 100%; min-width: 0; }
+.gp-form__grid > .gp-form__field--50 { flex-basis: calc(50% - 7px); }
+.gp-form__grid > .gp-form__field--33 { flex-basis: calc(33.333% - 10px); }
+@media (max-width: 767px) { .gp-form__grid > .gp-form__field--50, .gp-form__grid > .gp-form__field--33 { flex-basis: 100%; } }
+.gp-form select { font: inherit; color: var(--gp-color-texte, #0f172a); background: #fff; border: 1px solid var(--gp-line-strong, #cbd5e1); border-radius: 10px; padding: 11px 13px; width: 100%; }
+.gp-form select:focus { outline: 2px solid var(--gp-primary); outline-offset: 1px; border-color: transparent; }
+.gp-form fieldset.gp-form__field { border: 0; padding: 0; }
+.gp-form legend { font-weight: 600; font-size: .9rem; padding: 0; margin-bottom: 6px; }
+.gp-form__choices { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.gp-form label.gp-form__choice { display: inline-flex; align-items: flex-start; gap: 8px; font-weight: 400; cursor: pointer; }
+.gp-form__choice input { width: 18px; height: 18px; margin: 2px 0 0; flex: none; accent-color: var(--gp-primary); }
 .gp-form__note { padding: 14px; border: 1px dashed var(--gp-line-strong, #cbd5e1); border-radius: 10px; font-size: .9rem; opacity: .8; }
 
 /* ─── Articles, archives, recherche et 404 (affichage par défaut, sans gabarit du thème) ─── */
@@ -900,3 +912,47 @@ body { overflow-x: clip; }
 .gp-popup-content { clear: both; }
 html.gp-popup-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .gp-popup-box, .gp-popup-overlay { transition: opacity .15s linear; transform: none !important; } }
+
+/* Méga-menu (MegaMenuWidget) : panneaux au survol ou au clic ; position et largeur ajustées par site.js */
+.gp-mega { position: relative; }
+.gp-mega__toggle { position: absolute; opacity: 0; pointer-events: none; }
+.gp-mega__burger { display: none; width: 40px; height: 40px; place-items: center; cursor: pointer; color: inherit; margin-left: auto; }
+.gp-mega__burger span, .gp-mega__burger span::before, .gp-mega__burger span::after { display: block; width: 22px; height: 2px; background: currentColor; position: relative; content: ""; }
+.gp-mega__burger span::before { position: absolute; top: -7px; }
+.gp-mega__burger span::after { position: absolute; top: 7px; }
+.gp-mega__toggle:focus-visible + .gp-mega__burger { outline: 2px solid var(--gp-primary); outline-offset: 2px; border-radius: 8px; }
+.gp-mega__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 22px; }
+.gp-mega__item { position: relative; display: flex; align-items: center; gap: 2px; }
+.gp-mega__top { all: unset; box-sizing: border-box; cursor: pointer; color: inherit; font-weight: 500; padding: 8px 0; }
+a.gp-mega__top:hover, .gp-mega__top[aria-current], .gp-mega__item.is-open > .gp-mega__top { color: var(--gp-primary); }
+.gp-mega__top:focus-visible, .gp-mega__caret:focus-visible { outline: 2px solid var(--gp-primary); outline-offset: 2px; border-radius: 4px; }
+.gp-mega__caret { all: unset; display: grid; place-items: center; width: 22px; height: 22px; cursor: pointer; color: inherit; border-radius: 6px; transition: transform .2s ease; }
+.gp-mega__item.is-open > .gp-mega__caret { transform: rotate(180deg); }
+.gp-mega__panel { position: absolute; top: 100%; left: var(--gp-mega-left, 0); z-index: 60; width: var(--gp-mega-w, max-content); min-width: 220px; max-width: 100vw;
+  padding-top: 10px; visibility: hidden; opacity: 0; transform: translateY(6px); transition: opacity .2s ease, transform .2s ease, visibility 0s .2s; background-clip: content-box; }
+.gp-mega__inner { background: inherit; border-radius: 14px; box-shadow: 0 24px 60px -18px rgba(15,23,42,.35); overflow: hidden; color: var(--gp-color-texte, #0f172a); }
+.gp-mega__panel { background-color: #ffffff; border-radius: 14px; }
+.gp-mega__links { list-style: none; margin: 0; padding: 10px; display: grid; gap: 2px; min-width: 220px; }
+.gp-mega__links a { display: block; padding: 9px 12px; border-radius: 8px; color: inherit; text-decoration: none; }
+.gp-mega__links a:hover { background: rgba(127,127,127,.1); color: var(--gp-primary); }
+.gp-mega--hover .gp-mega__item.has-panel:hover > .gp-mega__panel, .gp-mega__item.has-panel:focus-within > .gp-mega__panel, .gp-mega__item.is-open > .gp-mega__panel {
+  visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+.gp-mega__item.is-closed > .gp-mega__panel { visibility: hidden !important; opacity: 0 !important; }
+@media (prefers-reduced-motion: reduce) { .gp-mega__panel { transition: none; transform: none; } }
+@media (max-width: 1024px) {
+    .gp-mega--collapse-tablet .gp-mega__burger { display: grid; }
+    .gp-mega--collapse-tablet .gp-mega__list { display: none; }
+    .gp-mega--collapse-tablet .gp-mega__toggle:checked ~ .gp-mega__list { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 0; }
+}
+@media (max-width: 767px) {
+    .gp-mega--collapse-mobile .gp-mega__burger { display: grid; }
+    .gp-mega--collapse-mobile .gp-mega__list { display: none; }
+    .gp-mega--collapse-mobile .gp-mega__toggle:checked ~ .gp-mega__list { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 0; }
+}
+/* Menu replié (mobile ou tablette) : liste en colonne, panneaux en accordéon. */
+.gp-mega.is-collapsed .gp-mega__toggle:checked ~ .gp-mega__list { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 0; }
+.gp-mega.is-collapsed .gp-mega__item { flex-wrap: wrap; justify-content: space-between; }
+.gp-mega.is-collapsed .gp-mega__top { padding: 10px 0; flex: 1; }
+.gp-mega.is-collapsed .gp-mega__panel { position: static; width: 100%; min-width: 0; padding: 0 0 8px; display: none; visibility: visible; opacity: 1; transform: none; }
+.gp-mega.is-collapsed .gp-mega__item.is-open > .gp-mega__panel { display: block; }
+.gp-mega.is-collapsed .gp-mega__inner { box-shadow: none; border-radius: 10px; }

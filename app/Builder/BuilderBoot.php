@@ -54,6 +54,8 @@ final class BuilderBoot
             'locales' => collect((array) $settings['locales'])
                 ->mapWithKeys(fn ($code) => [$code => SettingController::AVAILABLE_LOCALES[$code] ?? $code]),
             'translations' => [],
+            // Panneaux conçus pour le widget Méga-menu (gabarits « mega »).
+            'megaLayouts' => \App\Models\Layout::query()->withoutContent()->where('type', 'mega')->orderBy('name')->get(['id', 'name'])->map(fn ($l) => ['id' => $l->id, 'name' => $l->name])->values(),
             'sample' => self::sample($page['locale'] ?? null, $settings),
         ];
     }

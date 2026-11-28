@@ -11,6 +11,7 @@ import { addStructure, copyEl, dropAt, duplicateEl, labelOf, pasteAfter, pasteSt
 import { t } from './i18n';
 import { PathIcon, UiIcon } from './ui';
 import { saveAsBlock } from './Blocks';
+import { hasTags, resolveTags } from './dynamic-tags';
 
 const EDITOR_CSS = `
 body { min-height: 100vh; }
@@ -403,9 +404,11 @@ function WidgetBody({ widget }) {
     if (!def.preview) {
         return <Placeholder>{t(':label — aperçu visible sur le site publié', { label: def.label })}</Placeholder>;
     }
+    // Balises dynamiques ({{site.name}}…) : valeurs d'exemple dans le canevas.
+    const settings = hasTags(widget.settings) ? resolveTags(widget.settings) : widget.settings;
     return (
         <SafePreview type={widget.type} settings={widget.settings}>
-            {def.preview(widget.settings, { h: createElement, Placeholder, sanitize: (html) => DOMPurify.sanitize(html) })}
+            {def.preview(settings, { h: createElement, Placeholder, sanitize: (html) => DOMPurify.sanitize(html) })}
         </SafePreview>
     );
 }

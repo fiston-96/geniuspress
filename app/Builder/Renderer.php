@@ -17,11 +17,12 @@ class Renderer
     public function __construct(private ContentSanitizer $sanitizer, private WidgetRegistry $widgets) {}
 
     /** @return array{html: string, css: string, fonts: string[]} */
-    public function render(mixed $content, ?int $pageId = null, ?SiteContext $site = null): array
+    /** @param  string|null  $owner  document qui reçoit les formulaires (« page:12 », « layout:3 ») */
+    public function render(mixed $content, ?int $pageId = null, ?SiteContext $site = null, ?string $owner = null): array
     {
         $tree = $this->sanitizer->sanitize($content);
         $tree = Hooks::filter('page.content', $tree);
-        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []), $pageId, $site);
+        $ctx = new RenderContext($this->preloadMedia($tree['elements'] ?? []), $pageId, $site, $owner);
 
         $html = $this->children($tree['elements'] ?? [], null, 0, $ctx);
 
@@ -104,6 +105,8 @@ class Renderer
 
         try {
             $inner = $type->render($node['settings'], $node['id'], $ctx);
+            // Balises dynamiques ({{site.name}}, {{page.title}}…) dans les textes du widget.
+            $inner = DynamicTags::replace($inner, $ctx->site);
         } catch (Throwable $e) {
             // Un widget de plugin défaillant ne doit pas faire tomber toute la page.
             report($e);

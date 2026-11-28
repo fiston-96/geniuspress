@@ -11,7 +11,7 @@ class MessageController extends Controller
     public function index()
     {
         return view('admin.messages', [
-            'messages' => FormSubmission::query()->with('page:id,title,slug,locale')->latest()->paginate(30),
+            'messages' => FormSubmission::query()->with(['page:id,title,slug,locale', 'layout:id,name'])->latest()->paginate(30),
         ]);
     }
 
@@ -20,7 +20,7 @@ class MessageController extends Controller
         $message->read_at ??= now();
         $message->save();
 
-        return view('admin.message', ['message' => $message->load('page:id,title,slug,locale')]);
+        return view('admin.message', ['message' => $message->load(['page:id,title,slug,locale', 'layout:id,name'])]);
     }
 
     public function destroy(FormSubmission $message)

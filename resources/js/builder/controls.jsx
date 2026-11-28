@@ -5,7 +5,8 @@ import { t } from './i18n';
 import { useStore } from './store';
 import { ICONS, Icon, brandTitle } from './icons';
 import { cleanCustomCss } from './style';
-import { UiIcon } from './ui';
+import { IconButton, UiIcon } from './ui';
+import { TAGS } from './dynamic-tags';
 import SHAPES from '../../builder/shapes.json';
 
 /** Noms des séparateurs de formes (resources/builder/shapes.json). */
@@ -37,7 +38,19 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
     const set = (v) => onChange(control.key, v);
     const reset = () => onChange(control.key, null);
     const has = !empty(value);
-    const label = (props = {}) => <Label extra={extra} {...props}>{control.label}</Label>;
+    const field = useRef(null);
+    // Balises dynamiques : proposées dans les textes de contenu (pas les ancres, classes, noms techniques).
+    const tags = ['text', 'textarea'].includes(control.type) && (control.tab ?? 'content') === 'content' && control.dynamic !== false && !NO_TAGS.includes(control.key);
+    const insertTag = (token) => {
+        const el = field.current;
+        const text = String(value ?? '');
+        if (!el || el.selectionStart == null) return set(text + token);
+        const at = el.selectionStart + token.length;
+        set(text.slice(0, el.selectionStart) + token + text.slice(el.selectionEnd));
+        requestAnimationFrame(() => { el.focus(); el.setSelectionRange(at, at); });
+    };
+    const more = tags ? <>{extra}<TagPicker onPick={insertTag} /></> : extra;
+    const label = (props = {}) => <Label extra={more} {...props}>{control.label}</Label>;
 
     switch (control.type) {
         case 'heading':
@@ -47,14 +60,14 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
             return (
                 <div>
                     {label()}
-                    <input className={inputCls} type="text" value={value ?? ''} placeholder={placeholder ?? control.placeholder ?? (control.type === 'url' ? t('https://… ou /page ou #ancre') : '')} onChange={(e) => set(e.target.value)} />
+                    <input ref={field} className={inputCls} type="text" value={value ?? ''} placeholder={placeholder ?? control.placeholder ?? (control.type === 'url' ? t('https://… ou /page ou #ancre') : '')} onChange={(e) => set(e.target.value)} />
                 </div>
             );
         case 'textarea':
             return (
                 <div>
                     {label()}
-                    <textarea className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
+                    <textarea ref={field} className={inputCls} rows={3} value={value ?? ''} onChange={(e) => set(e.target.value)} />
                 </div>
             );
         case 'shape':
@@ -107,7 +120,7 @@ export function Control({ control, value, onChange, urls, placeholder, extra }) 
                 <div>
                     {label({ hasValue: has, onReset: reset })}
                     <select className={inputCls} value={value ?? ''} onChange={(e) => set(e.target.value)}>
-                        {control.options.map((o) => (
+                        {(typeof control.options === 'function' ? control.options() : control.options).map((o) => (
                             <option key={o.value} value={o.value}>{o.value === '' && !empty(placeholder) ? `${o.label} (${control.options.find((x) => x.value === placeholder)?.label ?? placeholder})` : o.label}</option>
                         ))}
                     </select>
@@ -419,7 +432,7 @@ function RepeaterControl({ control, value, onChange, urls }) {
         const text = first ? String(item[first.key] ?? '').trim() : '';
         return text ? text.slice(0, 48) : `${control.itemLabel ?? t('Élément')} ${i + 1}`;
     };
-    const small = 'rounded px-1.5 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30';
+    const small = 'h-6 w-6 text-slate-400 hover:bg-slate-100 hover:text-slate-700';
     const full = control.max && value.length >= control.max;
     return (
         <div>
@@ -429,16 +442,16 @@ function RepeaterControl({ control, value, onChange, urls }) {
                     <div key={i} className="rounded-md border border-slate-200">
                         <div className="flex items-center gap-1 px-2 py-1.5">
                             <button className="min-w-0 flex-1 truncate text-left text-xs font-medium text-slate-700" onClick={() => setOpenIndex(openIndex === i ? null : i)}>
-                                {openIndex === i ? '▾' : '▸'} {titleOf(item, i)}
+                                <UiIcon name={openIndex === i ? 'chevron-down' : 'chevron-right'} className="mr-1 inline h-3 w-3" strokeWidth={2.2} />{titleOf(item, i)}
                             </button>
-                            <button className={small} disabled={i === 0} onClick={() => move(i, -1)} title={t('Monter')}>↑</button>
-                            <button className={small} disabled={i === value.length - 1} onClick={() => move(i, 1)} title={t('Descendre')}>↓</button>
-                            <button className={small} onClick={() => onChange([...value.slice(0, i + 1), structuredClone(item), ...value.slice(i + 1)])} disabled={full} title={t('Dupliquer')}>⧉</button>
-                            <button className={small} onClick={() => { onChange(value.filter((_, j) => j !== i)); setOpenIndex(null); }} title={t('Retirer')}>✕</button>
+                            <IconButton icon="chevron-up" label={t('Monter')} className={small} iconClass="h-3.5 w-3.5" disabled={i === 0} onClick={() => move(i, -1)} />
+                            <IconButton icon="chevron-down" label={t('Descendre')} className={small} iconClass="h-3.5 w-3.5" disabled={i === value.length - 1} onClick={() => move(i, 1)} />
+                            <IconButton icon="copy-plus" label={t('Dupliquer')} className={small} iconClass="h-3.5 w-3.5" disabled={full} onClick={() => onChange([...value.slice(0, i + 1), structuredClone(item), ...value.slice(i + 1)])} />
+                            <IconButton icon="trash-2" label={t('Retirer')} className={`${small} hover:!text-red-600`} iconClass="h-3.5 w-3.5" onClick={() => { onChange(value.filter((_, j) => j !== i)); setOpenIndex(null); }} />
                         </div>
                         {openIndex === i && (
                             <div className="space-y-3 border-t border-slate-100 p-2">
-                                {control.fields.map((f) => (
+                                {control.fields.filter((f) => !f.when || f.when(item)).map((f) => (
                                     <Control key={f.key} control={f} value={item[f.key]} urls={urls} onChange={(key, v) => update(i, key, v)} />
                                 ))}
                             </div>
@@ -526,6 +539,42 @@ function ImageControl({ control, value, onChange, urls }) {
     );
 }
 
+/** Champs où les balises dynamiques n'ont pas de sens. */
+const NO_TAGS = ['css_id', 'css_classes', 'name', 'form_name', 'email_to', 'custom_css'];
+
+/** Bouton « { } » : choisit une balise dynamique ({{site.name}}…) et l'insère au curseur. */
+function TagPicker({ onPick }) {
+    const [open, setOpen] = useState(false);
+    const box = useRef(null);
+    useEffect(() => {
+        if (!open) return undefined;
+        const close = (e) => { if (!box.current?.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', close);
+        return () => document.removeEventListener('mousedown', close);
+    }, [open]);
+    return (
+        <span ref={box} className="relative inline-flex">
+            <IconButton icon="braces" label={t('Insérer une balise dynamique')} pressed={open} onMouseDown={(e) => e.preventDefault()} onClick={() => setOpen(!open)}
+                className={`h-5 w-5 ${open ? 'bg-brand-100 text-brand-700' : 'text-slate-400 hover:text-brand-600'}`} iconClass="h-3.5 w-3.5" />
+            {open && (
+                <span className="absolute left-0 top-6 z-30 max-h-72 w-60 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1.5 text-left shadow-xl">
+                    {TAGS.map((g) => (
+                        <span key={g.group} className="block">
+                            <span className="block px-2 pb-0.5 pt-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{g.group}</span>
+                            {g.tags.map(([key, name]) => (
+                                <button key={key} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { onPick(`{{${key}}}`); setOpen(false); }}
+                                    className="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-xs text-slate-700 hover:bg-brand-50 hover:text-brand-800">
+                                    <span>{name}</span><code className="text-[10px] text-slate-400">{key}</code>
+                                </button>
+                            ))}
+                        </span>
+                    ))}
+                </span>
+            )}
+        </span>
+    );
+}
+
 function RichText({ label, value, onChange }) {
     const ref = useRef(null);
     const last = useRef(value);
@@ -558,19 +607,20 @@ function RichText({ label, value, onChange }) {
         if (url) cmd('createLink', url);
     };
 
-    const btn = 'rounded px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-white hover:text-slate-900';
+    const btn = 'h-7 w-7 text-slate-600 hover:bg-white hover:text-slate-900';
+    const tool = (icon, title, fn) => <IconButton icon={icon} label={title} className={btn} iconClass="h-3.5 w-3.5" onMouseDown={(e) => e.preventDefault()} onClick={fn} />;
     return (
         <div>
-            <Label>{label}</Label>
+            <Label extra={<TagPicker onPick={(token) => cmd('insertText', token)} />}>{label}</Label>
             <div className="overflow-hidden rounded-md border border-slate-300 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20">
                 <div className="flex flex-wrap gap-0.5 border-b border-slate-200 bg-slate-50 p-1">
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('bold')}><b>G</b></button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('italic')}><i>I</i></button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('underline')}><u>S</u></button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertUnorderedList')}>{t('• Liste')}</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('insertOrderedList')}>{t('1. Liste')}</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={link}>{t('Lien')}</button>
-                    <button className={btn} onMouseDown={(e) => e.preventDefault()} onClick={() => cmd('removeFormat')}>{t('Effacer')}</button>
+                    {tool('bold', t('Gras'), () => cmd('bold'))}
+                    {tool('italic', t('Italique'), () => cmd('italic'))}
+                    {tool('underline', t('Souligné'), () => cmd('underline'))}
+                    {tool('list', t('Liste à puces'), () => cmd('insertUnorderedList'))}
+                    {tool('list-ordered', t('Liste numérotée'), () => cmd('insertOrderedList'))}
+                    {tool('link', t('Lien'), link)}
+                    {tool('remove-formatting', t('Effacer la mise en forme'), () => cmd('removeFormat'))}
                 </div>
                 <div ref={ref} contentEditable suppressContentEditableWarning onInput={emit}
                     // Entrée crée un paragraphe (<p>) et non une <div>.
