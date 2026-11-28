@@ -108,6 +108,17 @@ class Catalog
         });
     }
 
+    /** Adresse de la capture d'un modèle dans la langue voulue, null s'il n'en a pas. */
+    public function previewUrl(array $template, string $lang): ?string
+    {
+        $file = $template['preview'][$lang] ?? $template['preview']['fr'] ?? null;
+        if (! is_string($file) || ! preg_match('#^previews/[a-z0-9-]{2,64}\.jpg$#', $file)) {
+            return null;
+        }
+
+        return $this->isLocal() ? url('/catalogue/v1/'.$file) : $this->url().'/'.$file;
+    }
+
     public function demoUrl(string $id): string
     {
         return $this->isLocal() ? url('/catalogue/'.$id) : rtrim((string) config('geniuspress.catalog.demo_url'), '/').'/'.$id;

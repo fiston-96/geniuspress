@@ -21,9 +21,11 @@ class PackageCommand extends Command
     protected $description = 'Crée le paquet zip de GeniusPress pour l’hébergement mutualisé';
 
     /** Jamais dans le paquet : outils de développement, données locales, secrets. */
-    private const EXCLUDE_DIRS = ['.git', '.github', '.claude', 'node_modules', 'vendor', 'tests', 'dist', 'storage', 'public/storage', 'public/hot'];
+    private const EXCLUDE_DIRS = ['.git', '.github', '.claude', 'node_modules', 'vendor', 'tests', 'dist', 'storage', 'public/storage', 'public/hot',
+        // Préparation du catalogue et de la vitrine geniuspress.site : inutiles à un site installé.
+        'templates/photos', 'website', 'scripts/hosting'];
 
-    private const EXCLUDE_FILES = ['.env', '.phpunit.result.cache', 'phpunit.xml', '.editorconfig', 'AGENTS.md', 'CLAUDE.md'];
+    private const EXCLUDE_FILES = ['.env', '.phpunit.result.cache', 'phpunit.xml', '.editorconfig', 'AGENTS.md', 'CLAUDE.md', '*.stackdump', '*.log', '.env.testing'];
 
     public function handle(): int
     {

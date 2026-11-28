@@ -8,13 +8,24 @@ use App\Transfer\SiteImporter;
 use Illuminate\Http\Request;
 use Throwable;
 
-/** Page « Sauvegarde » : exporter le site dans un zip, ou importer un zip. */
+/** Page « Sauvegarde » : sauvegardes complètes, tâches planifiées, export et import du site. */
 class TransferController extends Controller
 {
     public function index()
     {
         return view('admin.transfer', [
             'maxUpload' => min(self::bytes(ini_get('upload_max_filesize')), self::bytes(ini_get('post_max_size'))),
+            // Sauvegardes complètes et tâches planifiées (mutualisé : sans cron).
+            'backups' => app(\App\Backup\Backups::class)->all(),
+            'backupFrequency' => \App\Models\Setting::read('backup_frequency', 'off'),
+            'backupKeep' => (int) \App\Models\Setting::read('backup_keep', 7),
+            'cron' => [
+                'url' => \App\Scheduling\WebCron::url(),
+                'visits' => (bool) \App\Models\Setting::read('cron_visits', true),
+                'cli' => \App\Scheduling\WebCron::cliActive(),
+                'last' => ($last = \App\Models\Setting::read('cron_last_run')) ? \Illuminate\Support\Carbon::parse($last) : null,
+                'source' => \App\Models\Setting::read('cron_last_source'),
+            ],
         ]);
     }
 

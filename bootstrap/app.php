@@ -12,7 +12,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [\App\Http\Middleware\SetLocale::class, \App\Http\Middleware\EnsureInstalled::class, \App\Platform\Http\Middleware\CaptureReferral::class]);
+        $middleware->web(append: [\App\Http\Middleware\SetLocale::class, \App\Http\Middleware\EnsureInstalled::class, \App\Platform\Http\Middleware\CaptureReferral::class,
+            // Tâches planifiées sans cron (hébergement mutualisé) : lancées après l'envoi des pages.
+            \App\Http\Middleware\RunScheduleOnVisit::class]);
         // L'espace client de la plateforme commerciale (/compte) a sa propre connexion.
         // Trois espaces, trois connexions : CMS (/admin), espace client (/compte), console d'exploitation (/console).
         $middleware->redirectGuestsTo(fn (Request $request) => match (true) {

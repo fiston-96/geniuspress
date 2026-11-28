@@ -120,6 +120,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Un vrai cron lance le planificateur en ligne de commande : les visites n'ont plus à le faire.
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Console\Events\CommandStarting::class, function ($event) {
+            if ($event->command === 'schedule:run' && $this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
+                rescue(fn () => \App\Scheduling\WebCron::markCli(), report: false);
+            }
+        });
+
         // Avant l'installation : .env, clé de chiffrement et sessions en fichiers.
         if (! $this->app->runningUnitTests()) {
             $this->app->make(InstallState::class)->prepare();

@@ -8,4 +8,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Newsletter : lot suivant des campagnes en cours (reprend aussi un envoi interrompu).
-\Illuminate\Support\Facades\Schedule::command('geniuspress:newsletter-send')->everyMinute()->withoutOverlapping(20)->runInBackground();
+\Illuminate\Support\Facades\Schedule::command('geniuspress:newsletter-send')->everyMinute()->withoutOverlapping(20);
+
+// Sauvegarde automatique (réglage du site : chaque jour, chaque semaine ou jamais) ; la commande décide si elle est due.
+\Illuminate\Support\Facades\Schedule::command('geniuspress:backup --auto')->hourly()->withoutOverlapping(120);

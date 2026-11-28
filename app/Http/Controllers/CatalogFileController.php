@@ -19,6 +19,10 @@ class CatalogFileController extends Controller
         $path = rtrim((string) config('geniuspress.catalog.path'), '/\\').DIRECTORY_SEPARATOR.$file;
         abort_unless(is_file($path), 404);
 
+        // Aperçus des modèles (captures de leur démonstration).
+        if (str_starts_with($file, 'previews/')) {
+            return response()->file($path, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'public, max-age=86400']);
+        }
         if ($file === 'index.json') {
             return response()->file($path, ['Content-Type' => 'application/json; charset=utf-8', 'Cache-Control' => 'public, max-age=600']);
         }

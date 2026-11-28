@@ -41,7 +41,10 @@
     <link rel="stylesheet" href="{{ \App\Builder\DesignTokens::fontsUrl($settings, $fonts) }}">
     {{-- Animations d'apparition : éléments cachés jusqu'à leur arrivée à l'écran, seulement si le
          script du site tourne (sinon, au bout de 3 s, tout redevient visible). --}}
+    {{-- « ?capture=1 » (captures d'écran des modèles, geniuspress:captures) : tout visible d'emblée. --}}
+    @unless (request()->boolean('capture'))
     <script>document.documentElement.classList.add('gp-js');setTimeout(function(){if(!window.gpAnimReady)document.documentElement.classList.remove('gp-js')},3000);</script>
+    @endunless
     @vite(['resources/css/site.css', 'resources/js/site.js'])
     <style>
         {!! \App\Builder\DesignTokens::css($settings) !!}

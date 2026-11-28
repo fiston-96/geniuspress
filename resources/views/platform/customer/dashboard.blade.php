@@ -172,7 +172,7 @@
             <div class="mt-4 space-y-1">
                 @foreach ([
                     [route('platform.customer.domains'), __('Trouver un domaine'), 'at-sign'],
-                    [route('platform.customer.templates'), __('Modèles premium'), 'layout-template'],
+                    [route('platform.customer.templates'), __('Modèles'), 'layout-template'],
                     [route('platform.customer.credits'), __('Crédits IA'), 'sparkles'],
                     [route('platform.customer.referrals'), __('Recommander GeniusPress'), 'gift'],
                     [route('platform.customer.account'), __('Mon compte'), 'user'],

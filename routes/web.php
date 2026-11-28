@@ -172,6 +172,14 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
         Route::get('/transfer', [TransferController::class, 'index'])->name('transfer.index');
         Route::get('/transfer/export', [TransferController::class, 'export'])->name('transfer.export');
+        // Sauvegardes complètes (base de données et fichiers envoyés).
+        Route::post('/sauvegardes', [\App\Http\Controllers\Admin\BackupController::class, 'store'])->middleware('throttle:6,1')->name('backups.store');
+        Route::put('/sauvegardes/reglages', [\App\Http\Controllers\Admin\BackupController::class, 'settings'])->name('backups.settings');
+        Route::put('/sauvegardes/taches', [\App\Http\Controllers\Admin\BackupController::class, 'cron'])->middleware('throttle:10,1')->name('backups.cron');
+        Route::post('/sauvegardes/restaurer', [\App\Http\Controllers\Admin\BackupController::class, 'upload'])->middleware('throttle:3,1')->name('backups.upload');
+        Route::get('/sauvegardes/{name}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->where('name', '[a-z0-9-]+\.zip')->name('backups.download');
+        Route::post('/sauvegardes/{name}/restaurer', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->where('name', '[a-z0-9-]+\.zip')->middleware('throttle:3,1')->name('backups.restore');
+        Route::delete('/sauvegardes/{name}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->where('name', '[a-z0-9-]+\.zip')->name('backups.destroy');
         Route::post('/transfer/import', [TransferController::class, 'import'])->name('transfer.import');
 
         Route::get('/plugins', [PluginController::class, 'index'])->name('plugins.index');
@@ -180,10 +188,21 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     });
 });
 
+// Tâches planifiées sans cron : adresse secrète pour le cron de l'hébergeur ou un service en ligne.
+Route::get('/cron/{token}', function (string $token) {
+    abort_unless(hash_equals(\App\Scheduling\WebCron::token(), $token), 404);
+    $ok = \App\Scheduling\WebCron::run('url');
+
+    return response($ok ? 'OK' : 'ERREUR', $ok ? 200 : 500)->header('Content-Type', 'text/plain')->header('Cache-Control', 'no-store');
+})->where('token', '[A-Za-z0-9]{32,64}')->middleware('throttle:10,1')->name('cron.run');
+
+// Paquet prêt à l'emploi de GeniusPress (dernière version), lien de la page « Télécharger ».
+Route::get('/telecharger/geniuspress.zip', \App\Http\Controllers\PackageDownloadController::class)->middleware('throttle:20,1')->name('package.download');
+
 // Catalogue public des modèles (index.json et zips), consulté par les sites installés ailleurs.
 // Avant les démonstrations : « v1 » n'est pas un modèle.
 Route::get('/catalogue/v1/{file}', \App\Http\Controllers\CatalogFileController::class)
-    ->where('file', 'index\.json|[a-z0-9-]{2,60}\.zip')->middleware('throttle:120,1')->name('catalog.file');
+    ->where('file', 'index\.json|[a-z0-9-]{2,60}\.zip|previews/[a-z0-9-]{2,64}\.jpg')->middleware('throttle:240,1')->name('catalog.file');
 
 // Démonstrations des modèles du catalogue (en local, et sur geniuspress.site)
 Route::get('/catalogue/{template}/media/{file}', [CatalogDemoController::class, 'media'])->name('catalog.media');

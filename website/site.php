@@ -188,24 +188,36 @@ $build = function (string $lang) use ($repo, $base, $slugs, $docFiles, $primaire
             'Install GeniusPress on shared hosting, on a VPS with Docker, from the command line or locally.'
         ), [
             $hero($t('Télécharger GeniusPress', 'Download GeniusPress'), $t(
-                'Quatre façons d’installer, de l’hébergement mutualisé à l’ordinateur hors ligne.',
-                'Four ways to install, from shared hosting to an offline computer.'
+                'Un seul fichier zip, prêt à l’emploi : décompressez-le, ouvrez votre navigateur, l’installation se fait à l’écran. Aucune ligne de commande.',
+                'A single zip file, ready to use: unzip it, open your browser and install on screen. No command line.'
             ), [
+                K::btn($t('Télécharger GeniusPress (zip)', 'Download GeniusPress (zip)'), '/telecharger/geniuspress.zip', ['size' => 'lg', 'align' => 'center']),
+                K::space(12),
                 K::p('<p>'.$t(
-                    '<strong>Préversion 0.1.</strong> GeniusPress est en développement actif : utilisez-le pour essayer et contribuer, pas encore pour un site critique.',
-                    '<strong>Preview 0.1.</strong> GeniusPress is under active development: use it to try it out and contribute, not yet for a critical website.'
-                ).'</p>', ['align' => 'center', 'color' => '#92400e', 'font_size' => 15]),
+                    'Version 0.1 · environ 15 Mo · PHP 8.3 ou plus · <strong>préversion</strong> : idéale pour essayer et contribuer, pas encore pour un site critique.',
+                    'Version 0.1 · about 15 MB · PHP 8.3 or newer · <strong>preview</strong>: ideal to try out and contribute, not yet for a critical website.'
+                ).'</p>', ['align' => 'center', 'color' => '#78716c', 'font_size' => 15]),
             ]),
             K::section([
-                $card($t('Hébergement mutualisé', 'Shared hosting'), $t(
-                    'Le paquet zip contient déjà tout le nécessaire, sans Composer ni Node.js. Il sera publié avec la version 1.0 ; en attendant, fabriquez-le avec <code>php artisan geniuspress:package</code>.',
-                    'The zip package already contains everything, with no Composer or Node.js needed. It will be published with version 1.0; in the meantime, build it with <code>php artisan geniuspress:package</code>.'
+                $card($t('Sur votre ordinateur', 'On your computer'), $t(
+                    'Avec WAMP, XAMPP, Laragon ou MAMP : décompressez le zip dans le dossier <code>www</code> (ou <code>htdocs</code>), puis ouvrez <code>http://localhost/geniuspress</code>. Choisissez « SQLite » : aucune base de données à créer, tout tient dans un fichier. Parfait pour travailler hors ligne.',
+                    'With WAMP, XAMPP, Laragon or MAMP: unzip into the <code>www</code> (or <code>htdocs</code>) folder, then open <code>http://localhost/geniuspress</code>. Choose “SQLite”: no database to create, everything fits in one file. Perfect for working offline.'
                 ), $sable),
+                $card($t('Chez un hébergeur mutualisé', 'On shared hosting'), $t(
+                    'Envoyez le dossier par FTP ou avec le gestionnaire de fichiers de votre hébergeur, puis ouvrez l’adresse de votre site. Le fichier <code>.htaccess</code> fourni fait le reste. Sauvegardes et tâches planifiées fonctionnent sans cron.',
+                    'Upload the folder by FTP or with your host’s file manager, then open your site’s address. The included <code>.htaccess</code> file does the rest. Backups and scheduled tasks work without cron.'
+                ), $sable),
+            ], ['padding_top' => 64, 'padding_bottom' => 24, 'gap' => 24]),
+            K::section([
                 $card('Docker', $t(
                     'GeniusPress et MariaDB en une commande : <code>docker compose up -d</code>, puis ouvrez <code>http://localhost:8080</code>.',
                     'GeniusPress and MariaDB in one command: <code>docker compose up -d</code>, then open <code>http://localhost:8080</code>.'
                 ), $sable),
-            ], ['padding_top' => 64, 'padding_bottom' => 24, 'gap' => 24]),
+                $card($t('Hébergé par GeniusPress', 'Hosted by GeniusPress'), $t(
+                    'Rien à installer : créez votre site en ligne sur <a href="/compte/inscription">geniuspress.site</a>, avec son adresse .geniuspress.site, puis votre propre nom de domaine.',
+                    'Nothing to install: create your site online at <a href="/compte/inscription">geniuspress.site</a>, with its .geniuspress.site address, then your own domain name.'
+                ), $sable),
+            ], ['padding_top' => 0, 'padding_bottom' => 24, 'gap' => 24]),
             K::section([
                 $card($t('Ligne de commande', 'Command line'), $t(
                     'Sur un VPS : <code>php artisan geniuspress:install</code>, avec des questions ou entièrement par options.',

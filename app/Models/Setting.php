@@ -61,6 +61,8 @@ class Setting extends Model
         'platform_monerails_webhook_secret', 'platform_monerails_webhook_secret_hint', 'platform_monerails_usd',
         // Messagerie (Africa's Talking) : activation, utilisateur, clé chiffrée, expéditeur.
         'platform_sms_enabled', 'platform_at_username', 'platform_at_key', 'platform_at_key_hint', 'platform_at_sender',
+        // Tâches planifiées sans cron : jeton de l'adresse secrète, réglages, dernier passage.
+        'cron_token', 'cron_visits', 'cron_last_run', 'cron_last_source', 'backup_frequency', 'backup_keep',
     ];
 
     public static function publicValues(): array

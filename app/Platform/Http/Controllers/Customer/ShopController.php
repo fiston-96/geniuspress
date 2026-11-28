@@ -42,22 +42,30 @@ class ShopController extends CustomerController
         return redirect()->route('platform.customer.orders.show', $order);
     }
 
+    /** Modèles : tout le catalogue avec ses aperçus ; les modèles payants s'achètent ici. */
     public function templates(Request $request, Catalog $catalog)
     {
-        $names = [];
+        $lang = app()->getLocale() === 'en' ? 'en' : 'fr';
+        $templates = [];
+        $sectors = [];
         try {
-            foreach ($catalog->index()['templates'] as $t) {
-                $names[$t['id']] = $t + ['demo' => $catalog->demoUrl($t['id'])];
+            $index = $catalog->index();
+            $sectors = $index['sectors'];
+            foreach ($index['templates'] as $t) {
+                $templates[$t['id']] = $t + ['demo' => $catalog->demoUrl($t['id']), 'image' => $catalog->previewUrl($t, $lang)];
             }
         } catch (Throwable) {
-            // Catalogue injoignable : les identifiants suffisent.
+            // Catalogue injoignable : seuls les modèles payants (identifiants) restent affichés.
         }
+        $prices = TemplatePrice::query()->where('active', true)->orderBy('template_id')->get()->keyBy('template_id');
 
         return view('platform.customer.templates', [
-            'prices' => TemplatePrice::query()->where('active', true)->orderBy('template_id')->get(),
-            'catalog' => $names,
+            'templates' => $templates,
+            'sectors' => $sectors,
+            'prices' => $prices,
+            'catalog' => $templates,
             'owned' => $this->customer($request)->templateIds(),
-            'lang' => app()->getLocale() === 'en' ? 'en' : 'fr',
+            'lang' => $lang,
         ]);
     }
 

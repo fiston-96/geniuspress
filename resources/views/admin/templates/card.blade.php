@@ -5,18 +5,22 @@
     $defaultLocales = array_values(array_intersect($available, $siteLocales)) ?: [$available[0] ?? 'fr'];
     $styleNames = ['split' => __('photo à côté du titre'), 'center' => __('présentation centrée'), 'image' => __('photo plein écran'), 'gradient' => __('dégradé')];
 @endphp
-<article data-template="{{ $t['id'] }}" data-sector="{{ $t['sector'] }}" class="flex flex-col overflow-hidden rounded-xl border bg-white {{ $highlight ? 'border-brand-400 ring-2 ring-brand-200' : 'border-slate-200' }}">
-    <a href="{{ $t['demo'] }}" target="_blank" rel="noopener" class="relative block h-32" style="background: linear-gradient(135deg, {{ $c['primary'] }}, {{ $c['secondary'] }});" aria-label="{{ __('Aperçu de :name', ['name' => $t['name'][$lang] ?? $t['id']]) }}">
-        <span class="absolute bottom-3 left-4 right-4 flex items-end justify-between">
-            <span class="text-xl font-bold text-white drop-shadow" style="font-family: '{{ $t['fonts'][1] ?? $t['fonts'][0] ?? 'Inter' }}', system-ui">{{ $t['name'][$lang] ?? $t['id'] }}</span>
-            <span class="flex gap-1">
-                @foreach (['primary', 'secondary', 'accent', 'light'] as $k)
-                    <span class="h-5 w-5 rounded-full ring-2 ring-white/70" style="background: {{ $c[$k] }}"></span>
-                @endforeach
-            </span>
+<article data-template="{{ $t['id'] }}" data-sector="{{ $t['sector'] }}" class="group flex flex-col overflow-hidden rounded-2xl border bg-white transition hover:-translate-y-0.5 {{ $highlight ? 'border-brand-400 ring-2 ring-brand-200' : 'border-line hover:border-brand-300' }}">
+    {{-- Aperçu : capture de la page d'accueil de la démonstration (catalogue), sinon les couleurs du modèle. --}}
+    <a href="{{ $t['demo'] }}" target="_blank" rel="noopener" class="relative block aspect-[16/10] overflow-hidden border-b border-line bg-cream" aria-label="{{ __('Aperçu de :name', ['name' => $t['name'][$lang] ?? $t['id']]) }}">
+        @if (! empty($t['image']))
+            <img src="{{ $t['image'] }}" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]">
+        @else
+            <span class="absolute inset-0 grid place-items-center px-6 text-center text-xl font-bold text-night" style="font-family: '{{ $t['fonts'][1] ?? $t['fonts'][0] ?? 'Inter' }}', system-ui">{{ $t['name'][$lang] ?? $t['id'] }}</span>
+        @endif
+        <span class="absolute bottom-2.5 right-2.5 flex gap-1 rounded-full bg-white/95 p-1 ring-1 ring-black/5">
+            @foreach (['primary', 'secondary', 'accent', 'light'] as $k)
+                <span class="h-3.5 w-3.5 rounded-full ring-1 ring-black/10" style="background: {{ $c[$k] }}"></span>
+            @endforeach
         </span>
     </a>
     <div class="flex flex-1 flex-col gap-2 p-4">
+        <h3 class="text-base font-bold tracking-tight text-night">{{ $t['name'][$lang] ?? $t['id'] }}</h3>
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $sectors[$t['sector']]['name'][$lang] ?? $t['sector'] }}</p>
         @if (! empty($t['price']))
             <p class="text-xs font-medium text-amber-700">{{ __('Modèle payant : :price, à acheter dans votre espace client GeniusPress.', ['price' => \App\Platform\Money::format($t['price']['price'], $t['price']['currency'])]) }}</p>

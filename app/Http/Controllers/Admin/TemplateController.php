@@ -34,7 +34,8 @@ class TemplateController extends Controller
             $error = $e->getMessage();
         }
         $prices = $index['templates'] ? $this->catalog->prices() : [];
-        $templates = array_map(fn ($t) => $t + ['demo' => $this->catalog->demoUrl($t['id']), 'price' => $prices[$t['id']] ?? null], $index['templates']);
+        $lang = app()->getLocale() === 'en' ? 'en' : 'fr';
+        $templates = array_map(fn ($t) => $t + ['demo' => $this->catalog->demoUrl($t['id']), 'price' => $prices[$t['id']] ?? null, 'image' => $this->catalog->previewUrl($t, $lang)], $index['templates']);
 
         return view('admin.templates.index', [
             'sectors' => $index['sectors'],

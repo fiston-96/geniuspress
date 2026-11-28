@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
  */
 class TemplatesCommand extends Command
 {
-    protected $signature = 'geniuspress:templates {--output= : Dossier du catalogue} {--only= : Construire seulement ce modèle}';
+    protected $signature = 'geniuspress:templates {--output= : Dossier du catalogue} {--only= : Construire seulement ce modèle} {--previews : Mettre à jour seulement les aperçus (captures), sans reconstruire les modèles}';
 
     protected $description = 'Construit le catalogue des modèles de sites (archives et index)';
 
@@ -39,7 +39,7 @@ class TemplatesCommand extends Command
         $entries = collect($previous)->keyBy('id')->all();
 
         foreach ($catalog as $id => $def) {
-            if ($only && $id !== $only) {
+            if (($only && $id !== $only) || ($this->option('previews') && isset($entries[$id]))) {
                 continue;
             }
             $entries[$id] = $builder->build($id, $def, $output);
@@ -47,6 +47,8 @@ class TemplatesCommand extends Command
         }
         // On ne garde que les modèles encore déclarés, dans l'ordre du catalogue.
         $entries = array_values(array_filter(array_map(fn ($id) => $entries[$id] ?? null, array_keys($catalog))));
+        // Aperçus : captures d'écran des démonstrations (dist/website/captures), publiées avec le catalogue.
+        $entries = array_map(fn ($entry) => $this->preview($entry, $output), $entries);
 
         // Un secteur peut réunir plusieurs packs (Médias : journal, radio, télévision…) : sa fiche vient du premier.
         $sectors = [];
@@ -64,5 +66,30 @@ class TemplatesCommand extends Command
         $this->info(__('Catalogue : :count modèles dans :path', ['count' => count($entries), 'path' => $output]));
 
         return self::SUCCESS;
+    }
+
+    /** Copie les captures du modèle dans previews/ et les référence dans sa fiche (« preview » : fr, en). */
+    private function preview(array $entry, string $output): array
+    {
+        $previews = [];
+        foreach (['fr' => '', 'en' => '-en'] as $lang => $suffix) {
+            $source = base_path('dist/website/captures/'.$entry['id'].$suffix.'.jpg');
+            if (! is_file($source)) {
+                continue;
+            }
+            @mkdir($output.'/previews', 0775, true);
+            $name = 'previews/'.$entry['id'].$suffix.'.jpg';
+            if (! is_file($output.'/'.$name) || md5_file($output.'/'.$name) !== md5_file($source)) {
+                copy($source, $output.'/'.$name);
+            }
+            $previews[$lang] = $name;
+        }
+        // Sans capture anglaise, la française sert pour les deux langues.
+        if (isset($previews['fr'])) {
+            $previews['en'] ??= $previews['fr'];
+        }
+        unset($entry['preview']);
+
+        return $previews ? $entry + ['preview' => $previews] : $entry;
     }
 }

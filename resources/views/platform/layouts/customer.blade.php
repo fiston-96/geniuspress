@@ -27,7 +27,7 @@
         ]))],
         [__('Boutique'), [
             ['platform.customer.plans', __('Offres et hébergement'), 'server'],
-            ['platform.customer.templates', __('Modèles premium'), 'layout-template'],
+            ['platform.customer.templates', __('Modèles'), 'layout-template'],
             ['platform.customer.credits', __('Crédits IA'), 'sparkles'],
         ]],
         [__('Facturation'), [
